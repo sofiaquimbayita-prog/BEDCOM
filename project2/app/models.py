@@ -92,9 +92,11 @@
 
 
 class cliente (models.Model):
+    cedula = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
     telefono = models.CharField(max_length=15)
+    direccion = models.CharField(max_length=200)
+    estado = models.BooleanField(default=True)
     def __str__(self):
         return self.nombre
     class Meta :
@@ -103,9 +105,12 @@ class cliente (models.Model):
         db_table = "clientes"
 class producto (models.Model):
     nombre = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=50)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock= models.IntegerField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)   
+    estado = models.BooleanField(default=True)
     id_cat = models.ForeignKey('categoria', on_delete=models.CASCADE)   
+    id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
     def __str__(self):
         return self.nombre
     class Meta :
@@ -114,6 +119,8 @@ class producto (models.Model):
         db_table = "productos"
 class categoria (models.Model):
     nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    estado = models.BooleanField(default=True)
     def __str__(self):
         return self.nombre
     class Meta :
@@ -121,9 +128,9 @@ class categoria (models.Model):
         verbose_name_plural = "Categorias"
         db_table = "categorias"
 class garantia (models.Model):
+    fecha = models.DateField()
     descripcion = models.TextField()
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    estado = models.BooleanField(default=True)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
     def __str__(self):
         return f"Garantia de {self.duracion_meses} meses"
@@ -135,6 +142,9 @@ class pago (models.Model):
     id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
     fecha_pago = models.DateField()
     monto = models.DecimalField(max_digits=10, decimal_places=2)
+    estado = models.BooleanField(default=True)
+    id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
+    id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
     def __str__(self):
         return f"Pago de {self.monto} el {self.fecha_pago}"
     class Meta :
