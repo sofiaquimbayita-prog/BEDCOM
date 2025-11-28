@@ -65,13 +65,15 @@ class supervision(models.Model):
     def __str__(self):
         return super().__str__()
     class Meta:
-        verbose_name = "supervision"
-        verbose_name_plural = "supervisiones"
-        db_table = "supervision"
-class reporte(models.Model):
-    tipo = models.CharField(max_length=100)
-    fecha = models.DateField()
-    id_usuario = models.ForeignKey('usuario', on_delete=models.CASCADE)
+        verbose_name = "proveedor_insumo"
+        verbose_name_plural = "proveedores_insumos"
+        db_table = "proveedor_insumo"
+        unique_together = ('id_proveedor', 'id_insumo')
+class BOM(models.Model): #Clase Bills of materials
+    cantidad = models.IntegerField()
+    unidad_medida = models.CharField(max_length=50)
+    id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
+    id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
     def __str__(self):
         return super().__str__()
     class Meta:
