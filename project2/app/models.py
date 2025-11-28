@@ -10,7 +10,7 @@ class proveedor (models.Model): #Clase Proveedor
         verbose_name = "proveedor"
         verbose_name_plural = "proveedores"
         db_table = "proveedor"
-class compra(models.Model): #Clase compra
+class compra(models.Model): #Clase Compra
     fecha_suministro = models.DateField()
     cantidad = models.IntegerField()
     id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
