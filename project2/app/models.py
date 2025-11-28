@@ -2,13 +2,17 @@ from django.db import models #Librerias
 class proveedor (models.Model): #Clase Proveedor
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=10)
+    direccion = models.CharField(max_length=200)
+    estado = models.BooleanField(default=True)
     def __str__(self):
         return self.nombre
     class Meta:
         verbose_name = "proveedor"
         verbose_name_plural = "proveedores"
         db_table = "proveedor"
-class proveedor_insumo(models.Model): #Clase Proveedor_Insumo
+class compra(models.Model): #Clase compra
+    fecha_suministro = models.DateField()
+    cantidad = models.IntegerField()
     id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
     id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
     def __str__(self):
@@ -18,10 +22,11 @@ class proveedor_insumo(models.Model): #Clase Proveedor_Insumo
         verbose_name_plural = "proveedores_insumos"
         db_table = "proveedor_insumo"
         unique_together = ('id_proveedor', 'id_insumo')
-class producto_insumo(models.Model): #Clase Producto_Insumo
+class BOM(models.Model): #Clase bills of materials
+    cantidad = models.IntegerField()
+    unidad_medida = models.CharField(max_length=50)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
     id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
     def __str__(self):
         return super().__str__()
     class Meta:
@@ -30,9 +35,10 @@ class producto_insumo(models.Model): #Clase Producto_Insumo
         db_table = "producto_insumo"
         unique_together = ('id_producto', 'id_insumo')
 class despacho(models.Model): #clase Despacho
-    id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
     fecha = models.DateField()
-    direccion= models.CharField(max_length=200)
+    estado_entrega = models.CharField(max_length=50)
+    id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
+    id_supervision = models.ForeignKey('supervision', on_delete=models.CASCADE)
     def __str__(self):
         return super().__str__()
     class Meta:
