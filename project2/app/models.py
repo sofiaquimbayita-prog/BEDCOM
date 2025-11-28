@@ -22,7 +22,7 @@ class compra(models.Model): #Clase compra
         verbose_name_plural = "proveedores_insumos"
         db_table = "proveedor_insumo"
         unique_together = ('id_proveedor', 'id_insumo')
-class BOM(models.Model): #Clase bills of materials
+class BOM(models.Model): #Clase Bills of materials
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=50)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
