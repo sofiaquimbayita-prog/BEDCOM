@@ -1,0 +1,532 @@
+:root {
+  /* Ruta al fondo: espera que la imagen esté en static/ap1/imagenes/fondo.jpg */
+  --fondo-login: url('../imagenes/fondo.jpg');
+  --color-texto: black;
+  --color-botones: #007bff;
+  --tamaño-titulo: 2.5vh;
+  --tamaño-texto: 2vh;
+  --color-texto-botones: white;
+  --color-fondo-titulo: rgba(79, 137, 232, 0.5);
+  --color-borde: rgba(255, 255, 255, 0.62);
+  --color-fondo-formulario: rgba(80, 79, 87, 0.315);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  height: 100vh;
+ background: 
+    linear-gradient(180deg, rgba(33, 31, 31, 0.219), rgba(12, 18, 32, 0.539)),
+    var(--fondo-login);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+  color: var(--color-texto);
+}
+/* ================================ */
+/* ESTILOS PARA BOTÓN DE IDIOMA */
+/* ================================ */
+
+.idioma-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.boton-idioma {
+  /* Apariencia de botón azul redondeado */
+  background: var(--color-botones);
+  color: var(--color-texto-botones);
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  /* Tipografía y alineación */
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  /* Efectos visuales */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.boton-idioma:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.boton-idioma:active {
+  transform: translateY(0);
+}
+
+/* ================================ */
+/* ESTILOS PARA BOTÓN DE AYUDA */
+/* ================================ */
+
+.ayuda-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.boton-ayuda {
+  /* Círculo con icono */
+  width: 50px;
+  height: 50px;
+  background: var(--color-botones);
+  color: var(--color-texto-botones);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  /* Centrar icono */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Efectos visuales */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.boton-ayuda:hover {
+  background: #0056b3;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.boton-ayuda:active {
+  transform: scale(1.05);
+}
+
+.boton-ayuda i {
+  font-size: 1.3em;
+}
+
+/* ================================ */
+/* RESPONSIVIDAD */
+/* ================================ */
+
+@media (max-width: 768px) {
+  .idioma-container {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .ayuda-container {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .boton-idioma {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .boton-ayuda {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .boton-ayuda i {
+    font-size: 1.2em;
+  }
+}
+.titulo {
+  padding: 10px 50px;
+  color: var(--color-texto);
+  border-radius: 30px;
+  background-color: var(--color-fondo-titulo);
+  margin-bottom: 20px;
+  font-size: var(--tamaño-titulo);
+  text-align: center;
+}
+
+.contenedor {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--color-borde);
+  max-width: 400px;
+  width: 100%;
+  color: var(--color-texto);
+}
+
+.formulario {
+  border: 1px solid var(--color-borde);
+  padding: 20px;
+  background: var(--color-fondo-formulario);
+  border-radius: 10px;
+}
+
+.formulario form input {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  margin: 10px auto;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--tamaño-texto);
+}
+
+.botonr {
+  background: var(--color-botones);
+  color: var(--color-texto-botones);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 50px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background 0.3s ease;
+  font-size: var(--tamaño-texto);
+}
+
+.botonr:hover {
+  background: #0056b3;
+}
+
+.label {
+  text-align: left;
+  color: var(--color-texto);
+  margin-left: 5px;
+  display: block;
+  font-size: 0.9rem;
+}
+
+.pregunta {
+  font-weight: bold;
+  color: white;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pregunta a {
+  color:white;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Estilos para login */
+.login-container label {
+  display: block;
+  text-align: left;
+  margin: 10px 0 5px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.login-container a {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.9em;
+  text-decoration: none;
+  color: black;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+}
+
+.icono {
+  width: 60px;
+  margin-bottom: 15px;
+}
+
+/* Estilos para recuperar contraseña */
+.form-instruction {
+  color: #333;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+.email-input {
+  width: calc(100% - 20px);
+  padding: 15px 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.code-inputs {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.code-input {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
+/* Estilos del pop-up de ayuda */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.644);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    text-align: left;
+    color: black;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal-faq-item {
+    margin-bottom: 15px;
+}
+
+.modal-faq-item h4 {
+    margin: 0;
+    color: var(--color-botones);
+    cursor: pointer;
+}
+
+.modal-faq-item p {
+    margin-top: 5px;
+    padding-left: 15px;
+    border-left: 2px solid #ddd;
+    display: none; /* Oculto por defecto */
+}
+
+.modal-contact-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.modal-contact-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal-contact-form input,
+.modal-contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal-contact-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-botones);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.error-msg {
+  display: none; 
+  border: none;
+  border-left: 4px solid #ff4757;
+  background-color: rgba(255, 71, 87, 0.1);
+  color: #f4f4f4;
+  font-size: 0.95em;
+  padding: 12px 15px;
+  margin: 8px 0 15px;
+  align-items: center;
+  border-radius: 0 8px 8px 0;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.error-msg::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(to bottom, #ff4757, #ff6b81);
+}
+
+.error-msg i {
+  margin-right: 10px;
+  font-size: 1.1em;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Efecto al pasar el ratón */
+.error-msg:hover {
+  transform: translateX(3px);
+  transition: transform 0.2s ease;
+}
+
+/* Versiones alternativas para diferentes tipos de mensaje */
+.error-msg.warning {
+  border-left-color: #ff9f43;
+  background-color: rgba(255, 159, 67, 0.1);
+  color: #cc7f30;
+}
+
+.error-msg.success {
+  border-left-color: #2ed573;
+  background-color: rgba(46, 213, 115, 0.1);
+  color: #23ad5c;
+}
+
+.error-msg.info {
+  border-left-color: #1e90ff;
+  background-color: rgba(30, 144, 255, 0.1);
+  color: #1c7ed6;
+}
+
+.password-container {
+  position: relative;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-container button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2em;
+}
+/* Estilo del modal emergente */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+  margin-bottom: 10px;
+  color: var(--color-texto, #333);
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  gap: 15px;
+}
+
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .contenedor {
+    padding: 20px;
+  }
+  
+  .titulo {
+    font-size: 2vh;
+    padding: 10px 30px;
+  }
+  
+  .code-input {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
