@@ -1,0 +1,53 @@
+<header class="topbar">
+    <div class="perfil-container">
+        <button id="perfilBtn" class="avatar-btn" aria-controls="dropdownMenu" aria-expanded="false"
+            aria-label="Menú de usuario">
+            <div class="user-photo">
+                <i class="fas fa-user"></i>
+            </div>
+        </button>
+        <div id="dropdownMenu" class="dropdown oculto">
+            <a href="/Proyecto_2/0-LOGIN/logout.php" id="logoutBtn">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="title">{% block header_title %}MENÚ PRINCIPAL{% endblock %}</div> 
+
+    <label class="search" aria-label="Buscar" for="searchInput">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="searchInput" placeholder="Buscar" />
+    </label>
+
+    <div class="icon-right-container">
+        <button id="noti" class="notif-btn" aria-label="Notificaciones">
+            <div class="rounded-icon-wrapper">
+                <i class="fas fa-bell icono-noti"></i>
+            </div>
+        </button>
+        <div id="noti-menu" class="oculto">
+            <ul></ul>
+        </div>
+
+        <a href="/Proyecto_2/10-AJUSTES/BCKUP-Ajustes.html" class="icon-btn-rounded" title="Ajustes">
+            <i class="fas fa-cog"></i>
+        </a>
+
+    </div>
+
+    <div class="accesibilidad">
+        <button id="btn-accesibilidad" title="Opciones de accesibilidad" class="icon-btn-rounded">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div id="menu-accesibilidad" class="menu-accesibilidad">
+            <button id="aumentar-texto">Aumentar texto</button>
+            <button id="disminuir-texto">Disminuir texto</button>
+            <button id="alto-contraste">Alto contraste</button>
+            <button id="modo-oscuro">Modo oscuro</button>
+            <button id="resaltar-enlaces">Resaltar enlaces</button>
+            <button id="fuente-legible">Fuente legible</button>
+            <button id="cursor-grande">Cursor grande</button>
+            <button id="desaturar">Blanco y negro</button>
+            <button id="reset-accesibilidad">Restablecer</button>
+        </div>
+    </div>
+</header>
