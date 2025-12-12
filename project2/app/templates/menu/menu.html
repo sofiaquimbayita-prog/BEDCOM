@@ -1,0 +1,150 @@
+{% extends "menu/base.html" %}
+
+{% block title %}Menú Principal del Sistema{% endblock %}
+
+{% block header_title %}MENÚ PRINCIPAL{% endblock %} 
+
+{% block content %}
+<main class="container menu">
+    <div class="menu-layout">
+
+        <section class="grid menu-grid">
+            <a href="/Proyecto_2/2-PRODUCTOS/index_productos.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-productos">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 7l9-4 9 4-9 4-9-4zm0 4l9 4 9-4v6l-9 4-9-4v-6z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>PRODUCTOS</h3>
+                        <div class="muted">Catálogo y precios</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/3-INSUMOS/index_insumos.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-insumos">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 16l3-9h12l3 9H3zm3 2h12v2H6v-2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>INSUMOS</h3>
+                        <div class="muted">Entradas y stock</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/4-CALENDARIO/index_calendario.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-calendario">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M7 2h2v3H7V2zm8 0h2v3h-2V2zM4 5h16v17H4V5zm2 5h4v4H6v-4z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>CALENDARIO</h3>
+                        <div class="muted">Fechas y reservas</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/5-INVENTARIO/Inventario.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-inventario">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 4h16v4H4V4zm0 6h16v10H4V10zm2 2v6h12v-6H6z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>INVENTARIO</h3>
+                        <div class="muted">Existencias</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/6-REPORTES/index_reportes.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-reportes">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 3h14v18H5V3zm3 4h2v10H8V7zm4 3h2v7h-2v-7zm4-2h2v9h-2V8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>REPORTES</h3>
+                        <div class="muted">Gráficos y KPIs</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/7-PROVEEDORES/index.proveedores.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-proveedores">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm-7 9v-2a7 7 0 0114 0v2H5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>PROVEEDORES</h3>
+                        <div class="muted">Contactos & pagos</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/8-RESPALDOS/index_respaldos.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-respaldos">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 3a7 7 0 00-7 7H3l3.5 3.5L10 10H8a4 4 0 114 4h-2a6 6 0 10-6-6 1 1 0 102 0 4 4 0 118 0 4 4 0 01-4 4h-1v3l-4-4 4-4v3h1a5 5 0 100-10z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>RESPALDOS</h3>
+                        <div class="muted">Copias en la nube</div>
+                    </div>
+                </article>
+            </a>
+            <a href="/Proyecto_2/9-SALIDA DE PRODUCTOS/index_salidas.html">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-salida">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 17l5-5-5-5v3H3v4h7v3zm8-12h-6V3h6a2 2 0 012 2v14a2 2 0 01-2 2h-6v-2h6V5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>SALIDA DE PRODUCTOS</h3>
+                        <div class="muted">Movimientos</div>
+                    </div>
+                </article>
+            </a>
+        </section>
+    </div>
+    <div class="cal" id="calendarSection">
+        <article class="tarjetacal" tabindex="0">
+            <div>
+                <div class="calendar">
+                    <div class="calendar-header" id="calendar-header"></div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="accesos">
+        <article class="tile" role="button" tabindex="0">
+            <div>
+                <h3>MAS RECIENTE</h3>
+                <div class="muted"></div>
+            </div>
+        </article>
+        <article class="tile" role="button" tabindex="0">
+            <div>
+                <h3>MAS RECIENTE</h3>
+                <div class="muted"></div>
+            </div>
+        </article>
+        <article class="tile" role="button" tabindex="0">
+            <div>
+                <h3>MAS RECIENTE</h3>
+                <div class="muted"></div>
+            </div>
+        </article>
+    </div>
+</main>
+{% endblock %}
