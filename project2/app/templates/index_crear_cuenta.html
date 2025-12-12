@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear Cuenta{% endblock title %}
+{% block content %}
+<!-- Botón de Idioma - Esquina Superior Derecha -->
+<div class="idioma-container">
+    <button class="boton-idioma">
+        <i class="fa-solid fa-globe"></i> ES
+    </button>
+</div>
+
+<!-- Botón de Ayuda - Esquina Inferior Derecha -->
+<div class="ayuda-container">
+    <button class="boton-ayuda">
+        <i class="fa-solid fa-question"></i>
+    </button>
+</div>
+
+  <h1 class="titulo">CREAR CUENTA</h1>
+
+  <div class="contenedor">
+    <div class="formulario">
+      <!-- Formulario con action y method para PHP -->
+      <form id="registerForm" action="registrar_usuario.php" method="POST">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
+        <span id="registerNameError" class="error-msg"></span>
+
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" name="correo" placeholder="usuario@dominio.com" required>
+        <span id="registerEmailError" class="error-msg"></span>
+
+        <label for="contrasena">Contraseña</label>
+        <div class="password-container">
+          <input type="password" id="contrasena" name="contrasena" required>
+          <button type="button" id="toggleRegisterPassword" aria-label="Mostrar contraseña">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        <span id="registerPasswordError" class="error-msg"></span>
+
+        <button type="submit" id="registerButton" class="botonr">REGISTRAR</button>
+      </form>
+    </div>
+  </div>
+
+  <p class="pregunta">¿Ya tienes una cuenta? <a href="{% url 'MenuPrincipal' %}">Inicia sesión</a></p>
+
+{% endblock content %}
+{% block extra_js %}
+<script src="{% static 'ap1/js/script_login.js' %}"></script>
+{% endblock extra_js %}

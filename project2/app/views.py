@@ -28,3 +28,4 @@ def recuperar_contrasena_view(request: HttpRequest):
 def menu_view(request: HttpRequest):
     """Renderiza la página del menú principal después de iniciar sesión."""
     return render(request, 'menu.html', {})
+
