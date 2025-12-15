@@ -1,15 +1,20 @@
-{% extends "menu/base.html" %}
+{% extends "includes/base.html" %}
+{% load static %}
 
 {% block title %}Menú Principal del Sistema{% endblock %}
 
 {% block header_title %}MENÚ PRINCIPAL{% endblock %} 
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}">
+{% endblock %}
 
 {% block content %}
 <main class="container menu">
     <div class="menu-layout">
 
         <section class="grid menu-grid">
-            <a href="/Proyecto_2/2-PRODUCTOS/index_productos.html">
+            <a href="{% url "productos" %}">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-productos">
                         <svg viewBox="0 0 24 24">
@@ -22,7 +27,7 @@
                     </div>
                 </article>
             </a>
-            <a href="/Proyecto_2/3-INSUMOS/index_insumos.html">
+            <a href="">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-insumos">
                         <svg viewBox="0 0 24 24">
@@ -91,8 +96,7 @@
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-respaldos">
                         <svg viewBox="0 0 24 24">
-                            <path
-                                d="M12 3a7 7 0 00-7 7H3l3.5 3.5L10 10H8a4 4 0 114 4h-2a6 6 0 10-6-6 1 1 0 102 0 4 4 0 118 0 4 4 0 01-4 4h-1v3l-4-4 4-4v3h1a5 5 0 100-10z" />
+                            <path d="M12 3a7 7 0 00-7 7H3l3.5 3.5L10 10H8a4 4 0 114 4h-2a6 6 0 10-6-6 1 1 0 102 0 4 4 0 118 0 4 4 0 01-4 4h-1v3l-4-4 4-4v3h1a5 5 0 100-10z" />
                         </svg>
                     </div>
                     <div>
@@ -114,8 +118,9 @@
                     </div>
                 </article>
             </a>
-        </section>
+            </section>
     </div>
+    
     <div class="cal" id="calendarSection">
         <article class="tarjetacal" tabindex="0">
             <div>
@@ -146,5 +151,9 @@
             </div>
         </article>
     </div>
-</main>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'ap1/js/script_menu.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Listado de Productos - Mi Proyecto{% endblock %}
+
+{% block head %}
+ <link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <main>
+    <aside class="sidebar">
+    </aside>
+
+    <section class="productos">
+      <div class="add-producto" onclick="openModal('modalAdd')">
+        <i class="fa fa-plus-circle"></i> Agregar Producto
+      </div>
+
+      <div id="gridProductos" class="grid">
+      </div>
+    </section>
+
+    {% include "productos/modales_productos.html" %}
+  </main>
+
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const DJANGO_STATIC_IMG_URL = "{% static 'ap1/imagenes/' %}";
+  </script>
+
+  <script src="{% static 'ap1/js/script_productos.js' %}"></script>
+
+  {{ block.super }}
+{% endblock %}

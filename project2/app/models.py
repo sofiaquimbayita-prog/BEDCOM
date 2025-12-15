@@ -41,12 +41,12 @@ class cliente (models.Model):
 class usuario (models.Model): 
     # Modelo original con db_table = "proveedor"
     cedula = models.CharField(max_length=20, unique=True)
-    nombre_usuar = models.CharField(max_length=50)
+    nombre_usuario = models.CharField(max_length=50)
     rol = models.CharField(max_length=20)
     estado = models.CharField(max_length=20)
     def __str__(self):
         # Corregido: asumí que 'nombre_usuario' debería ser 'nombre_usuar'
-        return self.nombre_usuar
+        return self.nombre_usuario
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
@@ -65,6 +65,7 @@ class reporte(models.Model):
         verbose_name_plural = "Reportes"
         db_table = "reporte"
 
+
 class producto (models.Model):
     nombre = models.CharField(max_length=100)
     tipo = models.CharField(max_length=50)
@@ -73,6 +74,7 @@ class producto (models.Model):
     estado = models.BooleanField(default=True)
     id_cat = models.ForeignKey('categoria', on_delete=models.CASCADE)
     id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
+    imagen = models.CharField(max_length=200)
     def __str__(self):
         return self.nombre
     class Meta :
