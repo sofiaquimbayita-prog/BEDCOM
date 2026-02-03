@@ -1,263 +1,149 @@
-// =======================================
-// 1. CONFIGURACIÓN Y VARIABLES GLOBALES
-// =======================================
-// La API_URL es relativa y coincide con las rutas en tu urls.py
-const API_URL = "/api/productos"; 
-let productos = []; // Arreglo local para almacenar los datos del servidor
+// =========================
+// 1. Datos e Inicialización
+// =========================
+let productos = [
+    { id: 1, nombre: "Base Cama Clásica", precio: 250000, categoria: "Base Cama", stock: 25, estado: "Disponible", descripcion: "Base cama de madera maciza.", imagen: "https://i.ibb.co/L5Qx3Yg/base-cama.jpg" },
+    { id: 2, nombre: "Cabecero Capitoné", precio: 180000, categoria: "Cabeceros", stock: 12, estado: "Disponible", descripcion: "Elegante cabecero tapizado.", imagen: "https://i.ibb.co/P42yX4b/cabecero-capitone.jpg" }
+];
 
-// Referencias a elementos clave del DOM (Asegúrate que existen en tu HTML)
-const grid = document.getElementById("gridProductos");
-const searchInput = document.getElementById("searchInput");
-const formAdd = document.getElementById("formAdd"); 
-const formEdit = document.getElementById("formEdit"); 
+window.onload = () => {
+    loadProductos();
+    renderProductos();
+    inicializarAccesibilidad();
+};
 
-// =======================================
-// 2. FUNCIONES BÁSICAS DE UI (MODALES)
-// =======================================
+// =========================
+// 2. Persistencia (LocalStorage)
+// =========================
+function saveProductos() {
+    localStorage.setItem("productos", JSON.stringify(productos));
+}
 
-function openModal(id) {
+function loadProductos() {
+    const data = localStorage.getItem("productos");
+    if (data) productos = JSON.parse(data);
+}
+
+// =========================
+// 3. Control de Modales
+// =========================
+// Función universal para abrir modales (usada por el botón "Nuevo Producto" y los de acción)
+function abrirModal(id) {
     const modal = document.getElementById(id);
     if (modal) modal.style.display = "flex";
 }
 
-function closeModal(id) {
+function cerrarModal(id) {
     const modal = document.getElementById(id);
     if (modal) modal.style.display = "none";
 }
 
-// -------------------------------------------------------------
-// 3. READ (Lectura/Carga) - Petición GET a /api/productos
-// -------------------------------------------------------------
-
-// 3.1. Carga los productos desde el servidor
-async function loadProductos() {
-    try {
-        const response = await fetch(API_URL); 
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status} al cargar productos.`);
-        }
-
-        // El backend devuelve una lista de diccionarios (JSON)
-        const data = await response.json();
-        
-        productos = data; 
-        renderProductos(); 
-        
-    } catch (error) {
-        console.error("❌ Fallo al cargar productos:", error);
-        if (grid) grid.innerHTML = `<p class="error-message">Error al conectar con la API: ${error.message}.</p>`;
+// Cerrar modales si se hace clic fuera del contenido
+window.onclick = (event) => {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = "none";
     }
-}
+};
 
-// 3.2. Pinta las tarjetas en el grid
-function renderProductos(data = productos) {
+// =========================
+// 4. Renderizado y Acciones
+// =========================
+function renderProductos() {
+    const grid = document.getElementById("gridProductos");
     if (!grid) return;
-
     grid.innerHTML = "";
 
-    if (data.length === 0) {
-        grid.innerHTML = `<p class="no-results-message">No se encontraron productos.</p>`;
-        return;
-    }
-    
-    data.forEach(p => { 
+    productos.forEach((p, i) => {
         const card = document.createElement("div");
         card.className = "card";
-        
-        const imgSrc = p.imagen || "producto_default.jpg"; 
+        // Importante para tu CSS de etiquetas de precio
+        card.dataset.precio = `$${p.precio}`;
 
         card.innerHTML = `
-            <img src="${imgSrc}" alt="${p.nombre}">
+            <img src="${p.imagen}" alt="${p.nombre}">
             <p class="nombre">${p.nombre}</p>
-            <p class="stock">Stock: ${p.stock || 0}</p>
+            <p class="stock">Stock: ${p.stock} unidades</p>
             <div class="acciones">
-                <button class="view-btn" onclick="viewProductoById(${p.id})">Ver</button>
-                <button class="edit-btn" onclick="openEditModal(${p.id})">Editar</button>
-                <button class="delete-btn" onclick="deleteProductoById(${p.id})">Eliminar</button>
+                <button class="view-btn" onclick="viewProducto(${i})"><i class="fa fa-eye"></i></button>
+                <button class="edit-btn" onclick="editProducto(${i})"><i class="fa fa-pen"></i></button>
+                <button class="delete-btn" onclick="deleteProducto(${i})"><i class="fa fa-trash"></i></button>
             </div>
         `;
-
         grid.appendChild(card);
     });
 }
 
-// -------------------------------------------------------------
-// 4. DELETE (Eliminación) - Petición DELETE a /api/productos/{id}
-// -------------------------------------------------------------
+// Ver Detalle
+function viewProducto(i) {
+    const p = productos[i];
+    document.getElementById("viewNombre").textContent = p.nombre;
+    document.getElementById("viewImagen").src = p.imagen;
+    document.getElementById("viewPrecio").textContent = `💲 Precio: $${p.precio}`;
+    document.getElementById("viewDescripcion").textContent = p.descripcion;
+    abrirModal("modalView");
+}
 
-async function deleteProductoById(id) {
-    if (confirm("¿Estás seguro de eliminar el producto con ID " + id + "?")) {
-        // Construye la URL con el ID: /api/productos/5
-        const URL_DELETE = `${API_URL}/${id}`; 
-
-        try {
-            const response = await fetch(URL_DELETE, {
-                method: 'DELETE'
-            });
-
-            // El backend de Django nativo devuelve 204 No Content
-            if (response.status !== 204) {
-                throw new Error(`Error al eliminar. Código: ${response.status}`);
-            }
-
-            alert("✅ Producto eliminado exitosamente.");
-            
-            // Recargamos los datos del servidor para actualizar la vista
-            await loadProductos(); 
-
-        } catch (error) {
-            console.error("❌ Fallo en la eliminación:", error);
-            alert("Error al intentar eliminar el producto.");
-        }
+// Eliminar
+function deleteProducto(i) {
+    if (confirm("¿Seguro que deseas eliminar este producto?")) {
+        productos.splice(i, 1);
+        saveProductos();
+        renderProductos();
     }
 }
 
-
-// -------------------------------------------------------------
-// 5. CREATE (Creación) - Petición POST a /api/productos
-// -------------------------------------------------------------
-
-if (formAdd) {
-    formAdd.addEventListener("submit", async function (e) {
+// =========================
+// 5. Formularios (Agregar)
+// =========================
+const form = document.getElementById("formAddProducto");
+if (form) { // Solo ejecuta si el formulario existe
+    form.addEventListener("submit", function(e) {
         e.preventDefault();
-
-        // 1. Capturar datos del formulario
-        const nuevoProducto = {
-            nombre: document.getElementById("addNombre").value,
-            precio: Number(document.getElementById("addPrecio").value),
-            categoria: document.getElementById("addCategoria").value,
-            stock: Number(document.getElementById("addStock").value),
-            estado: document.getElementById("addEstado").value,
-            descripcion: document.getElementById("addDescripcion").value,
-            imagen: document.getElementById("addImagen").value || "producto_default.jpg"
-        };
         
-        // 2. Enviar la petición POST
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                // Indicar al backend que estamos enviando JSON
-                headers: {
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(nuevoProducto) // Convertir el objeto a cadena JSON
-            });
+        // Usamos IDs que coincidan con tu formulario HTML
+        const nombreInput = document.getElementById("nombre");
+        const precioInput = document.getElementById("precio");
+        
+        const nuevo = {
+            id: Date.now(),
+            nombre: nombreInput ? nombreInput.value : "Sin nombre",
+            precio: precioInput ? precioInput.value : 0,
+            imagen: "https://via.placeholder.com/150"
+        };
 
-            if (response.status !== 201) { // El backend devuelve 201 Created
-                let errorDetails = `Fallo la creación. Código: ${response.status}`;
-                throw new Error(errorDetails);
-            }
-
-            // 3. Éxito: recargar y limpiar
-            alert("✅ Producto agregado exitosamente.");
-            await loadProductos(); // Recarga la lista actualizada
-            closeModal("modalAdd");
-            e.target.reset();
-
-        } catch (error) {
-            console.error("❌ Error al crear producto:", error);
-            alert("Error al intentar agregar el producto: " + error.message);
-        }
+        productos.push(nuevo);
+        saveProductos();
+        renderProductos();
+        cerrarModal("modalAdd");
+        e.target.reset();
     });
 }
 
+// =========================
+// 6. Accesibilidad (Simplificado)
+// =========================
+function inicializarAccesibilidad() {
+    const body = document.body;
+    
+    // Toggle de Clases
+    const toggler = (btnId, className) => {
+        const btn = document.getElementById(btnId);
+        if (btn) btn.onclick = () => body.classList.toggle(className);
+    };
 
-// -------------------------------------------------------------
-// 6. UPDATE (Actualización) y VIEW
-// -------------------------------------------------------------
+    toggler('alto-contraste', 'alto-contraste');
+    toggler('modo-oscuro', 'dark-mode');
+    toggler('resaltar-enlaces', 'resaltar-enlaces');
+    toggler('fuente-legible', 'fuente-legible');
+    toggler('cursor-grande', 'cursor-grande');
 
-// 6.1. Rellena el modal de edición
-function openEditModal(id) {
-    const producto = productos.find(p => p.id === Number(id));
-
-    if (producto && formEdit) {
-        // Rellenar campos del modal de edición
-        document.getElementById("editId").value = producto.id; // CLAVE
-        document.getElementById("editNombre").value = producto.nombre;
-        document.getElementById("editPrecio").value = producto.precio;
-        document.getElementById("editCategoria").value = producto.categoria;
-        document.getElementById("editStock").value = producto.stock;
-        document.getElementById("editEstado").value = producto.estado;
-        document.getElementById("editDescripcion").value = producto.descripcion;
-        document.getElementById("editImagen").value = producto.imagen || '';
-        
-        openModal("modalEdit");
-    } else {
-        alert("Producto no encontrado para editar.");
+    // Menú desplegable
+    const btnAcc = document.getElementById('btn-accesibilidad');
+    const menuAcc = document.getElementById('menu-accesibilidad');
+    if (btnAcc && menuAcc) {
+        btnAcc.onclick = (e) => {
+            e.stopPropagation();
+            menuAcc.style.display = (menuAcc.style.display === 'block') ? 'none' : 'block';
+        };
     }
 }
-
-// 6.2. Listener del formulario de edición (Petición PUT a /api/productos/{id})
-if (formEdit) {
-    formEdit.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        
-        const id = document.getElementById("editId").value;
-        const URL_UPDATE = `${API_URL}/${id}`;
-
-        const productoActualizado = {
-            nombre: document.getElementById("editNombre").value,
-            precio: Number(document.getElementById("editPrecio").value),
-            categoria: document.getElementById("editCategoria").value,
-            stock: Number(document.getElementById("editStock").value),
-            estado: document.getElementById("editEstado").value,
-            descripcion: document.getElementById("editDescripcion").value,
-            imagen: document.getElementById("editImagen").value
-        };
-
-        try {
-            const response = await fetch(URL_UPDATE, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(productoActualizado)
-            });
-
-            if (response.status !== 200) { // El backend devuelve 200 OK
-                let errorDetails = `Fallo la actualización. Código: ${response.status}`;
-                throw new Error(errorDetails);
-            }
-
-            alert("✅ Producto actualizado exitosamente.");
-            await loadProductos();
-            closeModal("modalEdit");
-
-        } catch (error) {
-            console.error("❌ Error al actualizar producto:", error);
-            alert("Error al intentar actualizar el producto: " + error.message);
-        }
-    });
-}
-
-
-// -------------------------------------------------------------
-// 7. BUSCADOR/FILTRO (Opera sobre el arreglo local 'productos')
-// -------------------------------------------------------------
-
-if (searchInput) {
-    searchInput.addEventListener("input", function() {
-        const searchTerm = this.value.toLowerCase();
-        
-        const filteredProducts = productos.filter(p => {
-            const nameMatch = p.nombre.toLowerCase().includes(searchTerm);
-            const categoryMatch = p.categoria ? p.categoria.toLowerCase().includes(searchTerm) : false;
-            const descriptionMatch = p.descripcion ? p.descripcion.toLowerCase().includes(searchTerm) : false;
-            
-            return nameMatch || categoryMatch || descriptionMatch;
-        });
-        
-        renderProductos(filteredProducts);
-    });
-}
-
-
-// -------------------------------------------------------------
-// 8. INICIALIZACIÓN
-// -------------------------------------------------------------
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Inicia la carga de productos al iniciar la página
-    loadProductos(); 
-});

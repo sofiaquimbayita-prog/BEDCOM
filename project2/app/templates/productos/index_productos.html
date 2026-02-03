@@ -1,38 +1,43 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block title %}Listado de Productos - Mi Proyecto{% endblock %}
-
-{% block head %}
- <link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
-{% endblock %}
-
 {% block content %}
+<main class="productos">
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px;">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Buscar producto...">
+        </div>
 
-  <main>
-    <aside class="sidebar">
-    </aside>
+        <div class="toolbar-actions">
+            <button class="button-3" onclick="abrirModal()">
+                <i class="fas fa-plus"></i> Nuevo Producto
+            </button>
+        </div>
+    </div>
 
-    <section class="productos">
-      <div class="add-producto" onclick="openModal('modalAdd')">
-        <i class="fa fa-plus-circle"></i> Agregar Producto
-      </div>
+    <div class="grid" id="productosGrid">
+        {% for p in productos %}
+        <div class="card" data-precio="${{ p.precio }}" data-nombre="{{ p.nombre|lower }}">
+            <img src="{% static 'ap1/imagenes/cama.jpg' %}" alt="{{ p.nombre }}">
+            <div class="nombre">{{ p.nombre }}</div>
+            <div class="stock">Stock: {{ p.stock }} unidades</div>
+            <div class="acciones">
+                <button class="view-btn"><i class="fas fa-eye"></i></button>
+                <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
 
-      <div id="gridProductos" class="grid">
-      </div>
-    </section>
-
-    {% include "productos/modales_productos.html" %}
-  </main>
-
-{% endblock %}
-
-{% block scripts %}
-  <script>
-    const DJANGO_STATIC_IMG_URL = "{% static 'ap1/imagenes/' %}";
-  </script>
-
-  <script src="{% static 'ap1/js/script_productos.js' %}"></script>
-
-  {{ block.super }}
+<div id="modalAdd" class="modal" style="display: none;">
+    <div class="modal-content">
+        <button class="close" onclick="cerrarModal()">&times;</button>
+        <h2>Registrar Producto</h2>
+        {% include "productos/modal_add.html" %}
+    </div>
+</div>
+<script src="{% static 'ap1/js/script_productos.js' %}"></script>
 {% endblock %}

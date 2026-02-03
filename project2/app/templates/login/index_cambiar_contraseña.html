@@ -1,0 +1,59 @@
+{% extends "../login/base.html" %} 
+{% load static %}
+
+{% block title %}Cambiar Contraseña{% endblock title %} 
+
+{% block content %} 
+<div class="idioma-container">
+        <button class="boton-idioma">
+            <i class="fa-solid fa-globe"></i> ES
+        </button>
+    </div>
+    <div class="ayuda-container">
+        <button class="boton-ayuda">
+            <i class="fa-solid fa-question"></i>
+        </button>
+    </div>
+    
+    <h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
+    <div class="contenedor">
+        <div class="formulario">
+            <form id="changePassForm">
+                <label for="contrasena">Nueva contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="contrasena" required>
+                    <button type="button" id="toggleChangePassword" aria-label="Mostrar contraseña">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <span id="changePasswordError" class="error-msg"></span>
+
+                <label for="confirmar">Confirmar contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="confirmar" required>
+                    <button type="button" id="toggleConfirmPassword" aria-label="Mostrar contraseña">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <span id="confirmPasswordError" class="error-msg"></span>
+
+                <button type="submit" id="changeButton" class="botonr" disabled>REGISTRAR</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modalConfirm" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>Confirmar cambio</h2>
+            <p>¿Estás seguro de cambiar tu contraseña?</p>
+            <div class="modal-buttons">
+                <button id="btnAceptar" class="botonr">Aceptar</button>
+                <button id="btnCancelar" class="botonr">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %} 
+{% block extra_js %}
+    <script src="{% static 'ap1/js/script_login.js' %}"></script>
+{% endblock extra_js %}

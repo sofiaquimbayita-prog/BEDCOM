@@ -1,110 +1,83 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpRequest, JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt # ¡CRUCIAL para POST/PUT/DELETE!
-from .models import * # Asegúrate que este modelo existe
-import json 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpRequest
+from datetime import date
+# Importamos todos los modelos necesarios
+from .models import producto, categoria, reporte, usuario 
 
+# --- VISTAS DE NAVEGACIÓN ---
 
-# ----------------------------------------------
-# TUS VISTAS ACTUALES (RENDERIZAN HTML)
-# ----------------------------------------------
-# ... (Mantén todas tus funciones de vista originales: menu_view, productos_view, etc.) ...
 def MenuPrincipalView(request: HttpRequest):
-    """
-    Esta función maneja la solicitud HTTP y renderiza el template index.html.
-    """
-    # El primer argumento es la solicitud (request)
-    # El segundo argumento es la ruta del template, relativa a la carpeta 'templates'
-    return render(request, 'login.html', {}) # El tercer argumento es un diccionario de contexto (datos)
-
+    return render(request, 'login/login.html', {})
 
 def crear_cuenta_view(request: HttpRequest):
-    """Renderiza la página de crear cuenta."""
-    return render(request, 'index_crear_cuenta.html', {})
-
+    return render(request, 'login/index_crear_cuenta.html', {})
 
 def cambiar_contrasena_view(request: HttpRequest):
-    """Renderiza la página para cambiar/recuperar la contraseña."""
-    return render(request, 'index_cambiar_contraseña.html', {})
-
+    return render(request, 'login/index_cambiar_contraseña.html', {})
 
 def recuperar_contrasena_view(request: HttpRequest):
-    """Renderiza la página para iniciar el flujo de recuperación (ingresar email y validar código)."""
-    return render(request, 'index_recuperar_contra.html', {})
-
+    return render(request, 'login/index_recuperar_contra.html', {})
 
 def menu_view(request: HttpRequest):
-    """Renderiza la página del menú principal después de iniciar sesión."""
     return render(request, 'menu/menu.html', {})
+
+# --- VISTAS DE PRODUCTOS (CRUD) ---
+
 def productos_view(request: HttpRequest):
-    """Renderiza la página de productos."""
-    return render(request, 'productos/index_productos.html', {})
+    """Lista productos y carga categorías para el modal."""
+    productos = producto.objects.select_related('id_cat').all()
+    categorias = categoria.objects.all()
+    return render(request, 'productos/index_productos.html', {
+        'productos': productos, 
+        'categorias': categorias
+    })
 
-# ----------------------------------------------
-# VISTAS API (DEVUELVEN JSON - Django Nativo)
-# ----------------------------------------------
+def crear_producto_view(request: HttpRequest):
+    """Crea producto manejando automáticamente las dependencias (Usuario/Reporte/Categoría)."""
+    if request.method == 'POST':
+        # 1. Asegurar la existencia de un Usuario (Requerido por Reporte)
+        user_instancia, _ = usuario.objects.get_or_create(
+            cedula="000", 
+            defaults={
+                'nombre_usuar': 'Admin Sistema', 
+                'rol': 'Administrador', 
+                'estado': 'Activo'
+            }
+        )
 
-# Decorador necesario para permitir POST/PUT/DELETE
-@csrf_exempt 
-def producto_list_create(request):
-    """
-    Maneja GET (Leer todos) y POST (Crear)
-    URL: /api/productos
-    """
-    if request.method == 'GET':
-        # 1. Serializar manualmente la QuerySet a lista de diccionarios
-        productos = producto.objects.all()
-        data = list(productos.values('id', 'nombre', 'precio', 'stock', 'categoria', 'descripcion', 'estado', 'imagen'))
-        
-        # 2. Devolver la respuesta JSON (safe=False es necesario para listas)
-        return JsonResponse(data, safe=False) 
+        # 2. Asegurar la existencia de un Reporte (Requerido por Producto)
+        rep_instancia, _ = reporte.objects.get_or_create(
+            tipo="Registro de Inventario",
+            id_usuario=user_instancia, 
+            defaults={'fecha': date.today()}
+        )
 
-    elif request.method == 'POST':
-        # ... (La lógica POST para crear un producto va aquí) ...
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            producto = producto.objects.create(
-                nombre=data.get('nombre'),
-                precio=data.get('precio'),
-                stock=data.get('stock'),
-                categoria=data.get('categoria'),
-                descripcion=data.get('descripcion'),
-                estado=data.get('estado'),
-                imagen=data.get('imagen')
+        # 3. Asegurar la existencia de una Categoría
+        cat_id = request.POST.get('id_cat')
+        if not cat_id:
+            cat_instancia, _ = categoria.objects.get_or_create(
+                nombre="General",
+                defaults={'descripcion': 'Categoría por defecto', 'estado': True}
             )
-            response_data = {'id': producto.id, 'nombre': producto.nombre, 'precio': producto.precio}
-            return JsonResponse(response_data, status=201)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+        else:
+            cat_instancia = get_object_or_404(categoria, id=cat_id)
 
+        # 4. Crear el Producto
+        producto.objects.create(
+            nombre=request.POST.get('nombre'),
+            tipo=request.POST.get('tipo', 'Estándar'),
+            precio=request.POST.get('precio'),
+            stock=request.POST.get('stock'),
+            id_cat=cat_instancia,
+            id_reporte=rep_instancia,
+            estado=True
+        )
+        return redirect('productos')
+    
+    return redirect('productos')
 
-@csrf_exempt
-def producto_detail(request, pk):
-    """
-    Maneja GET (Leer uno), PUT (Actualizar) y DELETE (Eliminar)
-    URL: /api/productos/<int:pk>
-    """
-    # ... (La lógica de GET, PUT y DELETE va aquí, usando get_object_or_404) ...
-    producto = get_object_or_404(producto, pk=pk)
-
-    if request.method == 'GET':
-        data = {
-            'id': producto.id, 'nombre': producto.nombre, 'precio': producto.precio,
-            'stock': producto.stock, 'categoria': producto.categoria, 
-            'descripcion': producto.descripcion, 'estado': producto.estado, 'imagen': producto.imagen,
-        }
-        return JsonResponse(data)
-
-    elif request.method == 'PUT':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            producto.nombre = data.get('nombre', producto.nombre)
-            # ... (Actualizar el resto de campos) ...
-            producto.save()
-            return JsonResponse({'message': 'Actualizado con éxito'}, status=200)
-        except Exception:
-            return JsonResponse({'error': 'Error de actualización'}, status=400)
-
-    elif request.method == 'DELETE':
-        producto.delete()
-        return HttpResponse(status=204)
+def eliminar_producto_view(request: HttpRequest, id):
+    """Elimina el producto seleccionado."""
+    prod = get_object_or_404(producto, id=id)
+    prod.delete()
+    return redirect('productos')
