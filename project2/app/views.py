@@ -1,31 +1,83 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
-# Create your views here.
-def MenuPrincipalView(request: HttpRequest):
-    """
-    Esta función maneja la solicitud HTTP y renderiza el template index.html.
-    """
-    # El primer argumento es la solicitud (request)
-    # El segundo argumento es la ruta del template, relativa a la carpeta 'templates'
-    return render(request, 'login.html', {}) # El tercer argumento es un diccionario de contexto (datos)
+from datetime import date
+# Importamos todos los modelos necesarios
+from .models import producto, categoria, reporte, usuario 
 
+# --- VISTAS DE NAVEGACIÓN ---
+
+def MenuPrincipalView(request: HttpRequest):
+    return render(request, 'login/login.html', {})
 
 def crear_cuenta_view(request: HttpRequest):
-    """Renderiza la página de crear cuenta."""
-    return render(request, 'index_crear_cuenta.html', {})
-
+    return render(request, 'login/index_crear_cuenta.html', {})
 
 def cambiar_contrasena_view(request: HttpRequest):
-    """Renderiza la página para cambiar/recuperar la contraseña."""
-    return render(request, 'index_cambiar_contraseña.html', {})
-
+    return render(request, 'login/index_cambiar_contraseña.html', {})
 
 def recuperar_contrasena_view(request: HttpRequest):
-    """Renderiza la página para iniciar el flujo de recuperación (ingresar email y validar código)."""
-    return render(request, 'index_recuperar_contra.html', {})
-
+    return render(request, 'login/index_recuperar_contra.html', {})
 
 def menu_view(request: HttpRequest):
-    """Renderiza la página del menú principal después de iniciar sesión."""
     return render(request, 'menu/menu.html', {})
 
+# --- VISTAS DE PRODUCTOS (CRUD) ---
+
+def productos_view(request: HttpRequest):
+    """Lista productos y carga categorías para el modal."""
+    productos = producto.objects.select_related('id_cat').all()
+    categorias = categoria.objects.all()
+    return render(request, 'productos/index_productos.html', {
+        'productos': productos, 
+        'categorias': categorias
+    })
+
+def crear_producto_view(request: HttpRequest):
+    """Crea producto manejando automáticamente las dependencias (Usuario/Reporte/Categoría)."""
+    if request.method == 'POST':
+        # 1. Asegurar la existencia de un Usuario (Requerido por Reporte)
+        user_instancia, _ = usuario.objects.get_or_create(
+            cedula="000", 
+            defaults={
+                'nombre_usuar': 'Admin Sistema', 
+                'rol': 'Administrador', 
+                'estado': 'Activo'
+            }
+        )
+
+        # 2. Asegurar la existencia de un Reporte (Requerido por Producto)
+        rep_instancia, _ = reporte.objects.get_or_create(
+            tipo="Registro de Inventario",
+            id_usuario=user_instancia, 
+            defaults={'fecha': date.today()}
+        )
+
+        # 3. Asegurar la existencia de una Categoría
+        cat_id = request.POST.get('id_cat')
+        if not cat_id:
+            cat_instancia, _ = categoria.objects.get_or_create(
+                nombre="General",
+                defaults={'descripcion': 'Categoría por defecto', 'estado': True}
+            )
+        else:
+            cat_instancia = get_object_or_404(categoria, id=cat_id)
+
+        # 4. Crear el Producto
+        producto.objects.create(
+            nombre=request.POST.get('nombre'),
+            tipo=request.POST.get('tipo', 'Estándar'),
+            precio=request.POST.get('precio'),
+            stock=request.POST.get('stock'),
+            id_cat=cat_instancia,
+            id_reporte=rep_instancia,
+            estado=True
+        )
+        return redirect('productos')
+    
+    return redirect('productos')
+
+def eliminar_producto_view(request: HttpRequest, id):
+    """Elimina el producto seleccionado."""
+    prod = get_object_or_404(producto, id=id)
+    prod.delete()
+    return redirect('productos')
