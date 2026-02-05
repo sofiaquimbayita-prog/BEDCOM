@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from datetime import date
 # Importamos todos los modelos necesarios
-from .models import producto, categoria, reporte, usuario 
+from .models import producto, categoria, reporte, usuario, insumo
+from django.http import JsonResponse
+
 
 # --- VISTAS DE NAVEGACIÓN ---
 
@@ -20,6 +22,58 @@ def recuperar_contrasena_view(request: HttpRequest):
 
 def menu_view(request: HttpRequest):
     return render(request, 'menu/menu.html', {})
+
+
+#----insumos views----
+def insumos_view(request: HttpRequest):
+    categorias = categoria.objects.all()
+    return render(request, 'insumos/insumos.html', {
+        'categorias': categorias
+    })
+def insumos_data_view(request: HttpRequest):
+    insumos = insumo.objects.select_related('id_categoria').all()
+
+    data = []
+    for i in insumos:
+        data.append({
+            "id": i.id,
+            "nombre": i.nombre,
+            "categoria": i.id_categoria.nombre,
+            "cantidad": i.cantidad,
+            "unidad": i.unidad_medida,
+            "estado": i.estado,
+        })
+
+    return JsonResponse({"data": data})
+
+def crear_insumo_view(request: HttpRequest):
+    if request.method == 'POST':
+        cat_id = request.POST.get('id_categoria')
+
+        if not cat_id:
+            cat_instancia, _ = categoria.objects.get_or_create(
+                nombre="General",
+                defaults={'descripcion': 'Categoría por defecto', 'estado': True}
+            )
+        else:
+            cat_instancia = get_object_or_404(categoria, id=cat_id)
+
+        insumo.objects.create(
+            nombre=request.POST.get('nombre'),
+            cantidad=request.POST.get('cantidad'),
+            unidad_medida=request.POST.get('unidad_medida'),
+            estado=request.POST.get('estado', 'Activo'),
+            id_categoria=cat_instancia
+        )
+
+    return redirect('insumos')
+
+def eliminar_insumo_view(request: HttpRequest, id):
+    ins = get_object_or_404(insumo, id=id)
+    ins.delete()
+    return redirect('insumos')
+
+
 
 # --- VISTAS DE PRODUCTOS (CRUD) ---
 
