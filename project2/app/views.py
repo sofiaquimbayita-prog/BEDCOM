@@ -135,3 +135,63 @@ def eliminar_producto_view(request: HttpRequest, id):
     prod = get_object_or_404(producto, id=id)
     prod.delete()
     return redirect('productos')
+# ---- VISTAS DE INSUMOS ----
+def insumos_view(request: HttpRequest):
+    categorias = categoria.objects.all()
+    return render(request, 'insumos/insumos.html', {'categorias': categorias})
+
+def insumos_data_view(request: HttpRequest):
+    insumos = insumo.objects.select_related('id_categoria').all()
+    data = [{
+        "id": i.id,
+        "nombre": i.nombre,
+        "categoria": i.id_categoria.nombre if i.id_categoria else "Sin categoría",
+        "cantidad": i.cantidad,
+        "unidad": i.unidad_medida,
+        "estado": i.estado,
+    } for i in insumos]
+    return JsonResponse({"data": data})
+
+def obtener_insumo_view(request: HttpRequest, id):
+    ins = get_object_or_404(insumo, id=id)
+    return JsonResponse({
+        "nombre": ins.nombre,
+        "cantidad": ins.cantidad,
+        "unidad_medida": ins.unidad_medida,
+        "id_categoria": ins.id_categoria.id if ins.id_categoria else "",
+        "estado": ins.estado
+    })
+
+def crear_insumo_view(request: HttpRequest):
+    if request.method == 'POST':
+        cat_id = request.POST.get('id_categoria')
+        cat_instancia = get_object_or_404(categoria, id=cat_id) if cat_id else None
+        
+        insumo.objects.create(
+            nombre=request.POST.get('nombre'),
+            cantidad=request.POST.get('cantidad'),
+            unidad_medida=request.POST.get('unidad_medida'),
+            estado=request.POST.get('estado', 'Activo'),
+            id_categoria=cat_instancia
+        )
+    return redirect('insumos')
+
+def editar_insumo_view(request: HttpRequest, id):
+    ins = get_object_or_404(insumo, id=id)
+    if request.method == 'POST':
+        cat_id = request.POST.get('id_categoria')
+        ins.nombre = request.POST.get('nombre')
+        ins.cantidad = request.POST.get('cantidad')
+        ins.unidad_medida = request.POST.get('unidad_medida')
+        ins.estado = request.POST.get('estado')
+        if cat_id:
+            ins.id_categoria = get_object_or_404(categoria, id=cat_id)
+        ins.save()
+    return redirect('insumos')
+
+def eliminar_insumo_view(request: HttpRequest, id):
+    if request.method == 'POST': # Por seguridad con AJAX
+        ins = get_object_or_404(insumo, id=id)
+        ins.delete()
+        return JsonResponse({"status": "deleted"})
+    return redirect('insumos')
