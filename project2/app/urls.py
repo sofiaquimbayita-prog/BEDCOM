@@ -20,4 +20,9 @@ urlpatterns = [
     path('insumos/crear/', views.crear_insumo_view, name='crear_insumo'),
     path('insumos/editar/<int:id>/', views.editar_insumo_view, name='editar_insumo'),
     path('insumos/eliminar/<int:id>/', views.eliminar_insumo_view, name='eliminar_insumo'),
+
+    # CALENDARIO
+    path('calendario/', views.calendario_view, name='calendario'),
+    
+
 ]

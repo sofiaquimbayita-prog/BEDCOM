@@ -174,6 +174,9 @@ def crear_insumo_view(request: HttpRequest):
             estado=request.POST.get('estado', 'Activo'),
             id_categoria=cat_instancia
         )
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success','message': 'Insumo creado correctamente'})
     return redirect('insumos')
 
 def editar_insumo_view(request: HttpRequest, id):
@@ -187,6 +190,8 @@ def editar_insumo_view(request: HttpRequest, id):
         if cat_id:
             ins.id_categoria = get_object_or_404(categoria, id=cat_id)
         ins.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success','message': 'Insumo actualizado correctamente'})
     return redirect('insumos')
 
 def eliminar_insumo_view(request: HttpRequest, id):
@@ -195,3 +200,8 @@ def eliminar_insumo_view(request: HttpRequest, id):
         ins.delete()
         return JsonResponse({"status": "deleted"})
     return redirect('insumos')
+
+
+#--- calendaario views ---
+def calendario_view(request: HttpRequest):
+    return render(request, 'calendario/calendario.html', {})

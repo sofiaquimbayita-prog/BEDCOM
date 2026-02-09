@@ -14,12 +14,14 @@
 .btn-agregar-container {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 40px; /* Aumentado para despegarlo de los controles de la tabla */
+    margin-bottom: 40px;
 }
 
 .btn-agregar {
-    background: #14e7ea;
-    color: #0b1220;
+    margin-top: 10px;
+    margin-left: 5px;
+    background: #03205ef5;
+    color: var(--text);
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
@@ -29,8 +31,9 @@
 }
 
 .btn-agregar:hover {
-    background: #11c0c2;
+    background: #e71e0493;
     transform: translateY(-2px);
+    color: var(--text);
 }
 /* TABLA */
 #tablaInsumos {
@@ -48,7 +51,7 @@
 /* Estilo para los inputs y selects de la tabla */
 .dataTables_wrapper .dataTables_length select,
 .dataTables_wrapper .dataTables_filter input {
-    background-color: #525b8f23 !important;
+    background: #525b8f23 !important;
     color: white !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 6px;
@@ -57,7 +60,7 @@
 
 
 .dataTables_wrapper .dataTables_paginate {
-    margin-top: 25px !important; /* Despega la info y paginación de la base de la tabla */
+    margin-top: 25px !important; 
     color: white !important;
 }
 
@@ -68,10 +71,10 @@
 } 
 
 
-/* ESTILOS DEL MODAL (VENTANA EMERGENTE)     */
+/* ESTILOS DEL MODAL */
 
 .modal {
-    display: none; /* Se activa con la clase .mostrar vía JS */
+    display: none;
     position: fixed;
     z-index: 2000;
     left: 0;
@@ -94,21 +97,62 @@
     display: flex;
     gap: 10px;
     justify-content: center;
+    align-items: center;
+}
+.btn-accion {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #1b2537;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.btn-icon-edit:hover, .btn-icon-delete:hover {
-    transform: scale(1.2);
-    transition: 0.2s;
+
+* Iconos */
+.btn-accion i {
+    font-size: 1rem;
+}
+
+/* Estilo específico: Editar */
+.btn-editar i {
+    color: var(--brand); 
+}
+
+.btn-editar:hover {
+    background: var(--brand);
+    border-color: var(--brand);
+}
+
+.btn-editar:hover i {
+    color: #0b1220; 
+}
+
+
+.btn-eliminar i {
+    color: #ff5f5f9f; 
+}
+
+.btn-eliminar:hover {
+    background: #ff5f5f;
+    border-color: #ff5f5f;
+}
+
+.btn-eliminar:hover i {
+    color: white;
 }
 
 .form-input, .form-select {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    background: #0b1220 !important;
+    background: #0303082f !important;
     color: white !important;
     margin-top: 5px;
 }
 .modal-contenido {
-    background: #1b2537;
     padding: 30px;
     border-radius: var(--radius);
     width: 450px;
@@ -155,9 +199,9 @@
 .form-grupo select {
     width: 100%;
     padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(24, 11, 194, 0.151);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 0px;
     color: white;
 }
 
@@ -169,20 +213,20 @@
 }
 
 .btn-cancelar {
-    background: #374b72;
+    background: #010f5fb7;
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 2px;
     cursor: pointer;
 }
 
 .btn-guardar {
-    background: var(--ok);
+    background: #019242;
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 2px;
     cursor: pointer;
 }
 .form-select {
@@ -193,7 +237,6 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     cursor: pointer;
-    /* Flecha personalizada */
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -207,7 +250,7 @@
     top: 0; 
     width: 100%; 
     height: 100%; 
-    background: rgba(0,0,0,0.8); 
+    background: #000000cc; 
     backdrop-filter: blur(4px); 
     align-items: center; 
     justify-content: center; 
@@ -218,9 +261,9 @@
 }
 
 .modal-contenido { 
-    background: #1b2537;
+    background: #1f326b4b;
     padding: 30px; 
-    border-radius: 12px;
+    border-radius: 10px;
     width: 450px; 
-    border: 1px solid rgba(255,255,255,0.1); 
+    border: 0.5px solid rgba(255,255,255,0.1); 
 }
