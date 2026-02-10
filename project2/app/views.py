@@ -205,3 +205,4 @@ def eliminar_insumo_view(request: HttpRequest, id):
 #--- calendaario views ---
 def calendario_view(request: HttpRequest):
     return render(request, 'calendario/calendario.html', {})
+

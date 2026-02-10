@@ -23,7 +23,7 @@
 
   /* Effects */
   --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  --radius: 18px;
+  --radius: 8px;
 }
 
 /* Global resets */
@@ -63,6 +63,8 @@ a {
 
 /* Topbar */
 .topbar {
+  position: relative; /* Asegura que el z-index funcione */
+  z-index: 1000;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -242,6 +244,7 @@ a {
 .perfil-container {
   position: relative;
   display: inline-block;
+  z-index: 11;
 }
 
 .avatar-btn {
@@ -309,7 +312,7 @@ a {
   border: 1px solid #ccc;
   min-width: 150px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  z-index: 9999;
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity .2s ease, transform .2s ease;
@@ -384,7 +387,7 @@ a {
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity .2s ease, transform .2s ease;
-  z-index: 50;
+  z-index: 9999;
 }
 
 #noti-menu:not(.oculto) {

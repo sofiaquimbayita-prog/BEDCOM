@@ -218,3 +218,4 @@ class pago (models.Model):
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"
         db_table = "pagos"
+        
