@@ -13,7 +13,7 @@ urlpatterns = [
     path('productos/crear/', views.crear_producto_view, name='crear_producto'),
     path('productos/eliminar/<int:id>/', views.eliminar_producto_view, name='eliminar_producto'),
 
-    # INSUMOS (CRUD con AJAX)
+    # INSUMOS 
     path('insumos/', views.insumos_view, name='insumos'),
     path('insumos/data/', views.insumos_data_view, name='insumos_data'),
     path('insumos/obtener/<int:id>/', views.obtener_insumo_view, name='obtener_insumo'),
@@ -21,8 +21,12 @@ urlpatterns = [
     path('insumos/editar/<int:id>/', views.editar_insumo_view, name='editar_insumo'),
     path('insumos/eliminar/<int:id>/', views.eliminar_insumo_view, name='eliminar_insumo'),
 
-    # CALENDARIO
+    #CALENDARIO
     path('calendario/', views.calendario_view, name='calendario'),
-    
-
+    # FullCalendar
+    path('calendario/data/', views.obtener_eventos_json, name='calendario_data'),
+    path('calendario/crear/', views.crear_evento_view, name='calendario_crear'),
+    path('calendario/editar/<int:id>/', views.editar_evento_view, name='calendario_editar'),
+    path('calendario/eliminar/<int:id>/', views.eliminar_evento_view, name='calendario_eliminar'),
 ]
+

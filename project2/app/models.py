@@ -218,4 +218,22 @@ class pago (models.Model):
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"
         db_table = "pagos"
+
+class calendario(models.Model):
+    categoria=[ 
+                ('pago', 'Pago'),
+                ('compra', 'Compra'),
+                ('pedido', 'Pedido'),]
+    titulo = models.CharField(max_length=100)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    categoria = models.CharField(max_length=50, choices=categoria)
+    descripcion = models.TextField()
+    def __str__(self):
+        return self.titulo
+    class Meta:
+        verbose_name = "Calendario"
+        verbose_name_plural = "Calendarios"
+        db_table = "calendario"
         
+    

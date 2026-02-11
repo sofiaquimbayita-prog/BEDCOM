@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest
 from datetime import date
 # Importamos todos los modelos necesarios
-from .models import producto, categoria, reporte, usuario, insumo
+from .models import producto, categoria, reporte, usuario, insumo, calendario
 from django.http import JsonResponse
 
 
@@ -22,57 +22,6 @@ def recuperar_contrasena_view(request: HttpRequest):
 
 def menu_view(request: HttpRequest):
     return render(request, 'menu/menu.html', {})
-
-
-#----insumos views----
-def insumos_view(request: HttpRequest):
-    categorias = categoria.objects.all()
-    return render(request, 'insumos/insumos.html', {
-        'categorias': categorias
-    })
-def insumos_data_view(request: HttpRequest):
-    insumos = insumo.objects.select_related('id_categoria').all()
-
-    data = []
-    for i in insumos:
-        data.append({
-            "id": i.id,
-            "nombre": i.nombre,
-            "categoria": i.id_categoria.nombre,
-            "cantidad": i.cantidad,
-            "unidad": i.unidad_medida,
-            "estado": i.estado,
-        })
-
-    return JsonResponse({"data": data})
-
-def crear_insumo_view(request: HttpRequest):
-    if request.method == 'POST':
-        cat_id = request.POST.get('id_categoria')
-
-        if not cat_id:
-            cat_instancia, _ = categoria.objects.get_or_create(
-                nombre="General",
-                defaults={'descripcion': 'Categoría por defecto', 'estado': True}
-            )
-        else:
-            cat_instancia = get_object_or_404(categoria, id=cat_id)
-
-        insumo.objects.create(
-            nombre=request.POST.get('nombre'),
-            cantidad=request.POST.get('cantidad'),
-            unidad_medida=request.POST.get('unidad_medida'),
-            estado=request.POST.get('estado', 'Activo'),
-            id_categoria=cat_instancia
-        )
-
-    return redirect('insumos')
-
-def eliminar_insumo_view(request: HttpRequest, id):
-    ins = get_object_or_404(insumo, id=id)
-    ins.delete()
-    return redirect('insumos')
-
 
 
 # --- VISTAS DE PRODUCTOS (CRUD) ---
@@ -135,6 +84,8 @@ def eliminar_producto_view(request: HttpRequest, id):
     prod = get_object_or_404(producto, id=id)
     prod.delete()
     return redirect('productos')
+
+
 # ---- VISTAS DE INSUMOS ----
 def insumos_view(request: HttpRequest):
     categorias = categoria.objects.all()
@@ -202,7 +153,62 @@ def eliminar_insumo_view(request: HttpRequest, id):
     return redirect('insumos')
 
 
-#--- calendaario views ---
-def calendario_view(request: HttpRequest):
-    return render(request, 'calendario/calendario.html', {})
 
+#--- calendaario views ---
+
+
+
+def calendario_view(request: HttpRequest):
+    eventos = calendario.objects.order_by('fecha', 'hora')
+    return render(request, 'calendario/calendario.html', {
+        'eventos': eventos
+    })
+
+def obtener_eventos_json(request):
+    eventos = calendario.objects.all()
+    eventos_data = []
+    for e in eventos:
+        eventos_data.append({
+            'id': e.id,
+            'title': e.titulo,
+            'start': f"{e.fecha}T{e.hora}",
+            'extendedProps': {
+                'description': e.descripcion,
+                'category': e.categoria
+            }
+        })
+    return JsonResponse(eventos_data, safe=False)
+
+def crear_evento_view(request):
+    if request.method == 'POST':
+        try:
+            nuevo_evento = calendario.objects.create(
+                titulo=request.POST.get('titulo'),
+                fecha=request.POST.get('fecha'),
+                hora=request.POST.get('hora'),
+                categoria=request.POST.get('categoria'),
+                descripcion=request.POST.get('descripcion')
+            )
+            return JsonResponse({'status': 'success', 'id': nuevo_evento.id})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error'}, status=405)
+
+def editar_evento_view(request, id):
+    evento = get_object_or_404(calendario, id=id)
+    if request.method == 'POST':
+        evento.titulo = request.POST.get('titulo')
+        evento.fecha = request.POST.get('fecha')
+        evento.hora = request.POST.get('hora')
+        evento.categoria = request.POST.get('categoria')
+        evento.descripcion = request.POST.get('descripcion')
+        evento.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=405)
+
+def eliminar_evento_view(request, id):
+    if request.method == 'POST':
+        evento = get_object_or_404(calendario, id=id)
+        evento.delete()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=405)

@@ -1,85 +1,90 @@
 {% extends "includes/base.html" %}
 {% load static %}
 {% block content %}
- <title>{% block title %}Calendario{% endblock %}</title> 
+<title>{% block title %}Calendario{% endblock %}</title> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
-  <link rel="stylesheet" href="styles_calendario.css">
-  <link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}" />
-
-
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="contenido">
-  
-    {% include "calendario/modal_calendario.html" %}
-
-      <!-- Búsqueda -->
-      <div class="busqueda">
-        <i class="fas fa-search"></i>
-        <input type="text" id="search" placeholder="Buscar actividad...">
-      </div>
-
-
-      <!-- Lista de eventos -->
-      <div class="eventos-lista">
-        <h2><i class="fas fa-list"></i> Lista de actividades</h2>
-        <ul id="event-list"></ul>
-      </div>
-    </section>
-
-    <!-- Calendario -->
-    <section class="panel panel-calendario">
-      <div class="calendar-header">
-        <div class="calendar-nav">
-          <button id="prev"><i class="fas fa-chevron-left"></i></button>
-          <button id="today">Hoy</button>
-          <button id="next"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div class="calendar-title" id="current-month"></div>
-      </div>
-      <div id="calendar"></div>
-    </section>
-  </main>
-
-  <!-- eventos -->
-  <div id="event-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal">&times;</span>
-      <h2 class="modal-title">Detalles de la actividad</h2>
-
-      <div class="event-details">
-        <div class="event-detail">
-          <span class="detail-label">Título:</span>
-          <span id="modal-title" class="detail-value"></span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">Fecha:</span>
-          <span id="modal-date" class="detail-value"></span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">Hora:</span>
-          <span id="modal-time" class="detail-value"></span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">Descripción:</span>
-          <span id="modal-description" class="detail-value"></span>
-        </div>
-        <div class="event-detail">
-          <span class="detail-label">Categoría:</span>
-          <span id="modal-category" class="detail-value"></span>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button id="edit-event" class="modal-btn btn-edit">Editar</button>
-        <button id="delete-event" class="modal-btn btn-delete">Eliminar</button>
-        <button id="close-modal" class="modal-btn btn-close">Cerrar</button>
-      </div>
+<main class="contenido">
+    <div class="header-acciones">
+        <button id="btn-nueva-actividad" class="btn-primario">
+            <i class="fas fa-plus"></i> Nueva Actividad
+        </button>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-  <script src="{% static 'ap1/js/calendario.js' %}"></script>
+    <div id="form-modal-container" class="modal">
+        <div class="modal-content">
+        <span class="close-modal-form">&times;</span>
+        {% include "calendario/modal_calendario.html" %}
+        </div>
+    </div>
+
+    <section class="panel panel-eventos">
+        <div class="busqueda">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search" placeholder="Buscar actividad...">
+        </div>
+
+        <div class="eventos-lista">
+            <h2><i class="fas fa-list"></i> Lista de actividades</h2>
+            <ul id="event-list">
+                {% for evento in eventos %}
+                    <li class="evento-item">
+                    <strong>{{ evento.titulo }}</strong><br>
+                    <small>
+                        {{ evento.fecha }} {{ evento.hora }} <br>
+                        {{ evento.categoria }}
+                    </small>
+                    </li>
+                {% empty %}
+                    <li>No hay actividades registradas</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <section class="panel panel-calendario">
+        <div id="calendar"></div>
+    </section>
+</main>
+
+<div id="event-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 class="modal-title">Detalles de la actividad</h2>
+
+        <div class="event-details">
+            <div class="event-detail">
+                <span class="detail-label">Título:</span>
+                <span id="modal-title" class="detail-value"></span>
+            </div>
+            <div class="event-detail">
+                <span class="detail-label">Fecha:</span>
+                <span id="modal-date" class="detail-value"></span>
+            </div>
+            <div class="event-detail">
+                <span class="detail-label">Hora:</span>
+                <span id="modal-time" class="detail-value"></span>
+            </div>
+            <div class="event-detail">
+                <span class="detail-label">Descripción:</span>
+                <span id="modal-description" class="detail-value"></span>
+            </div>
+            <div class="event-detail">
+                <span class="detail-label">Categoría:</span>
+                <span id="modal-category" class="detail-value"></span>
+            </div>
+        </div>
+
+        <div class="modalactions-">
+            <button id="edit-event" class="modal-btn btn-edit">Editar</button>
+            <button id="delete-event" class="modal-btn btn-delete">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script src="{% static 'ap1/js/calendario.js' %}"></script>
+
 {% endblock %}
