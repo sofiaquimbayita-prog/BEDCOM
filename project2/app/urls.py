@@ -21,10 +21,11 @@ urlpatterns = [
     path('insumos/editar/<int:id>/', views.editar_insumo_view, name='editar_insumo'),
     path('insumos/eliminar/<int:id>/', views.eliminar_insumo_view, name='eliminar_insumo'),
 
-    #CALENDARIO
+
+    # calendario / GESTIÓN DE ACTIVIDADES
     path('calendario/', views.calendario_view, name='calendario'),
-    # FullCalendar
-    path('calendario/data/', views.obtener_eventos_json, name='calendario_data'),
+    
+    # Rutas de acción (API interna para los modales)
     path('calendario/crear/', views.crear_evento_view, name='calendario_crear'),
     path('calendario/editar/<int:id>/', views.editar_evento_view, name='calendario_editar'),
     path('calendario/eliminar/<int:id>/', views.eliminar_evento_view, name='calendario_eliminar'),

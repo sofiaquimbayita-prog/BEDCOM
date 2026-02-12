@@ -1,90 +1,132 @@
 {% extends "includes/base.html" %}
 {% load static %}
+
 {% block content %}
-<title>{% block title %}Calendario{% endblock %}</title> 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
 
 <main class="contenido">
     <div class="header-acciones">
+        <div>
+            <h1 class="titulo-agenda">Agenda Bedcom</h1>
+        </div>
         <button id="btn-nueva-actividad" class="btn-primario">
-            <i class="fas fa-plus"></i> Nueva Actividad
+            <i class="fa-solid fa-calendar-plus"></i> Nueva Tarea
         </button>
     </div>
 
-    <div id="form-modal-container" class="modal">
-        <div class="modal-content">
-        <span class="close-modal-form">&times;</span>
-        {% include "calendario/modal_calendario.html" %}
+    <section class="panel-agenda-profesional">
+        <div class="agenda-lista" id="agenda-lista">
+            {% for evento in eventos %}
+            <div class="agenda-card-item {{ evento.categoria }}">
+                <div class="card-linea-color"></div>
+                <div class="card-cuerpo">
+                    <div class="card-fecha">
+                        <span class="dia">{{ evento.fecha|date:"d" }}</span>
+                        <span class="mes">{{ evento.fecha|date:"M" }}</span>
+                    </div>
+                    <div class="card-info-central">
+                        <span class="badge-tag">{{ evento.get_categoria_display }}</span>
+                        <h3>{{ evento.titulo }}</h3>
+                        <p>{{ evento.descripcion|truncatechars:60 }}</p>
+                    </div>
+                    
+                    <div class="card-opciones">
+                        <button class="view-trigger"
+                                data-id="{{ evento.id }}"
+                                data-titulo="{{ evento.titulo }}"
+                                data-fecha="{{ evento.fecha|date:'Y-m-d' }}"
+                                data-fechadisplay="{{ evento.fecha|date:'d \d\e N \d\e Y' }}"
+                                data-hora="{{ evento.hora|time:'H:i' }}"
+                                data-categoria="{{ evento.categoria }}"
+                                data-categoriadisplay="{{ evento.get_categoria_display }}"
+                                data-descripcion="{{ evento.descripcion }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button class="edit-trigger" 
+                                data-id="{{ evento.id }}"
+                                data-titulo="{{ evento.titulo }}"
+                                data-fecha="{{ evento.fecha|date:'Y-m-d' }}"
+                                data-hora="{{ evento.hora|time:'H:i' }}"
+                                data-categoria="{{ evento.categoria }}"
+                                data-descripcion="{{ evento.descripcion }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="delete-trigger" data-id="{{ evento.id }}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="agenda-vacia-contenedor">
+                <i class="fa-solid fa-calendar-days fa-3x"></i>
+                <p>No hay tareas pendientes en la agenda.</p>
+            </div>
+            {% endfor %}
         </div>
-    </div>
-
-    <section class="panel panel-eventos">
-        <div class="busqueda">
-            <i class="fas fa-search"></i>
-            <input type="text" id="search" placeholder="Buscar actividad...">
-        </div>
-
-        <div class="eventos-lista">
-            <h2><i class="fas fa-list"></i> Lista de actividades</h2>
-            <ul id="event-list">
-                {% for evento in eventos %}
-                    <li class="evento-item">
-                    <strong>{{ evento.titulo }}</strong><br>
-                    <small>
-                        {{ evento.fecha }} {{ evento.hora }} <br>
-                        {{ evento.categoria }}
-                    </small>
-                    </li>
-                {% empty %}
-                    <li>No hay actividades registradas</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </section>
-
-    <section class="panel panel-calendario">
-        <div id="calendar"></div>
     </section>
 </main>
 
-<div id="event-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2 class="modal-title">Detalles de la actividad</h2>
-
-        <div class="event-details">
-            <div class="event-detail">
-                <span class="detail-label">Título:</span>
-                <span id="modal-title" class="detail-value"></span>
-            </div>
-            <div class="event-detail">
-                <span class="detail-label">Fecha:</span>
-                <span id="modal-date" class="detail-value"></span>
-            </div>
-            <div class="event-detail">
-                <span class="detail-label">Hora:</span>
-                <span id="modal-time" class="detail-value"></span>
-            </div>
-            <div class="event-detail">
-                <span class="detail-label">Descripción:</span>
-                <span id="modal-description" class="detail-value"></span>
-            </div>
-            <div class="event-detail">
-                <span class="detail-label">Categoría:</span>
-                <span id="modal-category" class="detail-value"></span>
-            </div>
-        </div>
-
-        <div class="modalactions-">
-            <button id="edit-event" class="modal-btn btn-edit">Editar</button>
-            <button id="delete-event" class="modal-btn btn-delete">Eliminar</button>
-        </div>
+<div id="form-modal-container" class="modal-overlay-agenda">
+    <div class="modal-content-agenda">
+        {% include "calendario/modal_calendario.html" %}
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-<script src="{% static 'ap1/js/calendario.js' %}"></script>
+<div id="detail-drawer-overlay" class="drawer-overlay"></div>
+<aside id="detail-drawer" class="detail-drawer" role="dialog" aria-modal="true">
+    <div class="drawer-accent-bar" id="drawer-accent-bar"></div>
+    <div class="drawer-inner">
+        <div class="drawer-header">
+            <div class="drawer-cat-pill" id="drawer-cat-pill">
+                <i class="fa-solid fa-tag"></i>
+                <span id="drawer-cat-text">—</span>
+            </div>
+            <button class="drawer-close-btn" id="drawer-close-btn" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
+        <h2 class="drawer-titulo" id="drawer-titulo">—</h2>
+
+        <div class="drawer-meta-grid">
+            <div class="drawer-meta-item">
+                <span class="drawer-meta-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                <div>
+                    <span class="drawer-meta-label">Fecha</span>
+                    <span class="drawer-meta-value" id="drawer-fecha">—</span>
+                </div>
+            </div>
+            <div class="drawer-meta-item">
+                <span class="drawer-meta-icon"><i class="fa-solid fa-clock"></i></span>
+                <div>
+                    <span class="drawer-meta-label">Hora</span>
+                    <span class="drawer-meta-value" id="drawer-hora">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="drawer-divider"></div>
+
+        <div class="drawer-desc-section">
+            <p class="drawer-desc-label">
+                <i class="fa-solid fa-align-left"></i> Detalles
+            </p>
+            <p class="drawer-desc-text" id="drawer-descripcion">Sin descripción registrada.</p>
+        </div>
+
+        <div class="drawer-divider"></div>
+
+        <div class="drawer-actions">
+            <button class="drawer-action-btn drawer-action-edit" id="drawer-action-edit">
+                <i class="fa-solid fa-pen-to-square"></i> Editar
+            </button>
+            <button class="drawer-action-btn drawer-action-done" id="drawer-action-done">
+                <i class="fa-solid fa-trash-can"></i> Completar
+            </button>
+        </div>
+    </div>
+</aside>
+
+<script src="{% static 'ap1/js/calendario.js' %}"></script>
 {% endblock %}

@@ -368,7 +368,7 @@ if (botonIdioma) {
           // Cambiar icono
           const icon = preguntaElem.querySelector('i');
           if (icon) {
-              icon.className = isVisible ? 'fa-solid fa-circle-question' : 'fa-solid fa-circle-check';
+              icon.className = isVisible ? 'fa-solid fa-circle-question' : 'fa-solid fa-trash-can';
               icon.style.color = 'var(--color-botones)';
           }
       });

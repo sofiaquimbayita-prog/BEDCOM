@@ -232,8 +232,8 @@ class calendario(models.Model):
     def __str__(self):
         return self.titulo
     class Meta:
-        verbose_name = "Calendario"
-        verbose_name_plural = "Calendarios"
+        verbose_name = "calendario"
+        verbose_name_plural = "calendarios"
         db_table = "calendario"
         
     

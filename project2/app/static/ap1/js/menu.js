@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================
-  // CALENDARIO SEMANAL
+  // calendario SEMANAL
   // =========================
   const eventos = [
     { fecha: "2025-08-26", titulo: "Reunión", icono: "📌" },
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Date(fecha.setDate(diff));
   }
 
-  function crearCalendario() {
+  function crearcalendario() {
     const calendario = document.querySelector(".calendar");
     const header = document.getElementById("calendar-header");
     if (!calendario || !header) return;
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  crearCalendario();
+  crearcalendario();
 
   // =============================
   // BARRA DE BÚSQUEDA
