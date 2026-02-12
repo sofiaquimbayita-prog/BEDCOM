@@ -90,7 +90,7 @@
 }
 
 /* ─── MODAL  ────────────── */
-/* ─── MODAL MEJORADO ────────────── */
+
 .modal-overlay-agenda {
   display: none; 
   position: fixed;
@@ -99,9 +99,7 @@
   top: 0;
   width: 100%;
   height: 100%;
-  /* Fondo con un degradado radial para centrar la atención */
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.9) 100%);
-  backdrop-filter: blur(12px); /* Un poco más de desenfoque para aislar el contexto */
+  background: #000000d3; 
   justify-content: center;
   align-items: center;
   padding: 20px;
@@ -109,16 +107,11 @@
 
 .modal-content-agenda {
   background: var(--card);
-  /* Un borde doble sutil simula cristal templado */
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--borde-lg);
   width: 100%;
   max-width: 550px;
-  padding: 2rem; /* Espaciado más consistente */
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* Sombra más dramática */
-  position: relative;
+  padding: 2rem; 
   overflow: hidden;
-  animation: modalSlideUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* Efecto de brillo superior en el modal */
@@ -164,7 +157,6 @@
     transform: scale(1.1);
 }
 /* ─── FORMULARIO DENTRO DEL MODAL ────────────────── */
-/* --- Estilos del Modal Header --- */
 
 .btn-cerrar-limpio {
     background: none;
@@ -172,7 +164,7 @@
     color: var(--muted);
     font-size: 1.8rem;
     cursor: pointer;
-    float: right; /* Para mantenerlo a la derecha */
+    float: right;
     line-height: 1;
 }
 

@@ -1,8 +1,10 @@
 <div class="modal" id="modal-insumo">
     <div class="modal-contenido">
+        <div class= "btc">
+            <button class="btn-cerrar" id="btn-cerrar-modal">&times;</button>
+        </div>
         <div class="modal-header">
             <h3 class="modal-titulo" id="modal-titulo">Agregar Insumo</h3>
-            <button class="btn-cerrar" id="btn-cerrar-modal">&times;</button>
         </div>
 
         <form method="post" id="form-insumo">
@@ -11,22 +13,31 @@
                 <label>Nombre</label>
                 <input type="text" name="nombre" id="in_nombre" class="form-input" required>
             </div>
+            
             <div class="form-grupo">
-                <label>Cantidad</label>
-                <input type="number" name="cantidad" id="in_cantidad" class="form-input" required>
+                <label>Descripción</label>
+                <input type="text" name="descripcion" id="in_descripcion" class="form-input">
             </div>
-            <div class="form-grupo">
-                <label>Unidad de Medida</label>
-                <input type="text" name="unidad_medida" id="in_unidad" class="form-input" required>
+            <div class= "divicion">  
+                <div class="form-grupo">
+                    <label>Cantidad</label>
+                    <input type="number" name="cantidad" id="in_cantidad" class="form-input" required>
+                </div>
+                
+                <div class="form-grupo">
+                    <label>Unidad de Medida</label>
+                    <input type="text" name="unidad_medida" id="in_unidad" class="form-input" required>
+                </div>
             </div>
-            <div class="form-grupo">
-                <label>Categoría</label>
-                <select name="id_categoria" id="in_categoria" class="form-select" required>
-                    {% for c in categorias %}
-                        <option value="{{ c.id }}">{{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+                <div class="form-grupo">
+                    <label>Categoría</label>
+                    <select name="id_categoria" id="in_categoria" class="form-select" required>
+                        {% for c in categorias %}
+                            <option value="{{ c.id }}">{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                  
             <div class="form-grupo">
                 <label>Estado</label>
                 <select name="estado" id="in_estado" class="form-select">

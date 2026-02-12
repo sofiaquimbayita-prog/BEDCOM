@@ -1,14 +1,14 @@
 {% extends "includes/base.html" %}
 {% load static %}
-
+{% block header_title %}
+    AGENDA BEDCOM
+{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
+<link re j l="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
 
 <main class="contenido">
     <div class="header-acciones">
-        <div>
-            <h1 class="titulo-agenda">Agenda Bedcom</h1>
-        </div>
+       
         <button id="btn-nueva-actividad" class="btn-primario">
             <i class="fa-solid fa-calendar-plus"></i> Nueva Tarea
         </button>

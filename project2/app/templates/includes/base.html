@@ -19,9 +19,10 @@
 <body>
     <div class="bg"></div>
     <div class="overlay"></div>
-
-    {% include 'includes/header.html' %} 
-
+<header class="topbar">
+    {% include 'includes/header.html'%}
+    <div class="title">{% block header_title %}MENÚ PRINCIPAL{% endblock %}</div> 
+</header>
     {% block content %}
     {% endblock %}
 
