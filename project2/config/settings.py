@@ -111,14 +111,32 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'app.backends.EmailBackend',  # Permite login con email
+    'django.contrib.auth.backends.ModelBackend',  # Backend por defecto (respaldo)
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# Usar el directorio estático dentro de la app (`app/static`) que sí existe
 STATICFILES_DIRS = [
-    BASE_DIR / 'static_ap1', 
+    BASE_DIR / 'app' / 'static',
 ]
+
+# Media files (uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Email backend para desarrollo (muestra correos en la consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Redirecciones de login/logout
+LOGIN_REDIRECT_URL = '/vistas/menu/'
+LOGOUT_REDIRECT_URL = '/vistas/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -1,0 +1,125 @@
+from django.shortcuts import redirect
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from datetime import date
+from django.http import HttpResponseRedirect
+
+# Importación de tus modelos
+from ...models import producto, categoria, reporte, usuario
+
+# --- VISTA DE LISTADO ---
+class ProductoListView(ListView):
+    model = producto
+    template_name = 'productos/index_productos.html'
+    context_object_name = 'productos'
+
+    def get_queryset(self):
+        # Filtra solo activos y optimiza la carga de categorías e imágenes
+        # Devolver todos los productos (activos e inactivos). El filtrado por
+        # estado se hará en el cliente mediante el switch/ DataTable.
+        return producto.objects.select_related('id_cat').order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categorias'] = categoria.objects.all()
+        context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
+        return context
+
+
+# --- VISTA DE CREACIÓN (AGREGAR) ---
+class ProductoCreateView(SuccessMessageMixin, CreateView):
+    model = producto
+    # Se agrega 'imagen' para capturar fotos de espaldares o basecamas
+    fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
+    success_url = reverse_lazy('productos')
+    success_message = "¡El producto %(nombre)s se guardó correctamente!"
+
+    def form_valid(self, form):
+        # Validación de negocio: Stock no negativo
+        if form.cleaned_data['stock'] < 0:
+            messages.error(self.request, "El stock inicial no puede ser negativo.")
+            return redirect('productos')
+
+        # Asignación automática de reporte para el historial
+        user_admin = usuario.objects.first() # Asegúrate de tener al menos un usuario en la DB
+        rep_obj, _ = reporte.objects.get_or_create(
+            fecha=date.today(),
+            tipo="Ingreso Manual / Catálogo",
+            defaults={'id_usuario': user_admin}
+        )
+        
+        form.instance.id_reporte = rep_obj
+        form.instance.estado = True
+
+        # El método save() de la vista de clase manejará request.FILES automáticamente
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Error al agregar producto. Verifica que la imagen sea válida.")
+        return redirect('productos')
+
+
+# --- VISTA DE EDICIÓN (MODIFICAR) ---
+class ProductoUpdateView(SuccessMessageMixin, UpdateView):
+    model = producto
+    # Se agrega 'imagen' para permitir actualizar fotos del catálogo
+    fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
+    template_name = 'productos/modal_edit.html'
+    success_url = reverse_lazy('productos')
+    success_message = "Producto actualizado correctamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categorias'] = categoria.objects.all()
+        return context
+
+    def form_valid(self, form):
+        # Si se sube una imagen nueva, Django reemplaza la anterior automáticamente
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f"Error de validación: {form.errors}")
+        return super().form_invalid(form)
+
+
+# --- VISTA DE ELIMINACIÓN (BORRADO LÓGICO) ---
+class ProductoDeleteView(DeleteView):
+    model = producto  # Asegúrate de que la clase empiece con Mayúscula 'Producto'
+    success_url = reverse_lazy('productos')
+
+    def post(self, request, *args, **kwargs):
+        """
+        En Django, DeleteView usa el método POST para confirmar la eliminación.
+        Sobrescribimos aquí para evitar que se ejecute el .delete() físico.
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+
+        # Lógica de Soft Delete
+        self.object.estado = False
+        self.object.save()
+
+        messages.success(request, f"El producto '{self.object.nombre}' fue inactivado correctamente.")
+        return HttpResponseRedirect(success_url)
+
+
+# --- VISTA DE ACTIVACIÓN ---
+class ProductoActivateView(SuccessMessageMixin, DeleteView):
+    model = producto
+    success_url = reverse_lazy('productos')
+
+    def post(self, request, *args, **kwargs):
+        """
+        Vista para activar un producto inactivo.
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+
+        # Lógica de activación
+        self.object.estado = True
+        self.object.save()
+
+        messages.success(request, f"El producto '{self.object.nombre}' fue activado correctamente.")
+        return HttpResponseRedirect(success_url)

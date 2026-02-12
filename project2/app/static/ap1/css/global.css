@@ -1,6 +1,6 @@
 :root {
   /* Ruta al fondo: espera que la imagen esté en static/ap1/imagenes/fondo.jpg */
-  --fondo-login: url('../imagenes/fondo.jpg');
+  --fondo-login: url('../img/fondo.jpg');
   --color-texto: black;
   --color-botones: #007bff;
   --tamaño-titulo: 2.5vh;

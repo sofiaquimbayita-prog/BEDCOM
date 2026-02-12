@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "login/base.html" %}
 {% load static %}
 
 {% block title %}Recuperar Contraseña{% endblock title %}
@@ -20,12 +20,14 @@
 <h1 class="titulo" data-i18n="titulo-recuperar">RECUPERAR CONTRASEÑA</h1>
 
 <div class="contenedor">
-    <form id="recoveryForm">
+    <form id="recoveryForm" method="post" action="{% url 'password_reset' %}">
+        {% csrf_token %}
         <p class="form-instruction" data-i18n="texto-ingresa-correo">Ingrese un correo</p>
         <div class="input-container">
             <input 
                 type="email"
-                id="recoveryCorreo" data-i18n="placeholder-email"
+                id="recoveryCorreo" name="email" data-i18n="placeholder-email"
+                data-i18n-placeholder="placeholder-email"
                 placeholder="usuario@dominio.com"
                 class="email-input"
                 required

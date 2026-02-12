@@ -1,34 +1,91 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block content %}
-<main class="productos">
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px;">
-        <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Buscar producto...">
-        </div>
+{% block header_title %}Gestión de Productos{% endblock %}
 
-        <div class="toolbar-actions">
-            <button class="button-3" onclick="abrirModal('modalAdd')">
-                <i class="fas fa-plus"></i> Nuevo Producto
-            </button>
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
+
+<main class="productos">
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; gap:12px;">
+        <button class="button-3" onclick="abrirModal('modalAdd')">
+            <i class="fas fa-plus"></i> Nuevo Producto
+        </button>
+        <div class="switch-container">
+    <span class="switch-text">Mostrar inactivos</span>
+    <label class="switch-control">
+        <input type="checkbox" id="toggleInactivos">
+        <span class="slider"></span>
+    </label>
+</div>
         </div>
     </div>
 
-    <div class="grid" id="gridProductos">
-        {% for p in productos %}
-        <div class="card" data-precio="${{ p.precio }}">
-            <img src="{% static 'ap1/imagenes/cama.jpg' %}" alt="{{ p.nombre }}">
-            <p class="nombre">{{ p.nombre }}</p>
-            <p class="stock">Stock: {{ p.stock }} unidades</p>
-            <div class="acciones">
-                <button class="view-btn"><i class="fas fa-eye"></i></button>
-                <button class="edit-btn"><i class="fas fa-edit"></i></button>
-                <button class="delete-btn"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>
-        {% endfor %}
+    <div class="container-tabla">
+        <table id="tablaProductos" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Stock</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td>
+                        {% if p.imagen %}
+                            <img src="/media/{{ p.imagen }}" alt="{{ p.nombre }}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'ap1/img/cama.jpg' %}" alt="Sin imagen" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; opacity: 0.5;">
+                        {% endif %}
+                    </td>
+                    <td style="font-weight: bold;">{{ p.nombre }}</td>
+                    <td>
+                        <span class="badge {% if p.stock < 10 %}bg-danger{% else %}bg-success{% endif %}">
+                            {{ p.stock }} unidades
+                        </span>
+                    </td>
+                    <td style="color: #2ecc71; font-weight: bold;">${{ p.precio }}</td>
+                    <td>{{ p.id_cat.nombre }}</td>
+                    
+                    <td>{{ p.estado|yesno:'Activo,Inactivo' }}</td>
+                    <td>
+                        <div class="acciones">
+                            <button class="view-btn" title="Ver detalle"
+                                    onclick="abrirModalVer('{{ p.nombre }}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}', '{{ p.precio }}', '{{ p.stock }}', '{{ p.id_cat.nombre }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="edit-btn" title="Editar producto" onclick="abrirModalEditar('{{ p.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if p.estado %}
+                            <button class="delete-btn" title="Desactivar producto"
+                                    onclick="abrirModalEliminar('{{ p.id }}', '{{ p.nombre }}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            {% else %}
+                            <button class="activate-btn" title="Activar producto"
+                                    onclick="abrirModalActivar('{{ p.id }}', '{{ p.nombre }}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}')">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 20px;">No hay productos disponibles en la base de datos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </main>
 
@@ -36,5 +93,18 @@
     {% include "productos/modal_add.html" %}
 </div>
 
+<div id="modalEdit" class="modal" style="display: none;"></div>
+
+<div id="modalDelete" class="modal" style="display: none;">
+    {% include "productos/modal_delete.html" %}
+</div>
+<div id="modalView" class="modal" style="display: none;">
+    {% include "productos/modal_view.html" %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="{% static 'ap1/js/script_productos.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 {% endblock %}

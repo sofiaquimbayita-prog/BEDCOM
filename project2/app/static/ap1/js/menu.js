@@ -109,19 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // =============================
   // BARRA DE BÚSQUEDA
   // =============================
-  const searchInput = document.getElementById("searchInput");
-  const tiles = document.querySelectorAll(".menu-grid .tile");
 
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase().trim();
-      tiles.forEach(tile => {
-        const title = tile.querySelector("h3").textContent.toLowerCase();
-        const subtitle = tile.querySelector(".muted").textContent.toLowerCase();
-        tile.style.display = title.includes(query) || subtitle.includes(query) ? "" : "none";
-      });
-    });
-  }
 
   // ============================
   // MANEJO DE NOTIFICACIONES

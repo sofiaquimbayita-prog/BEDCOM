@@ -18,26 +18,23 @@
     <h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
     <div class="contenedor">
         <div class="formulario">
-            <form id="changePassForm">
-                <label for="contrasena">Nueva contraseña</label>
-                <div class="password-container">
-                    <input type="password" id="contrasena" required>
-                    <button type="button" id="toggleChangePassword" aria-label="Mostrar contraseña">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
-                </div>
-                <span id="changePasswordError" class="error-msg"></span>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
 
-                <label for="confirmar">Confirmar contraseña</label>
+                <label for="id_new_password1">Nueva contraseña</label>
                 <div class="password-container">
-                    <input type="password" id="confirmar" required>
-                    <button type="button" id="toggleConfirmPassword" aria-label="Mostrar contraseña">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
+                    {{ form.new_password1 }}
                 </div>
-                <span id="confirmPasswordError" class="error-msg"></span>
+                <div class="error-msg">{{ form.new_password1.errors }}</div>
 
-                <button type="submit" id="changeButton" class="botonr" disabled>REGISTRAR</button>
+                <label for="id_new_password2">Confirmar contraseña</label>
+                <div class="password-container">
+                    {{ form.new_password2 }}
+                </div>
+                <div class="error-msg">{{ form.new_password2.errors }}</div>
+
+                <button type="submit" class="botonr">Cambiar contraseña</button>
             </form>
         </div>
     </div>

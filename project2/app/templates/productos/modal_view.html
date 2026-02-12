@@ -1,0 +1,24 @@
+<div class="modal-content modal-view">
+    <div class="modal-header">
+        <h2><i class="fas fa-search-plus"></i> Detalle del Producto</h2>
+    </div>
+    
+    <div class="modal-body-view" style="display: flex; gap: 20px; padding: 20px;">
+        <div class="product-image-side">
+            <img id="viewImagen" src="" alt="Producto" 
+                style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px;">
+        </div>
+        
+        <div class="product-info-side" style="flex: 1; color: white;">
+            <h1 id="viewNombre" style="color: #3498db; margin-bottom: 15px;"></h1>
+            <hr style="border: 0.5px solid #444;">
+            <p><strong>Categoría:</strong> <span id="viewCategoria"></span></p>
+            <p><strong>Precio:</strong> <span id="viewPrecio" style="color: #2ecc71; font-size: 1.2em; font-weight: bold;"></span></p>
+            <p><strong>Stock Disponible:</strong> <span id="viewStock" class="badge"></span></p>
+            
+            <div style="margin-top: 30px;">
+                <button class="button-3" onclick="cerrarModal('modalView')">Cerrar Vista</button>
+            </div>
+        </div>
+    </div>
+</div>

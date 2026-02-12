@@ -1,6 +1,6 @@
 :root {
   /* Color palette */
-  --fondo:url("../imagenes/fondo.jpg");
+  --fondo:url("../img/fondo.jpg");
   --bg: #0b1220;
   --card: #1b2537cc;
   --card-hover: #374b72cc;

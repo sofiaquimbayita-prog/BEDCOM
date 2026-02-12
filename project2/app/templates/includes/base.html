@@ -20,13 +20,14 @@
     <div class="bg"></div>
     <div class="overlay"></div>
 
-    {% include 'includes/header.html' %} 
+    {# Envolvemos el header en un bloque para que sea accesible #}
+    {% block header %}
+        {% include 'includes/header.html' %} 
+    {% endblock %}
 
     {% block content %}
     {% endblock %}
 
     <script src="{% static 'ap1/js/menu.js' %}"></script>
-    
     {% block scripts %}{% endblock %} 
 </body>
-</html>

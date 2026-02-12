@@ -3,96 +3,86 @@ import django
 import sys
 from datetime import date
 
-# 1. AGREGAR EL DIRECTORIO AL PATH (Esto evita el ModuleNotFoundError)
-# Obtenemos la ruta de la carpeta actual
+# 1. CONFIGURACIÓN DEL ENTORNO
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(ruta_actual)
 
-# 2. CONFIGURAR DJANGO
-# Cambiamos 'project2' por el nombre de tu carpeta de configuración si es distinto
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+# Asegúrate de que coincida con tu carpeta de configuración (test o config)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings') 
 django.setup()
 
-# 3. IMPORTAR MODELOS
+# 2. IMPORTACIÓN DE MODELOS
 from app.models import (
-    categoria, proveedor, cliente, usuario, reporte, producto,
-    garantia, mantenimiento, insumo, compra, supervision,
-    BOM, pedido, detalle_pedido, despacho, pago
+    categoria, proveedor, usuario, reporte, producto
 )
 
-def ejecutar_carga():
-    print("🚀 Iniciando carga masiva de datos...")
+def ejecutar_carga_bedcom():
+    print("🚀 Iniciando carga masiva: Catálogo BedCom 2026...")
 
     try:
-        # --- MODELOS BASE ---
-        # Creamos el usuario primero para que el reporte no falle (tu error de la imagen)
+        # --- 1. USUARIO ADMINISTRADOR ---
         user, _ = usuario.objects.get_or_create(
-            cedula="1001", 
-            defaults={'nombre_usuar': 'admin', 'rol': 'Admin', 'estado': 'Activo'}
-        )
-        print("✅ Usuario listo.")
-
-        cat_prod, _ = categoria.objects.get_or_create(
-            nombre="Terminados", 
-            defaults={'descripcion': 'Productos para venta', 'estado': True}
-        )
-        
-        prov, _ = proveedor.objects.get_or_create(
-            nombre="Suministros Globales", 
-            defaults={'telefono': '5550101', 'direccion': 'Zona Norte', 'estado': True}
+            cedula="1020", 
+            defaults={'nombre_usuar': 'admin_bedcom', 'rol': 'Administrador', 'estado': 'Activo'}
         )
 
-        cli, _ = cliente.objects.get_or_create(
-            cedula="2002", 
-            defaults={'nombre': 'Carlos Pérez', 'telefono': '310222', 'direccion': 'Calle Falsa 123', 'estado': True}
-        )
+        # --- 2. CATEGORÍAS DEL CATÁLOGO ---
+        # Basado en las secciones del PDF
+        cat_espaldar, _ = categoria.objects.get_or_create(nombre="Espaldares", defaults={'descripcion': 'Espaldares de alta calidad', 'estado': True})
+        cat_base, _ = categoria.objects.get_or_create(nombre="Basecamas", defaults={'descripcion': 'Bases en diseño y baúles', 'estado': True})
+        cat_premium, _ = categoria.objects.get_or_create(nombre="Gama Premium", defaults={'descripcion': 'Línea de lujo BedCom', 'estado': True})
 
-        # --- REPORTES Y SUPERVISIÓN ---
+        # --- 3. REPORTE DE INVENTARIO ---
         rep, _ = reporte.objects.get_or_create(
-            tipo="Carga Inicial", 
-            id_usuario=user, # Vinculamos al usuario creado arriba
+            tipo="Carga Inicial Catálogo 2026", 
+            id_usuario=user,
             defaults={'fecha': date.today()}
         )
 
-        sup, _ = supervision.objects.get_or_create(
-            fecha=date.today(), 
-            id_usuario=user, 
-            defaults={'descripcion': 'Supervisión de inventario inicial'}
+        # --- 4. PRODUCTOS REALES DEL CATÁLOGO ---
+        lista_productos = [
+            # Espaldares (Pág. 2-3)
+            {'nombre': 'Capitoneado Plano (Botón Mismo/Diamante)', 'cat': cat_espaldar, 'precio': 210000, 'stock': 10, 'tipo': 'Espaldar'},
+            {'nombre': 'Capitoneado Semicurvo Colmena', 'cat': cat_espaldar, 'precio': 230000, 'stock': 8, 'tipo': 'Espaldar'},
+            {'nombre': 'Lineal Banana', 'cat': cat_espaldar, 'precio': 190000, 'stock': 15, 'tipo': 'Espaldar'},
+            {'nombre': 'Lineal Tipo V', 'cat': cat_espaldar, 'precio': 190000, 'stock': 12, 'tipo': 'Espaldar'},
+            {'nombre': 'Chocolatina Punta Magica', 'cat': cat_espaldar, 'precio': 250000, 'stock': 7, 'tipo': 'Espaldar'},
+            
+            # Basecamas (Pág. 14)
+            {'nombre': 'Base Baúl Tapa Acolchada', 'cat': cat_base, 'precio': 550000, 'stock': 5, 'tipo': 'Basecama'},
+            {'nombre': 'Base Cama con Piecero en Diseño', 'cat': cat_base, 'precio': 480000, 'stock': 6, 'tipo': 'Basecama'},
+            {'nombre': 'Base Nido (Lisa/Acolchada)', 'cat': cat_base, 'precio': 620000, 'stock': 4, 'tipo': 'Basecama'},
+            {'nombre': 'Puff Zapatero', 'cat': cat_base, 'precio': 150000, 'stock': 20, 'tipo': 'Accesorio'},
+            
+            # Gama Premium (Pág. 16)
+            {'nombre': 'Espaldar 3D Marco Espejo Premium', 'cat': cat_premium, 'precio': 750000, 'stock': 3, 'tipo': 'Premium'},
+        ]
+
+        for p in lista_productos:
+            obj, created = producto.objects.get_or_create(
+                nombre=p['nombre'],
+                id_cat=p['cat'],
+                id_reporte=rep,
+                defaults={
+                    'tipo': p['tipo'],
+                    'precio': p['precio'],
+                    'stock': p['stock'],
+                    'estado': True
+                }
+            )
+            if created:
+                print(f"    🛏️  Producto creado: {obj.nombre}")
+
+        # --- 5. PROVEEDOR (BEDCOM) ---
+        prov, _ = proveedor.objects.get_or_create(
+            nombre="BedCom Premium", 
+            defaults={'telefono': '3007415996', 'direccion': 'Sogamoso, Boyacá', 'estado': True}
         )
 
-        # --- PRODUCTOS E INSUMOS ---
-        ins, _ = insumo.objects.get_or_create(
-            nombre="Acero", 
-            id_categoria=cat_prod,
-            defaults={'cantidad': 100, 'unidad_medida': 'Kg', 'estado': 'Disponible'}
-        )
-
-        prod, _ = producto.objects.get_or_create(
-            nombre="Viga Industrial", 
-            id_cat=cat_prod,
-            id_reporte=rep,
-            defaults={'tipo': 'Construcción', 'precio': 500.00, 'stock': 20, 'estado': True}
-        )
-
-        print("✅ Productos e Insumos listos.")
-
-        # --- FLUJO DE PEDIDO ---
-        ped, _ = pedido.objects.get_or_create(
-            id_cliente=cli, 
-            id_reporte=rep, 
-            defaults={'nombre': 'Pedido 001', 'estado': 'Pendiente', 'total': 1000.00}
-        )
-
-        pago.objects.get_or_create(
-            id_pedido=ped, 
-            id_reporte=rep, 
-            defaults={'fecha_pago': date.today(), 'monto': 1000.00, 'estado': True}
-        )
-
-        print("\n🔥 ¡ÉXITO! Base de datos poblada sin errores.")
+        print("\n🔥 ¡ÉXITO! Catálogo BedCom 2026 cargado en la base de datos.")
 
     except Exception as e:
-        print(f"\n❌ Error durante la carga: {e}")
+        print(f"\n❌ Error en la carga: {e}")
 
 if __name__ == '__main__':
-    ejecutar_carga()
+    ejecutar_carga_bedcom()

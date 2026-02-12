@@ -11,12 +11,9 @@
         </div>
     </div>
 
-    <div class="title">{% block header_title %}MENÚ PRINCIPAL{% endblock %}</div> 
+    <div class="title">{{ titulo_pagina|default:"SISTEMA" }}</div>
 
-    <label class="search" aria-label="Buscar" for="searchInput">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="search" id="searchInput" placeholder="Buscar" />
-    </label>
+    
 
     <div class="icon-right-container">
         <button id="noti" class="notif-btn" aria-label="Notificaciones">

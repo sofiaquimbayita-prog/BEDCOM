@@ -1,4 +1,4 @@
-{% extends "../login/base.html" %} 
+{% extends "login/base.html" %}
 {% load static %}
 {% block title %}Iniciar Sesión{% endblock title %} 
 
@@ -20,28 +20,29 @@
         
         <div class="formulario">
             
-            <form id="loginForm">
-                <label for="correo" class="label" data-i18n="label-correo">Correo electrónico</label>
-                <input type="email" id="correo" name="correo" placeholder="usuario@dominio.com" 
-                        data-i18n="placeholder-email" required>
-                <div id="emailError" class="error-msg"></div>
+                <form id="loginForm" method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <label for="loginCorreo" class="label" data-i18n="label-correo">Correo electrónico</label>
+                <input type="email" id="loginCorreo" name="username" placeholder="usuario@dominio.com" 
+                    data-i18n="placeholder-email" data-i18n-placeholder="placeholder-email" required>
+                <div id="loginEmailError" class="error-msg"></div>
                 
-                <label for="contrasena" class="label" data-i18n="label-contrasena">Contraseña</label>
+                <label for="loginContrasena" class="label" data-i18n="label-contrasena">Contraseña</label>
                 <div class="password-container">
-                    <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" 
-                            data-i18n="placeholder-password" required>
-                    <button type="button" id="togglePassword">
+                    <input type="password" id="loginContrasena" name="password" placeholder="Contraseña" 
+                            data-i18n="placeholder-password" data-i18n-placeholder="placeholder-password" required>
+                    <button type="button" id="toggleLoginPassword">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </div>
-                <div id="passwordError" class="error-msg"></div>
+                <div id="loginPasswordError" class="error-msg"></div>
                 
                 <button type="submit" class="botonr" id="loginButton" disabled data-i18n="texto-continuar">Continuar</button>
 
             </form>
             
             <p class="pregunta">
-                <a href="{% url 'recuperar_contrasena' %}" id="olvidaste-enlace" data-i18n="texto-olvidaste">¿Olvidaste tu contraseña?</a>
+                <a href="{% url 'password_reset' %}" id="olvidaste-enlace" data-i18n="texto-olvidaste">¿Olvidaste tu contraseña?</a>
             </p>
 
             <p class="pregunta">
