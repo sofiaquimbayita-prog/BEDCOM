@@ -1,4 +1,5 @@
 from django.db import models #Librerias
+from django.core.validators import RegexValidator
 
 # --- MODELOS BASE ---
 
@@ -15,11 +16,25 @@ class categoria (models.Model):
 
 class proveedor (models.Model): #Clase Proveedor
     nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=10)
+    telefono = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(regex=r'^\d{7,10}$', message='El teléfono debe contener entre 7 y 10 dígitos')
+        ]
+    )
     direccion = models.CharField(max_length=200)
     estado = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='proveedores/', blank=True, null=True, help_text="Imagen del proveedor")
+    
     def __str__(self):
         return self.nombre
+    
+    @property
+    def imagen_url(self):
+        if self.imagen and hasattr(self.imagen, 'url'):
+            return self.imagen.url
+        return None
+    
     class Meta:
         verbose_name = "Proveedor"
         verbose_name_plural = "Proveedores"
@@ -218,3 +233,27 @@ class pago (models.Model):
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"
         db_table = "pagos"
+
+# --- MODELO DE RESPALDOS ---
+
+class respaldo (models.Model):
+    TIPO_CHOICES = (
+        ('completo', 'Respaldo Completo'),
+        ('parcial', 'Respaldo Parcial'),
+        ('incremental', 'Respaldo Incremental'),
+    )
+    
+    fecha = models.DateTimeField(auto_now_add=True)
+    tipo_respaldo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='completo')
+    descripcion = models.TextField(blank=True, null=True)
+    usuario = models.CharField(max_length=100, default='admin')
+    estado = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"Respaldo {self.tipo_respaldo} - {self.fecha}"
+    
+    class Meta:
+        verbose_name = "Respaldo"
+        verbose_name_plural = "Respaldos"
+        db_table = "respaldos"
+        ordering = ['-fecha']

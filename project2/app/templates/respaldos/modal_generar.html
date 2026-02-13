@@ -1,0 +1,26 @@
+<!-- MODAL PARA GENERAR RESPALDO -->
+<span class="close" onclick="document.getElementById('generarModal').classList.remove('active')">&times;</span>
+<h3>Generar Respaldo</h3>
+<form id="generarRespaldoForm" method="post" action="/respaldos/generar/">
+  {% csrf_token %}
+  
+  <div class="form-group">
+    <label for="generarTipo">Tipo de Respaldo:</label>
+    <select id="generarTipo" name="tipo_respaldo" required>
+      <option value="">Seleccionar tipo...</option>
+      <option value="completo">Respaldo Completo</option>
+      <option value="parcial">Respaldo Parcial</option>
+      <option value="incremental">Respaldo Incremental</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="generarDescripcion">Descripción:</label>
+    <textarea id="generarDescripcion" name="descripcion" placeholder="Descripción del respaldo" maxlength="500" rows="3"></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn-save">Generar Respaldo</button>
+    <button type="button" class="btn-cancel">Cancelar</button>
+  </div>
+</form>

@@ -1,0 +1,89 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block content %}
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
+
+ 
+
+  <main class="content">
+    <div class="card">
+      <h2 class="section-title">Historial de actividades</h2>
+      <div class="decor-line"></div>
+
+      <!-- Summary cards -->
+      <div class="stats-cards">
+        <div class="small-card total">
+          <div class="label">Total</div>
+          <div class="value">{{ respaldos|length }}</div>
+        </div>
+        <div class="small-card last">
+          <div class="label">Último respaldo</div>
+          <div class="value">{% if respaldos %}{{ respaldos.0.get_tipo_respaldo_display }}{% else %}-{% endif %}</div>
+        </div>
+        <div class="small-card recent">
+          <div class="label">Fecha más reciente</div>
+          <div class="value">{% if respaldos %}{{ respaldos.0.fecha|date:'Y-m-d H:i' }}{% else %}-{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <form method="post" action="{% url 'generar_respaldo' %}" class="generar-form">
+          {% csrf_token %}
+          <input type="date" name="date_from" />
+          <input type="date" name="date_to" />
+          <select name="tipo_respaldo">
+            <option value="completo">Completo</option>
+            <option value="entro">Entro</option>
+            <option value="salio">salio</option>
+          </select>
+          <input type="text" name="descripcion" placeholder="Descripción (opcional)" />
+          <button type="submit" id="generarBtn" class="btn-generar big primary"><i class="fa-solid fa-cloud-arrow-up"></i> Generar respaldo</button>
+        </form>
+      </div>
+
+      <div class="table-container">
+        <table class="respaldos-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Movimiento</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if respaldos %}
+              {% for r in respaldos %}
+                <tr>
+                  <td>{{ r.fecha|date:'Y-m-d H:i' }}</td>
+                  <td>{{ r.usuario }}</td>
+                  <td><span class="badge-movimiento badge-{{ r.tipo_respaldo }}">{{ r.get_tipo_respaldo_display }}</span></td>
+                  <td>{{ r.descripcion|default:'-' }}</td>
+                  <td>
+                    <button type="button" class="btn-delete" onclick="openDeleteModal({{ r.id }}, '{{ r.fecha|date:'Y-m-d H:i' }}')">Eliminar</button>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="5" class="empty">No hay respaldos registrados</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Delete -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      {% include "respaldos/modal_delete.html" %}
+    </div>
+  </div>
+
+  <script src="{% static 'ap1/js/respaldos.js' %}"></script>
+
+{% endblock %}

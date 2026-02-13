@@ -1,0 +1,14 @@
+<!-- MODAL PARA ELIMINAR RESPALDO -->
+<span class="close" onclick="document.getElementById('deleteModal').classList.remove('active')">&times;</span>
+
+<h3>Confirmar Eliminación</h3>
+<p>¿Estás seguro de que deseas eliminar el respaldo del <strong id="deleteRespaldoDate"></strong>?</p>
+<p style="color: #f59e0b; font-size: 0.9em; margin-top: 10px;">⚠️ Esta acción no se puede deshacer.</p>
+
+<form id="deleteForm" method="post" action="">
+  {% csrf_token %}
+  <div class="form-actions">
+    <button id="confirmDeleteBtn" type="submit" class="btn-delete">Eliminar</button>
+    <button type="button" class="btn-cancel">Cancelar</button>
+  </div>
+</form>

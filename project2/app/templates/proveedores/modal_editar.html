@@ -1,0 +1,35 @@
+<!-- MODAL PARA EDITAR PROVEEDOR -->
+<div class="modal-content form-container">
+  <span class="close" onclick="document.getElementById('editModal').style.display='none'">&times;</span>
+  <h3>Editar Proveedor</h3>
+  <form id="editProveedorForm" method="post" action="">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label for="editNombre">Nombre:</label>
+      <input type="text" id="editNombre" name="nombre" placeholder="Nombre del proveedor" maxlength="100" required>
+    </div>
+
+    <div class="form-group">
+      <label for="editTelefono">Teléfono:</label>
+      <input type="tel" id="editTelefono" name="telefono" placeholder="Teléfono (7-10 dígitos)" maxlength="10" required>
+    </div>
+
+    <div class="form-group">
+      <label for="editDireccion">Dirección:</label>
+      <textarea id="editDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="editEstado">
+        <input type="checkbox" id="editEstado" name="estado" checked>
+        Activo
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save">Actualizar</button>
+      <button type="button" class="btn-cancel" onclick="document.getElementById('editModal').style.display='none'">Cancelar</button>
+    </div>
+  </form>
+</div>

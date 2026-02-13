@@ -38,6 +38,7 @@ body {
   font-family: Inter, system-ui, sans-serif;
   color: var(--text);
   background: var(--fondo);
+  min-height: 100vh;
   overflow-x: hidden;
 }
 a {
@@ -91,6 +92,7 @@ a {
   background: darken(#0ea5e9, 5%);
 }
 .title {
+  order: 0;
   font-weight: 700;
   letter-spacing: .3px;
   margin-right: auto;
@@ -98,6 +100,7 @@ a {
 
 /* Search */
 .search {
+  order: 2;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -240,6 +243,7 @@ a {
 }
 /* Perfil */
 .perfil-container {
+  order: 0;
   position: relative;
   display: inline-block;
 }
@@ -276,6 +280,7 @@ a {
 
 /* Botones con estilo de la imagen de referencia */
 .icon-right-container {
+  order: 3;
   display: flex;
   gap: 10px;
 }
@@ -586,6 +591,7 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
 .accesibilidad {
   position: relative;
   margin-left: 10px;
+  order: 4;
 }
 
 .menu-accesibilidad {

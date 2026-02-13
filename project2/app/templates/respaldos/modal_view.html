@@ -1,0 +1,28 @@
+<!-- MODAL PARA VER DETALLES DEL RESPALDO -->
+<span class="close" onclick="document.getElementById('viewModal').classList.remove('active')">&times;</span>
+
+<h3>Detalles del Respaldo</h3>
+
+<div class="view-group">
+  <label>Fecha:</label>
+  <p id="viewFecha"></p>
+</div>
+
+<div class="view-group">
+  <label>Usuario:</label>
+  <p id="viewUsuario"></p>
+</div>
+
+<div class="view-group">
+  <label>Tipo:</label>
+  <p id="viewTipo"></p>
+</div>
+
+<div class="view-group">
+  <label>Descripción:</label>
+  <p id="viewDescripcion"></p>
+</div>
+
+<div class="form-actions">
+  <button class="btn-cancel" onclick="document.getElementById('viewModal').classList.remove('active')">Cerrar</button>
+</div>

@@ -1,0 +1,36 @@
+<div class="modal-content form-container">
+  <span class="close" onclick="cerrarModal('modalAdd')">&times;</span>
+  
+  <h3>Agregar Proveedor</h3>
+  
+  <form id="addProveedorForm" method="post" action="/proveedores/crear/">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label for="addNombre">Nombre:</label>
+      <input type="text" id="addNombre" name="nombre" placeholder="Nombre del proveedor" maxlength="100" required>
+    </div>
+
+    <div class="form-group">
+      <label for="addTelefono">Teléfono:</label>
+      <input type="tel" id="addTelefono" name="telefono" placeholder="Teléfono (7-10 dígitos)" maxlength="10" required>
+    </div>
+
+    <div class="form-group">
+      <label for="addDireccion">Dirección:</label>
+      <textarea id="addDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="addEstado">
+        <input type="checkbox" id="addEstado" name="estado" checked>
+        Activo
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save">Guardar</button>
+      <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')">Cancelar</button>
+    </div>
+  </form>
+</div>

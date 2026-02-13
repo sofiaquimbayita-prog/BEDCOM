@@ -1,0 +1,16 @@
+<!-- MODAL PARA ELIMINAR PROVEEDOR -->
+<div class="modal-content delete-container">
+  <span class="close">&times;</span>
+  
+  <h3>¿deseas inactivar?</h3>
+  <p>¿Estás seguro de que deseas inactivar al proveedor <strong id="deleteProviderName"></strong>?</p>
+  <p style="color: #f59e0b; font-size: 0.9em; margin-top: 10px;">⚠️ Esta acción no se puede deshacer.</p>
+
+  <form id="deleteForm" method="post" action="">
+    {% csrf_token %}
+    <div class="form-actions">
+      <button id="confirmDeleteBtn" type="submit" class="btn-delete" style="background-color: #ef4444; color: white;">inactivar</button>
+      <button type="button" class="btn-cancel" onclick="document.getElementById('deleteModal').style.display='none'">Cancelar</button>
+    </div>
+  </form>
+</div>
