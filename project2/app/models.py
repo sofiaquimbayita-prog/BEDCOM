@@ -105,14 +105,16 @@ class mantenimiento(models.Model):
         verbose_name_plural = "Mantenimientos"
         db_table = "mantenimiento"
 
-# --- MODELOS DE INSUMOS Y COMPRAS ---
+# --- MODELOS DE INSUMOS ---
 
 class insumo(models.Model):
     nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)  # ← agregar esto
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=20)
     estado = models.CharField(max_length=20)
     id_categoria = models.ForeignKey('categoria', on_delete=models.CASCADE)
+
     def __str__(self):
         return self.nombre
     class Meta:
@@ -196,7 +198,6 @@ class despacho(models.Model): #clase Despacho
     fecha = models.DateField()
     estado_entrega = models.CharField(max_length=50)
     id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
-    # CORREGIDO: Apunta al nuevo modelo 'supervision'
     id_supervision = models.ForeignKey('supervision', on_delete=models.CASCADE)
     def __str__(self):
         return f"Despacho del pedido {self.id_pedido_id}"
@@ -210,7 +211,6 @@ class pago (models.Model):
     fecha_pago = models.DateField()
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.BooleanField(default=True)
-    # ELIMINADO: Estaba duplicado 'id_pedido'
     id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
     def __str__(self):
         return f"Pago de {self.monto} el {self.fecha_pago}"
@@ -219,21 +219,49 @@ class pago (models.Model):
         verbose_name_plural = "Pagos"
         db_table = "pagos"
 
+# --- MODELOS DE CALENDARIO ---
+class CategoriaEvento(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    color = models.CharField(max_length=7, default='#3498db')  # código hex
+    descripcion = models.TextField(blank=True)
+    estado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Categoría de Evento"
+        verbose_name_plural = "Categorías de Eventos"
+        db_table = "categoria_evento"
+
+
 class calendario(models.Model):
-    categoria=[ 
-                ('pago', 'Pago'),
-                ('compra', 'Compra'),
-                ('pedido', 'Pedido'),]
-    titulo = models.CharField(max_length=100)
-    fecha = models.DateField()
-    hora = models.TimeField()
-    categoria = models.CharField(max_length=50, choices=categoria)
+
+    ESTADO_PENDIENTE   = 'pendiente'
+    ESTADO_COMPLETADO  = 'completado'
+    ESTADO_CANCELADO   = 'cancelado'
+    
+    ESTADO_CHOICES = [
+        (ESTADO_PENDIENTE,  'Pendiente'),
+        (ESTADO_COMPLETADO, 'Completado'),
+        (ESTADO_CANCELADO,  'Cancelado'),
+    ]
+
+    titulo      = models.CharField(max_length=100)
+    fecha       = models.DateField()
+    hora        = models.TimeField()
+    categoria   = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
     descripcion = models.TextField()
+    estado      = models.CharField(              
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default=ESTADO_PENDIENTE,
+    )
+
     def __str__(self):
         return self.titulo
+
     class Meta:
         verbose_name = "calendario"
         verbose_name_plural = "calendarios"
         db_table = "calendario"
-        
-    

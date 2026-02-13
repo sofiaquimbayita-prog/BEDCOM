@@ -1,273 +1,401 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const modal      = document.getElementById('form-modal-container');
-    const form       = document.getElementById('event-form');
-    const btnNuevo   = document.getElementById('btn-nueva-actividad');
-    const statusBar  = document.querySelector('.modal-status-bar'); // Seleccionamos la barra del modal
-    const categoryEl = document.getElementById('category');
-    const modalTitle = document.getElementById('modal-form-title');
+$(document).ready(function () {
 
-    // Mapa de colores (Debe coincidir con las variables del CSS)
-    const coloresCat = {
-        pago:      '#e74c3c', // Rojo
-        compra:    '#f1c40f', // Amarillo
-        pedido:    '#3498db', // Azul
-        entrega:   '#2ecc71', // Verde (si se usa)
+    // ========== ELEMENTOS DEL MODAL CREAR/EDITAR ==========
+    const modal         = $('#modal-evento');
+    const form          = document.getElementById('form-evento');
+    const tituloModal   = document.getElementById('modal-titulo-evento');
+    const eventoIdInput = document.getElementById('evento-id');
+
+    // ========== ELEMENTOS DEL MODAL DETALLE ==========
+    const modalDetalle  = $('#modal-detalle-evento');
+    let   eventoDetalleId = null;   // ID del evento que está abierto en el detalle
+
+    // ========== CONFIG SWEETALERT2 ==========
+    const swalConfig = {
+        background: '#1b2537',
+        color: '#e9eef7',
+        confirmButtonColor: '#5cc8ff',
+        cancelButtonColor: '#4ea3a5'
     };
 
-    // Actualiza visualmente la barra lateral del modal según la categoría seleccionada
-    function actualizarBarra(categoria) {
-        if (statusBar) {
-            statusBar.style.backgroundColor = coloresCat[categoria] || 'var(--brand)';
-        }
-    }
-
-    // --- ABRIR MODAL PARA CREAR ---
-    if (btnNuevo) {
-        btnNuevo.onclick = () => {
-            form.reset();
-            document.getElementById('event-id').value = "";
-            if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Nueva Actividad';
-            
-            // Forzar color inicial (por defecto o el del select)
-            actualizarBarra(categoryEl.value);
-            modal.style.display = 'flex';
-        };
-    }
-
-    // --- ABRIR MODAL PARA EDITAR ---
-    // Usamos delegación o forEach para los botones de la lista
-    document.querySelectorAll('.edit-trigger').forEach(btn => {
-        btn.onclick = function () {
-            const data = this.dataset;
-            
-            if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editar Actividad';
-            
-            // Llenar campos del formulario
-            document.getElementById('event-id').value    = data.id;
-            document.getElementById('title').value       = data.titulo;
-            document.getElementById('date').value        = data.fecha;
-            document.getElementById('time').value        = data.hora;
-            document.getElementById('category').value    = data.categoria;
-            document.getElementById('description').value = data.descripcion;
-            
-            actualizarBarra(data.categoria);
-            modal.style.display = 'flex';
-        };
-    });
-
-    // Cambiar color de la barra en tiempo real cuando el usuario cambia el select
-    if (categoryEl) {
-        categoryEl.addEventListener('change', () => actualizarBarra(categoryEl.value));
-    }
-
-    // --- CERRAR MODAL ---
-    document.querySelectorAll('.close-modal-form, .btn-modal-cancelar').forEach(el => {
-        el.onclick = () => {
-            modal.style.display = 'none';
-        };
-    });
-
-    // Cerrar si se hace click fuera del cuadro blanco (en el overlay)
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
+    // ========== HELPERS DE ESTADO ==========
+    const estadoConfig = {
+        pendiente:  { label: 'Pendiente',  color: '#f1c40f', icon: 'fa-regular fa-clock'       },
+        completado: { label: 'Completado', color: '#2ecc71', icon: 'fa-solid fa-circle-check'  },
+        cancelado:  { label: 'Cancelado',  color: '#e74c3c', icon: 'fa-solid fa-ban'            },
     };
 
-    // --- GUARDAR (CREAR O EDITAR) ---
-    form.onsubmit = function (e) {
-        e.preventDefault();
-        const id  = document.getElementById('event-id').value;
-        
-        // Definir URL: si hay ID editamos, si no, creamos
-        const url = id 
-            ? `/vistas/calendario/editar/${id}/` 
-            : '/vistas/calendario/crear/';
+    function renderEstadoBadge(estado) {
+        const cfg = estadoConfig[estado] || estadoConfig.pendiente;
+        const $badge = $('#detalle-estado-badge');
+        $badge.html(`<i class="${cfg.icon}"></i> ${cfg.label}`);
+        $badge.css({
+            'background': `rgba(0,0,0,0.25)`,
+            'border':     `1px solid ${cfg.color}55`,
+            'color':      cfg.color,
+        });
+    }
 
-        const formData = new FormData(this);
+    function marcarBotonActivo(estadoActual) {
+        // Resalta el botón del estado activo con mayor opacidad
+        $('.btn-estado-opcion').each(function () {
+            const es = $(this).data('estado');
+            if (es === estadoActual) {
+                $(this).css('opacity', '1').css('box-shadow', `0 0 0 2px ${estadoConfig[es].color}88`);
+            } else {
+                $(this).css('opacity', '0.45').css('box-shadow', 'none');
+            }
+        });
+    }
+
+    // ========== DATATABLE ==========
+    const tabla = $('#tablaEventos').DataTable({
+        ajax: EVENTOS_DATA_URL,
+        columns: [
+            { data: "titulo" },
+            {
+                data: "categoria",
+                render: function (data, type, row) {
+                    return `<span style="color:${row.categoria_color};">&#11044;</span> ${data}`;
+                }
+            },
+            { data: "fecha_display" },
+            { data: "hora" },
+            {
+                data: "descripcion",
+                render: function (data) {
+                    return data && data.length > 50 ? data.substr(0, 50) + '…' : (data || '');
+                }
+            },
+            {
+                data: "id",
+                render: function (data, type, row) {
+                    // Badge de estado con color según valor
+                    const estadoMap = {
+                        pendiente:  { color: '#f1c40f', icon: 'fa-regular fa-clock',      label: 'Pendiente'  },
+                        completado: { color: '#2ecc71', icon: 'fa-solid fa-circle-check', label: 'Completado' },
+                        cancelado:  { color: '#e74c3c', icon: 'fa-solid fa-ban',          label: 'Cancelado'  },
+                    };
+                    const est = estadoMap[row.estado] || estadoMap.pendiente;
+                    const badgeEstado = `
+                        <span style="
+                            display:inline-flex;align-items:center;gap:5px;
+                            font-size:0.7rem;font-weight:700;text-transform:uppercase;
+                            letter-spacing:0.04em;padding:3px 10px;border-radius:20px;
+                            color:${est.color};
+                            background:${est.color}18;
+                            border:1px solid ${est.color}44;
+                            margin-right:6px;">
+                            <i class="${est.icon}" style="font-size:0.65rem;"></i> ${est.label}
+                        </span>`;
+                    return `
+                        <div class="acciones-tabla">
+                            ${badgeEstado}
+                            <button class="btn-accion btn-ver" title="Ver detalles" onclick="verEvento(${data})">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn-accion btn-editar" title="Editar" onclick="editarEvento(${data})">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="btn-accion btn-eliminar" title="Eliminar" onclick="eliminarEvento(${data})">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>`;
+                }
+            }
+        ],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+        },
+        order: [[2, 'desc']]
+    });
+
+    // ========== CLASES DE CATEGORÍA EN FILAS ==========
+    function aplicarClasesCategoria() {
+        $('#tablaEventos tbody tr').each(function () {
+            const $row = $(this);
+            let categoriaText = $row.find('td:nth-child(2)')
+                .clone().find('span').remove().end()
+                .text().trim().toLowerCase();
+
+            $row.removeClass(
+                'cat-pedido-row cat-compra-row cat-pago-row ' +
+                'cat-mantenimiento-row cat-reunion-row cat-entrega-row cat-capacitacion-row ' +
+                'evento-completado evento-cancelado'
+            );
+
+            if      (categoriaText.includes('pedido'))                                       $row.addClass('cat-pedido-row');
+            else if (categoriaText.includes('compra'))                                       $row.addClass('cat-compra-row');
+            else if (categoriaText.includes('pago'))                                         $row.addClass('cat-pago-row');
+            else if (categoriaText.includes('mantenimiento'))                                $row.addClass('cat-mantenimiento-row');
+            else if (categoriaText.includes('reunion') || categoriaText.includes('reunión')) $row.addClass('cat-reunion-row');
+            else if (categoriaText.includes('entrega'))                                      $row.addClass('cat-entrega-row');
+            else if (categoriaText.includes('capacitacion') || categoriaText.includes('capacitación')) $row.addClass('cat-capacitacion-row');
+
+            // Opacidad según estado: completado/cancelado se ven "terminados"
+            const badgeTexto = $row.find('.acciones-tabla span').text().trim().toLowerCase();
+            if      (badgeTexto.includes('completado')) $row.addClass('evento-completado');
+            else if (badgeTexto.includes('cancelado'))  $row.addClass('evento-cancelado');
+        });
+    }
+
+    tabla.on('draw', aplicarClasesCategoria);
+    aplicarClasesCategoria();
+
+    // ========== ABRIR MODAL CREAR ==========
+    $('#btn-nueva-actividad').click(function () {
+        form.reset();
+        if (eventoIdInput) eventoIdInput.value = '';
+        tituloModal.innerText = 'Agregar Nueva Actividad';
+        form.action = CREAR_EVENTO_URL;
+        modal.addClass('mostrar');
+    });
+
+    // ========== VER EVENTO (NUEVO) ==========
+    window.verEvento = function (id) {
+        const url = OBTENER_EVENTO_BASE + id + '/';
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error('Error al obtener evento');
+                return res.json();
+            })
+            .then(data => {
+                eventoDetalleId = data.id;
+
+                // Rellenar campos de solo lectura
+                $('#detalle-titulo').text(data.titulo);
+                $('#detalle-fecha').text(data.fecha_display);
+                $('#detalle-hora').text(data.hora);
+                $('#detalle-descripcion').text(data.descripcion || '—');
+
+                // Badge de categoría con color dinámico
+                $('#detalle-badge-cat')
+                    .text(data.categoria_nombre)
+                    .css({
+                        'color':         data.categoria_color,
+                        'border-color':  data.categoria_color + '55',
+                    });
+
+                // Estado
+                renderEstadoBadge(data.estado);
+                marcarBotonActivo(data.estado);
+
+                modalDetalle.addClass('mostrar');
+            })
+            .catch(() => {
+                Swal.fire({
+                    ...swalConfig,
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo cargar la información del evento.'
+                });
+            });
+    };
+
+    // ========== CSRF desde cookie (no depende de ningún form en el DOM) ==========
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(function (cookie) {
+                const c = cookie.trim();
+                if (c.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(c.slice(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    // ========== CAMBIAR ESTADO ==========
+    $(document).on('click', '.btn-estado-opcion', function () {
+        if (!eventoDetalleId) return;
+
+        const nuevoEstado = $(this).data('estado');
+        const csrftoken   = getCookie('csrftoken');
+        const url         = CAMBIAR_ESTADO_BASE + eventoDetalleId + '/';
+
+        const formData = new FormData();
+        formData.append('estado', nuevoEstado);
 
         fetch(url, {
             method: 'POST',
             body: formData,
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Error en la respuesta del servidor");
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'success') {
-                location.reload(); // Recargar para ver los cambios
-            } else {
-                alert("Error: " + (data.message || "No se pudo guardar"));
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .catch(error => {
-            console.error("Error fatal:", error);
-            alert("Ocurrió un error al procesar la solicitud.");
+        .then(res => {
+            if (!res.ok) throw new Error('Error al cambiar estado');
+            return res.json();
+        })
+        .then(data => {
+            renderEstadoBadge(data.estado);
+            marcarBotonActivo(data.estado);
+            tabla.ajax.reload(null, false);
+        })
+        .catch(() => {
+            Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cambiar el estado del evento.'
+            });
+        });
+    });
+
+
+    // ========== EDITAR EVENTO ==========
+    window.editarEvento = function (id) {
+        const url = OBTENER_EVENTO_BASE + id + '/';
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error('Error al obtener evento');
+                return res.json();
+            })
+            .then(data => {
+                form.titulo.value       = data.titulo;
+                form.fecha.value        = data.fecha;
+                form.hora.value         = data.hora;
+                form.categoria.value    = data.categoria;
+                form.descripcion.value  = data.descripcion || '';
+                if (eventoIdInput) eventoIdInput.value = data.id;
+
+                tituloModal.innerText = 'Editar Actividad';
+                form.action = EDITAR_EVENTO_BASE + id + '/';
+                modal.addClass('mostrar');
+            })
+            .catch(() => {
+                Swal.fire({
+                    ...swalConfig,
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo cargar la información del evento.'
+                });
+            });
+    };
+
+    // ========== ENVÍO DEL FORMULARIO CREAR/EDITAR ==========
+    form.onsubmit = function (e) {
+        e.preventDefault();
+        const formData     = new FormData(form);
+        const esEdicion    = form.action.includes('editar');
+        const tituloEvento = formData.get('titulo');
+        const actionUrl    = form.action.endsWith('/') ? form.action : form.action + '/';
+
+        fetch(actionUrl, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json();
+        })
+        .then(() => {
+            modal.removeClass('mostrar');
+            form.reset();
+            tabla.ajax.reload(null, false);
+            Swal.fire({
+                ...swalConfig,
+                icon: 'success',
+                title: esEdicion ? '¡Actualizado!' : '¡Guardado!',
+                text: `La actividad "${tituloEvento}" ha sido ${esEdicion ? 'actualizada' : 'creada'} con éxito.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch((err) => {
+            console.error('Error al guardar evento:', err);
+            Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron guardar los cambios. Intente de nuevo.'
+            });
         });
     };
 
-    // --- ELIMINAR ACTIVIDAD ---
-    document.querySelectorAll('.delete-trigger').forEach(btn => {
-        btn.onclick = function () {
-            const id = this.dataset.id;
-            if (confirm("¿Estás seguro de que deseas eliminar esta actividad de Bedcom?")) {
-                fetch(`/vistas/calendario/eliminar/${id}/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert("Error al eliminar");
+    // ========== ELIMINAR EVENTO ==========
+    window.eliminarEvento = function (id) {
+        const obtenerUrl = OBTENER_EVENTO_BASE + id + '/';
+        fetch(obtenerUrl)
+            .then(res => {
+                if (!res.ok) throw new Error('Error al obtener evento');
+                return res.json();
+            })
+            .then(data => {
+                Swal.fire({
+                    background: '#1b2537',
+                    color: '#e9eef7',
+                    title: `¿Eliminar la actividad "${data.titulo}"?`,
+                    text: 'Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#4ea3a5',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrftoken  = getCookie('csrftoken');
+                        const eliminarUrl = ELIMINAR_EVENTO_BASE + id + '/';
+                        fetch(eliminarUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    ...swalConfig,
+                                    icon: 'success',
+                                    title: '¡Eliminado!',
+                                    text: `La actividad "${data.titulo}" ha sido borrada.`,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                tabla.ajax.reload();
+                            } else {
+                                throw new Error('Error al eliminar');
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire({
+                                ...swalConfig,
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo eliminar la actividad.'
+                            });
+                        });
                     }
                 });
-            }
-        };
-    });
-
-    // --- HELPER: OBTENER CSRF TOKEN ---
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    // ─── DRAWER DE DETALLE ─────────────────────────────
-    const drawer         = document.getElementById('detail-drawer');
-    const drawerOverlay  = document.getElementById('detail-drawer-overlay');
-    const drawerClose    = document.getElementById('drawer-close-btn');
-    const drawerAccent   = document.getElementById('drawer-accent-bar');
-    const drawerCatPill  = document.getElementById('drawer-cat-pill');
-    const drawerCatText  = document.getElementById('drawer-cat-text');
-    const drawerActionEdit = document.getElementById('drawer-action-edit');
-    const drawerActionDone = document.getElementById('drawer-action-done');
-
-    // Colores de acento por categoría
-    const coloresDrawer = {
-        pago:    '#e74c3c',
-        compra:  '#f1c40f',
-        pedido:  '#3498db',
-        entrega: '#27ae60',
+            })
+            .catch(() => {
+                Swal.fire({
+                    ...swalConfig,
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo obtener la información del evento.'
+                });
+            });
     };
 
-    let currentDrawerData = {};
-
-    function openDrawer(data) {
-        currentDrawerData = data;
-        const color = coloresDrawer[data.categoria] || 'var(--info)';
-
-        // Aplicar color de acento
-        drawerAccent.style.background = color;
-        drawer.style.setProperty('--color-cat-drawer', color);
-        drawerCatPill.style.color        = color;
-        drawerCatPill.style.borderColor  = color;
-
-        // Rellenar datos
-        document.getElementById('drawer-cat-text').textContent     = data.categoriadisplay || data.categoria;
-        document.getElementById('drawer-titulo').textContent        = data.titulo || '—';
-        document.getElementById('drawer-fecha').textContent         = formatFecha(data.fechadisplay || data.fecha);
-        document.getElementById('drawer-hora').textContent          = formatHora(data.hora);
-        document.getElementById('drawer-descripcion').textContent   = data.descripcion || 'Sin descripción registrada.';
-
-        // Borde izquierdo de la descripción
-        document.getElementById('drawer-descripcion').style.borderLeftColor = color;
-
-        // Abrir
-        drawerOverlay.classList.add('is-open');
-        drawer.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeDrawer() {
-        drawer.classList.remove('is-open');
-        drawerOverlay.classList.remove('is-open');
-        document.body.style.overflow = '';
-    }
-
-    function formatFecha(fechaStr) {
-        if (!fechaStr) return '—';
-        // Si viene en Y-m-d, reformateamos
-        if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
-            const [y, m, d] = fechaStr.split('-');
-            const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-            return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
-        }
-        return fechaStr;
-    }
-
-    function formatHora(horaStr) {
-        if (!horaStr) return '—';
-        const [h, m] = horaStr.split(':');
-        const hNum = parseInt(h);
-        const ampm = hNum >= 12 ? 'PM' : 'AM';
-        const h12  = hNum % 12 || 12;
-        return `${h12}:${m} ${ampm}`;
-    }
-
-    // Botones de vista en las tarjetas
-    document.querySelectorAll('.view-trigger').forEach(btn => {
-        btn.onclick = function() {
-            openDrawer(this.dataset);
-        };
+    // ========== CERRAR MODALES ==========
+    $('#btn-cerrar-modal-evento, #btn-cancelar-evento').click(function () {
+        modal.removeClass('mostrar');
     });
 
-    // Cerrar drawer
-    if (drawerClose)   drawerClose.onclick   = closeDrawer;
-    if (drawerOverlay) drawerOverlay.onclick  = closeDrawer;
-
-    // Escape key
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeDrawer();
+    $('#btn-cerrar-detalle, #btn-cancelar-detalle').click(function () {
+        modalDetalle.removeClass('mostrar');
+        eventoDetalleId = null;
     });
 
-    // Botón Editar dentro del drawer → abre el modal de edición
-    if (drawerActionEdit) {
-        drawerActionEdit.onclick = function() {
-            closeDrawer();
-            const d = currentDrawerData;
-            if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Editar Actividad';
-            document.getElementById('event-id').value    = d.id;
-            document.getElementById('title').value       = d.titulo;
-            document.getElementById('date').value        = d.fecha;
-            document.getElementById('time').value        = d.hora;
-            document.getElementById('category').value    = d.categoria;
-            document.getElementById('description').value = d.descripcion;
-            actualizarBarra(d.categoria);
-            modal.style.display = 'flex';
-        };
-    }
-
-    // Botón Completar dentro del drawer → dispara el delete
-    if (drawerActionDone) {
-        drawerActionDone.onclick = function() {
-            const id = currentDrawerData.id;
-            if (!id) return;
-            if (confirm('¿Marcar esta actividad como completada y eliminarla de la agenda?')) {
-                closeDrawer();
-                fetch(`/vistas/calendario/eliminar/${id}/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.status === 'success') location.reload();
-                    else alert('Error al eliminar');
-                });
-            }
-        };
-    }
-
+    $(window).click(function (e) {
+        if ($(e.target).is(modal))        modal.removeClass('mostrar');
+        if ($(e.target).is(modalDetalle)) { modalDetalle.removeClass('mostrar'); eventoDetalleId = null; }
+    });
 
 });

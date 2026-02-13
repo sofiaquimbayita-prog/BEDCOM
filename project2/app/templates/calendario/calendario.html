@@ -1,132 +1,49 @@
 {% extends "includes/base.html" %}
 {% load static %}
-{% block header_title %}
-    AGENDA BEDCOM
-{% endblock %}
+{% block header_title %}AGENDA BEDCOM{% endblock %}
 {% block content %}
-<link re j l="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<main class="contenido">
-    <div class="header-acciones">
-       
-        <button id="btn-nueva-actividad" class="btn-primario">
-            <i class="fa-solid fa-calendar-plus"></i> Nueva Tarea
+<main class="main-container">
+    <div class="btn-agregar-container">
+        <button class="btn-agregar" id="btn-nueva-actividad">
+            <i class="fas fa-plus"></i> Nueva Actividad
         </button>
     </div>
 
-    <section class="panel-agenda-profesional">
-        <div class="agenda-lista" id="agenda-lista">
-            {% for evento in eventos %}
-            <div class="agenda-card-item {{ evento.categoria }}">
-                <div class="card-linea-color"></div>
-                <div class="card-cuerpo">
-                    <div class="card-fecha">
-                        <span class="dia">{{ evento.fecha|date:"d" }}</span>
-                        <span class="mes">{{ evento.fecha|date:"M" }}</span>
-                    </div>
-                    <div class="card-info-central">
-                        <span class="badge-tag">{{ evento.get_categoria_display }}</span>
-                        <h3>{{ evento.titulo }}</h3>
-                        <p>{{ evento.descripcion|truncatechars:60 }}</p>
-                    </div>
-                    
-                    <div class="card-opciones">
-                        <button class="view-trigger"
-                                data-id="{{ evento.id }}"
-                                data-titulo="{{ evento.titulo }}"
-                                data-fecha="{{ evento.fecha|date:'Y-m-d' }}"
-                                data-fechadisplay="{{ evento.fecha|date:'d \d\e N \d\e Y' }}"
-                                data-hora="{{ evento.hora|time:'H:i' }}"
-                                data-categoria="{{ evento.categoria }}"
-                                data-categoriadisplay="{{ evento.get_categoria_display }}"
-                                data-descripcion="{{ evento.descripcion }}">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                        <button class="edit-trigger" 
-                                data-id="{{ evento.id }}"
-                                data-titulo="{{ evento.titulo }}"
-                                data-fecha="{{ evento.fecha|date:'Y-m-d' }}"
-                                data-hora="{{ evento.hora|time:'H:i' }}"
-                                data-categoria="{{ evento.categoria }}"
-                                data-descripcion="{{ evento.descripcion }}">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button class="delete-trigger" data-id="{{ evento.id }}">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="agenda-vacia-contenedor">
-                <i class="fa-solid fa-calendar-days fa-3x"></i>
-                <p>No hay tareas pendientes en la agenda.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
+    <table id="tablaEventos" class="display">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
 </main>
 
-<div id="form-modal-container" class="modal-overlay-agenda">
-    <div class="modal-content-agenda">
-        {% include "calendario/modal_calendario.html" %}
-    </div>
-</div>
+<!-- Modal: crear / editar (ya existente) -->
+{% include "calendario/modal_calendario.html" %}
 
-<div id="detail-drawer-overlay" class="drawer-overlay"></div>
-<aside id="detail-drawer" class="detail-drawer" role="dialog" aria-modal="true">
-    <div class="drawer-accent-bar" id="drawer-accent-bar"></div>
-    <div class="drawer-inner">
-        <div class="drawer-header">
-            <div class="drawer-cat-pill" id="drawer-cat-pill">
-                <i class="fa-solid fa-tag"></i>
-                <span id="drawer-cat-text">—</span>
-            </div>
-            <button class="drawer-close-btn" id="drawer-close-btn" aria-label="Cerrar">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
+<!-- Modal: ver detalles (nuevo) -->
+{% include "calendario/modal_detalle_calendario.html" %}
 
-        <h2 class="drawer-titulo" id="drawer-titulo">—</h2>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <div class="drawer-meta-grid">
-            <div class="drawer-meta-item">
-                <span class="drawer-meta-icon"><i class="fa-solid fa-calendar-days"></i></span>
-                <div>
-                    <span class="drawer-meta-label">Fecha</span>
-                    <span class="drawer-meta-value" id="drawer-fecha">—</span>
-                </div>
-            </div>
-            <div class="drawer-meta-item">
-                <span class="drawer-meta-icon"><i class="fa-solid fa-clock"></i></span>
-                <div>
-                    <span class="drawer-meta-label">Hora</span>
-                    <span class="drawer-meta-value" id="drawer-hora">—</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="drawer-divider"></div>
-
-        <div class="drawer-desc-section">
-            <p class="drawer-desc-label">
-                <i class="fa-solid fa-align-left"></i> Detalles
-            </p>
-            <p class="drawer-desc-text" id="drawer-descripcion">Sin descripción registrada.</p>
-        </div>
-
-        <div class="drawer-divider"></div>
-
-        <div class="drawer-actions">
-            <button class="drawer-action-btn drawer-action-edit" id="drawer-action-edit">
-                <i class="fa-solid fa-pen-to-square"></i> Editar
-            </button>
-            <button class="drawer-action-btn drawer-action-done" id="drawer-action-done">
-                <i class="fa-solid fa-trash-can"></i> Completar
-            </button>
-        </div>
-    </div>
-</aside>
-
+<script>
+    const EVENTOS_DATA_URL          = "{% url 'eventos_data' %}";
+    const CREAR_EVENTO_URL          = "{% url 'crear_evento' %}";
+    const EDITAR_EVENTO_BASE        = "{% url 'editar_evento' 0 %}".replace('/0/', '/');
+    const OBTENER_EVENTO_BASE       = "{% url 'obtener_evento' 0 %}".replace('/0/', '/');
+    const ELIMINAR_EVENTO_BASE      = "{% url 'eliminar_evento' 0 %}".replace('/0/', '/');
+    const CAMBIAR_ESTADO_BASE       = "{% url 'cambiar_estado_evento' 0 %}".replace('/0/', '/');  {# ← nuevo #}
+</script>
 <script src="{% static 'ap1/js/calendario.js' %}"></script>
 {% endblock %}

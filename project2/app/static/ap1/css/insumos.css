@@ -1,258 +1,459 @@
+/* ──────────────────────────────────────────────────────────
+   CALENDARIO / AGENDA - ESTILOS ESTANDARIZADOS (INSUMOS)
+   Basado en el diseño de insumos, con adaptaciones propias
+────────────────────────────────────────────────────────── */
 
-
+/* ===== CONTENEDOR PRINCIPAL ===== */
 .main-container {
-    padding: var(--espacio-lg);
-    max-width: 1200px;
-    margin: 0 auto;
+  padding: 24px;
+  background-color: var(--fondo, #0b0f1a);
+  color: var(--text, #e9eef7);
+  min-height: calc(100vh - 80px);
 }
 
-/* BOTÓN AGREGAR */
+/* ===== BOTÓN AGREGAR (idéntico a insumos) ===== */
 .btn-agregar-container {
-    float: right;
-    margin-bottom: 40px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
 }
 
 .btn-agregar {
-    margin-top: 10px;
-    margin-left: 5px;
-    background: #03205e8c;
-    color: var(--text);
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+  background: linear-gradient(145deg, #0f1a2b, #0b121f);
+  color: white;
+  border: 1px solid rgba(4, 231, 102, 0.3);
+  padding: 12px 28px;
+  border-radius: 40px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.02em;
+}
+
+.btn-agregar i {
+  color: #04e766;
+  font-size: 1rem;
+  transition: transform 0.2s;
 }
 
 .btn-agregar:hover {
-    background: #04e7668c;
-    transform: translateY(-2px);
-    color: var(--text);
-}
-/* TABLA */
-#tablaInsumos {
-    width: 100% !important;
-    background: rgba(37, 47, 58, 0.288);
-    border-radius: var(--borde-md);
-    color: var(--text);
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter {
-    margin-bottom: 25px !important;
-    color: white !important;
-    position: relative;
-    z-index: 1;
-    
+  background: #112235;
+  border-color: rgba(4, 231, 102, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(4, 231, 102, 0.2);
 }
 
-/* Estilo para los inputs y selects de la tabla */
+.btn-agregar:hover i {
+  transform: rotate(90deg);
+}
+
+/* ===== DATATABLE ===== */
+/* Estilo oscuro, igual al usado en insumos (asumimos) */
+#tablaEventos {
+  width: 100% !important;
+  background: transparent;
+  border-collapse: collapse;
+  color: #e9eef7;
+}
+
+.dataTables_wrapper {
+  background: transparent;
+  color: #cbd5e8;
+}
+
+
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  margin-bottom: 16px;
+  color: #adb8cc;
+}
 
 .dataTables_wrapper .dataTables_filter input {
-    background: #525b8f23 !important;
-    color: white !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 6px;
-    padding: 6px 10px;
-}
-.dataTables_wrapper .dataTables_length select option {
-    background-color: #1b2537b9;
-    color: #e9eef7;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: white;
+  margin-left: 8px;
+  transition: all 0.2s;
 }
 
-.dataTables_wrapper .dataTables_paginate {
-    margin-top: 25px !important; 
-    color: white !important;
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: #04e766;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(4, 231, 102, 0.15);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-/* Botones de paginación */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    color: white !important;
-    border-radius: 4px;
-} 
-#tablaInsumos tbody tr td {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.acciones-tabla {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-}
-.btn-accion {
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: #1b2537;
+.dataTables_wrapper .dataTables_length select {
+    background: #0d1a2bb2;              
+    border: 1px solid rgba(4, 231, 102, 0.3);
+    border-radius: 30px;
+    padding: 8px 32px 8px 16px;
+    color: white;
+    font-size: 0.85rem;
     cursor: pointer;
+    appearance: none;
     transition: all 0.2s ease;
 }
 
-
-.btn-accion i {
-    font-size: 1rem;
+.dataTables_wrapper table.dataTable {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  margin-top: 8px !important;
 }
 
-/* Estilo específico: Editar */
-.btn-editar i {
-    color: rgba(255, 255, 255, 0.66) 
+.dataTables_wrapper table.dataTable thead th {
+  background: rgba(10, 20, 35, 0.7);
+  color: #0a7931;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 16px 12px;
+  border: none;
+  border-bottom: 1px solid rgba(4, 231, 102, 0.2);
+  text-align: left;
 }
 
-.btn-editar:hover {
-    background: var(--brand);
-    border-color: var(--brand);
+.dataTables_wrapper table.dataTable tbody tr {
+  background: rgba(18, 28, 40, 0.8);
+  backdrop-filter: blur(2px);
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
-.btn-editar:hover i {
-    color: #0b1220; 
+.dataTables_wrapper table.dataTable tbody tr:hover {
+  background: rgba(28, 42, 58, 0.9);
+  transform: scale(1.002);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
+.dataTables_wrapper table.dataTable tbody td {
+  padding: 16px 12px;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #dfe6f0;
+  font-size: 0.9rem;
+}
 
-.btn-eliminar i {
-    color: #ff5f5f9f; 
+.dataTables_wrapper table.dataTable tbody td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px 0 0 12px;
+}
+
+.dataTables_wrapper table.dataTable tbody td:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0 12px 12px 0;
+}
+
+/* ===== ACCIONES EN LA TABLA (botones editar/eliminar) ===== */
+.acciones-tabla {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.btn-accion {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #adb8cc;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-accion:hover {
+  background: rgba(4, 231, 102, 0.12);
+  border-color: rgba(4, 231, 102, 0.4);
+  color: #04e766;
+  transform: translateY(-2px);
 }
 
 .btn-eliminar:hover {
-    background: #ff5f5fc2;
-    border-color: #ff5f5f;
+  background: rgba(231, 76, 60, 0.15);
+  border-color: rgba(231, 76, 60, 0.4);
+  color: #ff7b7b;
 }
 
-.btn-eliminar:hover i {
-    color: white;
+/*  MODAL  */
+.btc {
+  display: flex;
+  justify-content: flex-end;
 }
-
-/* ESTILOS DEL MODAL */
-.btc{
-    display: flex;
-    justify-content: flex-end;}
 
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    inset: 0; 
-    background: rgba(0, 0, 0, 0.522);
-    backdrop-filter: blur(6px);
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.3s ease;
+  display: none;
+  position: fixed;
+  z-index: 3000;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
 }
 
 .modal.mostrar {
-    display: flex; 
+  display: flex;
+  animation: overlayFadeIn 0.25s ease forwards;
 }
 
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 .modal-contenido {
-    background: #0b1220d3;
-    padding: 30px;
-    border-radius: var(--radius);
-    width: 450px;
-    max-width: 90%;
-    border: 2px solid rgba(255, 255, 255, 0.19);
-    box-shadow: var(--sombra-lg);
+  position: relative;
+  background: #0b1220;
+  padding: 32px;
+  border-radius: 16px;
+  width: 520px;
+  max-width: 94%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
 }
 
+.modal-contenido::after {
+    content: "";
+    position: absolute;
+    bottom: 0px;   
+    left: -20px;
+    width: 500px;
+    height:500px;
+    background: radial-gradient(circle, rgba(4, 231, 102, 0.09) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header del modal */
 .modal-header {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .modal-titulo {
-    margin: 0;
-    color: var(--text);
-    font-size: 1.5rem;
-
+  margin: 0;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.btc{
-    display: flex;
-    justify-content: flex-end;
-}
 .btn-cerrar {
-    background: none;
-    border: none;
-    color: var(--text);
-    font-size: 2rem;
-    cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
 
-/* FORMULARIO DENTRO DEL MODAL */
+.btn-cerrar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: rotate(90deg);
+}
 
+/* Formulario */
 .form-grupo {
-    margin-bottom: 15px;
-  
+  margin-bottom: 20px;
 }
+
+.form-grupo label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.form-input,
+.form-select {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 10px !important;
+  color: white !important;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.form-input:hover,
+.form-select:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #04e766 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(4, 231, 102, 0.15) !important;
+  transform: translateY(-1px);
+}
+
 .divicion {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
 }
- 
 
-
-.form-grupo input:focus {
-    border-color: var(--text);
-    outline: none;
+.form-select option {
+  background-color: #0d1829;
+  color: white;
+  padding: 12px 16px;
 }
+
+.form-select option:hover,
+.form-select option:checked {
+  background-color: #0f2e1a;
+  color: #04e766;
+}
+
+/* Botones del formulario */
 .form-botones {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 10px;
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .btn-cancelar {
-    background: #001876a2;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 2px;
-    cursor: pointer;
+  background: rgba(0, 24, 48, 0.5);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-cancelar:hover {
-    background: #e71e0493;
-    color: white;
+  background: rgba(231, 76, 60, 0.2);
+  border-color: rgba(231, 76, 60, 0.4);
+  color: white;
+  transform: translateY(-1px);
 }
 
 .btn-guardar {
-    background: #033419;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 2px;
-    cursor: pointer;
+  background: rgba(4, 231, 102, 0.12);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: 1px solid rgba(4, 231, 102, 0.3);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-guardar:hover {
-    background: #03a12d94;
-    color: white;
+  background: rgba(4, 231, 102, 0.22);
+  border-color: rgba(4, 231, 102, 0.7);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(4, 231, 102, 0.2);
 }
 
-.form-input, .form-select {
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    background: #0303082f !important;
-    color: white !important;
-    margin-top: 5px;
-    border-radius: 3px;
-     width: 100%;
-    padding: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.btn-guardar i {
+  font-size: 0.9rem;
 }
 
-.form-select {
-    background: #0b1220 !important;
-    color: white !important;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;  
+.cat-pedido  { color: #3498db; }
+.cat-compra  { color: #f1c40f; }
+.cat-pago    { color: #e74c3c; }
+.cat-entrega { color: #27ae60; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .main-container {
+    padding: 16px;
+  }
+
+  .modal-contenido {
+    padding: 24px;
+    width: 92%;
+  }
+
+  .divicion {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .btn-agregar {
+    width: 100%;
+    justify-content: center;
+  }
+
+ 
 }
 

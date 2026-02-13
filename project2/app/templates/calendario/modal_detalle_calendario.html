@@ -1,0 +1,112 @@
+<!-- ════════════════════════════════════════════════════
+     modal_detalle_calendario.html
+     Modal de solo lectura: ver detalles + cambiar estado
+════════════════════════════════════════════════════ -->
+<div class="modal" id="modal-detalle-evento">
+  <div class="modal-contenido" style="width:520px;">
+
+    <!-- Botón cerrar -->
+    <div class="btc">
+      <button type="button" class="btn-cerrar" id="btn-cerrar-detalle">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-titulo">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span id="detalle-titulo">—</span>
+      </h2>
+      <!-- Badge de categoría con color dinámico -->
+      <span id="detalle-badge-cat"
+            style="font-size:0.72rem;font-weight:700;text-transform:uppercase;
+                   letter-spacing:0.06em;padding:5px 14px;border-radius:30px;
+                   background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);
+                   white-space:nowrap;">
+      </span>
+    </div>
+
+    <!-- Fecha · Hora -->
+    <div class="divicion" style="margin-bottom:20px;">
+      <div class="form-grupo" style="margin-bottom:0;">
+        <label><i class="fa-solid fa-calendar-days"></i> Fecha</label>
+        <div class="form-input" style="cursor:default;" id="detalle-fecha">—</div>
+      </div>
+      <div class="form-grupo" style="margin-bottom:0;">
+        <label><i class="fa-regular fa-clock"></i> Hora</label>
+        <div class="form-input" style="cursor:default;" id="detalle-hora">—</div>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-grupo">
+      <label><i class="fa-solid fa-align-left"></i> Descripción</label>
+      <div class="form-input"
+           id="detalle-descripcion"
+           style="cursor:default;min-height:80px;line-height:1.6;white-space:pre-wrap;">
+        —
+      </div>
+    </div>
+
+    <!-- Estado actual -->
+    <div class="form-grupo">
+      <label><i class="fa-solid fa-circle-half-stroke"></i> Estado actual</label>
+      <div id="detalle-estado-badge"
+           style="display:inline-flex;align-items:center;gap:8px;
+                  padding:8px 18px;border-radius:30px;font-size:0.82rem;
+                  font-weight:700;letter-spacing:0.04em;">
+        —
+      </div>
+    </div>
+
+    <!-- Cambiar estado -->
+    <div class="form-grupo">
+      <label><i class="fa-solid fa-arrows-rotate"></i> Cambiar estado</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+        <button type="button" class="btn-estado-opcion"
+                data-estado="pendiente"
+                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
+                       border:1px solid rgba(241,196,15,0.35);
+                       background:rgba(241,196,15,0.08);
+                       color:#f1c40f;font-size:0.82rem;font-weight:700;
+                       cursor:pointer;transition:all 0.2s ease;
+                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+          <i class="fa-regular fa-clock"></i> Pendiente
+        </button>
+
+        <button type="button" class="btn-estado-opcion"
+                data-estado="completado"
+                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
+                       border:1px solid rgba(46,204,113,0.35);
+                       background:rgba(46,204,113,0.08);
+                       color:#2ecc71;font-size:0.82rem;font-weight:700;
+                       cursor:pointer;transition:all 0.2s ease;
+                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+          <i class="fa-solid fa-circle-check"></i> Completado
+        </button>
+
+        <button type="button" class="btn-estado-opcion"
+                data-estado="cancelado"
+                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
+                       border:1px solid rgba(231,76,60,0.35);
+                       background:rgba(231,76,60,0.08);
+                       color:#e74c3c;font-size:0.82rem;font-weight:700;
+                       cursor:pointer;transition:all 0.2s ease;
+                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+          <i class="fa-solid fa-ban"></i> Cancelado
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Botones del footer -->
+    <div class="form-botones">
+      <button type="button" class="btn-cancelar" id="btn-cancelar-detalle">
+        <i class="fa-solid fa-xmark"></i> Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>

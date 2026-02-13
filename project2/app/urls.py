@@ -21,13 +21,13 @@ urlpatterns = [
     path('insumos/editar/<int:id>/', views.editar_insumo_view, name='editar_insumo'),
     path('insumos/eliminar/<int:id>/', views.eliminar_insumo_view, name='eliminar_insumo'),
 
-
-    # calendario / GESTIÓN DE ACTIVIDADES
+    #CALENDARIO
     path('calendario/', views.calendario_view, name='calendario'),
-    
-    # Rutas de acción (API interna para los modales)
-    path('calendario/crear/', views.crear_evento_view, name='calendario_crear'),
-    path('calendario/editar/<int:id>/', views.editar_evento_view, name='calendario_editar'),
-    path('calendario/eliminar/<int:id>/', views.eliminar_evento_view, name='calendario_eliminar'),
+    path('calendario/data/', views.eventos_data_view, name='eventos_data'),
+    path('calendario/obtener/<int:id>/', views.obtener_evento_view, name='obtener_evento'),
+    path('calendario/crear/', views.crear_evento_view, name='crear_evento'),
+    path('calendario/editar/<int:id>/', views.editar_evento_view, name='editar_evento'),
+    path('calendario/eliminar/<int:id>/', views.eliminar_evento_view, name='eliminar_evento'),
+    path('calendario/estado/<int:id>/', views.cambiar_estado_evento_view, name='cambiar_estado_evento'),  # ← nuevo
 ]
 
