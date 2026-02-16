@@ -1,33 +1,42 @@
 /* ==================================================
-   script_productos.js - Lógica de Inventario BedCom
+   script_proveedores.js - Lógica de Proveedores BedCom
    ================================================== */
 
 $(document).ready(function() {
     
-    
+    // 1. FILTRADO POR ESTADO (ACTIVO/INACTIVO) PARA GRID DE CARDS
+    // Esta función emula el comportamiento de búsqueda de DataTables pero para el diseño de tarjetas
+    function filtrarProveedores() {
+        const mostrarInactivos = $('#toggleInactivos').is(':checked');
+        
+        $('.card.provider').each(function() {
+            // Verificamos si la tarjeta tiene la clase 'inactive-card'
+            const esInactivo = $(this).hasClass('inactive-card');
+            
+            if (mostrarInactivos) {
+                // Switch activado: mostrar solo los que tienen la clase de inactivo
+                if (esInactivo) {
+                    $(this).fadeIn(300).removeClass('d-none');
+                } else {
+                    $(this).hide().addClass('d-none');
+                }
+            } else {
+                // Switch desactivado: mostrar solo los que NO son inactivos (activos)
+                if (esInactivo) {
+                    $(this).hide().addClass('d-none');
+                } else {
+                    $(this).fadeIn(300).removeClass('d-none');
+                }
+            }
+        });
+    }
 
-    // Filtrar por estado (activo/inactivo) usando el switch #toggleInactivos
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        if (settings.nTable.id !== 'tablaProductos') return true; // solo para esta tabla
-
-        var mostrarInactivos = $('#toggleInactivos').is(':checked');
-        var estadoRaw = data[5]; // columna 5: Estado (Activo/Inactivo)
-
-        var s = String(estadoRaw).toLowerCase().trim();
-
-        if (!mostrarInactivos) {
-            // Switch desactivado: mostrar solo activos (estado=1)
-            return s === 'activo' || s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 't' || estadoRaw === true || estadoRaw === 1;
-        } else {
-            // Switch activado: mostrar solo inactivos (estado=0)
-            return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
-        }
-    });
-
-    // Redibuja la tabla cuando cambie el switch
     $('#toggleInactivos').on('change', function() {
-        $('#tablaProductos').DataTable().draw();
+        filtrarProveedores();
     });
+
+
+    filtrarProveedores();
 
     // 2. CONTROL DE MODALES BÁSICOS
     window.abrirModal = function(idModal) {
@@ -48,7 +57,7 @@ $(document).ready(function() {
 });
 
 /* ==================================================
-   3. FUNCIÓN MAESTRA: ABRIR MODAL PARA EDITAR (AJAX)
+   3. FUNCIÓN MAESTRA: ABRIR MODAL PARA EDITAR
    ================================================== */
 function abrirModalEditar(id) {
     const modal = document.getElementById('modalEdit');
@@ -58,13 +67,11 @@ function abrirModalEditar(id) {
     modal.innerHTML = `
         <div class="modal-content">
             <div style="color:white; padding:20px; text-align:center;">
-                <i class="fas fa-spinner fa-spin"></i> Cargando datos del producto...
+                <i class="fas fa-spinner fa-spin"></i> Cargando datos del proveedor...
             </div>
         </div>`;
 
-    // IMPORTANTE: Verifica que esta ruta coincida con tu urls.py
-    // Si tu error decía 'vistas/productos/editar/', usa esa ruta:
-    const urlEditar = `/vistas/productos/editar/${id}/`;
+    const urlEditar = `/vistas/proveedores/editar/${id}/`;
 
     fetch(urlEditar, {
         method: 'GET',
@@ -72,15 +79,14 @@ function abrirModalEditar(id) {
     })
     .then(response => response.text().then(html => ({ ok: response.ok, html })))
     .then(({ok, html}) => {
-        // Inyectamos el HTML que nos devuelve la vista (modal_edit.html)
+       
         modal.innerHTML = html;
 
         if (ok) {
-            // BUSCAMOS EL FORMULARIO RECIÉN INYECTADO Y LE PONEMOS EL ACTION
-            const form = modal.querySelector('#formEditarProducto');
+            const form = modal.querySelector('#formEditarProveedor');
             if (form) {
-                form.action = urlEditar; // Aquí se soluciona el NoReverseMatch
-                console.log("Action inyectado:", form.action);
+                form.action = urlEditar;
+                console.log("Action inyectado en Proveedor:", form.action);
             }
         }
     })
@@ -91,21 +97,25 @@ function abrirModalEditar(id) {
 }
 
 /* ==================================================
-   4. FUNCIÓN PARA ELIMINAR PRODUCTO
+   4. FUNCIÓN PARA INACTIVAR PROVEEDOR
    ================================================== */
 function abrirModalEliminar(id, nombre, urlImagen) {
-    const modal = document.getElementById('modalDelete');
-    const txtNombre = document.getElementById('nombreProductoEliminar');
-    const imgModal = document.getElementById('imgEliminar');
-    const form = document.getElementById('formEliminar');
+    const modal = document.getElementById('modalConfirm'); // Usando tu ID de modal de confirmación
+    const txtNombre = document.getElementById('nombreConfirm');
+    const imgModal = document.getElementById('imgConfirm');
+    const form = document.getElementById('formConfirm');
+    const btnSubmit = document.getElementById('btnConfirmSubmit');
+    const title = document.getElementById('confirmTitle');
 
-    // Verificamos que el elemento exista antes de usarlo para evitar el error de null
-    if (txtNombre) {
-        txtNombre.textContent = nombre;
+    if (title) title.textContent = "¿Deseas inactivar?";
+    if (txtNombre) txtNombre.textContent = nombre;
+    if (btnSubmit) {
+        btnSubmit.textContent = "Inactivar";
+        btnSubmit.style.backgroundColor = "#ef4444";
     }
 
     if (imgModal) {
-        if (urlImagen && urlImagen !== 'None') {
+        if (urlImagen && urlImagen !== 'None' && urlImagen !== '') {
             imgModal.src = urlImagen;
             imgModal.style.display = 'inline-block';
         } else {
@@ -114,44 +124,60 @@ function abrirModalEliminar(id, nombre, urlImagen) {
     }
 
     if (form) {
-        form.action = `/vistas/productos/eliminar/${id}/`;
+        form.action = `/vistas/proveedores/eliminar/${id}/`;
         form.method = 'POST';
     }
 
     modal.style.display = 'flex';
 }
-function abrirModalVer(nombre, imagen, precio, stock, categoria) {
+
+/* ==================================================
+   5. FUNCIÓN VER DETALLES (ESTILO PRODUCTO)
+   ================================================== */
+function abrirModalVer(nombre, imagen, telefono, direccion, estado) {
     const modal = document.getElementById('modalView');
+    
+    document.getElementById('viewNombre').innerText = nombre;
+    document.getElementById('viewTelefono').innerText = telefono;
+    document.getElementById('viewDireccion').innerText = direccion;
+    
+    const estadoElement = document.getElementById('viewEstado');
+    estadoElement.innerText = estado;
 
-    // Asignar valores
-    document.getElementById('viewNombre').textContent = nombre;
-    document.getElementById('viewCategoria').textContent = categoria;
-    document.getElementById('viewPrecio').textContent = '$' + precio;
-    document.getElementById('viewStock').textContent = stock + ' unidades';
+    // Cambiar color del badge dinámicamente
+    if (estado === 'Activo') {
+        estadoElement.className = 'badge-activo';
+    } else {
+        estadoElement.className = 'badge-inactivo';
+    }
 
-    // Manejar imagen
-    const imgElement = document.getElementById('viewImagen');
-    imgElement.src = imagen ? imagen : '/static/ap1/imagenes/cama.jpg';
+    // Imagen
+    const img = document.getElementById('viewImagen');
+    img.src = imagen ? imagen : 'ruta/a/tu/placeholder.png';
 
-    modal.style.display = 'flex';
+    abrirModal('modalView');
 }
 
 /* ==================================================
-   5. FUNCIÓN PARA ACTIVAR PRODUCTO
+   6. FUNCIÓN PARA ACTIVAR PROVEEDOR
    ================================================== */
 function abrirModalActivar(id, nombre, urlImagen) {
-    const modal = document.getElementById('modalDelete');
-    const txtNombre = document.getElementById('nombreProductoEliminar');
-    const imgModal = document.getElementById('imgEliminar');
-    const form = document.getElementById('formEliminar');
+    const modal = document.getElementById('modalConfirm');
+    const txtNombre = document.getElementById('nombreConfirm');
+    const imgModal = document.getElementById('imgConfirm');
+    const form = document.getElementById('formConfirm');
+    const btnSubmit = document.getElementById('btnConfirmSubmit');
+    const title = document.getElementById('confirmTitle');
 
-    // Verificamos que el elemento exista antes de usarlo para evitar el error de null
-    if (txtNombre) {
-        txtNombre.textContent = nombre;
+    if (title) title.textContent = "¿Deseas reactivar?";
+    if (txtNombre) txtNombre.textContent = nombre;
+    if (btnSubmit) {
+        btnSubmit.textContent = "Reactivar";
+        btnSubmit.style.backgroundColor = "#10b981";
     }
 
     if (imgModal) {
-        if (urlImagen && urlImagen !== 'None') {
+        if (urlImagen && urlImagen !== 'None' && urlImagen !== '') {
             imgModal.src = urlImagen;
             imgModal.style.display = 'inline-block';
         } else {
@@ -160,12 +186,23 @@ function abrirModalActivar(id, nombre, urlImagen) {
     }
 
     if (form) {
-        form.action = `/vistas/productos/activar/${id}/`;
+        form.action = `/vistas/proveedores/activar/${id}/`;
+        form.method = 'POST';
     }
 
     modal.style.display = 'flex';
 }
-$('.dataTables_length select').select2({
-    minimumResultsForSearch: Infinity, // Oculta la barra de búsqueda interna
-    width: '70px'
-});
+
+    function cerrarToast(btn) {
+        const toast = btn.closest('.message');
+        toast.classList.add('fade-out');
+        setTimeout(() => { toast.remove(); }, 400);
+    }
+
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.message').each(function() {
+                cerrarToast($(this).find('.close-toast'));
+            });
+        }, 5000);
+    });

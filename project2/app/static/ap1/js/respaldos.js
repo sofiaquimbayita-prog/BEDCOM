@@ -1,75 +1,114 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Safe search binding (uses #searchInput if present)
-    const search = document.getElementById('searchInput');
-    if (search) {
-        search.addEventListener('keyup', function () {
-            const filtro = this.value.toLowerCase();
-            const filas = document.querySelectorAll('.respaldos-table tbody tr');
-            filas.forEach(fila => {
-                const texto = fila.innerText.toLowerCase();
-                fila.style.display = texto.includes(filtro) ? '' : 'none';
-            });
+$(document).ready(function() {
+    
+    // ==========================================
+    // 1. FILTRADO MAESTRO (Buscador + Switch)
+    // ==========================================
+    function filtrarTabla() {
+        // Buscador de abajo (el de la card)
+        const busqueda = $('#searchInput').val().toLowerCase().trim();
+        // Estado del switch
+        const mostrarInactivos = $('#toggleInactivos').is(':checked');
+        
+        $('.respaldo-row').each(function() {
+            const $fila = $(this);
+            const textoFila = $fila.text().toLowerCase();
+            const esInactiva = $fila.hasClass('inactive-row');
+
+            // Lógica: 
+            // Si el switch está ON, buscamos en filas inactivas.
+            // Si el switch está OFF, buscamos en filas activas.
+            const coincideEstado = mostrarInactivos ? esInactiva : !esInactiva;
+            const coincideBusqueda = textoFila.includes(busqueda);
+
+            if (coincideEstado && coincideBusqueda) {
+                $fila.show();
+            } else {
+                $fila.hide();
+            }
         });
     }
 
-    // Auto-dismiss flash messages
-    const messages = document.querySelectorAll('.messages-container .message');
-    messages.forEach((msg) => {
-        setTimeout(() => {
-            msg.style.transition = 'opacity 300ms, transform 300ms';
-            msg.style.opacity = '0';
-            msg.style.transform = 'translateY(-6px)';
-            setTimeout(() => { msg.remove(); }, 350);
-        }, 4200);
+    $('#searchInput').on('keyup', filtrarTabla);
+    $('#toggleInactivos').on('change', filtrarTabla);
+
+    // ==========================================
+    // 2. GESTIÓN DE MODALES
+    // ==========================================
+
+    // Abrir Modal de Ver Detalles
+    window.openViewModal = function(fecha, usuario, tipo, desc) {
+        $('#viewFecha').text(fecha);
+        $('#viewUsuario').text(usuario);
+        $('#viewTipo').text(tipo.toUpperCase());
+        $('#viewDescripcion').text(desc || 'Sin descripción');
+        abrirModal('viewModal');
+    };
+
+    // Abrir Modal de Eliminar (Inactivar)
+    window.openDeleteModal = function(id, fecha) {
+        const $modal = $('#deleteModal');
+        // Cambiamos el texto para que sea de eliminación
+        $modal.find('.modal-header h3').html('<i class="fas fa-trash"></i> ¿Eliminar Respaldo?');
+        $modal.find('.delete-container p').first().html(`¿Estás seguro de que deseas eliminar el respaldo del <strong>${fecha}</strong>?`);
+        
+        // Cambiamos el botón a color Rojo (Danger)
+        $modal.find('.btn-delete')
+              .text('Confirmar Eliminación')
+              .css('background', 'linear-gradient(135deg, #f87171, #ef4444)');
+        
+        // Ajustamos la URL de acción a eliminar
+        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/eliminar/${id}/`);
+        
+        abrirModal('deleteModal');
+    };
+
+    // Abrir Modal de Restaurar (Reactivar)
+    window.openRestoreModal = function(id, fecha) {
+        const $modal = $('#deleteModal');
+        // Cambiamos el texto para que sea de restauración
+        $modal.find('.modal-header h3').html('<i class="fas fa-undo"></i> ¿Restaurar Respaldo?');
+        $modal.find('.delete-container p').first().html(`Vas a reactivar el respaldo del <strong>${fecha}</strong>.`);
+        
+
+        $modal.find('.btn-delete')
+              .text('Restaurar Ahora')
+              .css('background', 'linear-gradient(135deg, #64e73c, #10b981)');
+        
+        // Ajustamos la URL de acción a restaurar (Esto arregla tu error 404)
+        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/restaurar/${id}/`);
+        
+        abrirModal('deleteModal');
+    };
+
+    // Funciones básicas de control
+    window.abrirModal = function(id) {
+        $(`#${id}`).css('display', 'flex').hide().fadeIn(200);
+    };
+
+    window.cerrarModal = function(id) {
+        $(`#${id}`).fadeOut(200);
+    };
+
+    // Cerrar modales al hacer clic fuera
+    $(window).on('click', function(event) {
+        if ($(event.target).hasClass('modal')) {
+            $('.modal').fadeOut(200);
+        }
     });
 
-    // Wire up modal cancel button inside delete modal (if present)
-    const deleteModal = document.getElementById('deleteModal');
-    if (deleteModal) {
-        deleteModal.addEventListener('click', function (e) {
-            if (e.target === deleteModal) deleteModal.classList.remove('active');
-        });
-        const cancelBtn = deleteModal.querySelector('.btn-cancel');
-        if (cancelBtn) cancelBtn.addEventListener('click', () => deleteModal.classList.remove('active'));
-        // Intercept delete form submit to show confirmation
-        const deleteForm = deleteModal.querySelector('#deleteForm');
-        if (deleteForm) {
-            // Modal already asks for confirmation; allow submit normally
-            // Ensure the cancel button closes the modal instead
-            // (no extra confirm() here to avoid double prompts)
-        }
-    }
-});
+    // ==========================================
+    // 3. MENSAJES (TOASTS)
+    // ==========================================
+    window.cerrarToast = function(btn) {
+        const toast = $(btn).closest('.message');
+        toast.fadeOut(300, function() { $(this).remove(); });
+    };
 
-// Open delete modal and set form action and display date
-function openDeleteModal(id, fecha) {
-    const modal = document.getElementById('deleteModal');
-    if (!modal) return;
-    const dateSpan = modal.querySelector('#deleteRespaldoDate');
-    if (dateSpan) dateSpan.textContent = fecha;
-    const form = modal.querySelector('#deleteForm');
-    if (form) {
-        form.action = `/respaldos/eliminar/${id}/`;
-    }
-    modal.classList.add('active');
-}
+    // Auto-cerrar mensajes después de 5 segundos
+    setTimeout(() => {
+        $('.message').fadeOut(500, function() { $(this).remove(); });
+    }, 5000);
 
-// Intercept generar formulario to ask confirmation before submitting
-document.addEventListener('DOMContentLoaded', function () {
-    const generarForm = document.querySelector('.generar-form');
-    if (generarForm) {
-            generarForm.addEventListener('submit', function (e) {
-                const tipo = generarForm.querySelector('[name="tipo_respaldo"]').value || 'completo';
-                const descripcion = generarForm.querySelector('[name="descripcion"]').value || '';
-                const resumen = descripcion ? ` (${descripcion})` : '';
-                const ok = confirm(`Generar respaldo de tipo '${tipo}'${resumen}?`);
-                if (!ok) { e.preventDefault(); return; }
-
-                // add a brief animation to signal generation, then submit
-                e.preventDefault();
-                const tableCont = document.querySelector('.table-container');
-                if (tableCont) tableCont.classList.add('anim-generating');
-                setTimeout(() => { generarForm.submit(); }, 350);
-            });
-    }
+    // Ejecutar filtro inicial al cargar la página
+    filtrarTabla();
 });

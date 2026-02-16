@@ -20,13 +20,7 @@
     <div class="title">{% block header_title %} PROVEEDORES {% endblock %}</div> 
 
 </header>
-        {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
+        
 
         {% block content %}
         {% endblock %}

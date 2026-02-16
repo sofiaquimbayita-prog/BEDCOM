@@ -2,103 +2,109 @@
 {% load static %}
 
 {% block content %}
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
 
 {% if messages %}
-<div class="messages">
-  {% for message in messages %}
-    <div class="message {{ message.tags }}">{{ message }}</div>
-  {% endfor %}
+<div class="messages" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
 
 <main class="content">
-  <section class="providers-grid">
-
-    <div class="card add-card" onclick="abrirModal('modalAdd')">
-      <i class="fa-solid fa-user-plus"></i>
-      <p>Agregar proveedor</p>
+    <div class="toolbar-proveedores" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="color: white; margin: 0;"><i class="fas fa-truck-moving"></i> Gestión de Proveedores</h2>
+        <div class="switch-container">
+            <span class="switch-text">Mostrar Inactivos</span>
+            <label class="switch-control">
+                <input type="checkbox" id="toggleInactivos">
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
 
-    {% for prov in proveedores %}
-    <div class="card provider {% if not prov.estado %}inactive-card{% endif %}" data-id="{{ prov.id }}">
+    <section class="providers-grid">
+        <div class="card add-card" onclick="abrirModal('modalAdd')">
+            <div class="add-icon-container">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <p>Nuevo Proveedor</p>
+        </div>
 
-      <div class="logo">
-        <img 
-          src="https://via.placeholder.com/300x200?text=Proveedor" 
-          alt="Proveedor {{ prov.nombre }}" 
-          class="provider-img">
-      </div>
+        {% for prov in proveedores %}
+        <div class="card provider {% if not prov.estado %}inactive-card{% endif %}" data-id="{{ prov.id }}">
+            <div class="logo">
+                <img src="{% if prov.imagen %}{{ prov.imagen.url }}{% else %}https://via.placeholder.com/300x200?text=Sin+Logo{% endif %}" 
+                     alt="{{ prov.nombre }}" class="provider-img">
+            </div>
 
-      <h3 class="provider-name">{{ prov.nombre }}</h3>
+            <h3 class="provider-name">{{ prov.nombre }}</h3>
 
-      <p class="provider-info phone">
-        <i class="fas fa-phone"></i> {{ prov.telefono }}
-      </p>
+            <div class="provider-details">
+                <p class="provider-info"><i class="fas fa-phone"></i> {{ prov.telefono }}</p>
+                <p class="provider-info"><i class="fas fa-map-marker-alt"></i> {{ prov.direccion }}</p>
+            </div>
 
-      <p class="provider-info location">
-        <i class="fas fa-map-marker-alt"></i> {{ prov.direccion }}
-      </p>
+            <div class="icons">
+                {% if prov.estado %}
+                    <i class="fa-regular fa-trash-can delete-btn"
+                       onclick="abrirModalEliminar({{ prov.id }}, '{{ prov.nombre|escapejs }}', '{% if prov.imagen %}{{ prov.imagen.url }}{% endif %}')"
+                       title="Inactivar"></i>
+                {% else %}
+                    <i class="fa-solid fa-rotate-left activate-btn" 
+                       onclick="abrirModalActivar({{ prov.id }}, '{{ prov.nombre|escapejs }}', '{% if prov.imagen %}{{ prov.imagen.url }}{% endif %}')"
+                       title="Reactivar"></i>
+                {% endif %}
 
-      <p class="provider-info">
-        {% if prov.estado %}
-          <span class="status active">● Activo</span>
-        {% else %}
-          <span class="status inactive">● Inactivo</span>
-        {% endif %}
-      </p>
+                <i class="fa-regular fa-eye view-btn"
+                   onclick="abrirModalVer('{{ prov.nombre|escapejs }}', '{% if prov.imagen %}{{ prov.imagen.url }}{% endif %}', '{{ prov.telefono|escapejs }}', '{{ prov.direccion|escapejs }}', '{% if prov.estado %}Activo{% else %}Inactivo{% endif %}')"
+                   title="Ver Detalle"></i>
 
-      <div class="icons">
-        <i class="fa-regular fa-trash-can delete-btn"
-           onclick="abrirModalEliminar({{ prov.id }}, '{{ prov.nombre|escapejs }}', null)"
-           title="Inactivar"></i>
-
-        <i class="fa-regular fa-eye view-btn"
-           onclick="abrirModalVer('{{ prov.nombre|escapejs }}', null, '{{ prov.telefono|escapejs }}', '{{ prov.direccion|escapejs }}', '{% if prov.estado %}Activo{% else %}Inactivo{% endif %}')"
-           title="Ver"></i>
-
-        <i class="fa-regular fa-pen-to-square edit-btn"
-           onclick="abrirModalEditar({{ prov.id }})"
-           title="Editar"></i>
-      </div>
-
-    </div>
-
-    {% empty %}
-      <p class="empty-state">
-        No hay proveedores registrados
-      </p>
-    {% endfor %}
-
-  </section>
+                <i class="fa-regular fa-pen-to-square edit-btn"
+                   onclick="abrirModalEditar({{ prov.id }})"
+                   title="Editar"></i>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
 </main>
 
-<div class="modal" id="modalAdd">
-  <div class="modal-content">
+<div id="modalAdd" class="modal">
     {% include "proveedores/modal_agregar.html" %}
-  </div>
 </div>
 
-<div class="modal" id="modalEdit">
-  <div class="modal-content">
-    {% include "proveedores/modal_editar.html" %}
-  </div>
-</div>
+<div id="modalEdit" class="modal"></div>
 
-<div class="modal" id="modalView">
-  <div class="modal-content view">
+<div id="modalView" class="modal">
     {% include "proveedores/modal_view.html" %}
-  </div>
 </div>
 
-<div class="modal" id="modalDelete">
-  <div class="modal-content">
+<div id="modalConfirm" class="modal">
     {% include "proveedores/modal_delete.html" %}
-  </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="{% static 'ap1/js/proveedores_final.js' %}"></script>
 
+<script>
+   
+</script>
 {% endblock %}

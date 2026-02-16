@@ -1,26 +1,40 @@
-<!-- MODAL PARA GENERAR RESPALDO -->
-<span class="close" onclick="document.getElementById('generarModal').classList.remove('active')">&times;</span>
-<h3>Generar Respaldo</h3>
-<form id="generarRespaldoForm" method="post" action="/respaldos/generar/">
-  {% csrf_token %}
-  
-  <div class="form-group">
-    <label for="generarTipo">Tipo de Respaldo:</label>
-    <select id="generarTipo" name="tipo_respaldo" required>
-      <option value="">Seleccionar tipo...</option>
-      <option value="completo">Respaldo Completo</option>
-      <option value="parcial">Respaldo Parcial</option>
-      <option value="incremental">Respaldo Incremental</option>
-    </select>
-  </div>
+<div class="modal-header">
+    <h3 style="color: #38bdf8; margin: 0;">
+        <i class="fas fa-cloud-upload-alt"></i> Generar Nuevo Respaldo
+    </h3>
+    <span class="close" onclick="cerrarModal('generarModal')">&times;</span>
+</div>
 
-  <div class="form-group">
-    <label for="generarDescripcion">Descripción:</label>
-    <textarea id="generarDescripcion" name="descripcion" placeholder="Descripción del respaldo" maxlength="500" rows="3"></textarea>
-  </div>
+<div class="modal-body" style="padding: 20px 0;">
+    <form id="generarRespaldoForm" method="post" action="{% url 'generar_respaldo' %}">
+        {% csrf_token %}
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="add_tipo" style="display: block; color: #94a3b8; margin-bottom: 8px;">Tipo de Respaldo:</label>
+            <select id="add_tipo" name="tipo_respaldo" required 
+                style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">
+                <option value="" disabled selected>Seleccionar tipo...</option>
+                <option value="completo">Respaldo Completo</option>
+                <option value="parcial">Respaldo Parcial</option>
+            </select>
+        </div>
 
-  <div class="form-actions">
-    <button type="submit" class="btn-save">Generar Respaldo</button>
-    <button type="button" class="btn-cancel">Cancelar</button>
-  </div>
-</form>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="add_descripcion" style="display: block; color: #94a3b8; margin-bottom: 8px;">Descripción:</label>
+            <textarea id="add_descripcion" name="descripcion" rows="3"
+                style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px; resize: none;"
+                placeholder="Notas sobre este respaldo..."></textarea>
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <button type="submit" class="btn-save" 
+                style="flex: 2; background: #38bdf8; color: #0f172a; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                <i class="fas fa-play"></i> Iniciar Respaldo
+            </button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('generarModal')"
+                style="flex: 1; background: #334155; color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer;">
+                Cancelar
+            </button>
+        </div>
+    </form>
+</div>

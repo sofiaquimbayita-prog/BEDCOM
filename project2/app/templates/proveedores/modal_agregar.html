@@ -1,36 +1,41 @@
 <div class="modal-content form-container">
-  <span class="close" onclick="cerrarModal('modalAdd')">&times;</span>
-  
-  <h3>Agregar Proveedor</h3>
-  
-  <form id="addProveedorForm" method="post" action="/proveedores/crear/">
-    {% csrf_token %}
+    <div class="modal-header">
+        <h2><i class="fas fa-truck"></i> Agregar Proveedor</h2>
+    </div>
     
-    <div class="form-group">
-      <label for="addNombre">Nombre:</label>
-      <input type="text" id="addNombre" name="nombre" placeholder="Nombre del proveedor" maxlength="100" required>
-    </div>
+    <form id="addProveedorForm" method="post" action="{% url 'proveedor_create' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="addNombre">Nombre del Proveedor:</label>
+            <input type="text" id="addNombre" name="nombre" placeholder="Ej: BedCom S.A." maxlength="100" required>
+        </div>
 
-    <div class="form-group">
-      <label for="addTelefono">Teléfono:</label>
-      <input type="tel" id="addTelefono" name="telefono" placeholder="Teléfono (7-10 dígitos)" maxlength="10" required>
-    </div>
+        <div class="form-group">
+            <label for="addTelefono">Teléfono:</label>
+            <input type="tel" id="addTelefono" name="telefono" placeholder="Ej: 3001234567" maxlength="10" required>
+        </div>
 
-    <div class="form-group">
-      <label for="addDireccion">Dirección:</label>
-      <textarea id="addDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
-    </div>
+        <div class="form-group">
+            <label for="addDireccion">Dirección:</label>
+            <textarea id="addDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
+        </div>
 
-    <div class="form-group">
-      <label for="addEstado">
-        <input type="checkbox" id="addEstado" name="estado" checked>
-        Activo
-      </label>
-    </div>
+        <div class="form-group">
+            <label for="addImagen">Logo / Imagen:</label>
+            <input type="file" id="addImagen" name="imagen" accept="image/*">
+        </div>
 
-    <div class="form-actions">
-      <button type="submit" class="btn-save">Guardar</button>
-      <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')">Cancelar</button>
-    </div>
-  </form>
+
+
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button type="submit" class="btn-save" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #38bdf8; color: #0f172a;">
+                <i class="fas fa-save"></i> GUARDAR
+            </button>
+            
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #334155; color: white;">
+                CANCELAR
+            </button>
+        </div>
+    </form>
 </div>
