@@ -542,4 +542,3 @@ input:checked + .slider:before {
     background-color: var(--color-borde) !important;
     color: var(--color-texto) !important;
 }
-

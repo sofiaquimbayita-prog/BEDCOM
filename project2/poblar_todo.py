@@ -1,88 +1,88 @@
 import os
 import django
-import sys
-from datetime import date
+import random
+from datetime import datetime, timedelta
 
-# 1. CONFIGURACIÓN DEL ENTORNO
-ruta_actual = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(ruta_actual)
-
-# Asegúrate de que coincida con tu carpeta de configuración (test o config)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings') 
+# Configuración del entorno de Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings') # Ajusta 'project2' al nombre de tu carpeta de configuración
 django.setup()
 
-# 2. IMPORTACIÓN DE MODELOS
-from app.models import (
-    categoria, proveedor, usuario, reporte, producto
-)
+from app.models import Categoria, Producto, Cliente, Usuario, Pedido, DetallePedido, Despacho, Insumo
 
-def ejecutar_carga_bedcom():
-    print("🚀 Iniciando carga masiva: Catálogo BedCom 2026...")
+def poblar_datos():
+    print("Iniciando la carga de datos...")
 
-    try:
-        # --- 1. USUARIO ADMINISTRADOR ---
-        user, _ = usuario.objects.get_or_create(
-            cedula="1020", 
-            defaults={'nombre_usuar': 'admin_bedcom', 'rol': 'Administrador', 'estado': 'Activo'}
-        )
+    # 1. Crear Categorías
+    cat_muebles, _ = Categoria.objects.get_or_create(nombre="Muebles", defaults={'descripcion': 'Muebles para el hogar'})
+    cat_herrajes, _ = Categoria.objects.get_or_create(nombre="Herrajes", defaults={'descripcion': 'Tornillos y piezas'})
 
-        # --- 2. CATEGORÍAS DEL CATÁLOGO ---
-        # Basado en las secciones del PDF
-        cat_espaldar, _ = categoria.objects.get_or_create(nombre="Espaldares", defaults={'descripcion': 'Espaldares de alta calidad', 'estado': True})
-        cat_base, _ = categoria.objects.get_or_create(nombre="Basecamas", defaults={'descripcion': 'Bases en diseño y baúles', 'estado': True})
-        cat_premium, _ = categoria.objects.get_or_create(nombre="Gama Premium", defaults={'descripcion': 'Línea de lujo BedCom', 'estado': True})
+    # 2. Crear Usuarios
+    admin, _ = Usuario.objects.get_or_create(
+        cedula="12345", 
+        defaults={'nombre_usuario': 'Admin_Edgar', 'rol': 'Administrador', 'estado': 'Activo'}
+    )
 
-        # --- 3. REPORTE DE INVENTARIO ---
-        rep, _ = reporte.objects.get_or_create(
-            tipo="Carga Inicial Catálogo 2026", 
-            id_usuario=user,
-            defaults={'fecha': date.today()}
-        )
+    # 3. Crear Clientes
+    cliente_test, _ = Cliente.objects.get_or_create(
+        cedula="99999", 
+        defaults={'nombre': 'Juan Perez', 'telefono': '3001234567', 'direccion': 'Calle 123'}
+    )
 
-        # --- 4. PRODUCTOS REALES DEL CATÁLOGO ---
-        lista_productos = [
-            # Espaldares (Pág. 2-3)
-            {'nombre': 'Capitoneado Plano (Botón Mismo/Diamante)', 'cat': cat_espaldar, 'precio': 210000, 'stock': 10, 'tipo': 'Espaldar'},
-            {'nombre': 'Capitoneado Semicurvo Colmena', 'cat': cat_espaldar, 'precio': 230000, 'stock': 8, 'tipo': 'Espaldar'},
-            {'nombre': 'Lineal Banana', 'cat': cat_espaldar, 'precio': 190000, 'stock': 15, 'tipo': 'Espaldar'},
-            {'nombre': 'Lineal Tipo V', 'cat': cat_espaldar, 'precio': 190000, 'stock': 12, 'tipo': 'Espaldar'},
-            {'nombre': 'Chocolatina Punta Magica', 'cat': cat_espaldar, 'precio': 250000, 'stock': 7, 'tipo': 'Espaldar'},
-            
-            # Basecamas (Pág. 14)
-            {'nombre': 'Base Baúl Tapa Acolchada', 'cat': cat_base, 'precio': 550000, 'stock': 5, 'tipo': 'Basecama'},
-            {'nombre': 'Base Cama con Piecero en Diseño', 'cat': cat_base, 'precio': 480000, 'stock': 6, 'tipo': 'Basecama'},
-            {'nombre': 'Base Nido (Lisa/Acolchada)', 'cat': cat_base, 'precio': 620000, 'stock': 4, 'tipo': 'Basecama'},
-            {'nombre': 'Puff Zapatero', 'cat': cat_base, 'precio': 150000, 'stock': 20, 'tipo': 'Accesorio'},
-            
-            # Gama Premium (Pág. 16)
-            {'nombre': 'Espaldar 3D Marco Espejo Premium', 'cat': cat_premium, 'precio': 750000, 'stock': 3, 'tipo': 'Premium'},
-        ]
+    # 4. Crear Productos
+    productos_base = [
+        {'nombre': 'Base Cama Standard', 'tipo': 'Madera', 'precio': 500000, 'stock': 20, 'categoria': cat_muebles},
+        {'nombre': 'Espaldar King', 'tipo': 'Cuero', 'precio': 800000, 'stock': 15, 'categoria': cat_muebles},
+        {'nombre': 'Silla Oficina', 'tipo': 'Plástico', 'precio': 150000, 'stock': 50, 'categoria': cat_muebles},
+        {'nombre': 'Tornillo 5mm', 'tipo': 'Metal', 'precio': 200, 'stock': 1000, 'categoria': cat_herrajes},
+    ]
 
-        for p in lista_productos:
-            obj, created = producto.objects.get_or_create(
-                nombre=p['nombre'],
-                id_cat=p['cat'],
-                id_reporte=rep,
-                defaults={
-                    'tipo': p['tipo'],
-                    'precio': p['precio'],
-                    'stock': p['stock'],
-                    'estado': True
-                }
+    productos_creados = []
+    for p in productos_base:
+        obj, _ = Producto.objects.get_or_create(nombre=p['nombre'], defaults=p)
+        productos_creados.append(obj)
+
+    # 5. Crear Pedidos y Detalles (Ventas) de los últimos 6 meses
+    print("Generando ventas y pedidos...")
+    for i in range(1, 7): # De enero a junio (aprox)
+        fecha_pedido = datetime(2026, i, 10)
+        
+        # Crear 3 pedidos por mes
+        for j in range(3):
+            nuevo_pedido = Pedido.objects.create(
+                cliente=cliente_test,
+                fecha=fecha_pedido,
+                estado="Entregado",
+                total=0 # Se calculará abajo
             )
-            if created:
-                print(f"    🛏️  Producto creado: {obj.nombre}")
 
-        # --- 5. PROVEEDOR (BEDCOM) ---
-        prov, _ = proveedor.objects.get_or_create(
-            nombre="BedCom Premium", 
-            defaults={'telefono': '3007415996', 'direccion': 'Sogamoso, Boyacá', 'estado': True}
-        )
+            # Agregar 2 productos a cada pedido
+            total_acumulado = 0
+            for _ in range(2):
+                prod = random.choice(productos_creados)
+                cantidad = random.randint(1, 5)
+                subtotal = prod.precio * cantidad
+                
+                DetallePedido.objects.create(
+                    pedido=nuevo_pedido,
+                    producto=prod,
+                    cantidad=cantidad,
+                    precio_unitario=prod.precio,
+                    sub_total=subtotal
+                )
+                total_acumulado += subtotal
+            
+            # Actualizar el total del pedido
+            nuevo_pedido.total = total_acumulado
+            nuevo_pedido.save()
 
-        print("\n🔥 ¡ÉXITO! Catálogo BedCom 2026 cargado en la base de datos.")
+            # 6. Crear Despacho para el pedido
+            Despacho.objects.create(
+                pedido=nuevo_pedido,
+                fecha=fecha_pedido + timedelta(days=2),
+                estado_entrega="Entregado" if i < 2 else "En proceso"
+            )
 
-    except Exception as e:
-        print(f"\n❌ Error en la carga: {e}")
+    print("¡Datos cargados exitosamente!")
 
 if __name__ == '__main__':
-    ejecutar_carga_bedcom()
+    poblar_datos()

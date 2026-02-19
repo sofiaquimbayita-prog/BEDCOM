@@ -7,11 +7,11 @@ from datetime import date
 from django.http import HttpResponseRedirect
 
 # Importación de tus modelos
-from ...models import producto, categoria, reporte, usuario
+from ...models import Producto,Categoria, Reporte, Usuario
 
 # --- VISTA DE LISTADO ---
 class ProductoListView(ListView):
-    model = producto
+    model = Producto
     template_name = 'productos/index_productos.html'
     context_object_name = 'productos'
 
@@ -19,18 +19,18 @@ class ProductoListView(ListView):
         # Filtra solo activos y optimiza la carga de categorías e imágenes
         # Devolver todos los productos (activos e inactivos). El filtrado por
         # estado se hará en el cliente mediante el switch/ DataTable.
-        return producto.objects.select_related('id_cat').order_by('-id')
+        return Producto.objects.select_related('id_cat').order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = categoria.objects.all()
+        context['categorias'] = Categoria.objects.all()
         context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
         return context
 
 
 # --- VISTA DE CREACIÓN (AGREGAR) ---
 class ProductoCreateView(SuccessMessageMixin, CreateView):
-    model = producto
+    model = Producto
     # Se agrega 'imagen' para capturar fotos de espaldares o basecamas
     fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
     success_url = reverse_lazy('productos')
@@ -43,8 +43,8 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
             return redirect('productos')
 
         # Asignación automática de reporte para el historial
-        user_admin = usuario.objects.first() # Asegúrate de tener al menos un usuario en la DB
-        rep_obj, _ = reporte.objects.get_or_create(
+        user_admin = Usuario.objects.first() # Asegúrate de tener al menos un usuario en la DB
+        rep_obj, _ = Reporte.objects.get_or_create(
             fecha=date.today(),
             tipo="Ingreso Manual / Catálogo",
             defaults={'id_usuario': user_admin}
@@ -63,7 +63,7 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
 
 # --- VISTA DE EDICIÓN (MODIFICAR) ---
 class ProductoUpdateView(SuccessMessageMixin, UpdateView):
-    model = producto
+    model = Producto
     # Se agrega 'imagen' para permitir actualizar fotos del catálogo
     fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
     template_name = 'productos/modal_edit.html'
@@ -72,7 +72,7 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = categoria.objects.all()
+        context['categorias'] = Categoria.objects.all()
         return context
 
     def form_valid(self, form):
@@ -86,7 +86,7 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
 
 # --- VISTA DE ELIMINACIÓN (BORRADO LÓGICO) ---
 class ProductoDeleteView(DeleteView):
-    model = producto  # Asegúrate de que la clase empiece con Mayúscula 'Producto'
+    model = Producto  # Asegúrate de que la clase empiece con Mayúscula 'Producto'
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):
@@ -107,7 +107,7 @@ class ProductoDeleteView(DeleteView):
 
 # --- VISTA DE ACTIVACIÓN ---
 class ProductoActivateView(SuccessMessageMixin, DeleteView):
-    model = producto
+    model = Producto
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):

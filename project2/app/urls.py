@@ -1,13 +1,13 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
-from . import views
+from .views import productos, menu, reportes
 
 urlpatterns = [
     # --- AUTENTICACIÓN Y LOGIN (usar vistas de Django auth) ---
     path('login/', auth_views.LoginView.as_view(template_name='login/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page=reverse_lazy('login')), name='logout'),
-    path('crear-cuenta/', views.CrearCuentaView.as_view(), name='crear_cuenta'),
+    # path('crear-cuenta/', views.CrearCuentaView.as_view(), name='crear_cuenta'),
 
     # Recuperar contraseña (Password Reset)
     path('recuperar-contrasena/', auth_views.PasswordResetView.as_view(
@@ -27,12 +27,15 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     # --- MENÚ / DASHBOARD ---
-    path('menu/', views.MenuView.as_view(), name='menu'),
+    path('menu/', menu.MenuView.as_view(), name='menu'),
 
     # --- PRODUCTOS ---
-    path('productos/', views.ProductoListView.as_view(), name='productos'),
-    path('productos/crear/', views.ProductoCreateView.as_view(), name='crear_producto'),
-    path('productos/editar/<int:pk>/', views.ProductoUpdateView.as_view(), name='editar_producto'),
-    path('productos/eliminar/<int:pk>/', views.ProductoDeleteView.as_view(), name='eliminar_producto'),
-    path('productos/activar/<int:pk>/', views.ProductoActivateView.as_view(), name='activar_producto'),
+    path('productos/', productos.ProductoListView.as_view(), name='productos'),
+    path('productos/crear/', productos.ProductoCreateView.as_view(), name='crear_producto'),
+    path('productos/editar/<int:pk>/', productos.ProductoUpdateView.as_view(), name='editar_producto'),
+    path('productos/eliminar/<int:pk>/', productos.ProductoDeleteView.as_view(), name='eliminar_producto'),
+    path('productos/activar/<int:pk>/', productos.ProductoActivateView.as_view(), name='activar_producto'),
+    # --- REPORTES ---
+    path('reportes/', reportes.reporte_ventas, name='reportes')
+    
 ]
