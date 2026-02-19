@@ -3,12 +3,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from datetime import date
 from django.http import HttpResponseRedirect
-
 
 # Importación de tus modelos (ajusta la ruta según tu estructura)
 from ...models import proveedor
+from ...forms import ProveedorForm
+
 
 # --- VISTA DE LISTADO ---
 class ProveedorListView(ListView):
@@ -29,8 +29,7 @@ class ProveedorListView(ListView):
 # --- VISTA DE CREACIÓN ---
 class ProveedorCreateView(SuccessMessageMixin, CreateView):
     model = proveedor
-    # Campos: nombre, telefono, direccion, imagen (logo)
-    fields = ['nombre', 'telefono', 'direccion', 'imagen']
+    form_class = ProveedorForm  # Usar el formulario con validaciones
     success_url = reverse_lazy('proveedores_list')
     success_message = "¡El proveedor %(nombre)s se registró con éxito!"
 
@@ -40,26 +39,42 @@ class ProveedorCreateView(SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Error al registrar el proveedor. Verifica los datos e imagen.")
+        # Recopilar errores del formulario
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(f"{error}")
+        
+        if error_messages:
+            messages.error(self.request, f"Error al registrar: {' - '.join(error_messages)}")
+        else:
+            messages.error(self.request, "Error al registrar el proveedor. Verifica los datos.")
+        
         return redirect('proveedores_list')
 
 
 # --- VISTA DE EDICIÓN ---
 class ProveedorUpdateView(SuccessMessageMixin, UpdateView):
     model = proveedor
-    fields = ['nombre', 'telefono', 'direccion', 'imagen']
+    form_class = ProveedorForm  # Usar el formulario con validaciones
     template_name = 'proveedores/modal_editar.html'
     success_url = reverse_lazy('proveedores_list')
     success_message = "Proveedor actualizado correctamente."
 
     def form_invalid(self, form):
-        messages.error(self.request, f"Error al actualizar: {form.errors}")
+        # Recopilar errores del formulario para mostrarlos
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(f"{error}")
+        
+        messages.error(self.request, f"Error al actualizar: {' - '.join(error_messages)}")
         return super().form_invalid(form)
 
 
 # --- VISTA DE INACTIVACIÓN DE PROVEEDOR (SOFT DELETE) ---
 class ProveedorDeleteView(DeleteView):
-    model = proveedor  # Asegúrate de que coincida con tu modelo
+    model = proveedor
     success_url = reverse_lazy('proveedores_list')
 
     def post(self, request, *args, **kwargs):

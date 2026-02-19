@@ -9,21 +9,25 @@
         <div class="form-group">
             <label for="addNombre">Nombre del Proveedor:</label>
             <input type="text" id="addNombre" name="nombre" placeholder="Ej: BedCom S.A." maxlength="100" required>
+            <small class="form-hint">Mínimo 3 caracteres, máximo 100. Solo letras, números y espacios.</small>
         </div>
 
         <div class="form-group">
             <label for="addTelefono">Teléfono:</label>
             <input type="tel" id="addTelefono" name="telefono" placeholder="Ej: 3001234567" maxlength="10" required>
+            <small class="form-hint">Exactamente 10 dígitos (formato: 3001234567)</small>
         </div>
 
         <div class="form-group">
             <label for="addDireccion">Dirección:</label>
-            <textarea id="addDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
+            <textarea id="addDireccion" name="direccion" placeholder="Dirección completa del proveedor" maxlength="200" rows="3" required></textarea>
+            <small class="form-hint">Mínimo 10 caracteres, máximo 200.</small>
         </div>
 
         <div class="form-group">
             <label for="addImagen">Logo / Imagen:</label>
             <input type="file" id="addImagen" name="imagen" accept="image/*">
+            <small class="form-hint">Opcional. Formatos permitidos: JPG, PNG, GIF, WebP. Máximo 2MB.</small>
         </div>
 
 
@@ -39,3 +43,48 @@
         </div>
     </form>
 </div>
+
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        background: #1e293b;
+        color: white;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #38bdf8;
+    }
+    
+    .form-hint {
+        display: block;
+        color: #64748b;
+        font-size: 0.75rem;
+        margin-top: 4px;
+    }
+    
+    .error-message {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+</style>

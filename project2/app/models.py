@@ -1,4 +1,20 @@
 from django.db import models # Librerias
+from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator, RegexValidator
+
+# --- VALIDADORES PERSONALIZADOS PARA PROVEEDOR ---
+def validar_telefono(value):
+    """Valida que el teléfono tenga exactamente 10 dígitos"""
+    if not value.isdigit():
+        raise ValidationError('El teléfono debe contener solo números.')
+    if len(value) != 10:
+        raise ValidationError('El teléfono debe tener exactamente 10 dígitos.')
+
+def validar_nombre_proveedor(value):
+    """Valida que el nombre solo contenga letras, números y espacios"""
+    import re
+    if not re.match(r'^[a-zA-Z0-9\s]+$', value):
+        raise ValidationError('El nombre solo puede contener letras, números y espacios.')
 
 # --- MODELOS BASE ---
 
@@ -14,12 +30,51 @@ class categoria (models.Model):
         db_table = "categorias"
 
 class proveedor (models.Model): # Clase Proveedor
-    nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=10)
-    direccion = models.CharField(max_length=200)
+    nombre = models.CharField(
+        max_length=100,
+        validators=[
+            MinLengthValidator(3, message="El nombre debe tener al menos 3 caracteres"),
+            validar_nombre_proveedor
+        ]
+    )
+    telefono = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(r'^\d{10}$', message="El teléfono debe tener exactamente 10 dígitos"),
+            validar_telefono
+        ]
+    )
+    direccion = models.CharField(
+        max_length=200,
+        validators=[
+            MinLengthValidator(10, message="La dirección debe tener al menos 10 caracteres")
+        ]
+    )
     # NUEVO CAMPO: Imagen para el proveedor
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
     estado = models.BooleanField(default=True)
+    
+    def clean(self):
+        super().clean()
+        # Validar teléfono
+        if self.telefono:
+            if not self.telefono.isdigit():
+                raise ValidationError({'telefono': 'El teléfono debe contener solo números.'})
+            if len(self.telefono) != 10:
+                raise ValidationError({'telefono': 'El teléfono debe tener exactamente 10 dígitos.'})
+        
+        # Validar nombre
+        if self.nombre:
+            import re
+            if not re.match(r'^[a-zA-Z0-9\s]+$', self.nombre):
+                raise ValidationError({'nombre': 'El nombre solo puede contener letras, números y espacios.'})
+            if len(self.nombre) < 3:
+                raise ValidationError({'nombre': 'El nombre debe tener al menos 3 caracteres.'})
+        
+        # Validar dirección
+        if self.direccion and len(self.direccion) < 10:
+            raise ValidationError({'direccion': 'La dirección debe tener al menos 10 caracteres.'})
+    
     def __str__(self):
         return self.nombre
     class Meta:

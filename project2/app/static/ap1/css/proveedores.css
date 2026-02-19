@@ -1,5 +1,5 @@
 :root {
-  /* Color palette */
+  /* paleta de colores */
   --fondo:url("../imagenes/fondo.jpg");
   --bg: #0b1220;
   --card: #1b2537cc;
@@ -225,7 +225,7 @@ body {
 }
 
 .modal-content {
-  background: #0f172a !important; /* Fondo oscuro sólido */
+  background: #0f172a !important; 
   color: #ffffff !important;
   padding: 30px !important;
   border-radius: 15px !important;
