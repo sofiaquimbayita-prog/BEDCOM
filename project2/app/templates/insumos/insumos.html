@@ -2,11 +2,11 @@
 {% load static %}
 {% block header_title %}INSUMOS{% endblock %}
 {% block content %}
- <title>{% block title %}Insumos{% endblock %}</title> 
+{% block title %}Insumos{% endblock %}
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="{% static 'ap1/css/insumos.css' %}" />
+<link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/insumos.css' %}">
 
 <main class="main-container">
     <div class="btn-agregar-container">
@@ -19,7 +19,7 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Categoría</th>
+                <th>Categoria</th>
                 <th>Cantidad</th>
                 <th>Unidad</th>
                 <th>Estado</th>
@@ -31,11 +31,10 @@
 
 {% include "insumos/modal_insumos.html" %}
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ap1/js/sweetalert2.all.min.js' %}"></script>
 <script>
-    // Constantes para el JS externo
     const INSUMOS_DATA_URL = "{% url 'insumos_data' %}";
 </script>
 <script src="{% static 'ap1/js/insumos.js' %}"></script>

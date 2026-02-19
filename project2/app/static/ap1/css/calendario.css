@@ -410,6 +410,7 @@
 
 .modal-contenido {
   position: relative;
+  overflow: visible;
   background: var(--bg-modal);
   padding: 28px 32px;
   border-radius: 20px;
@@ -507,6 +508,8 @@
 
 .form-grupo {
   margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .form-grupo label {
@@ -663,6 +666,39 @@ textarea.form-input {
   font-size: 0.9rem;
 }
 
+
+
+/* SweetAlert2 por encima del modal */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+/*validaciones*/
+
+/* Campo con error */
+.form-input.input-error,
+.form-select.input-error {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.25) !important;
+}
+
+/* Mensaje de error debajo del campo */
+.msg-error {
+    display: block;
+    position: relative;
+    z-index: 2;
+    color: #e74c3c;
+    font-size: 0.76rem;
+    margin-top: 4px;
+    padding-left: 2px;
+    font-weight: 500;
+}
+
+/* Botón de estado deshabilitado */
+.btn-estado-opcion:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.3 !important;
+}
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .main-container {
@@ -731,4 +767,170 @@ textarea.form-input {
     bottom: 16px;
     right: 16px;
   }
+}
+
+
+/* ===== BARRA DE FILTROS INTEGRADA CON BUSCADOR ===== */
+.filtros-bar {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: rgba(18, 28, 40, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.filtros-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 130px;
+    flex: 1 1 auto;
+}
+
+.filtro-item.search-datatable-container {
+    min-width: 200px;
+    flex: 2 1 auto;
+}
+
+.filtro-item.filtro-accion {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+}
+
+.filtro-label {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    margin-bottom: 0 !important;
+}
+
+.filtro-label i {
+    color: var(--info) !important;
+    font-size: 0.72rem !important;
+    opacity: 0.8;
+}
+
+/* Estilo unificado para selects, inputs y el search de datatable */
+.filtro-control,
+.dataTables_wrapper .dataTables_filter input {
+    width: 100%;
+    padding: 10px 14px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    font-family: inherit;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.filtro-control:hover,
+.dataTables_wrapper .dataTables_filter input:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.filtro-control:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: var(--info) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15) !important;
+}
+
+/* Ajustes específicos para el contenedor del buscador */
+.search-datatable-container {
+    position: relative;
+}
+
+/* Ocultar la etiqueta "Search:" que DataTables añade por defecto */
+.dataTables_wrapper .dataTables_filter label {
+    display: none;
+}
+
+/* El input ocupará todo el ancho de su contenedor */
+.dataTables_wrapper .dataTables_filter {
+    width: 100%;
+    float: none;
+    text-align: left;
+}
+
+/* Botón limpiar */
+.btn-limpiar-filtros {
+    padding: 10px 18px;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.25);
+    border-radius: 12px;
+    color: rgba(231, 76, 60, 0.8);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    height: 40px; /* misma altura que los inputs */
+}
+
+.btn-limpiar-filtros:hover {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.5);
+    color: #ff7b7b;
+    transform: translateY(-1px);
+}
+
+/* Contador de resultados (igual) */
+.filtros-resultado {
+    width: 100%;
+    max-width: 1200px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 16px;
+    padding-left: 4px;
+}
+
+.filtros-resultado strong {
+    color: var(--info);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .filtros-grid {
+        gap: 10px;
+    }
+    .filtro-item {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 600px) {
+    .filtros-bar {
+        padding: 12px;
+    }
+    .filtros-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filtro-item {
+        width: 100%;
+    }
 }
