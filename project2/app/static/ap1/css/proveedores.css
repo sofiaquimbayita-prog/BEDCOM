@@ -1,0 +1,990 @@
+:root {
+  /* Color palette */
+  --fondo:url("../imagenes/fondo.jpg");
+  --bg: #0b1220;
+  --card: #1b2537cc;
+  --card-hover: #374b72cc;
+  --text: #e9eef7;
+  --muted: #a9b3c7;
+  --brand: #5cc8ff;
+  --ok: #2ecc71;
+  --warn: #ffb020;
+  --info: #5fa8ff;
+  --accent: #6c5ce7;
+  --danger: #4ea3a5;
+  --espacio-sm: 8px;
+  --espacio-md: 16px;
+  --borde-md: 8px;
+  --borde-lg: 12px;
+  --transicion-rapida: 0.2s ease;
+  --fuente-sm: 14px;
+  --sombra-lg: 0 15px 35px rgba(0, 0, 0, 0.45);
+  --sombra-md: 0 8px 20px rgba(0, 0, 0, 0.3);
+
+  /* Effects */
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --radius: 18px;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ================= FONDO ================= */
+body {
+  background: var(--fondo);
+  background-size: cover;
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ================= TOPBAR ================= */
+.menu-topbar {
+  height: 65px;
+  gap: 14px;
+  padding: 0 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg,rgba(15, 23, 42, 0.75),rgba(15, 23, 42, 0.55));
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.menu-left,
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.menu-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+
+/* ================= BUSCADOR ================= */
+.menu-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.1);
+}
+
+.menu-search input {
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+}
+
+/* ================= ICONOS TOPBAR ================= */
+.circle-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-icon i {
+  font-size: 18px;
+  color: #e5e7eb;
+}
+
+/* 🔵 SOLO ICONO DE USUARIO AZUL */
+.menu-left .circle-icon {
+  background: linear-gradient(180deg, #38bdf8, #2563eb);
+  box-shadow:
+    0 6px 18px rgba(56,189,248,0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.25);
+}
+
+.menu-left .circle-icon i {
+  color: #ffffff;
+}
+
+/* NOTIFICACIÓN */
+.notify {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================= CONTENIDO ================= */
+.content {
+  padding: 32px;
+}
+
+.providers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
+  align-items: stretch;
+}
+
+/* ================= CARDS ================= */
+.card {
+  background: linear-gradient(180deg, rgba(27,37,55,0.9), rgba(17,24,39,0.9));
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+  box-shadow: var(--sombra-md);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* LOGO */
+.logo {
+  width: 100%;
+  height: 140px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* TEXTO */
+.provider-info {
+  font-size: 13px;
+  color: #b6c2d6;
+  margin: 4px 0;
+}
+
+.provider-name {
+  word-break: break-word;
+}
+
+/* ICONOS CARD */
+.icons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.icons i {
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: color .18s ease, transform .18s ease, background .18s ease;
+}
+
+.icons i:hover {
+  color: #0ea5e9;
+  transform: translateY(-3px) scale(1.08);
+  background: rgba(14,165,233,0.08);
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #0f172a !important; /* Fondo oscuro sólido */
+  color: #ffffff !important;
+  padding: 30px !important;
+  border-radius: 15px !important;
+  width: 90% !important;
+  max-width: 500px !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header h2 {
+  color: #38bdf8 !important; /* Azul celeste */
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.modal-content label {
+  display: block !important;
+  color: #94a3b8 !important; /* Texto gris claro */
+  font-weight: 500 !important;
+  margin-bottom: 5px !important;
+}
+
+.modal-content input, 
+.modal-content select {
+  width: 100% !important;
+  padding: 12px !important;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  color: white !important;
+  outline: none;
+}
+
+.modal-content input:focus {
+  border-color: #38bdf8 !important;
+}
+.img-producto {
+    width: 100%;        /* Ocupa el ancho del contenedor */
+    height: 300px;      /* Altura fija obligatoria */
+    object-fit: cover;  /* ¡CLAVE! Recorta la imagen para que llene el cuadro sin deformarse */
+    object-position: center; /* Centra el recorte en lo más importante */
+}
+
+/* ================= AGREGAR PROVEEDOR ================= */
+.add-card {
+  border: 2px dashed #334155;
+  background: rgba(0,0,0,0.35);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  transition: all .35s ease;
+}
+
+.add-card i {
+  font-size: 32px;
+  color: #38bdf8;
+  animation: pulseGlow 3s infinite;
+  transition: transform .35s ease, text-shadow .35s ease;
+}
+
+.add-card p {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+.add-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  border-color: #38bdf8;
+  background: linear-gradient(
+    180deg,
+    rgba(56,189,248,0.15),
+    rgba(2,6,23,0.6)
+  );
+  box-shadow:
+    0 15px 40px rgba(56,189,248,0.25),
+    inset 0 0 0 1px rgba(56,189,248,0.25);
+}
+
+.add-card:hover i {
+  transform: scale(1.25) rotate(-6deg);
+  text-shadow: 0 0 14px rgba(56,189,248,0.9);
+}
+
+/* ANIMACIÓN */
+@keyframes pulseGlow {
+  0% { text-shadow: 0 0 6px rgba(56,189,248,0.4); }
+  50% { text-shadow: 0 0 14px rgba(56,189,248,0.9); }
+  100% { text-shadow: 0 0 6px rgba(56,189,248,0.4); }
+}
+
+/* ================= MODAL ELEGANTE ================= */
+.modal {
+    display: none; /* El JS cambiará esto a 'flex' */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    /* Quitamos opacity: 0 y transition de aquí para que no choque con el display:none */
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    /* ... resto de tus estilos ... */
+    
+    /* Esta animación se activará en cuanto el JS ponga el padre en display:flex */
+    animation: modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Animación de entrada elegante */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-content {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  color: #ffffff;
+  padding: 32px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 10px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Borde izquierdo decorativo */
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #38bdf8, #818cf8);
+  border-radius: 20px 0 0 20px;
+}
+
+/* Encabezado del modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header h2,
+.modal-header h3 {
+  color: #38bdf8;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header h2 i,
+.modal-header h3 i {
+  font-size: 1.25rem;
+}
+
+/* Botón cerrar elegante */
+.close {
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.25s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.close:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.2);
+  transform: rotate(90deg);
+}
+
+.close:active {
+  transform: scale(0.95);
+}
+
+/* Grupos de formulario */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.modal-content label {
+  display: block;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs elegantes */
+.modal-content input, 
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+  background: rgba(15, 23, 42, 1);
+}
+
+/* Contenedores específicos de los modales */
+.form-container, .view-container, .delete-container {
+  padding: 0;
+}
+
+.form-container h3, .view-container h3, .delete-container h3 {
+  color: #38bdf8;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botones de acción */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Botón guardar/save */
+.btn-save,
+.modal .save {
+  flex: 1;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.btn-save:hover,
+.modal .save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4);
+  background: linear-gradient(135deg, #7dd3fc, #3b82f6);
+}
+
+.btn-save:active,
+.modal .save:active {
+  transform: translateY(0);
+}
+
+/* Botón cancelar */
+.btn-cancel,
+.modal .cancel {
+  flex: 1;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover,
+.modal .cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Botón eliminar */
+.btn-delete {
+  flex: 1;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, #fca5a5, #f87171);
+}
+#viewEstado {
+    position: static !important; /* Esto lo obliga a quedarse en su línea de texto */
+    display: inline-block !important;
+    padding: 3px 12px !important;
+    border-radius: 15px !important;
+    font-size: 0.8rem !important;
+    font-weight: bold !important;
+}
+
+/* Colores para el JS */
+.badge-activo {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #10b981 !important;
+    border: 1px solid #10b981 !important;
+}
+
+.badge-inactivo {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+    border: 1px solid #f87171 !important;
+}
+
+/* Estilo del botón de cerrar para que no sea solo texto */
+.btn-view-close {
+    width: 100%;
+    background: #334155;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-view-close:hover {
+    background: #475569;
+}
+
+/* Vista de detalles */
+.view-group {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.view-group:last-child {
+  margin-bottom: 0;
+}
+
+.view-group label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.view-group p {
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+/* Checkbox personalizado */
+.modal-content input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.modal-content label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  text-transform: none;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+/* Modal de eliminación específico */
+.modal-content.delete::before {
+  background: linear-gradient(180deg, #f87171, #ef4444);
+}
+
+.delete-container h3 {
+  color: #f87171 !important;
+}
+
+.delete-container p {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.delete-container .warning-text {
+  color: #fbbf24;
+  font-size: 0.875rem;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 24px 20px;
+    width: 95%;
+    border-radius: 16px;
+  }
+  
+  .modal-header h2,
+  .modal-header h3 {
+    font-size: 1.25rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-save,
+  .btn-cancel,
+  .btn-delete {
+    width: 100%;
+  }
+}
+
+/* Imagen del proveedor dentro de la tarjeta */
+.provider-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-box { display:block; }
+
+/* Iconos de info dentro de tarjeta */
+.provider-info.phone i, .provider-info.location i {
+  margin-right: 8px;
+  color: #93c5fd;
+}
+
+/* Botones con clases específicas para mayor control */
+.delete-btn { color: #fca5a5; }
+.delete-btn:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+.view-btn { color: #7dd3fc; }
+.view-btn:hover { color: #0ea5e9; background: rgba(14,165,233,0.06); }
+.edit-btn { color: #fde68a; }
+.edit-btn:hover { color: #f59e0b; background: rgba(245,158,11,0.06); }
+#formTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.provider-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 12px 0 6px 0;
+  color: var(--text);
+}
+/* Contenedor principal alineado a la derecha */
+.switch-container {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    padding: 8px 15px;
+    background: var(--color-superficie);
+    border-radius: 50px;
+    border: 1px solid var(--color-borde);
+    justify-content: flex-end;
+    align-items: right;
+    width: auto;
+    max-width: 210px;
+    flex-wrap: wrap;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+    .switch-container {
+        max-width: 200px;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .switch-text {
+        font-size: 0.8rem;
+    }
+    
+    .switch-control {
+        width: 40px;
+        height: 22px;
+    }
+    
+    .slider:before {
+        height: 16px;
+        width: 16px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(18px);
+    }
+}
+
+@media (max-width: 480px) {
+    .switch-container {
+        max-width: 160px;
+        padding: 6px 10px;
+        gap: 6px;
+    }
+    
+    .switch-text {
+        font-size: 0.75rem;
+    }
+    
+    .switch-control {
+        width: 36px;
+        height: 20px;
+    }
+    
+    .slider:before {
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(16px);
+    }
+}
+
+.switch-text {
+    margin-left: auto;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+/* El control oculto del checkbox original */
+.switch-control {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 24px;
+}
+
+.switch-control input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* El cuerpo del Switch (Slider) */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #64748b; /* Gris claro cuando está apagado para mayor visibilidad */
+    transition: .4s;
+    border-radius: 34px;
+}
+
+/* El círculo blanco que se mueve */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Color cuando está ACTIVADO (Inactivos visibles) */
+input:checked + .slider {
+    background-color: #64e73c; /* Rojo para indicar que estás viendo lo inactivo */
+}
+
+/* Movimiento del círculo */
+input:checked + .slider:before {
+    transform: translateX(21px);
+}
+
+/* Mensajes */
+/* Contenedor fijo para que no empuje el contenido */
+.messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 11000; /* Por encima de los modales */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Permite clickear lo que está atrás si no es el mensaje */
+}
+
+.message {
+    pointer-events: auto;
+    min-width: 300px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideInRight 0.4s ease-out forwards;
+    border-left: 5px solid transparent;
+}
+
+/* Colores según el tipo de mensaje de Django */
+.message.success { 
+    background: #064e3b; 
+    border-color: #10b981; 
+    color: #ecfdf5;
+}
+.message.error, .message.danger { 
+    background: #450a0a; 
+    border-color: #ef4444; 
+    color: #fef2f2;
+}
+.message.warning { 
+    background: #451a03; 
+    border-color: #f59e0b; 
+    color: #fffbeb;
+}
+.close-toast {
+    background: rgba(255, 255, 255, 0.1); /* Fondo muy sutil */
+    border: none;
+    color: currentColor;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* Lo hace circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 15px;
+    font-size: 0.8rem; /* Más pequeña para que no estorbe */
+}
+
+.close-toast:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg); /* Efecto de giro al pasar el mouse */
+}
+
+.close-toast i {
+    pointer-events: none; /* Para que el click siempre detecte el botón */
+}
+
+/* Animación de entrada */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Animación de salida (para el JS) */
+.message.fade-out {
+    animation: slideOutRight 0.4s ease-in forwards;
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}

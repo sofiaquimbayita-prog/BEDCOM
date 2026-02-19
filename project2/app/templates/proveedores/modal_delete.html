@@ -1,0 +1,23 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h2 id="confirmTitle">Confirmar Acción</h2>
+    </div>
+    <div style="text-align: center; padding: 10px 0;">
+        <img id="imgConfirm" src="" class="img-producto" style="height: 150px; border-radius: 12px; margin-bottom: 15px; display: none;">
+        
+        <p style="color: #94a3b8; margin-bottom: 5px;">Proveedor seleccionado:</p>
+        <h3 id="nombreConfirm" style="color: white; font-size: 1.4rem; margin-bottom: 20px;"></h3>
+        
+        <p style="background: rgba(239, 68, 68, 0.1); color: #f87171; padding: 10px; border-radius: 8px; font-size: 0.9rem;">
+            <i class="fas fa-exclamation-triangle"></i> Esta acción actualizará el estado del proveedor.
+        </p>
+    </div>
+
+    <form id="formConfirm" method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button type="submit" id="btnConfirmSubmit" class="btn-delete" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Confirmar</button>
+            <button type="button" onclick="cerrarModal('modalConfirm')" style="flex: 1; background: #334155; color: white; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+        </div>
+    </form>
+</div>

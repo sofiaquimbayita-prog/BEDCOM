@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import proveedores
 
 urlpatterns = [
     path('login/', views.MenuPrincipalView, name='MenuPrincipal'),
@@ -28,6 +29,13 @@ urlpatterns = [
     path('calendario/crear/', views.crear_evento_view, name='crear_evento'),
     path('calendario/editar/<int:id>/', views.editar_evento_view, name='editar_evento'),
     path('calendario/eliminar/<int:id>/', views.eliminar_evento_view, name='eliminar_evento'),
-    path('calendario/estado/<int:id>/', views.cambiar_estado_evento_view, name='cambiar_estado_evento'),  # ← nuevo
-]
+    path('calendario/estado/<int:id>/', views.cambiar_estado_evento_view, name='cambiar_estado_evento'),  
 
+    # PROVEEDORES
+    path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores'),
+    path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedor_create'),
+    path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedor_edit'),
+    path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedor_delete'),
+    path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedor_activar')
+
+]

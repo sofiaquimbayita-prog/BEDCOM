@@ -63,6 +63,8 @@ $(document).ready(function () {
             { data: "categoria" },
             { data: "cantidad" },
             { data: "unidad" },
+            { data: "precio" },
+            { data: "proveedor" },
             { data: "estado" },
             {
             data: "id",
@@ -98,6 +100,8 @@ $(document).ready(function () {
                 form.nombre.value = data.nombre;
                 form.cantidad.value = data.cantidad;
                 form.unidad_medida.value = data.unidad_medida;
+                form.precio.value = data.precio;
+                form.id_proveedor.value = data.id_proveedor;
                 form.id_categoria.value = data.id_categoria;
                 form.estado.value = data.estado;
                 

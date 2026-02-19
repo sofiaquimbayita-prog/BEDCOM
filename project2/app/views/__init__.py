@@ -1,4 +1,3 @@
-# app/views/__init__.py
 from .auth import (
     MenuPrincipalView,
     crear_cuenta_view,
@@ -27,4 +26,11 @@ from .calendario import (
     editar_evento_view,
     eliminar_evento_view,
     cambiar_estado_evento_view
+)
+from .proveedores import (
+    ProveedorListView, 
+    ProveedorCreateView, 
+    ProveedorUpdateView, 
+    ProveedorDeleteView, 
+    ProveedorActivateView
 )

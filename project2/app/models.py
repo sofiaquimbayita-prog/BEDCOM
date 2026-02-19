@@ -13,10 +13,11 @@ class categoria (models.Model):
         verbose_name_plural = "Categorias"
         db_table = "categorias"
 
-class proveedor (models.Model): #Clase Proveedor
+class proveedor (models.Model): # Clase Proveedor
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=10)
     direccion = models.CharField(max_length=200)
+    imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
     estado = models.BooleanField(default=True)
     def __str__(self):
         return self.nombre
@@ -24,6 +25,7 @@ class proveedor (models.Model): #Clase Proveedor
         verbose_name = "Proveedor"
         verbose_name_plural = "Proveedores"
         db_table = "proveedor"
+
 
 class cliente (models.Model):
     cedula = models.CharField(max_length=20, unique=True)
@@ -39,7 +41,6 @@ class cliente (models.Model):
         db_table = "clientes"
         
 class usuario (models.Model): 
-    # Modelo original con db_table = "proveedor"
     cedula = models.CharField(max_length=20, unique=True)
     nombre_usuar = models.CharField(max_length=50)
     rol = models.CharField(max_length=20)
@@ -50,7 +51,7 @@ class usuario (models.Model):
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
-        db_table = "usuarios" # <-- CORREGIDO: Evita colisión con 'proveedor'
+        db_table = "usuarios"# <-- CORREGIDO: Evita colisión con 'proveedor'
 
 # --- MODELOS RELACIONADOS CON USUARIO/REPORTES ---
 
@@ -112,20 +113,22 @@ class insumo(models.Model):
     descripcion = models.TextField(blank=True, null=True)  # ← agregar esto
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=20)
+    precio = models.DecimalField(max_digits=10, decimal_places=2) 
     estado = models.CharField(max_length=20)
     id_categoria = models.ForeignKey('categoria', on_delete=models.CASCADE)
+    id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nombre
     class Meta:
         verbose_name = "Insumo"
         verbose_name_plural = "Insumos" 
-        db_table = "insumo" # Agregado para consistencia
+        db_table = "insumo" 
         
 class compra(models.Model): #Clase Compra (Primera definición, CORRECTA)
     fecha_suministro = models.DateField()
     cantidad = models.IntegerField()
-    id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
+    id_proveedor_id = models.ForeignKey('proveedor', on_delete=models.CASCADE)
     id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
     def __str__(self):
         return f"Compra de {self.cantidad} unidades"
@@ -133,11 +136,9 @@ class compra(models.Model): #Clase Compra (Primera definición, CORRECTA)
         verbose_name = "Proveedor Insumo (Compra)"
         verbose_name_plural = "Proveedores Insumos (Compras)"
         db_table = "proveedor_insumo"
-        unique_together = ('id_proveedor', 'id_insumo')
+        unique_together = ('id_proveedor_id', 'id_insumo')
         
 class supervision(models.Model): 
-    # RENOMBRADA: Esta era la segunda clase 'compra' que causaba el error E307 
-    # en despacho. Ahora se llama 'supervision' y usa db_table = "supervision".
     fecha = models.DateField()
     descripcion = models.TextField() # Campo agregado para dar sentido a la supervisión
     id_usuario = models.ForeignKey('usuario', on_delete=models.CASCADE) # Quién supervisa

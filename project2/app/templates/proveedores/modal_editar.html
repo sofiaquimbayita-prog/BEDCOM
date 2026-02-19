@@ -1,0 +1,44 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">  
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Editar Proveedor</h2>
+    </div>
+    
+    <form id="formEditarProveedor" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>NOMBRE DEL PROVEEDOR</label>
+            <input type="text" name="nombre" value="{{ object.nombre }}" required placeholder="Nombre de la empresa o contacto">
+        </div>
+
+        <div class="form-group">
+            <label>TELÉFONO DE CONTACTO</label>
+            <input type="tel" name="telefono" value="{{ object.telefono }}" required placeholder="Ej: +57 300 123 4567">
+        </div>
+
+        <div class="form-group">
+            <label>DIRECCIÓN FÍSICA / SEDE</label>
+            <input type="text" name="direccion" value="{{ object.direccion }}" required placeholder="Ej: Calle 10 # 20-30, Bogotá">
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-image"></i> LOGO O IMAGEN ACTUAL</label>
+            {% if object.imagen %}
+                <div style="margin-bottom: 15px; text-align: center;">
+                    <img src="{{ object.imagen.url }}" class="img-producto" 
+                         style="height: 120px; width: 120px; border-radius: 12px; border: 1px solid #334155;">
+                </div>
+            {% endif %}
+            <input type="file" name="imagen" accept="image/*" class="form-control">
+            <small style="color: gray;">Sube un nuevo logo si deseas actualizar el actual.</small>
+        </div>
+
+        <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEdit')" style="flex: 1;">Cancelar</button>
+            <button type="submit" id="btnActualizar" class="btn-save" style="flex: 1;">Actualizar Datos</button>
+        </div>
+    </form>
+</div>

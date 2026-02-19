@@ -12,8 +12,10 @@ def guardar_insumo(request, instancia=None):
     nombre = request.POST.get('nombre')
     cantidad = request.POST.get('cantidad')
     unidad = request.POST.get('unidad_medida')
+    precio = request.POST.get('precio', 0)
     estado = request.POST.get('estado', 'Activo')
     cat_id = request.POST.get('id_categoria')
+    prov_id = request.POST.get('id_proveedor')
 
     if not nombre or not cantidad or not unidad:
         return JsonResponse({
@@ -22,15 +24,17 @@ def guardar_insumo(request, instancia=None):
         }, status=400)
 
     categoria_obj = get_object_or_404(categoria, id=cat_id) if cat_id else None
-
+    proveedores = get_object_or_404(proveedores, id=prov_id) if prov_id else None
     if instancia is None:
         instancia = insumo()
 
     instancia.nombre = nombre
     instancia.cantidad = cantidad
     instancia.unidad_medida = unidad
+    instancia.precio = precio 
     instancia.estado = estado
     instancia.id_categoria = categoria_obj
+    instancia.id_proveedor = proveedores
     instancia.save()
 
     return JsonResponse({
@@ -50,6 +54,8 @@ def insumos_data_view(request: HttpRequest):
         "nombre": i.nombre,
         "categoria": i.id_categoria.nombre if i.id_categoria else "Sin categoría",
         "cantidad": i.cantidad,
+        "precio": i.precio,
+        "proveedor": i.id_proveedor.nombre if i.id_proveedor else "Sin proveedor",
         "unidad": i.unidad_medida,
         "estado": i.estado,
     } for i in insumos]
@@ -61,6 +67,8 @@ def obtener_insumo_view(request: HttpRequest, id):
         "nombre": ins.nombre,
         "cantidad": ins.cantidad,
         "unidad_medida": ins.unidad_medida,
+        "precio": ins.precio,
+        "id_proveedor": ins.id_proveedor.id if ins.id_proveedor else "",
         "id_categoria": ins.id_categoria.id if ins.id_categoria else "",
         "estado": ins.estado
     })
