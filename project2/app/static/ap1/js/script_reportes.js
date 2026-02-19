@@ -8,13 +8,32 @@ const CSS_COLORS = {
     secundario: '#4b89d4',
     exito: '#2ecc71',
     peligro: '#e74c3c',
-    borde: '#334155'
+    borde: '#334155',
+    // Colores adicionales para barras
+    coloresBarras: [
+        '#51a3d3', '#4b89d4', '#2ecc71', '#e74c3c', '#9b59b6', 
+        '#f39c12', '#1abc9c', '#e67e22', '#3498db', '#2ecc71',
+        '#f1c40f', '#8e44ad', '#16a085', '#27ae60', '#c0392b'
+    ]
 };
 
 // 2. Estructuras de datos globales
 let salesData = { products: [], units: [], colors: [] };
 let monthlyData = { months: [], sales: [], expenses: [] };
 let salesChart, monthlyChart;
+
+/**
+ * Genera un array de colores dinámicamente basado en el número de productos
+ * @param {number} count - Número de productos
+ * @returns {Array} - Array de colores
+ */
+function generarColoresBarras(count) {
+    const colores = [];
+    for (let i = 0; i < count; i++) {
+        colores.push(CSS_COLORS.coloresBarras[i % CSS_COLORS.coloresBarras.length]);
+    }
+    return colores;
+}
 
 // 3. Inicialización al cargar el DOM
 document.addEventListener('DOMContentLoaded', function() {
@@ -64,6 +83,8 @@ function loadDataFromBridge() {
  * Crea las instancias de las gráficas
  */
 function initCharts() {
+    console.log('Inicializando gráficas - Productos:', salesData.products);
+    
     // --- Gráfica de Distribución (Dona) ---
     const salesCtx = document.getElementById('salesChart');
     if (salesCtx && salesData.products.length > 0) {
@@ -72,6 +93,7 @@ function initCharts() {
             data: {
                 labels: salesData.products,
                 datasets: [{
+                    label: 'Unidades Vendidas',
                     data: salesData.units,
                     backgroundColor: salesData.colors,
                     borderColor: '#1e293b',
@@ -82,10 +104,23 @@ function initCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#fff' } }
+                    legend: { 
+                        display: true,
+                        position: 'bottom', 
+                        labels: { 
+                            color: '#fff',
+                            font: { size: 12 },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        } 
+                    }
                 }
             }
         });
+        console.log('Gráfica de ventas creada');
+    } else {
+        console.warn('No hay productos para mostrar en la gráfica');
     }
 
     // --- Gráfica de Evolución (Línea) ---
@@ -128,10 +163,14 @@ function initCharts() {
                     x: { ticks: { color: '#fff' }, grid: { display: false } }
                 },
                 plugins: {
-                    legend: { labels: { color: '#fff' } }
+                    legend: { 
+                        display: true,
+                        labels: { color: '#fff' } 
+                    }
                 }
             }
         });
+        console.log('Gráfica mensual creada');
     }
 }
 
@@ -151,9 +190,101 @@ function setupEventListeners() {
             const targetChart = (chartId === 'salesChart') ? salesChart : monthlyChart;
             
             if (targetChart) {
-                // Usar el método config del chart para cambiar el tipo de manera segura
-                // Esto evita los errores de recurrencia y opciones inválidas
+                // Cambiar el tipo de gráfica
                 targetChart.config.type = chartType;
+                
+                // Ajustar opciones según el tipo de gráfica
+                if (chartId === 'salesChart') {
+                    // Para la gráfica de distribución (salesChart)
+                    if (chartType === 'bar') {
+                        // Las barras necesitan escalas
+                        targetChart.options.scales = {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { display: false }
+                            }
+                        };
+                        
+                        // Configurar leyenda para barras - mostrar nombres de productos como doughnut
+                        targetChart.options.plugins.legend = {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 12 },
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'rect',
+                                // Generar etiquetas de leyenda desde los nombres de productos
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map(function(label, i) {
+                                            return {
+                                                text: label,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: !chart.getDataVisibility(i),
+                                                index: i,
+                                                pointStyle: 'rect'
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        };
+                        
+                        // FIX: Generar colores dinámicos para las barras
+                        // Esto evita 'undefined' cuando hay más de 3 productos
+                        const numProductos = salesData.products.length;
+                        const coloresBarras = generarColoresBarras(numProductos);
+                        targetChart.data.datasets[0].backgroundColor = coloresBarras;
+                        targetChart.data.datasets[0].borderColor = '#1e293b';
+                        targetChart.data.datasets[0].borderWidth = 1;
+                    } else {
+                        // Doughnut no usa escalas
+                        delete targetChart.options.scales;
+                        
+                        // Configurar leyenda para doughnut
+                        targetChart.options.plugins.legend = {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 12 },
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        };
+                        
+                        // Restaurar colores de doughnut
+                        targetChart.data.datasets[0].backgroundColor = salesData.colors;
+                        targetChart.data.datasets[0].borderColor = '#1e293b';
+                        targetChart.data.datasets[0].borderWidth = 2;
+                    }
+                } else {
+                    // Para la gráfica de evolución (monthlyChart) - línea/barra
+                    targetChart.options.scales = {
+                        y: {
+                            ticks: {
+                                color: '#fff',
+                                callback: value => '$' + (value / 1000000).toFixed(1) + 'M'
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { display: false }
+                        }
+                    };
+                }
+                
                 targetChart.update();
             }
         });
