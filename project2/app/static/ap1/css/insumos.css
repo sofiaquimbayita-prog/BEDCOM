@@ -470,6 +470,18 @@
     color: #f39c12 !important;
     font-weight: 600;
 }
+
+/* Forzar SweetAlert2 por encima de todo */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+/* Asegurar que el modal no bloquee las alertas */
+.modal.mostrar ~ .swal2-container,
+body.swal2-shown .modal {
+    z-index: auto;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .main-container {

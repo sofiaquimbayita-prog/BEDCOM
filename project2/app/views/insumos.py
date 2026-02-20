@@ -24,7 +24,48 @@ def guardar_insumo(request, instancia=None):
         }, status=400)
 
     categoria_obj = get_object_or_404(categoria, id=cat_id) if cat_id else None
-    proveedor = get_object_or_404(proveedor, id=prov_id) if prov_id else None
+    proveedor_obj = get_object_or_404(proveedor, id=prov_id) if prov_id else None  
+    
+# --- valida que no existan dos insumos con el mismo nombre y el mismo proveedor ---
+    if not nombre or not cantidad or not unidad:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Todos los campos obligatorios deben estar completos.'
+        }, status=400)
+
+    if prov_id:
+        insumo_existente = insumo.objects.filter(
+            nombre__iexact=nombre.strip(), 
+            id_proveedor_id=prov_id
+        )
+        
+        if instancia and instancia.pk:
+            insumo_existente = insumo_existente.exclude(pk=instancia.pk)
+        
+        if insumo_existente.exists():
+            proveedor_nombre = proveedor.objects.get(id=prov_id).nombre
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Ya existe un insumo llamado "{nombre}" para el proveedor "{proveedor_nombre}".'
+            }, status=400)
+    else:
+        insumo_existente = insumo.objects.filter(
+            nombre__iexact=nombre.strip(),
+            id_proveedor__isnull=True
+        )
+        
+        if instancia and instancia.pk:
+            insumo_existente = insumo_existente.exclude(pk=instancia.pk)
+        
+        if insumo_existente.exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Ya existe un insumo llamado "{nombre}" sin proveedor asociado.'
+            }, status=400)
+
+    
+    
+    
     if instancia is None:
         instancia = insumo()
 
@@ -34,14 +75,13 @@ def guardar_insumo(request, instancia=None):
     instancia.precio = precio 
     instancia.estado = estado
     instancia.id_categoria = categoria_obj
-    instancia.id_proveedor = proveedor
+    instancia.id_proveedor = proveedor_obj  # ← USA LA NUEVA VARIABLE
     instancia.save()
 
     return JsonResponse({
         'status': 'success',
         'message': 'Guardado correctamente'
     })
-
 
 def insumos_view(request: HttpRequest):
     categorias = categoria.objects.all()
