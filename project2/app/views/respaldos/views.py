@@ -8,10 +8,11 @@ import shutil
 from django.utils import timezone
 import subprocess
 from django.http import FileResponse, Http404
-from ...models import respaldo  # Tu modelo en minúsculas
+from ...models import respaldo
+from ...forms import RespaldoForm
 from django.conf import settings
 
-# 1. LISTAR RESPALDOS
+
 class RespaldoListView(ListView):
     model = respaldo
     template_name = 'respaldos/respaldos.html'
@@ -19,35 +20,39 @@ class RespaldoListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Aquí defines el título que quieres que aparezca
         context['titulo_pagina'] = "Gestión de Respaldos"
         context['icono_modulo'] = "fas fa-database"
         return context
 
-# 2. GENERAR (CREAR) RESPALDO
+
 class RespaldoCreateView(CreateView):
     model = respaldo
-    fields = ['tipo_respaldo', 'descripcion']
+    form_class = RespaldoForm
+    template_name = 'respaldos/respaldos.html'
     success_url = reverse_lazy('respaldos_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = "Gestion de Respaldos"
+        context['icono_modulo'] = "fas fa-database"
+        return context
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Por favor corrige los errores del formulario.')
+        return self.render_to_response(self.get_context_data(form=form))
+
     def form_valid(self, form):
-        # 1. Nombre del nuevo respaldo
         nombre_base = f"backup_{timezone.now().strftime('%Y%m%d_%H%M%S')}.sqlite3"
         ruta_relativa = os.path.join('respaldos_sql', nombre_base)
         ruta_destino = os.path.join(settings.MEDIA_ROOT, ruta_relativa)
 
-        # 2. Ruta de tu base de datos actual (SQLite)
-        # Django la tiene en settings.DATABASES['default']['NAME']
         ruta_db_original = settings.DATABASES['default']['NAME']
 
         try:
-            # 3. Asegurar que la carpeta de destino exista
             os.makedirs(os.path.dirname(ruta_destino), exist_ok=True)
 
-            # 4. Copiar el archivo de la DB
             shutil.copy2(ruta_db_original, ruta_destino)
 
-            # 5. Guardar datos en el modelo
             form.instance.archivo = ruta_relativa
             form.instance.usuario = self.request.user.username if self.request.user.is_authenticated else 'sistema'
             form.instance.estado = True
@@ -59,7 +64,7 @@ class RespaldoCreateView(CreateView):
             messages.error(self.request, f"Error al copiar la base de datos: {str(e)}")
             return redirect('respaldos_list')
 
-# 3. ELIMINAR (DESACTIVAR) RESPALDO
+
 class RespaldoDeleteView(View):
     def post(self, request, pk):
         resp = get_object_or_404(respaldo, id=pk)
@@ -71,13 +76,13 @@ class RespaldoDeleteView(View):
             messages.error(request, "No se pudo eliminar el registro.")
         
         return redirect('respaldos_list')
-# 4. RESTAURAR (REACTIVAR) RESPALDO
+
+
 class RespaldoRestoreView(View):
     def post(self, request, pk):
-        # Buscamos el respaldo sin importar si está activo o no
         resp = get_object_or_404(respaldo, id=pk)
         try:
-            resp.estado = True  # Lo activamos de nuevo
+            resp.estado = True
             resp.save()
             messages.success(request, "¡Respaldo restaurado con éxito!")
         except Exception as e:
@@ -85,9 +90,9 @@ class RespaldoRestoreView(View):
         
         return redirect('respaldos_list')
 
+
 class DescargarRespaldoView(View):
     def get(self, request, id):
-        # Usamos un nombre de variable distinto para no confundir
         obj_respaldo = get_object_or_404(respaldo, pk=id)
         
         if obj_respaldo.archivo:
@@ -100,7 +105,6 @@ class DescargarRespaldoView(View):
                         filename=os.path.basename(ruta_fisica)
                     )
             except ValueError:
-                # Esto pasa si el campo existe pero no tiene archivo físico asociado
                 pass
                 
         raise Http404("El archivo no existe en el servidor.")

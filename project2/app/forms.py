@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
-from .models import proveedor
+from .models import proveedor, respaldo
 
 class ProveedorForm(forms.ModelForm):
     class Meta:
@@ -42,7 +42,6 @@ class ProveedorForm(forms.ModelForm):
         if not tel.isdigit():
             raise forms.ValidationError('El teléfono solo debe contener números (0-9)')
         
-        # Validar que tenga exactamente 10 dígitos (formato colombiano)
         if len(tel) != 10:
             raise forms.ValidationError('El teléfono debe tener exactamente 10 dígitos (formato: 3001234567)')
         
@@ -53,19 +52,15 @@ class ProveedorForm(forms.ModelForm):
         if not nombre:
             raise forms.ValidationError('El nombre del proveedor es requerido')
         
-        # Validar longitud mínima
         if len(nombre) < 3:
             raise forms.ValidationError('El nombre debe tener al menos 3 caracteres')
         
-        # Validar longitud máxima
         if len(nombre) > 100:
             raise forms.ValidationError('El nombre no puede exceder 100 caracteres')
         
-        # Validar que solo contenga letras, números y espacios
         if not re.match(r'^[a-zA-Z0-9\s]+$', nombre):
             raise forms.ValidationError('El nombre solo puede contener letras, números y espacios (sin caracteres especiales)')
         
-        # Verificar duplicados (excluyendo el registro actual en caso de edición)
         if proveedor.objects.filter(nombre__iexact=nombre).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError('Ya existe un proveedor con ese nombre')
         
@@ -76,11 +71,9 @@ class ProveedorForm(forms.ModelForm):
         if not direccion:
             raise forms.ValidationError('La dirección es requerida')
         
-        # Validar longitud mínima
         if len(direccion) < 10:
             raise forms.ValidationError('La dirección debe tener al menos 10 caracteres')
         
-        # Validar longitud máxima
         if len(direccion) > 200:
             raise forms.ValidationError('La dirección no puede exceder 200 caracteres')
         
@@ -89,13 +82,60 @@ class ProveedorForm(forms.ModelForm):
     def clean_imagen(self):
         imagen = self.cleaned_data.get('imagen')
         if imagen:
-            # Validar tamaño máximo (2MB)
             if imagen.size > 2 * 1024 * 1024:
                 raise forms.ValidationError('La imagen no puede exceder 2MB')
             
-            # Validar tipos de archivo permitidos
             allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
             if imagen.content_type not in allowed_types:
                 raise forms.ValidationError('Tipo de imagen no permitido. Use: JPG, PNG, GIF o WebP')
         
         return imagen
+
+
+class RespaldoForm(forms.ModelForm):
+    class Meta:
+        model = respaldo
+        fields = ['tipo_respaldo', 'descripcion']
+        widgets = {
+            'tipo_respaldo': forms.Select(attrs={
+                'class': 'form-control',
+                'style': 'width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'rows': 3,
+                'maxlength': 200,
+                'placeholder': 'Notas sobre este respaldo...',
+                'class': 'form-control',
+                'style': 'width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px; resize: none;'
+            }),
+        }
+
+    def clean_tipo_respaldo(self):
+        tipo = self.cleaned_data.get('tipo_respaldo')
+        if not tipo:
+            raise forms.ValidationError('El tipo de respaldo es requerido')
+        
+        # Validar que sea uno de los valores permitidos
+        tipos_permitidos = ['completo', 'parcial']
+        if tipo not in tipos_permitidos:
+            raise forms.ValidationError('El tipo de respaldo debe ser "completo" o "parcial"')
+        
+        return tipo
+
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion', '').strip()
+        
+        # Si está vacía, es válida (es campo opcional)
+        if not descripcion:
+            return descripcion
+        
+        # Validar longitud máxima de 200 caracteres
+        if len(descripcion) > 200:
+            raise forms.ValidationError('La descripción no puede exceder 200 caracteres')
+        
+        # Validar que no tenga caracteres especiales peligrosos
+        # Permite letras, números, espacios, y signos de puntuación básicos
+        if not re.match(r'^[a-zA-Z0-9\s.,;:¡!¿?\-_()]+$', descripcion):
+            raise forms.ValidationError('La descripción no puede contener caracteres especiales')
+        
+        return descripcion

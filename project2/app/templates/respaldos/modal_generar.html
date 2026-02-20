@@ -9,21 +9,45 @@
     <form id="generarRespaldoForm" method="post" action="{% url 'generar_respaldo' %}">
         {% csrf_token %}
         
+        <!-- Errores generales del formulario -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="background: #7f1d1d; border: 1px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            {% for error in form.non_field_errors %}
+            <p style="margin: 0;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="add_tipo" style="display: block; color: #94a3b8; margin-bottom: 8px;">Tipo de Respaldo:</label>
-            <select id="add_tipo" name="tipo_respaldo" required 
+            <select id="add_tipo" name="tipo_respaldo" 
                 style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">
                 <option value="" disabled selected>Seleccionar tipo...</option>
                 <option value="completo">Respaldo Completo</option>
                 <option value="parcial">Respaldo Parcial</option>
             </select>
+            {% if form.tipo_respaldo.errors %}
+            <div class="error-message" style="color: #ef4444; font-size: 0.85rem; margin-top: 5px;">
+                {% for error in form.tipo_respaldo.errors %}
+                <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span><br>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="add_descripcion" style="display: block; color: #94a3b8; margin-bottom: 8px;">Descripción:</label>
-            <textarea id="add_descripcion" name="descripcion" rows="3"
+            <textarea id="add_descripcion" name="descripcion" rows="3" maxlength="200"
                 style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px; resize: none;"
                 placeholder="Notas sobre este respaldo..."></textarea>
+            {% if form.descripcion.errors %}
+            <div class="error-message" style="color: #ef4444; font-size: 0.85rem; margin-top: 5px;">
+                {% for error in form.descripcion.errors %}
+                <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span><br>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <small style="color: #64748b; font-size: 0.75rem;">Máximo 200 caracteres</small>
         </div>
 
         <div class="form-actions" style="display: flex; gap: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
