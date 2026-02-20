@@ -702,3 +702,107 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
     padding: 10px 14px;
   }
 }
+
+/* ======================== */
+/* TOAST NOTIFICATIONS     */
+/* ======================== */
+
+.messages {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1b2537, #2a3550);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: slideIn 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-content i {
+  font-size: 20px;
+}
+
+.message .text {
+  font-size: 14px;
+  color: #e9eef7;
+}
+
+.message.success {
+  border-left: 4px solid #2ecc71;
+}
+
+.message.success .message-content i {
+  color: #2ecc71;
+}
+
+.message.error {
+  border-left: 4px solid #e74c3c;
+}
+
+.message.error .message-content i {
+  color: #e74c3c;
+}
+
+.message.warning {
+  border-left: 4px solid #f39c12;
+}
+
+.message.warning .message-content i {
+  color: #f39c12;
+}
+
+.message.info {
+  border-left: 4px solid #3498db;
+}
+
+.message.info .message-content i {
+  color: #3498db;
+}
+
+.close-toast {
+  background: none;
+  border: none;
+  color: #a9b3c7;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 12px;
+  transition: color 0.2s ease;
+}
+
+.close-toast:hover {
+  color: #ffffff;
+}
+
+.close-toast i {
+  font-size: 14px;
+}

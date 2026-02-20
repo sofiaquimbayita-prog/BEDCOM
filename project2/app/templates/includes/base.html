@@ -25,9 +25,35 @@
         {% include 'includes/header.html' %} 
     {% endblock %}
 
+    {# Mensajes Toast #}
+    {% if messages %}
+    <div class="messages" id="toast-container">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            <div class="message-content">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fas fa-times-circle"></i>
+                {% else %}
+                    <i class="fas fa-info-circle"></i>
+                {% endif %}
+                <span class="text">{{ message }}</span>
+            </div>
+            <button type="button" class="close-toast" onclick="cerrarToast(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
 
     <script src="{% static 'ap1/js/menu.js' %}"></script>
     {% block scripts %}{% endblock %} 
 </body>
+</html>

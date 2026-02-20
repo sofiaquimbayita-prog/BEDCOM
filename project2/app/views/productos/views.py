@@ -49,6 +49,9 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
         if form.cleaned_data['precio'] < 0:
             messages.error(self.request, "El precio inicial no puede ser negativo.")
             return redirect('productos')
+        if form.cleaned_data['precio'] > 99999999:
+            messages.error(self.request, "El precio no puede exceder 99,999,999.")
+            return redirect('productos')
 
         # Validación: El nombre no debe contener caracteres especiales
         nombre = form.cleaned_data['nombre']
@@ -87,6 +90,9 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
             return super().form_invalid(form)
         if form.cleaned_data['precio'] < 0:
             messages.error(self.request, "El precio no puede ser negativo.")
+            return super().form_invalid(form)
+        if form.cleaned_data['precio'] > 99999999:
+            messages.error(self.request, "El precio no puede exceder 99,999,999.")
             return super().form_invalid(form)
 
         # Validación: El nombre no debe contener caracteres especiales

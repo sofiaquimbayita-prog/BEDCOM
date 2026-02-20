@@ -3,14 +3,119 @@
    ================================================== */
 
 // Función para validar que el nombre no contenga caracteres especiales
-// Retorna true si es válido, false si tiene caracteres no permitidos
 function validarNombreProducto(nombre) {
     // Permite: letras (incluyendo Ñ y acentos), números, espacios, guiones y guiones bajos
     var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$/;
     return patron.test(nombre);
 }
 
-// Funciones globales para modales (definidas fuera de document.ready para estar disponibles inmediatamente)
+// Función para mostrar error en el div correspondiente
+function mostrarError(inputId, mensaje) {
+    var errorDiv = document.getElementById('error' + inputId.replace('input', ''));
+    var input = document.getElementById(inputId);
+    
+    if (errorDiv && input) {
+        errorDiv.textContent = mensaje;
+        errorDiv.classList.add('show');
+        input.classList.add('input-error');
+    }
+}
+
+// Función para limpiar error
+function limpiarError(inputId) {
+    var errorDiv = document.getElementById('error' + inputId.replace('input', ''));
+    var input = document.getElementById(inputId);
+    
+    if (errorDiv && input) {
+        errorDiv.textContent = '';
+        errorDiv.classList.remove('show');
+        input.classList.remove('input-error');
+    }
+}
+
+// Función genérica de validación para productos
+function validarProducto(formId) {
+    var form = document.getElementById(formId);
+    if (!form) return false;
+    
+    var esValido = true;
+    
+    // Validar Nombre
+    var nombre = form.querySelector('[name="nombre"]');
+    if (nombre) {
+        var nombreValor = nombre.value.trim();
+        if (!nombreValor) {
+            mostrarError('inputNombre', 'El nombre es requerido');
+            esValido = false;
+        } else if (nombreValor.length < 3) {
+            mostrarError('inputNombre', 'El nombre debe tener al menos 3 caracteres');
+            esValido = false;
+        } else if (nombreValor.length > 100) {
+            mostrarError('inputNombre', 'El nombre no puede exceder 100 caracteres');
+            esValido = false;
+        } else if (!validarNombreProducto(nombreValor)) {
+            mostrarError('inputNombre', 'El nombre solo puede contener letras, números, espacios, guiones (-) y guiones bajos (_)');
+            esValido = false;
+        } else {
+            limpiarError('inputNombre');
+        }
+    }
+    
+    // Validar Tipo
+    var tipo = form.querySelector('[name="tipo"]');
+    if (tipo && !tipo.value) {
+        mostrarError('inputTipo', 'El tipo de producto es requerido');
+        esValido = false;
+    } else if (tipo) {
+        limpiarError('inputTipo');
+    }
+    
+    // Validar Precio
+    var precio = form.querySelector('[name="precio"]');
+    if (precio) {
+        var precioValor = parseFloat(precio.value);
+        if (precio.value === '' || precio.value === null || precio.value === undefined) {
+            mostrarError('inputPrecio', 'El precio es requerido');
+            esValido = false;
+        } else if (precioValor < 0) {
+            mostrarError('inputPrecio', 'El precio no puede ser negativo');
+            esValido = false;
+        } else if (precioValor > 99999999) {
+            mostrarError('inputPrecio', 'El precio no puede exceder 99,999,999');
+            esValido = false;
+        } else {
+            limpiarError('inputPrecio');
+        }
+    }
+    
+    // Validar Stock
+    var stock = form.querySelector('[name="stock"]');
+    if (stock) {
+        var stockValor = parseInt(stock.value);
+        if (stock.value === '' || stock.value === null || stock.value === undefined) {
+            mostrarError('inputStock', 'El stock es requerido');
+            esValido = false;
+        } else if (stockValor < 0) {
+            mostrarError('inputStock', 'El stock no puede ser negativo');
+            esValido = false;
+        } else {
+            limpiarError('inputStock');
+        }
+    }
+    
+    // Validar Categoría
+    var categoria = form.querySelector('[name="categoria"]');
+    if (categoria && !categoria.value) {
+        mostrarError('inputCategoria', 'La categoría es requerida');
+        esValido = false;
+    } else if (categoria) {
+        limpiarError('inputCategoria');
+    }
+    
+    return esValido;
+}
+
+// Funciones globales para modales
 window.abrirModal = function(idModal) {
     const modal = document.getElementById(idModal);
     if (modal) modal.style.display = 'flex';
@@ -27,28 +132,24 @@ window.onclick = function(event) {
     }
 };
 
-// Filtrar por estado (activo/inactivo) usando el switch #toggleInactivos
-// Se define ANTES de inicializar DataTable para que se aplique en el primer renderizado
+// Filtrar por estado
 $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    if (settings.nTable.id !== 'tablaProductos') return true; // solo para esta tabla
+    if (settings.nTable.id !== 'tablaProductos') return true;
 
     var mostrarInactivos = $('#toggleInactivos').is(':checked');
-    var estadoRaw = data[5]; // columna 5: Estado (Activo/Inactivo)
-
+    var estadoRaw = data[5];
     var s = String(estadoRaw).toLowerCase().trim();
 
     if (!mostrarInactivos) {
-        // Switch desactivado: mostrar solo activos 
         return s === 'activo' || s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 't' || estadoRaw === true || estadoRaw === 1;
     } else {
-        // Switch activado: mostrar solo inactivos
         return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
     }
 });
 
 $(document).ready(function() {
     
-    // 1. CONFIGURACIÓN DE LA TABLA (DATATABLES)
+    // Configuración de DataTable
     if ($.fn.dataTable.isDataTable('#tablaProductos')) {
         $('#tablaProductos').DataTable().destroy();
     }
@@ -63,38 +164,104 @@ $(document).ready(function() {
             "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
             "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
             "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-            "sInfoPostFix": "",
             "sSearch": "Buscar:",
-            "sUrl": "",
-            "sInfoThousands": ",",
-            "sLoadingRecords": "Cargando...",
             "oPaginate": {
                 "sFirst": "Primero",
                 "sLast": "Último",
                 "sNext": "Siguiente",
                 "sPrevious": "Anterior"
-            },
-            "oAria": {
-                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
         },
         "pageLength": 10,
-        "order": [[1, "asc"]],
-        "columnDefs": [
-            // Columnas ocultas si es necesario
-        ]
+        "order": [[1, "asc"]]
     });
 
-    // Inicializar Select2 para los selects de DataTables (después de que DataTables y Select2 estén cargados)
-    $('.dataTables_length select').select2({
-        minimumResultsForSearch: Infinity,
-        width: '70px'
-    });
-
-    // Redibuja la tabla cuando cambie el switch
     $('#toggleInactivos').on('change', function() {
         $('#tablaProductos').DataTable().draw();
+    });
+
+    // Validación en tiempo real para el formulario de agregar
+    $(document).on('input', '#formAddProducto input[name="nombre"]', function() {
+        var valor = $(this).val().trim();
+        if (valor && valor.length >= 3 && valor.length <= 100 && validarNombreProducto(valor)) {
+            limpiarError('inputNombre');
+        }
+    });
+
+    $(document).on('input', '#formAddProducto input[name="precio"]', function() {
+        var valor = parseFloat($(this).val());
+        if (!isNaN(valor) && valor >= 0 && valor <= 99999999) {
+            limpiarError('inputPrecio');
+        }
+    });
+
+    $(document).on('input', '#formAddProducto input[name="stock"]', function() {
+        var valor = parseInt($(this).val());
+        if (!isNaN(valor) && valor >= 0) {
+            limpiarError('inputStock');
+        }
+    });
+
+    $(document).on('change', '#formAddProducto select[name="tipo"]', function() {
+        if ($(this).val()) {
+            limpiarError('inputTipo');
+        }
+    });
+
+    $(document).on('change', '#formAddProducto select[name="categoria"]', function() {
+        if ($(this).val()) {
+            limpiarError('inputCategoria');
+        }
+    });
+
+    // Validación en tiempo real para el formulario de editar
+    $(document).on('input', '#formEditarProducto input[name="nombre"]', function() {
+        var valor = $(this).val().trim();
+        if (valor && valor.length >= 3 && valor.length <= 100 && validarNombreProducto(valor)) {
+            limpiarError('inputNombre');
+        }
+    });
+
+    $(document).on('input', '#formEditarProducto input[name="precio"]', function() {
+        var valor = parseFloat($(this).val());
+        if (!isNaN(valor) && valor >= 0 && valor <= 99999999) {
+            limpiarError('inputPrecio');
+        }
+    });
+
+    $(document).on('input', '#formEditarProducto input[name="stock"]', function() {
+        var valor = parseInt($(this).val());
+        if (!isNaN(valor) && valor >= 0) {
+            limpiarError('inputStock');
+        }
+    });
+
+    $(document).on('change', '#formEditarProducto select[name="tipo"]', function() {
+        if ($(this).val()) {
+            limpiarError('inputTipo');
+        }
+    });
+
+    $(document).on('change', '#formEditarProducto select[name="categoria"]', function() {
+        if ($(this).val()) {
+            limpiarError('inputCategoria');
+        }
+    });
+
+    // Validar antes de enviar el formulario de agregar
+    $(document).on('submit', '#formAddProducto', function(e) {
+        if (!validarProducto('formAddProducto')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Validar antes de enviar el formulario de editar
+    $(document).on('submit', '#formEditarProducto', function(e) {
+        if (!validarProducto('formEditarProducto')) {
+            e.preventDefault();
+            return false;
+        }
     });
 });
 
@@ -105,7 +272,6 @@ function abrirModalEditar(id) {
     const modal = document.getElementById('modalEdit');
     modal.style.display = 'flex';
     
-    // Spinner de carga
     modal.innerHTML = `
         <div class="modal-content">
             <div style="color:white; padding:20px; text-align:center;">
@@ -113,8 +279,6 @@ function abrirModalEditar(id) {
             </div>
         </div>`;
 
-    // IMPORTANTE: Verifica que esta ruta coincida con tu urls.py
-    // Si tu error decía 'vistas/productos/editar/', usa esa ruta:
     const urlEditar = `/vistas/productos/editar/${id}/`;
 
     fetch(urlEditar, {
@@ -123,15 +287,12 @@ function abrirModalEditar(id) {
     })
     .then(response => response.text().then(html => ({ ok: response.ok, html })))
     .then(({ok, html}) => {
-        // Inyectamos el HTML que nos devuelve la vista (modal_edit.html)
         modal.innerHTML = html;
 
         if (ok) {
-            // BUSCAMOS EL FORMULARIO RECIÉN INYECTADO Y LE PONEMOS EL ACTION
             const form = modal.querySelector('#formEditarProducto');
             if (form) {
-                form.action = urlEditar; // Aquí se soluciona el NoReverseMatch
-                console.log("Action inyectado:", form.action);
+                form.action = urlEditar;
             }
         }
     })
@@ -150,7 +311,6 @@ function abrirModalEliminar(id, nombre, urlImagen) {
     const imgModal = document.getElementById('imgEliminar');
     const form = document.getElementById('formEliminar');
 
-    // Verificamos que el elemento exista antes de usarlo para evitar el error de null
     if (txtNombre) {
         txtNombre.textContent = nombre;
     }
@@ -175,15 +335,13 @@ function abrirModalEliminar(id, nombre, urlImagen) {
 function abrirModalVer(nombre, imagen, precio, stock, categoria) {
     const modal = document.getElementById('modalView');
 
-    // Asignar valores
     document.getElementById('viewNombre').textContent = nombre;
     document.getElementById('viewCategoria').textContent = categoria;
     document.getElementById('viewPrecio').textContent = '$' + precio;
     document.getElementById('viewStock').textContent = stock + ' unidades';
 
-    // Manejar imagen
     const imgElement = document.getElementById('viewImagen');
-    imgElement.src = imagen ? imagen : '/static/ap1/imagenes/cama.jpg';
+    imgElement.src = imagen ? imagen : '/static/ap1/img/cama.jpg';
 
     modal.style.display = 'flex';
 }
@@ -197,7 +355,6 @@ function abrirModalActivar(id, nombre, urlImagen) {
     const imgModal = document.getElementById('imgEliminar');
     const form = document.getElementById('formEliminar');
 
-    // Verificamos que el elemento exista antes de usarlo para evitar el error de null
     if (txtNombre) {
         txtNombre.textContent = nombre;
     }

@@ -10,39 +10,44 @@
         
         <div class="form-group">
             <label>NOMBRE DEL PRODUCTO</label>
-            <input type="text" name="nombre" required placeholder="Ej: Capitoneado Plano" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+" title="Solo se permiten letras, números, espacios, guiones (-) y guiones bajos (_)">
+            <input type="text" name="nombre" id="inputNombre" placeholder="Ej: Capitoneado Plano">
+            <div class="error-message" id="errorNombre"></div>
         </div>
 
         <div class="form-group">
             <label>TIPO DE PRODUCTO</label>
-            <select name="tipo" required>
+            <select name="tipo" id="inputTipo">
                 <option value="" disabled selected>Seleccione el tipo</option>
                 <option value="Espaldar">Espaldar</option>
                 <option value="Base Cama">Base Cama</option>
                 <option value="Colchón">Colchón</option>
                 <option value="Combo">Combo Completo</option>
             </select>
+            <div class="error-message" id="errorTipo"></div>
         </div>
         
         <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex: 1;">
                 <label>PRECIO</label>
-                <input type="number" name="precio" step="0.01" min="0" required placeholder="0.00">
+                <input type="number" name="precio" id="inputPrecio" step="0.01" min="0" placeholder="0.00">
+                <div class="error-message" id="errorPrecio"></div>
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>STOCK INICIAL</label>
-                <input type="number" name="stock" min="0" required placeholder="0">
+                <input type="number" name="stock" id="inputStock" min="0" placeholder="0">
+                <div class="error-message" id="errorStock"></div>
             </div>
         </div>
 
         <div class="form-group">
             <label>CATEGORÍA</label>
-            <select name="categoria" required>
+            <select name="categoria" id="inputCategoria">
                 <option value="" disabled selected>Seleccione categoría</option>
                 {% for cat in categorias %}
                 <option value="{{ cat.id }}">{{ cat.nombre }}</option>
                 {% endfor %}
             </select>
+            <div class="error-message" id="errorCategoria"></div>
         </div>
 
         <div class="form-group">
@@ -57,3 +62,18 @@
         </div>
     </form>
 </div>
+
+<style>
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+.error-message.show {
+    display: block;
+}
+.input-error {
+    border-color: #e74c3c !important;
+}
+</style>

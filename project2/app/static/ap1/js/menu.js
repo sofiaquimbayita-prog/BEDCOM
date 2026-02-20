@@ -2,6 +2,51 @@
 // TODO EL SCRIPT EN UN SOLO DOMContentLoaded
 // =============================
 document.addEventListener("DOMContentLoaded", () => {
+  
+  // ============================
+  // TOAST NOTIFICATIONS
+  // ============================
+  
+  // Función para cerrar toast
+  window.cerrarToast = function(btn) {
+    const toast = btn.closest('.message');
+    if (toast) {
+      toast.style.animation = 'slideOut 0.3s ease forwards';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }
+  };
+
+  // Agregar animación de salida
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Auto-cerrar toast después de 5 segundos
+  const toasts = document.querySelectorAll('.message');
+  toasts.forEach(toast => {
+    setTimeout(() => {
+      if (toast && toast.parentElement) {
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }
+    }, 5000);
+  });
+
   // PERFIL Y LOGOUT
   const perfilBtn = document.getElementById("perfilBtn");
   const dropdownMenu = document.getElementById("dropdownMenu");
