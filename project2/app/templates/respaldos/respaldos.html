@@ -95,7 +95,8 @@
                                 <i class="fa-regular fa-eye" 
                                    onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"
                                    title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
-                                
+                               
+                            
                                 {% if r.estado %}
                                     <a href="{% url 'descargar_respaldo' r.id %}" title="Descargar SQL">
                                         <i class="fas fa-file-download" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
@@ -103,7 +104,7 @@
 
                                     <i class="fa-regular fa-trash-can" 
                                        onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"
-                                       title="Eliminar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
+                                       title="inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
                                 {% else %}
                                     <i class="fas fa-undo-alt" 
                                        onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"

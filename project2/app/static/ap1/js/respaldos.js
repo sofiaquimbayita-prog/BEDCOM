@@ -35,11 +35,11 @@ $(document).ready(function() {
 
     window.openDeleteModal = function(id, fecha) {
         const $modal = $('#deleteModal');
-        $modal.find('.modal-header h3').html('<i class="fas fa-trash"></i> ¿Eliminar Respaldo?');
-        $modal.find('.delete-container p').first().html(`¿Estás seguro de que deseas eliminar el respaldo del <strong>${fecha}</strong>?`);
+        $modal.find('.modal-header h3').html('<i class="fas fa-trash"></i> ¿inactivar Respaldo?');
+        $modal.find('.delete-container p').first().html(`¿Estás seguro de que deseas inactivar el respaldo del <strong>${fecha}</strong>?`);
         
         $modal.find('.btn-delete')
-              .text('Confirmar Eliminación')
+              .text('Confirmar inactivacion')
               .css('background', 'linear-gradient(135deg, #f87171, #ef4444)');
         
         $modal.find('#deleteForm').attr('action', `/vistas/respaldos/eliminar/${id}/`);
