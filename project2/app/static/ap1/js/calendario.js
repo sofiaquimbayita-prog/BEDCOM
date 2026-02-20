@@ -7,20 +7,12 @@ $(document).ready(function () {
     const modalDetalle  = $('#modal-detalle-evento');
     let   eventoDetalleId = null;
 
-
-    const swalConfig = {
-        background: '#1b2537',
-        color: '#e9eef7',
-        confirmButtonColor: '#5cc8ff',
-        cancelButtonColor: '#4ea3a5'
-    };
-
     const estadoConfig = {
         pendiente:  { label: 'Pendiente',  color: '#f1c40f', icon: 'fa-regular fa-clock'      },
         completado: { label: 'Completado', color: '#2ecc71', icon: 'fa-solid fa-circle-check' },
         cancelado:  { label: 'Cancelado',  color: '#e74c3c', icon: 'fa-solid fa-ban'           },
     };
-  
+
     const REGLAS = {
 
         titulo(valor) {
@@ -28,7 +20,8 @@ $(document).ready(function () {
             if (!v)          return 'El título es obligatorio.';
             if (v.length < 3)  return 'El título debe tener al menos 3 caracteres.';
             if (v.length > 150) return 'El título no puede superar los 150 caracteres.';
-            if (/[<>!='¡@||¬°+*{}\[\]\\]/.test(v)) return 'El título contiene caracteres no permitidos ( < > { } [ ] \\ ! = ¡ @ || ¬ ° + * {} \ [\] \\ ).';
+            if (/[<>!='¡@||¬°+*{}\[\]\\]/.test(v)) 
+                return 'El nombre contiene caracteres no permitidos ( < > { } [ ] \\ ! = ¡ @ || ¬ ° + * ).';
             return null;
         },
 
@@ -38,12 +31,14 @@ $(document).ready(function () {
             const fechaEvento = new Date(valor + 'T' + (hora || '00:00'));
             if (isNaN(fechaEvento.getTime())) return 'El formato de la fecha no es válido.';
 
+            // Solo para creación: no permitir fechas pasadas
             if (!esEdicion) {
                 const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
                 if (fechaEvento < hoy) return 'No puedes crear una actividad en el pasado.';
             }
 
+            // Límite +5 años (igual que backend)
             const limite = new Date();
             limite.setFullYear(limite.getFullYear() + 5);
             if (fechaEvento > limite) return 'La fecha no puede ser superior a 5 años en el futuro.';
@@ -71,6 +66,179 @@ $(document).ready(function () {
     };
 
 
+
+    function mostrarError(fieldId, mensaje) {
+        const $field = $('#' + fieldId);
+        $field.addClass('input-error').attr('aria-invalid', 'true');
+
+        const $grupo = $field.closest('.form-grupo');
+        $grupo.find('.msg-error').remove();
+
+        const $msg = $(`
+            <span class="msg-error" role="alert" aria-live="assertive">
+                <i class="fa-solid fa-triangle-exclamation"></i> ${mensaje}
+            </span>`);
+        $grupo.append($msg);
+    }
+
+    function mostrarExito(fieldId) {
+        const $field = $('#' + fieldId);
+        $field.removeClass('input-error').addClass('input-ok').attr('aria-invalid', 'false');
+        $field.closest('.form-grupo').find('.msg-error').remove();
+    }
+
+    function limpiarEstado(fieldId) {
+        const $field = $('#' + fieldId);
+        $field.removeClass('input-error input-ok').removeAttr('aria-invalid');
+        $field.closest('.form-grupo').find('.msg-error').remove();
+    }
+
+    function limpiarTodosLosErrores() {
+        ['in_titulo', 'in_fecha', 'in_hora', 'in_categoria', 'in_descripcion']
+            .forEach(limpiarEstado);
+    }
+
+
+    function validarFormulario() {
+        let valido = true;
+
+        const titulo      = $('#in_titulo').val();
+        const fecha       = $('#in_fecha').val();
+        const hora        = $('#in_hora').val();
+        const categoria   = $('#in_categoria').val();
+        const descripcion = $('#in_descripcion').val();
+        const esEdicion   = form.action.includes('editar');
+
+        // Mapa campo → resultado de regla
+        const resultados = {
+            in_titulo:      REGLAS.titulo(titulo),
+            in_fecha:       REGLAS.fecha(fecha, hora, esEdicion),
+            in_hora:        REGLAS.hora(hora),
+            in_categoria:   REGLAS.categoria(categoria),
+            in_descripcion: REGLAS.descripcion(descripcion),
+        };
+
+        Object.entries(resultados).forEach(([id, error]) => {
+            if (error) {
+                mostrarError(id, error);
+                valido = false;
+            } else {
+                // Solo marcar verde si el campo tiene contenido
+                const val = $('#' + id).val();
+                if (val && val.trim() !== '') mostrarExito(id);
+                else limpiarEstado(id);
+            }
+        });
+
+        // Enfocar el primer campo con error
+        if (!valido) {
+            const $primerError = $('.form-input.input-error, .form-select.input-error').first();
+            if ($primerError.length) $primerError.focus();
+        }
+
+        return valido;
+    }
+
+
+
+    // Título: al escribir
+    $('#in_titulo').on('input', function () {
+        const error = REGLAS.titulo($(this).val());
+        if (error) mostrarError('in_titulo', error);
+        else       mostrarExito('in_titulo');
+
+        // Contador de caracteres
+        const len    = $(this).val().trim().length;
+        let $contador = $('#contador-titulo');
+        if (!$contador.length) {
+            $contador = $('<span id="contador-titulo" class="campo-contador"></span>');
+            $(this).parent().append($contador);
+        }
+        $contador
+            .text(len + '/150')
+            .toggleClass('contador-alerta', len > 140);
+    });
+
+    // Fecha: al cambiar
+    $('#in_fecha').on('change', function () {
+        const esEdicion = form.action.includes('editar');
+        const error     = REGLAS.fecha($(this).val(), $('#in_hora').val(), esEdicion);
+        if (error) mostrarError('in_fecha', error);
+        else       mostrarExito('in_fecha');
+    });
+
+    // Hora: al cambiar
+    $('#in_hora').on('change', function () {
+        const error = REGLAS.hora($(this).val());
+        if (error) mostrarError('in_hora', error);
+        else       mostrarExito('in_hora');
+
+        // Revalidar fecha porque depende de la hora (no puede ser pasado)
+        const esEdicion = form.action.includes('editar');
+        const errorFecha = REGLAS.fecha($('#in_fecha').val(), $(this).val(), esEdicion);
+        if (errorFecha) mostrarError('in_fecha', errorFecha);
+        else if ($('#in_fecha').val()) mostrarExito('in_fecha');
+    });
+
+    // Categoría: al cambiar
+    $('#in_categoria').on('change', function () {
+        const error = REGLAS.categoria($(this).val());
+        if (error) mostrarError('in_categoria', error);
+        else       mostrarExito('in_categoria');
+    });
+
+    // Descripción: al escribir
+    $('#in_descripcion').on('input', function () {
+        const error = REGLAS.descripcion($(this).val());
+        if (error) mostrarError('in_descripcion', error);
+        else       limpiarEstado('in_descripcion');   // descripción es opcional → sin verde
+
+        // Contador de caracteres
+        const len    = ($(this).val() || '').trim().length;
+        let $contador = $('#contador-descripcion');
+        if (!$contador.length) {
+            $contador = $('<span id="contador-descripcion" class="campo-contador"></span>');
+            $(this).parent().append($contador);
+        }
+        $contador
+            .text(len + '/1000')
+            .toggleClass('contador-alerta', len > 950);
+    });
+
+
+    function renderEstadoBadge(estado) {
+        const cfg = estadoConfig[estado] || estadoConfig.pendiente;
+        $('#detalle-estado-badge')
+            .html(`<i class="${cfg.icon}"></i> ${cfg.label}`)
+            .css({
+                background: 'rgba(0,0,0,0.25)',
+                border:     `1px solid ${cfg.color}55`,
+                color:      cfg.color,
+            });
+    }
+
+    function marcarBotonActivo(estadoActual) {
+        $('.btn-estado-opcion').each(function () {
+            const es = $(this).data('estado');
+            $(this).css({
+                opacity:    es === estadoActual ? '1' : '0.45',
+                boxShadow:  es === estadoActual ? `0 0 0 2px ${estadoConfig[es].color}88` : 'none',
+            });
+        });
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie) {
+            document.cookie.split(';').forEach(cookie => {
+                const c = cookie.trim();
+                if (c.startsWith(name + '='))
+                    cookieValue = decodeURIComponent(c.slice(name.length + 1));
+            });
+        }
+        return cookieValue;
+    }
 
 
     const tabla = $('#tablaEventos').DataTable({
@@ -120,6 +288,7 @@ $(document).ready(function () {
         order: [[2, 'desc']]
     });
 
+    /* Mover el buscador de DataTables al contenedor personalizado */
     function moverBuscador() {
         const $searchInput = $('.dataTables_filter input');
         if ($searchInput.length && !$searchInput.parents('.search-datatable-container').length) {
@@ -129,6 +298,7 @@ $(document).ready(function () {
     moverBuscador();
     $('.dataTables_filter').hide();
 
+    /* Clases de fila por categoría y estado */
     function aplicarClasesCategoria() {
         $('#tablaEventos tbody tr').each(function () {
             const $row     = $(this);
@@ -180,18 +350,12 @@ $(document).ready(function () {
         return true;
     });
 
+    /* Validar que "desde" no sea mayor que "hasta" */
     $('#filtro-fecha-desde, #filtro-fecha-hasta').on('change', function () {
         const desde = $('#filtro-fecha-desde').val();
         const hasta = $('#filtro-fecha-hasta').val();
         if (desde && hasta && desde > hasta) {
-            Swal.fire({
-                ...swalConfig,
-                icon: 'warning',
-                title: 'Rango de fechas inválido',
-                text: 'La fecha "Desde" no puede ser posterior a la fecha "Hasta".',
-                timer: 3000,
-                showConfirmButton: false,
-            });
+            Alerta.rangoFechaInvalido();
             $(this).val('');
             return;
         }
@@ -266,6 +430,7 @@ $(document).ready(function () {
         const tituloEvento = formData.get('titulo').trim();
         const actionUrl    = form.action.endsWith('/') ? form.action : form.action + '/';
 
+        // Estado de carga en el botón
         $btnGuardar.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Guardando…');
 
         fetch(actionUrl, {
@@ -279,7 +444,8 @@ $(document).ready(function () {
         })
         .then(data => {
             if (data.status === 'error') {
-                Swal.fire({ ...swalConfig, icon: 'warning', title: 'No se pudo guardar', text: data.message });
+                // El backend rechazó (duplicado, categoría inactiva, etc.)
+                Alerta.advertencia('No se pudo guardar', data.message);
                 return;
             }
             modal.removeClass('mostrar');
@@ -287,26 +453,19 @@ $(document).ready(function () {
             limpiarTodosLosErrores();
             $('#contador-titulo, #contador-descripcion').remove();
             tabla.ajax.reload(null, false);
-            Swal.fire({
-                ...swalConfig,
-                icon: 'success',
-                title: esEdicion ? '¡Actualizado!' : '¡Guardado!',
-                text: `La actividad "${tituloEvento}" fue ${esEdicion ? 'actualizada' : 'creada'} con éxito.`,
-                timer: 2000,
-                showConfirmButton: false,
-            });
+            Alerta.exito(esEdicion ? '¡Actualizado!' : '¡Guardado!', `La actividad "${tituloEvento}" fue ${esEdicion ? 'actualizada' : 'creada'} con éxito.`);
         })
         .catch(err => {
             console.error('Error al guardar evento:', err);
             const msg = err && err.message ? err.message : 'No se pudieron guardar los cambios. Intente de nuevo.';
-            Swal.fire({ ...swalConfig, icon: 'error', title: 'Error del servidor', text: msg });
+            Alerta.error('Error del servidor', msg);
         })
         .finally(() => {
             $btnGuardar.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> Guardar');
         });
     };
 
-  
+
     window.verEvento = function (id) {
         fetch(OBTENER_EVENTO_BASE + id + '/')
             .then(res => {
@@ -328,7 +487,7 @@ $(document).ready(function () {
                 modalDetalle.addClass('mostrar');
             })
             .catch(() => {
-                Swal.fire({ ...swalConfig, icon: 'error', title: 'Error', text: 'No se pudo cargar la información del evento.' });
+                Alerta.error('Error de conexión', 'No se pudo cargar la información del evento.');
             });
     };
 
@@ -351,7 +510,7 @@ $(document).ready(function () {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'error') {
-                Swal.fire({ ...swalConfig, icon: 'warning', title: 'No permitido', text: data.message });
+                Alerta.advertencia('No permitido', data.message);
                 return;
             }
             renderEstadoBadge(data.estado);
@@ -359,7 +518,7 @@ $(document).ready(function () {
             tabla.ajax.reload(null, false);
         })
         .catch(() => {
-            Swal.fire({ ...swalConfig, icon: 'error', title: 'Error', text: 'No se pudo cambiar el estado.' });
+            Alerta.error('Error de conexión', 'No se pudo cambiar el estado del evento.');
         })
         .finally(() => $btn.prop('disabled', false));
     });
@@ -393,7 +552,7 @@ $(document).ready(function () {
                 setTimeout(() => $('#in_titulo').focus(), 150);
             })
             .catch(() => {
-                Swal.fire({ ...swalConfig, icon: 'error', title: 'Error', text: 'No se pudo cargar la información del evento.' });
+                Alerta.error('Error de conexión', 'No se pudo cargar la información del evento.');
             });
     };
 
@@ -405,17 +564,7 @@ $(document).ready(function () {
                 return res.json();
             })
             .then(data => {
-                Swal.fire({
-                    ...swalConfig,
-                    title: `¿Eliminar "${data.titulo}"?`,
-                    text: 'Esta acción no se puede deshacer.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#4ea3a5',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar',
-                }).then(result => {
+                Alerta.confirmarEliminar(data.titulo).then(result => {
                     if (!result.isConfirmed) return;
 
                     fetch(ELIMINAR_EVENTO_BASE + id + '/', {
@@ -428,26 +577,19 @@ $(document).ready(function () {
                     .then(res => res.json())
                     .then(resp => {
                         if (resp.status === 'error') {
-                            Swal.fire({ ...swalConfig, icon: 'error', title: 'No permitido', text: resp.message });
+                            Alerta.error('No permitido', resp.message);
                             return;
                         }
-                        Swal.fire({
-                            ...swalConfig,
-                            icon: 'success',
-                            title: '¡Eliminado!',
-                            text: `La actividad "${data.titulo}" fue borrada.`,
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
+                        Alerta.exito('¡Eliminado!', `La actividad "${data.titulo}" fue borrada.`);
                         tabla.ajax.reload();
                     })
                     .catch(() => {
-                        Swal.fire({ ...swalConfig, icon: 'error', title: 'Error', text: 'No se pudo eliminar la actividad.' });
+                        Alerta.error('Error de conexión', 'No se pudo eliminar la actividad.');
                     });
                 });
             })
             .catch(() => {
-                Swal.fire({ ...swalConfig, icon: 'error', title: 'Error', text: 'No se pudo obtener la información del evento.' });
+                Alerta.error('Error de conexión', 'No se pudo obtener la información del evento.');
             });
     };
 

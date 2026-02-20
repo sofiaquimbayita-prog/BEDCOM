@@ -21,7 +21,7 @@ $(document).ready(function () {
             if (!v) return 'El nombre es obligatorio.';
             if (v.length < 3) return 'El nombre debe tener al menos 3 caracteres.';
             if (v.length > NOMBRE_MAX) return `El nombre no puede superar los ${NOMBRE_MAX} caracteres.`;
-            if (/[<>!='¡@||¬°+*{}\[\]\\]/.test(v)) 
+            if (/[<>!='¡@||¬°+*&{}\[\]\\]/.test(v)) 
                 return 'El nombre contiene caracteres no permitidos ( < > { } [ ] \\ ! = ¡ @ || ¬ ° + * ).';
             return null;
         },
