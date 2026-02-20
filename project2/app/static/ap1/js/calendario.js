@@ -1,5 +1,82 @@
 $(document).ready(function () {
 
+    /* ═════════════════════════════════════════════════════════════
+       MÓDULO DE ALERTAS  –  centraliza todos los SweetAlert2
+       Uso:  Alerta.exito(titulo, texto)
+             Alerta.advertencia(titulo, texto)
+             Alerta.error(titulo, texto)
+             Alerta.confirmarEliminar(nombreElemento)  → Promise
+             Alerta.rangoFechaInvalido()
+    ═════════════════════════════════════════════════════════════ */
+    const BASE = {
+        background: '#1b2537',
+        color:      '#e9eef7',
+    };
+
+    const Alerta = {
+
+        exito(titulo, texto) {
+            return Swal.fire({
+                ...BASE,
+                icon:              'success',
+                title:             titulo,
+                text:              texto,
+                timer:             2200,
+                timerProgressBar:  true,
+                showConfirmButton: false,
+            });
+        },
+
+        advertencia(titulo, texto) {
+            return Swal.fire({
+                ...BASE,
+                icon:               'warning',
+                title:              titulo,
+                text:               texto,
+                confirmButtonColor: '#f1c40f',
+                confirmButtonText:  'Entendido',
+            });
+        },
+
+        error(titulo, texto) {
+            return Swal.fire({
+                ...BASE,
+                icon:               'error',
+                title:              titulo,
+                text:               texto,
+                confirmButtonColor: '#e74c3c',
+                confirmButtonText:  'Cerrar',
+            });
+        },
+
+        confirmarEliminar(nombre) {
+            return Swal.fire({
+                ...BASE,
+                icon:               'warning',
+                title:              '¿Eliminar actividad?',
+                html:               `Se eliminará <strong>"${nombre}"</strong>.<br>Esta acción no se puede deshacer.`,
+                showCancelButton:   true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor:  '#4ea3a5',
+                confirmButtonText:  '<i class="fa-solid fa-trash-can"></i> Sí, eliminar',
+                cancelButtonText:   'Cancelar',
+                reverseButtons:     true,
+            });
+        },
+
+        rangoFechaInvalido() {
+            return Swal.fire({
+                ...BASE,
+                icon:              'warning',
+                title:             'Rango de fechas inválido',
+                text:              'La fecha "Desde" no puede ser posterior a la fecha "Hasta".',
+                timer:             3000,
+                timerProgressBar:  true,
+                showConfirmButton: false,
+            });
+        },
+    };
+
     const modal         = $('#modal-evento');
     const form          = document.getElementById('form-evento');
     const tituloModal   = document.getElementById('modal-titulo-evento');
