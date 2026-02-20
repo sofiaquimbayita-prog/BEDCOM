@@ -1,13 +1,5 @@
 $(document).ready(function () {
 
-    /* ═════════════════════════════════════════════════════════════
-       MÓDULO DE ALERTAS  –  centraliza todos los SweetAlert2
-       Uso:  Alerta.exito(titulo, texto)
-             Alerta.advertencia(titulo, texto)
-             Alerta.error(titulo, texto)
-             Alerta.confirmarEliminar(nombreElemento)  → Promise
-             Alerta.rangoFechaInvalido()
-    ═════════════════════════════════════════════════════════════ */
     const BASE = {
         background: '#1b2537',
         color:      '#e9eef7',

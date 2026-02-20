@@ -481,7 +481,6 @@
 body.swal2-shown .modal {
     z-index: auto;
 }
-
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .main-container {
