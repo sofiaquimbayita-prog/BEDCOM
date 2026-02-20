@@ -11,7 +11,6 @@
   --warn: #ffb020;
   --info: #5fa8ff;
   --accent: #6c5ce7;
-  --danger: #4ea3a5;
   --espacio-sm: 8px;
   --espacio-md: 16px;
   --borde-md: 8px;
@@ -20,11 +19,16 @@
   --fuente-sm: 14px;
   --sombra-lg: 0 15px 35px rgba(0, 0, 0, 0.45);
   --sombra-md: 0 8px 20px rgba(0, 0, 0, 0.3);
-
-  
-  /* Effects */
   --shadow: 0 10px 30px rgba(0, 0, 0, .35);
   --radius: 8px;
+  --bg-modal: #0f1623;
+  --modal-border: rgba(255, 255, 255, 0.1);
+  --modal-glow: rgba(52, 152, 219, 0.25);
+  --info-rgb: 90, 52, 453;
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --danger: #e74c3c;
+  --card-bg: #0c111c;
 }
 
 /* Global resets */

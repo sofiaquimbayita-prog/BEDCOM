@@ -1,3 +1,9 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpRequest, JsonResponse
+from datetime import date
+from ..models import producto, categoria, reporte, usuario, insumo, calendario
+
+
 from .auth import (
     MenuPrincipalView,
     crear_cuenta_view,

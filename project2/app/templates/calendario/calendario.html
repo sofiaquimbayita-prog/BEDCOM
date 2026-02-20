@@ -7,18 +7,14 @@
 <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
 
 <main class="main-container">
-
-    <!-- Botón nueva actividad -->
     <div class="btn-agregar-container">
         <button class="btn-agregar" id="btn-nueva-actividad">
             <i class="fas fa-plus"></i> Nueva Actividad
         </button>
     </div>
 
-    <!-- Barra de filtros integrada con el buscador de DataTables -->
     <div class="filtros-bar">
         <div class="filtros-grid">
-            <!-- Filtro Estado -->
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-circle-half-stroke"></i> Estado</label>
                 <select id="filtro-estado" class="filtro-control">
@@ -29,7 +25,6 @@
                 </select>
             </div>
 
-            <!-- Filtro Categoría -->
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-tag"></i> Categoría</label>
                 <select id="filtro-categoria" class="filtro-control">
@@ -40,7 +35,6 @@
                 </select>
             </div>
 
-            <!-- Filtro Orden -->
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-arrow-up-wide-short"></i> Orden</label>
                 <select id="filtro-orden" class="filtro-control">
@@ -49,34 +43,28 @@
                 </select>
             </div>
 
-            <!-- Rango de fechas: Desde -->
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-calendar-days"></i> Desde</label>
                 <input type="date" id="filtro-fecha-desde" class="filtro-control">
             </div>
 
-            <!-- Rango de fechas: Hasta -->
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-calendar-days"></i> Hasta</label>
                 <input type="date" id="filtro-fecha-hasta" class="filtro-control">
             </div>
 
-            <!-- Contenedor donde se inyectará el buscador de DataTables -->
             <div class="filtro-item search-datatable-container">
                 <label class="filtro-label"><i class="fa-solid fa-search"></i> Buscar</label>
-                <!-- Aquí se moverá el .dataTables_filter -->
             </div>
 
-            <!-- Botón limpiar filtros -->
             <div class="filtro-item filtro-accion">
                 <button class="btn-limpiar-filtros" id="btn-limpiar-filtros" title="Limpiar filtros">
                     <i class="fa-solid fa-xmark"></i> Limpiar
                 </button>
             </div>
+            
         </div>
     </div>
-
-    <!-- Contador de resultados (se mantiene igual) -->
     <div class="filtros-resultado" id="filtros-resultado"></div>
 
 

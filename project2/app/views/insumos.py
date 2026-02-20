@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpRequest
-from ..models import insumo, categoria
+from ..models import insumo, categoria,proveedor
 
 
 def guardar_insumo(request, instancia=None):
@@ -24,7 +24,7 @@ def guardar_insumo(request, instancia=None):
         }, status=400)
 
     categoria_obj = get_object_or_404(categoria, id=cat_id) if cat_id else None
-    proveedores = get_object_or_404(proveedores, id=prov_id) if prov_id else None
+    proveedor = get_object_or_404(proveedor, id=prov_id) if prov_id else None
     if instancia is None:
         instancia = insumo()
 
@@ -34,7 +34,7 @@ def guardar_insumo(request, instancia=None):
     instancia.precio = precio 
     instancia.estado = estado
     instancia.id_categoria = categoria_obj
-    instancia.id_proveedor = proveedores
+    instancia.id_proveedor = proveedor
     instancia.save()
 
     return JsonResponse({
@@ -45,7 +45,11 @@ def guardar_insumo(request, instancia=None):
 
 def insumos_view(request: HttpRequest):
     categorias = categoria.objects.all()
-    return render(request, 'insumos/insumos.html', {'categorias': categorias})
+    proveedores = proveedor.objects.all()   
+    return render(request, 'insumos/insumos.html', {
+        'categorias': categorias,
+        'proveedor': proveedores,          
+    })
 
 def insumos_data_view(request: HttpRequest):
     insumos = insumo.objects.select_related('id_categoria').all()
