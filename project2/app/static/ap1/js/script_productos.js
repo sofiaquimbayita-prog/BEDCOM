@@ -2,6 +2,14 @@
    script_productos.js - Lógica de Inventario BedCom
    ================================================== */
 
+// Función para validar que el nombre no contenga caracteres especiales
+// Retorna true si es válido, false si tiene caracteres no permitidos
+function validarNombreProducto(nombre) {
+    // Permite: letras (incluyendo Ñ y acentos), números, espacios, guiones y guiones bajos
+    var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$/;
+    return patron.test(nombre);
+}
+
 // Funciones globales para modales (definidas fuera de document.ready para estar disponibles inmediatamente)
 window.abrirModal = function(idModal) {
     const modal = document.getElementById(idModal);
@@ -30,10 +38,10 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     var s = String(estadoRaw).toLowerCase().trim();
 
     if (!mostrarInactivos) {
-        // Switch desactivado: mostrar solo activos (estado=1)
+        // Switch desactivado: mostrar solo activos 
         return s === 'activo' || s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 't' || estadoRaw === true || estadoRaw === 1;
     } else {
-        // Switch activado: mostrar solo inactivos (estado=0)
+        // Switch activado: mostrar solo inactivos
         return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
     }
 });

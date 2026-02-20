@@ -8,7 +8,7 @@
         
         <div class="form-group">
             <label>NOMBRE DEL PRODUCTO</label>
-            <input type="text" name="nombre" value="{{ object.nombre }}" required placeholder="Ej: Lineal Banana">
+            <input type="text" name="nombre" value="{{ object.nombre }}" required placeholder="Ej: Lineal Banana" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+" title="Solo se permiten letras, números, espacios, guiones (-) y guiones bajos (_)">
         </div>
 
         <div class="form-group">

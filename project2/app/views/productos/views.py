@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -8,6 +9,10 @@ from django.http import HttpResponseRedirect
 
 # Importación de tus modelos
 from ...models import Producto,Categoria, Reporte, Usuario
+
+# Expresión regular para validar nombre: solo letras, números, espacios y caracteres seguros
+# No permite: @ # $ % ^ & * ( ) + = [ ] { } | \ / < > , . ; : " ' ` ~
+NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
 
 # --- VISTA DE LISTADO ---
 class ProductoListView(ListView):
@@ -45,7 +50,12 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
             messages.error(self.request, "El precio inicial no puede ser negativo.")
             return redirect('productos')
 
-        # El producto se crea con estado activo por defecto
+        # Validación: El nombre no debe contener caracteres especiales
+        nombre = form.cleaned_data['nombre']
+        if not NOMBRE_PATTERN.match(nombre):
+            messages.error(self.request, "El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).")
+            return redirect('productos')
+
         form.instance.estado = True
 
         # El método save() de la vista de clase manejará request.FILES automáticamente
@@ -78,6 +88,13 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
         if form.cleaned_data['precio'] < 0:
             messages.error(self.request, "El precio no puede ser negativo.")
             return super().form_invalid(form)
+
+        # Validación: El nombre no debe contener caracteres especiales
+        nombre = form.cleaned_data['nombre']
+        if not NOMBRE_PATTERN.match(nombre):
+            messages.error(self.request, "El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).")
+            return super().form_invalid(form)
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
