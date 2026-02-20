@@ -89,26 +89,20 @@ $(document).ready(function() {
         $(`#${id}`).fadeOut(200);
     };
 
-    // Cerrar modales al hacer clic fuera
     $(window).on('click', function(event) {
         if ($(event.target).hasClass('modal')) {
             $('.modal').fadeOut(200);
         }
     });
 
-    // ==========================================
-    // 3. MENSAJES (TOASTS)
-    // ==========================================
     window.cerrarToast = function(btn) {
         const toast = $(btn).closest('.message');
         toast.fadeOut(300, function() { $(this).remove(); });
     };
 
-    // Auto-cerrar mensajes después de 5 segundos
     setTimeout(() => {
         $('.message').fadeOut(500, function() { $(this).remove(); });
     }, 5000);
 
-    // Ejecutar filtro inicial al cargar la página
     filtrarTabla();
 });
