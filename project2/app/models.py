@@ -110,7 +110,7 @@ class mantenimiento(models.Model):
 
 class insumo(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(blank=True, null=True)  # ← agregar esto
+    descripcion = models.TextField(blank=True, null=True)
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=20)
     precio = models.DecimalField(max_digits=10, decimal_places=2) 
@@ -252,7 +252,7 @@ class calendario(models.Model):
     fecha       = models.DateField()
     hora        = models.TimeField()
     categoria   = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
-    descripcion = models.TextField()
+    descripcion = models.TextField(blank=True, null=True)   
     estado      = models.CharField(              
         max_length=20,
         choices=ESTADO_CHOICES,

@@ -1,24 +1,18 @@
-<!-- ════════════════════════════════════════════════════
-     modal_detalle_calendario.html
-     Modal de solo lectura: ver detalles + cambiar estado
-════════════════════════════════════════════════════ -->
+
 <div class="modal" id="modal-detalle-evento">
   <div class="modal-contenido" style="width:520px;">
 
-    <!-- Botón cerrar -->
     <div class="btc">
       <button type="button" class="btn-cerrar" id="btn-cerrar-detalle">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
-    <!-- Header -->
     <div class="modal-header">
       <h2 class="modal-titulo">
         <i class="fa-solid fa-calendar-check"></i>
         <span id="detalle-titulo">—</span>
       </h2>
-      <!-- Badge de categoría con color dinámico -->
       <span id="detalle-badge-cat"
             style="font-size:0.72rem;font-weight:700;text-transform:uppercase;
                    letter-spacing:0.06em;padding:5px 14px;border-radius:30px;
@@ -27,7 +21,6 @@
       </span>
     </div>
 
-    <!-- Fecha · Hora -->
     <div class="divicion" style="margin-bottom:20px;">
       <div class="form-grupo" style="margin-bottom:0;">
         <label><i class="fa-solid fa-calendar-days"></i> Fecha</label>
@@ -39,7 +32,6 @@
       </div>
     </div>
 
-    <!-- Descripción -->
     <div class="form-grupo">
       <label><i class="fa-solid fa-align-left"></i> Descripción</label>
       <div class="form-input"
@@ -49,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Estado actual -->
     <div class="form-grupo">
       <label><i class="fa-solid fa-circle-half-stroke"></i> Estado actual</label>
       <div id="detalle-estado-badge"
@@ -60,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Cambiar estado -->
     <div class="form-grupo">
       <label><i class="fa-solid fa-arrows-rotate"></i> Cambiar estado</label>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -101,7 +91,6 @@
       </div>
     </div>
 
-    <!-- Botones del footer -->
     <div class="form-botones">
       <button type="button" class="btn-cancelar" id="btn-cancelar-detalle">
         <i class="fa-solid fa-xmark"></i> Cerrar

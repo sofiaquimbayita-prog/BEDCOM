@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from datetime import date
+from ..forms import calendarioForm
 from ..models import calendario, CategoriaEvento
 
 
 def _auto_cancelar_vencidos():
-    """Marca como cancelados los eventos pendientes con fecha pasada."""
     calendario.objects.filter(
         estado=calendario.ESTADO_PENDIENTE,
         fecha__lt=date.today()
@@ -68,25 +68,20 @@ def cambiar_estado_evento_view(request, id):
 
 
 def _guardar_evento(request, instancia=None):
-    titulo       = request.POST.get('titulo', '').strip()
-    fecha        = request.POST.get('fecha', '').strip()
-    hora         = request.POST.get('hora', '').strip()
-    categoria_id = request.POST.get('categoria', '').strip()
-    descripcion  = request.POST.get('descripcion', '').strip()
+    form = calendarioForm(request.POST, instance=instancia)
 
-    categoria_obj = get_object_or_404(CategoriaEvento, id=categoria_id, estado=True)
+    if form.is_valid():
+        evento = form.save()
+        return JsonResponse({
+            'status':  'success',
+            'message': 'Evento guardado correctamente.',
+            'id':      evento.id
+        })
 
-    if instancia is None:
-        instancia = calendario()
-
-    instancia.titulo      = titulo
-    instancia.fecha       = fecha
-    instancia.hora        = hora
-    instancia.categoria   = categoria_obj
-    instancia.descripcion = descripcion
-    instancia.save()
-
-    return JsonResponse({'status': 'success', 'message': 'Evento guardado correctamente.'})
+    errores = {}
+    for campo, lista_errores in form.errors.items():
+        errores[campo] = lista_errores[0]
+    return JsonResponse({'status': 'error', 'errores': errores}, status=400)
 
 
 def crear_evento_view(request):
