@@ -19,7 +19,7 @@ class ProductoListView(ListView):
         # Filtra solo activos y optimiza la carga de categorías e imágenes
         # Devolver todos los productos (activos e inactivos). El filtrado por
         # estado se hará en el cliente mediante el switch/ DataTable.
-        return Producto.objects.select_related('id_cat').order_by('-id')
+        return Producto.objects.select_related('categoria').order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -32,25 +32,20 @@ class ProductoListView(ListView):
 class ProductoCreateView(SuccessMessageMixin, CreateView):
     model = Producto
     # Se agrega 'imagen' para capturar fotos de espaldares o basecamas
-    fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
+    fields = ['nombre', 'tipo', 'precio', 'stock', 'categoria', 'imagen']
     success_url = reverse_lazy('productos')
     success_message = "¡El producto %(nombre)s se guardó correctamente!"
 
     def form_valid(self, form):
-        # Validación de negocio: Stock no negativo
+        # Validación de negocio: Precio y Stock no negativos
         if form.cleaned_data['stock'] < 0:
             messages.error(self.request, "El stock inicial no puede ser negativo.")
             return redirect('productos')
+        if form.cleaned_data['precio'] < 0:
+            messages.error(self.request, "El precio inicial no puede ser negativo.")
+            return redirect('productos')
 
-        # Asignación automática de reporte para el historial
-        user_admin = Usuario.objects.first() # Asegúrate de tener al menos un usuario en la DB
-        rep_obj, _ = Reporte.objects.get_or_create(
-            fecha=date.today(),
-            tipo="Ingreso Manual / Catálogo",
-            defaults={'id_usuario': user_admin}
-        )
-        
-        form.instance.id_reporte = rep_obj
+        # El producto se crea con estado activo por defecto
         form.instance.estado = True
 
         # El método save() de la vista de clase manejará request.FILES automáticamente
@@ -65,7 +60,7 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
 class ProductoUpdateView(SuccessMessageMixin, UpdateView):
     model = Producto
     # Se agrega 'imagen' para permitir actualizar fotos del catálogo
-    fields = ['nombre', 'tipo', 'precio', 'stock', 'id_cat', 'imagen']
+    fields = ['nombre', 'tipo', 'precio', 'stock', 'categoria', 'imagen']
     template_name = 'productos/modal_edit.html'
     success_url = reverse_lazy('productos')
     success_message = "Producto actualizado correctamente"
@@ -76,7 +71,13 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        # Si se sube una imagen nueva, Django reemplaza la anterior automáticamente
+        # Validación de negocio: Precio y Stock no negativos
+        if form.cleaned_data['stock'] < 0:
+            messages.error(self.request, "El stock no puede ser negativo.")
+            return super().form_invalid(form)
+        if form.cleaned_data['precio'] < 0:
+            messages.error(self.request, "El precio no puede ser negativo.")
+            return super().form_invalid(form)
         return super().form_valid(form)
 
     def form_invalid(self, form):

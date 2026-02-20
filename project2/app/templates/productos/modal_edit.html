@@ -23,9 +23,9 @@
 
         <div class="form-group">
             <label>CATEGORÍA</label>
-            <select name="id_cat" required>
+            <select name="categoria" required>
                 {% for cat in categorias %}
-                    <option value="{{ cat.id }}" {% if object.id_cat.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                    <option value="{{ cat.id }}" {% if object.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -33,11 +33,11 @@
         <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex: 1;">
                 <label>PRECIO</label>
-                <input type="number" name="precio" step="0.01" value="{{ object.precio|stringformat:'.2f' }}" required>
+                <input type="number" name="precio" step="0.01" min="0" value="{{ object.precio|stringformat:'.2f' }}" required>
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>STOCK</label>
-                <input type="number" name="stock" value="{{ object.stock }}" required>
+                <input type="number" name="stock" min="0" value="{{ object.stock }}" required>
             </div>
         </div>
 
