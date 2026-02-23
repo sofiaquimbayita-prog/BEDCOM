@@ -34,7 +34,7 @@ class insumosForm(forms.ModelForm):
         if cantidad is None:
             raise forms.ValidationError('La cantidad es obligatoria.')
         if cantidad <= 0:
-            raise forms.ValidationError('La cantidad debe ser un número positivo.')
+            raise forms.ValidationError('La cantidad debe ser un número positivo y mayor a cero.')
 
         return cantidad
     def clean_precio(self):
@@ -42,8 +42,8 @@ class insumosForm(forms.ModelForm):
 
         if precio is None:
             raise forms.ValidationError('El precio es obligatorio.')
-        if precio < 0:
-            raise forms.ValidationError('El precio debe ser un número positivo.')
+        if precio <= 0:
+            raise forms.ValidationError('El precio debe ser un número positivo y mayor a cero.')
 
         return precio
     def clean_unidad_medida(self):
