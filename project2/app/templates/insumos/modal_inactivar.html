@@ -1,0 +1,42 @@
+<div class="modal" id="modal-inactivar">
+    <div class="modal-contenido modal-contenido--inactivar">
+
+        <div class="modal-header modal-header--inactivar">
+            <h3 class="modal-titulo modal-titulo--inactivar" id="inactivar-titulo">
+                <i class="fa-solid fa-circle-exclamation" id="inactivar-icono"></i>
+                <span id="inactivar-titulo-texto">Inactivar Insumo</span>
+            </h3>
+        </div>
+
+        <!-- Tarjeta de vista previa del insumo -->
+        <div class="inactivar-preview" id="inactivar-preview">
+            <div class="inactivar-preview-icono" id="inactivar-preview-icono">
+                <i class="fa-solid fa-box"></i>
+            </div>
+            <div class="inactivar-preview-info">
+                <span class="inactivar-preview-nombre" id="inactivar-nombre">—</span>
+                <span class="inactivar-preview-categoria" id="inactivar-categoria">—</span>
+            </div>
+            <span class="badge-estado" id="inactivar-badge-estado">—</span>
+        </div>
+
+        <!-- Mensaje de advertencia -->
+        <div class="inactivar-aviso" id="inactivar-aviso">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p id="inactivar-aviso-texto">
+                El insumo dejará de aparecer en la lista principal. Podrás reactivarlo cuando lo necesites.
+            </p>
+        </div>
+
+        <div class="form-botones">
+            <button type="button" class="btn-cancelar" data-modal="modal-inactivar">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </button>
+            <button type="button" class="btn-inactivar" id="btn-confirmar-inactivar">
+                <i class="fa-solid fa-ban" id="btn-inactivar-icono"></i>
+                <span id="btn-inactivar-texto">Inactivar</span>
+            </button>
+        </div>
+
+    </div>
+</div>

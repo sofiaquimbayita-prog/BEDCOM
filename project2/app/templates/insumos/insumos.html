@@ -8,18 +8,27 @@
 <link rel="stylesheet" href="{% static 'ap1/css/insumos.css' %}">
 
 <main class="main-container">
-    <div class="btn-agregar-container">
+
+    <div class="toolbar-insumos">
         <button class="btn-agregar" id="btn-agregar-insumo">
             <i class="fas fa-plus"></i> Agregar Insumo
         </button>
-    </div>
-    <div class ="container-tabla">
 
+        <div class="switch-container" title="Mostrar insumos inactivos">
+            <span class="switch-text">Mostrar Inactivos</span>
+            <label class="switch-control">
+                <input type="checkbox" id="toggleInactivos">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="container-tabla">
         <table id="tablaInsumos" class="display">
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Categoria</th>
+                    <th>Categoría</th>
                     <th>Cantidad</th>
                     <th>Unidad</th>
                     <th>Precio Unitario</th>
@@ -32,12 +41,13 @@
     </div>
 </main>
 
-{% include "insumos/modal_insumos.html" %}
-{% include "insumos/modal_editar.html" %}
+{% include "insumos/modal_insumos.html"   %}
+{% include "insumos/modal_editar.html"    %}
+{% include "insumos/modal_ver.html"       %}
+{% include "insumos/modal_inactivar.html" %}
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'ap1/js/sweetalert2.all.min.js' %}"></script>
 <script>
     const INSUMOS_DATA_URL = "{% url 'insumos_data' %}";
 </script>

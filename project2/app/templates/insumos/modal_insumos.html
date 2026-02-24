@@ -1,59 +1,88 @@
-<div class="modal" id="modal-insumo">
+<div class="modal" id="modal-agregar">
     <div class="modal-contenido">
-        <div class="modal-header">
-            <h3 class="modal-titulo" id="modal-titulo">Agregar Insumo</h3>
+        <div class="modal-header modal-header--agregar">
+            <h3 class="modal-titulo">
+                <span id="modal-agregar-titulo">Agregar Insumo</span>
+            </h3>
         </div>
 
-        <form method="post" id="form-insumo">
+        <form method="post" id="form-agregar">
             {% csrf_token %}
+
             <div class="form-grupo">
-                <label>Nombre</label>
-                <input type="text" name="nombre" id="in_nombre" class="form-input" required>
+                <label for="ag_nombre">Nombre</label>
+                <input type="text" name="nombre" id="ag_nombre" class="form-input"
+                       maxlength="100" autocomplete="off" required>
             </div>
-            
+
             <div class="form-grupo">
-                <label>Descripción</label>
-                <input type="text" name="descripcion" id="in_descripcion" class="form-input">
+                <label for="ag_descripcion" >Descripción <span class="label-opcional"></span></label>
+                <textarea name="descripcion" id="ag_descripcion" class="form-input form-textarea"
+                          maxlength="600" rows="2"></textarea>
             </div>
-            <div class= "divicion">  
+
+            <div class="divicion">
                 <div class="form-grupo">
-                    <label>Cantidad</label>
-                    <input type="number" name="cantidad" id="in_cantidad" class="form-input" required>
+                    <label for="ag_cantidad">Cantidad</label>
+                    <input type="number" name="cantidad" id="ag_cantidad" class="form-input"
+                           min="1" step="1" required>
                 </div>
                 <div class="form-grupo">
-                    <label>Precio unitario</label>
-                    <input type="number" name="precio" id="in_precio" class="form-input" required>
-                </div>
-                <div class="form-grupo">
-                    <label>Unidad de Medida</label>
-                    <input type="text" name="unidad_medida" id="in_unidad" class="form-input" required>
+                    <label for="ag_precio">Precio unitario</label>
+                    <input type="number" name="precio" id="ag_precio" class="form-input"
+                           min="0.01" step="0.01" required>
                 </div>
             </div>
-                <div class = form-grupo>
-                    <label>Proveedor</label>
-                    <select name="id_proveedor" id="in_proveedor" class="form-select" required>
+
+         <div class="form-grupo">
+                <label for="ed_unidad">Unidad de medida</label>
+                <select name="unidad_medida" id="ed_unidad" class="form-select" required>
+                    <option value="" disabled>— Selecciona una unidad —</option>
+                        <option value="kg">Kilogramo </option>
+                        <option value="L">Litro</option>
+                        <option value="gal">Galón </option>
+                        <option value="m">Metro </option>
+                        <option value="m2">Metro cuadrado </option>
+                        <option value="m3">Metro cúbico</option>
+                        <option value="und">Unidad</option>
+                        <option value="caja">Caja</option>
+                        <option value="rollo">Rollo</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="divicion">
+                <div class="form-grupo">
+                    <label for="ag_proveedor">Proveedor</label>
+                    <select name="id_proveedor" id="ag_proveedor" class="form-select" required>
+                        <option value="" disabled selected>— Selecciona —</option>
                         {% for p in proveedor %}
                             <option value="{{ p.id }}">{{ p.nombre }}</option>
                         {% endfor %}
                     </select>
+                </div>
                 <div class="form-grupo">
-                    <label>Categoría</label>
-                    <select name="id_categoria" id="in_categoria" class="form-select" required>
+                    <label for="ag_categoria">Categoría</label>
+                    <select name="id_categoria" id="ag_categoria" class="form-select" required>
+                        <option value="" disabled selected>— Selecciona —</option>
                         {% for c in categorias %}
                             <option value="{{ c.id }}">{{ c.nombre }}</option>
                         {% endfor %}
                     </select>
                 </div>
+            </div>
+
             <div class="form-grupo">
-                <label>Estado</label>
-                <select name="estado" id="in_estado" class="form-select">
+                <label for="ag_estado">Estado</label>
+                <select name="estado" id="ag_estado" class="form-select">
                     <option value="Activo">Activo</option>
                     <option value="Inactivo">Inactivo</option>
                 </select>
             </div>
+
             <div class="form-botones">
-                <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
-                <button type="submit" class="btn-guardar">Guardar</button>
+                <button type="button" class="btn-cancelar" data-modal="modal-agregar">  Cancelar   </button>
+                <button type="submit" class="btn-guardar">Guardar   </button>           
             </div>
         </form>
     </div>

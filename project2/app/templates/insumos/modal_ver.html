@@ -1,0 +1,60 @@
+<div class="modal" id="modal-ver">
+    <div class="modal-contenido modal-contenido--ver">
+        <div class="modal-header modal-header--ver">
+            <h3 class="modal-titulo modal-titulo--ver">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Detalle del Insumo
+            </h3>
+        </div>
+
+        <!-- Encabezado de detalle -->
+        <div class="ver-encabezado">
+            <div class="ver-icono-grande">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div class="ver-titulo-bloque">
+                <h4 class="ver-nombre" id="ver-nombre">—</h4>
+                <span class="ver-estado-badge" id="ver-estado-badge">—</span>
+            </div>
+        </div>
+
+        <!-- Grilla de datos -->
+        <div class="ver-grid">
+            <div class="ver-campo">
+                <span class="ver-label"><i class="fa-solid fa-tag"></i> Categoría</span>
+                <span class="ver-valor" id="ver-categoria">—</span>
+            </div>
+            <div class="ver-campo">
+                <span class="ver-label"><i class="fa-solid fa-truck"></i> Proveedor</span>
+                <span class="ver-valor" id="ver-proveedor">—</span>
+            </div>
+            <div class="ver-campo">
+                <span class="ver-label"><i class="fa-solid fa-hashtag"></i> Cantidad</span>
+                <span class="ver-valor" id="ver-cantidad">—</span>
+            </div>
+            <div class="ver-campo">
+                <span class="ver-label"><i class="fa-solid fa-ruler"></i> Unidad de medida</span>
+                <span class="ver-valor" id="ver-unidad">—</span>
+            </div>
+            <div class="ver-campo ver-campo--destacado">
+                <span class="ver-label"><i class="fa-solid fa-dollar-sign"></i> Precio unitario</span>
+                <span class="ver-valor ver-precio" id="ver-precio">—</span>
+            </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="ver-descripcion-bloque" id="ver-descripcion-bloque">
+            <span class="ver-label"><i class="fa-solid fa-align-left"></i> Descripción</span>
+            <p class="ver-descripcion-texto" id="ver-descripcion">—</p>
+        </div>
+
+        <div class="form-botones">
+            <button type="button" class="btn-cancelar" data-modal="modal-ver">
+                <i class="fa-solid fa-xmark"></i> Cerrar
+            </button>
+            <button type="button" class="btn-guardar btn-guardar--editar" id="ver-btn-editar">
+                <i class="fa-solid fa-pen-to-square"></i> Editar este insumo
+            </button>
+        </div>
+    </div>
+</div>

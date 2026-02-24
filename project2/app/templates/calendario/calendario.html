@@ -8,6 +8,13 @@
 
 <main class="main-container">
     <div class="btn-agregar-container">
+        <label class="switch-inactivos-wrap" id="switch-inactivos-label" for="switch-inactivos">
+            <span class="switch-label-texto"><i class="fa-solid fa-eye-slash" style="margin-right:4px;font-size:0.75rem;"></i> Ver inactivos</span>
+            <span class="switch-pill">
+                <input type="checkbox" id="switch-inactivos">
+                <span class="switch-pill-track"></span>
+            </span>
+        </label>
         <button class="btn-agregar" id="btn-nueva-actividad">
             <i class="fas fa-plus"></i> Nueva Actividad
         </button>
@@ -85,18 +92,18 @@
 
 {% include "calendario/modal_calendario.html" %}
 {% include "calendario/modal_detalle_calendario.html" %}
+{% include "calendario/modal_inactivar.html" %}
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'ap1/js/sweetalert2.all.min.js' %}"></script>
-
 <script>
     const EVENTOS_DATA_URL     = "{% url 'eventos_data' %}";
     const CREAR_EVENTO_URL     = "{% url 'crear_evento' %}";
     const EDITAR_EVENTO_BASE   = "{% url 'editar_evento' 0 %}".replace('/0/', '/');
     const OBTENER_EVENTO_BASE  = "{% url 'obtener_evento' 0 %}".replace('/0/', '/');
-    const ELIMINAR_EVENTO_BASE = "{% url 'eliminar_evento' 0 %}".replace('/0/', '/');
     const CAMBIAR_ESTADO_BASE  = "{% url 'cambiar_estado_evento' 0 %}".replace('/0/', '/');
+    const INACTIVAR_EVENTO_BASE = "{% url 'inactivar_evento' 0 %}".replace('/0/', '/');
+    const RESTAURAR_EVENTO_BASE = "{% url 'restaurar_evento' 0 %}".replace('/0/', '/');
 </script>
 <script src="{% static 'ap1/js/calendario.js' %}"></script>
 {% endblock %}

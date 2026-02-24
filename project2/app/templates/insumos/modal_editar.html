@@ -1,62 +1,99 @@
-<div class="modal" id="modal-insumo">
-    <div class="modal-contenido">
-        <div class= "btc">
-            <button class="btn-cerrar" id="btn-cerrar-modal">&times;</button>
-        </div>
-        <div class="modal-header">
-            <h3 class="modal-titulo" id="modal-titulo">Editar Insumo</h3>
+<div class="modal" id="modal-editar">
+    <div class="modal-contenido modal-contenido--editar">
+        <div class="modal-header modal-header--editar">
+            <h3 class="modal-titulo modal-titulo--editar">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Editar Insumo
+            </h3>
         </div>
 
-        <form method="post" id="form-insumo">
+        <div class="editar-badge">
+            <i class="fa-solid fa-circle-info"></i>
+            Modificando registro existente — los cambios son permanentes
+        </div>
+
+        <form method="post" id="form-editar">
             {% csrf_token %}
+
             <div class="form-grupo">
-                <label>Nombre</label>
-                <input type="text" name="nombre" id="in_nombre" class="form-input" required>
+                <label for="ed_nombre">Nombre</label>
+                <input type="text" name="nombre" id="ed_nombre" class="form-input"
+                       maxlength="100" autocomplete="off" required>
             </div>
-            
+
             <div class="form-grupo">
-                <label>Descripción</label>
-                <input type="text" name="descripcion" id="in_descripcion" class="form-input">
+                <label for="ed_descripcion">Descripción <span class="label-opcional">(opcional)</span></label>
+                <textarea name="descripcion" id="ed_descripcion" class="form-input form-textarea"
+                          maxlength="600" rows="2"></textarea>
             </div>
-            <div class= "divicion">  
+
+            <div class="divicion">
                 <div class="form-grupo">
-                    <label>Cantidad</label>
-                    <input type="number" name="cantidad" id="in_cantidad" class="form-input" required>
+                    <label for="ed_cantidad">Cantidad</label>
+                    <input type="number" name="cantidad" id="ed_cantidad" class="form-input"
+                           min="1" step="1" required>
                 </div>
                 <div class="form-grupo">
-                    <label>Precio unitario</label>
-                    <input type="number" name="precio" id="in_precio" class="form-input" required>
-                </div>
-                <div class="form-grupo">
-                    <label>Unidad de Medida</label>
-                    <input type="text" name="unidad_medida" id="in_unidad" class="form-input" required>
+                    <label for="ed_precio">Precio unitario</label>
+                    <input type="number" name="precio" id="ed_precio" class="form-input"
+                           min="0.01" step="0.01" required>
                 </div>
             </div>
-                <div class = form-grupo>
-                    <label>Proveedor</label>
-                    <select name="id_proveedor" id="in_proveedor" class="form-select" required>
+
+            <div class="form-grupo">
+                <label for="ed_unidad">Unidad de medida</label>
+                <select name="unidad_medida" id="ed_unidad" class="form-select" required>
+                    <option value="" disabled>— Selecciona una unidad —</option>
+                        <option value="kg">Kilogramo (kg)</option>
+                        <option value="lb">Libra (lb)</option>
+                        <option value="L">Litro (L)</option>
+                        <option value="gal">Galón (gal)</option>
+                        <option value="m">Metro (m)</option>
+                        <option value="m2">Metro cuadrado (m²)</option>
+                        <option value="m3">Metro cúbico (m³)</option>
+                        <option value="und">Unidad (und)</option>
+                        <option value="caja">Caja</option>
+                        <option value="rollo">Rollo</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="divicion">
+                <div class="form-grupo">
+                    <label for="ed_proveedor">Proveedor</label>
+                    <select name="id_proveedor" id="ed_proveedor" class="form-select" required>
+                        <option value="" disabled>— Selecciona —</option>
                         {% for p in proveedor %}
                             <option value="{{ p.id }}">{{ p.nombre }}</option>
                         {% endfor %}
                     </select>
+                </div>
                 <div class="form-grupo">
-                    <label>Categoría</label>
-                    <select name="id_categoria" id="in_categoria" class="form-select" required>
+                    <label for="ed_categoria">Categoría</label>
+                    <select name="id_categoria" id="ed_categoria" class="form-select" required>
+                        <option value="" disabled>— Selecciona —</option>
                         {% for c in categorias %}
                             <option value="{{ c.id }}">{{ c.nombre }}</option>
                         {% endfor %}
                     </select>
                 </div>
+            </div>
+
             <div class="form-grupo">
-                <label>Estado</label>
-                <select name="estado" id="in_estado" class="form-select">
+                <label for="ed_estado">Estado</label>
+                <select name="estado" id="ed_estado" class="form-select">
                     <option value="Activo">Activo</option>
                     <option value="Inactivo">Inactivo</option>
                 </select>
             </div>
+
             <div class="form-botones">
-                <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
-                <button type="submit" class="btn-guardar">Guardar</button>
+                <button type="button" class="btn-cancelar btn-cancelar--editar" data-modal="modal-editar">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-guardar btn-guardar--editar">
+                    <i class="fa-solid fa-pen-to-square"></i> Actualizar
+                </button>
             </div>
         </form>
     </div>

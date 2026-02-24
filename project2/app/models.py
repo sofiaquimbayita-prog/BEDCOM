@@ -252,7 +252,8 @@ class calendario(models.Model):
     fecha       = models.DateField()
     hora        = models.TimeField()
     categoria   = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
-    descripcion = models.TextField(blank=True, null=True)   
+    descripcion = models.TextField(blank=True, null=True)  
+    activo = models.BooleanField(default=True) 
     estado      = models.CharField(              
         max_length=20,
         choices=ESTADO_CHOICES,

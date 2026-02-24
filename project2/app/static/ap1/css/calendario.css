@@ -668,9 +668,320 @@ textarea.form-input {
 
 
 
-/* SweetAlert2 por encima del modal */
-.swal2-container {
-    z-index: 9999 !important;
+/* ═══════════════════════════════════════════════════════════
+   SISTEMA DE TOASTS — misma paleta de la página
+   ═══════════════════════════════════════════════════════════ */
+
+.messages {
+    position: fixed;
+    top: 20px; right: 20px;
+    z-index: 11000;
+    display: flex; flex-direction: column; gap: 10px;
+    pointer-events: none;
+    max-width: 380px; width: calc(100% - 40px);
+}
+
+.message {
+    pointer-events: auto;
+    min-width: 300px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-weight: 500; font-size: 0.88rem;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: space-between;
+    border-left: 4px solid transparent;
+    backdrop-filter: blur(6px);
+    opacity: 0; transform: translateX(110%);
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.22,1,0.36,1);
+}
+.message.toast-visible { opacity: 1; transform: translateX(0); }
+.message.fade-out      { opacity: 0; transform: translateX(110%); transition: opacity 0.3s ease, transform 0.3s ease; }
+
+/* Toasts — misma familia de color que el modal */
+.message.success {
+    background: rgba(18, 28, 40, 0.96);
+    border-color: #2ecc71; color: #7be8a8;
+    border-top: 1px solid rgba(46,204,113,0.15);
+}
+.message.error,
+.message.danger {
+    background: rgba(18, 28, 40, 0.96);
+    border-color: #e74c3c; color: #f5948a;
+    border-top: 1px solid rgba(231,76,60,0.15);
+}
+.message.warning {
+    background: rgba(18, 28, 40, 0.96);
+    border-color: #f1c40f; color: #f7d96e;
+    border-top: 1px solid rgba(241,196,15,0.15);
+}
+
+.message-content { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.message-content .fas  { font-size:1rem; flex-shrink:0; }
+.message-content .text { line-height:1.45; word-break:break-word; }
+
+.close-toast {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: currentColor;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    margin-left: 12px; font-size: 0.7rem; flex-shrink: 0;
+}
+.close-toast:hover { background: rgba(255,255,255,0.15); transform: rotate(90deg); }
+.close-toast i     { pointer-events: none; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL INACTIVAR — paleta coherente con el resto de modales
+   ═══════════════════════════════════════════════════════════ */
+
+.modal-contenido--inactivar {
+    max-width: 440px !important;
+    text-align: center;
+    /* Mismo borde luminoso superior que tiene .modal-contenido */
+}
+
+/* Icono central — usa el mismo azul info de la página */
+.inactivar-icono-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0 22px;
+}
+
+.inactivar-icono {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: rgba(52, 152, 219, 0.08);
+    border: 1.5px solid rgba(52, 152, 219, 0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.9rem;
+    color: rgba(52, 152, 219, 0.75);
+    animation: pulseInfo 3s ease-in-out infinite;
+}
+
+@keyframes pulseInfo {
+    0%, 100% { box-shadow: 0 0 0 0   rgba(52,152,219,0.18); }
+    50%       { box-shadow: 0 0 0 12px rgba(52,152,219,0); }
+}
+
+.inactivar-body { padding: 0 12px; }
+
+.inactivar-titulo {
+    font-size: 1.2rem; font-weight: 700;
+    color: #eef2f8; /* --text de la página */
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+}
+
+.inactivar-subtitulo {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.5); /* --muted de la página */
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+.inactivar-subtitulo strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+/* Nota info — mismo azul que el resto de elementos interactivos */
+.inactivar-nota {
+    display: inline-flex; align-items: flex-start; gap: 9px;
+    background: rgba(52,152,219,0.06);
+    border: 1px solid rgba(52,152,219,0.18);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.76rem;
+    color: rgba(52,152,219,0.85);
+    text-align: left;
+    line-height: 1.5;
+}
+.inactivar-nota .fa-circle-info { flex-shrink:0; margin-top:1px; opacity:0.8; }
+
+/* Botón confirmar — mismo estilo que btn-guardar de la página pero con tono de advertencia sutil */
+.btn-inactivar-confirmar {
+    flex: 1;
+    padding: 11px 22px;
+    background: rgba(241, 196, 15, 0.1);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    border-radius: 10px;
+    color: #f1c40f;
+    font-size: 0.85rem; font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
+}
+.btn-inactivar-confirmar:hover {
+    background: rgba(241,196,15,0.18);
+    border-color: rgba(241,196,15,0.55);
+    color: #f5d429;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(241,196,15,0.15);
+}
+.btn-inactivar-confirmar:disabled {
+    opacity: 0.45; cursor: not-allowed; transform: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SWITCH "VER INACTIVOS" — integrado en la barra superior
+   ═══════════════════════════════════════════════════════════ */
+
+.switch-inactivos-wrap {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(18, 28, 40, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 40px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    text-decoration: none;
+}
+
+
+.switch-label-texto {
+    font-size: 0.82rem; font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    transition: color 0.25s ease;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+}
+.switch-inactivos-wrap.activo .switch-label-texto {
+    color: rgba(52,152,219,0.9);
+}
+
+/* El pill/toggle */
+.switch-pill { position:relative; width:40px; height:22px; flex-shrink:0; }
+.switch-pill input { opacity:0; width:0; height:0; position:absolute; }
+.switch-pill-track {
+    position:absolute; inset:0;
+    border-radius:34px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+.switch-pill-track::before {
+    content:''; position:absolute;
+    width:16px; height:16px; left:2px; top:2px;
+    background: rgba(255,255,255,0.6);
+    border-radius:50%;
+    transition: transform 0.3s ease, background 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.switch-pill input:checked + .switch-pill-track {
+    background: rgba(52,152,219,0.35);
+    border-color: rgba(52,152,219,0.5);
+}
+.switch-pill input:checked + .switch-pill-track::before {
+    transform: translateX(18px);
+    background: #3498db;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   BANNER MODO INACTIVOS
+   ═══════════════════════════════════════════════════════════ */
+
+.banner-inactivos {
+    width: 100%; max-width: 1200px;
+    margin: 0 auto 18px auto;
+    padding: 12px 20px;
+    background: rgba(18,28,40,0.7);
+    border: 1px solid rgba(52,152,219,0.2);
+    border-left: 4px solid rgba(52,152,219,0.5);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    display: flex; align-items: center; gap: 10px;
+    backdrop-filter: blur(4px);
+    animation: fadeInDown 0.3s ease;
+}
+.banner-inactivos .fa-eye-slash { color: rgba(52,152,219,0.7); font-size: 0.9rem; }
+.banner-inactivos strong { color: rgba(255,255,255,0.8); }
+.banner-inactivos em     { font-style:normal; font-weight:700; color: rgba(52,152,219,0.9); }
+
+@keyframes fadeInDown {
+    from { opacity:0; transform: translateY(-8px); }
+    to   { opacity:1; transform: translateY(0); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   TARJETAS INACTIVAS — coherentes con el estilo de tarjeta
+   ═══════════════════════════════════════════════════════════ */
+
+.dataTables_wrapper table.dataTable tbody tr.evento-inactivo-row {
+    opacity: 0.45;
+    filter: grayscale(65%) brightness(0.75);
+    border-left-color: rgba(255,255,255,0.08) !important;
+    border-style: dashed !important;
+    box-shadow: none !important;
+}
+.dataTables_wrapper table.dataTable tbody tr.evento-inactivo-row:hover {
+    opacity: 0.8;
+    filter: grayscale(20%) brightness(0.9);
+    transform: none; /* no levitar, ya está inactiva */
+}
+
+/* Badge "Inactiva" en celda de acciones */
+.badge-inactivo-tabla {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    padding: 3px 9px; border-radius: 20px;
+    color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-right: 8px;
+}
+
+/* Botón Restaurar — usa el verde success de la página */
+.btn-restaurar {
+    background: rgba(46, 204, 113, 0.08) !important;
+    border: 1px solid rgba(46, 204, 113, 0.25) !important;
+    color: rgba(46, 204, 113, 0.8) !important;
+    border-radius: 10px !important;
+    padding: 6px 14px !important;
+    font-size: 0.78rem !important; font-weight: 700 !important;
+    display: inline-flex !important; align-items: center; gap: 6px;
+    transition: all 0.2s ease !important;
+    height: auto !important; width: auto !important;
+    letter-spacing: 0.02em;
+}
+.btn-restaurar:hover {
+    background: rgba(46,204,113,0.16) !important;
+    border-color: rgba(46,204,113,0.45) !important;
+    color: #2ecc71 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(46,204,113,0.15) !important;
+}
+
+/* Botón inactivar en tabla — tono muted, no rojo agresivo */
+.btn-inactivar {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    color: rgba(255,255,255,0.4) !important;
+}
+.btn-inactivar:hover {
+    background: rgba(241,196,15,0.1) !important;
+    border-color: rgba(241,196,15,0.3) !important;
+    color: #f1c40f !important;
+}
+
+/* Filtro deshabilitado */
+.filtro-deshabilitado {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+@media (max-width: 640px) {
+    .messages { top:12px; right:12px; max-width:calc(100% - 24px); }
+    .message  { min-width:unset; width:100%; }
+    .switch-inactivos-wrap { padding:7px 14px; }
+    .switch-label-texto    { font-size:0.75rem; }
 }
 
 /*validaciones*/

@@ -8,7 +8,8 @@ from ..models import calendario, CategoriaEvento
 def _auto_cancelar_vencidos():
     calendario.objects.filter(
         estado=calendario.ESTADO_PENDIENTE,
-        fecha__lt=date.today()
+        fecha__lt=date.today(),
+        activo=True                       # solo cancela los activos
     ).update(estado=calendario.ESTADO_CANCELADO)
 
 
@@ -19,7 +20,16 @@ def calendario_view(request):
 
 def eventos_data_view(request):
     _auto_cancelar_vencidos()
-    eventos = calendario.objects.select_related('categoria').all()
+
+    # ?inactivos=1  →  devuelve solo los inactivos
+    # por defecto   →  devuelve solo los activos
+    solo_inactivos = request.GET.get('inactivos') == '1'
+    eventos = (
+        calendario.objects
+        .select_related('categoria')
+        .filter(activo=not solo_inactivos)
+    )
+
     data = [{
         'id':              e.id,
         'titulo':          e.titulo,
@@ -31,6 +41,7 @@ def eventos_data_view(request):
         'categoria_color': e.categoria.color,
         'descripcion':     e.descripcion or '',
         'estado':          e.estado,
+        'activo':          e.activo,
     } for e in eventos]
     return JsonResponse({'data': data})
 
@@ -48,6 +59,7 @@ def obtener_evento_view(request, id):
         'categoria_color':  evento.categoria.color,
         'descripcion':      evento.descripcion or '',
         'estado':           evento.estado,
+        'activo':           evento.activo,
     })
 
 
@@ -97,6 +109,27 @@ def editar_evento_view(request, id):
     return _guardar_evento(request, instancia=evento)
 
 
+# ── Inactivar (reemplaza eliminar) ────────────────────────────────────────────
+def inactivar_evento_view(request, id):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+    evento = get_object_or_404(calendario, id=id)
+    evento.activo = False
+    evento.save(update_fields=['activo'])
+    return JsonResponse({'status': 'success', 'message': 'Actividad inactivada.'})
+
+
+# ── Restaurar ─────────────────────────────────────────────────────────────────
+def restaurar_evento_view(request, id):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+    evento = get_object_or_404(calendario, id=id)
+    evento.activo = True
+    evento.save(update_fields=['activo'])
+    return JsonResponse({'status': 'success', 'message': 'Actividad restaurada.'})
+
+
+# ── Eliminar definitivamente (ahora solo disponible desde vista de inactivos) ─
 def eliminar_evento_view(request, id):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)

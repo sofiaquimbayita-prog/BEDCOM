@@ -17,14 +17,17 @@ from .productos import (
     eliminar_producto_view
 )
 from .insumos import (
-    insumos_view,
-    insumos_data_view,
+    insumos_view, 
+    insumos_data_view, 
     obtener_insumo_view,
     crear_insumo_view,
     editar_insumo_view,
-    eliminar_insumo_view
+    inactivar_insumo_view, 
+    activar_insumo_view,
 )
 from .calendario import (
+    inactivar_evento_view,
+    restaurar_evento_view,    
     eventos_data_view,
     obtener_evento_view,
     calendario_view,
