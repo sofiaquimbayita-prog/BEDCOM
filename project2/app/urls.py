@@ -1,43 +1,34 @@
 from django.urls import path
-from . import views
-from .views import proveedores
+from .views import calendario, insumos, menu, proveedores
 
 urlpatterns = [
-    path('login/', views.MenuPrincipalView, name='MenuPrincipal'),
-    path('crear-cuenta/', views.crear_cuenta_view, name='crear_cuenta'),
-    path('cambiar-contrasena/', views.cambiar_contrasena_view, name='cambiar_contrasena'),
-    path('recuperar-contrasena/', views.recuperar_contrasena_view, name='recuperar_contrasena'),
-    path('menu/', views.menu_view, name='menu'),
-    
-    # PRODUCTOS
-    path('productos/', views.productos_view, name='productos'),
-    path('productos/crear/', views.crear_producto_view, name='crear_producto'),
-    path('productos/eliminar/<int:id>/', views.eliminar_producto_view, name='eliminar_producto'),
 
-    # INSUMOS 
-    path('insumos/', views.insumos_view, name='insumos'),
-    path('insumos/data/', views.insumos_data_view, name='insumos_data'),
-    path('insumos/obtener/<int:id>/', views.obtener_insumo_view, name='obtener_insumo'),
-    path('insumos/crear/', views.crear_insumo_view, name='crear_insumo'),
-    path('insumos/editar/<int:id>/', views.editar_insumo_view, name='editar_insumo'),
-    path('insumos/inactivar/<int:id>/', views.inactivar_insumo_view, name='inactivar_insumo'),
-    path('insumos/activar/<int:id>/', views.activar_insumo_view,   name='activar_insumo'),
+    # --- MENÚ ---
+    path('menu/', menu.MenuView.as_view(), name='menu'),
 
-    #CALENDARIO
-    path('calendario/', views.calendario_view, name='calendario'),
-    path('calendario/data/', views.eventos_data_view, name='eventos_data'),
-    path('calendario/obtener/<int:id>/', views.obtener_evento_view, name='obtener_evento'),
-    path('calendario/crear/', views.crear_evento_view, name='crear_evento'),
-    path('calendario/editar/<int:id>/', views.editar_evento_view, name='editar_evento'),
-    path('calendario/estado/<int:id>/', views.cambiar_estado_evento_view, name='cambiar_estado_evento'),
-    path('inactivar/<int:id>/', views.inactivar_evento_view, name='inactivar_evento'),
-    path('restaurar/<int:id>/', views.restaurar_evento_view, name='restaurar_evento'),
+    # --- INSUMOS ---
+    path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
+    path('insumos/data/', insumos.InsumoDataView.as_view(), name='insumos_data'),
+    path('insumos/obtener/<int:pk>/', insumos.InsumoDetailView.as_view(), name='obtener_insumo'),
+    path('insumos/crear/', insumos.InsumoCreateView.as_view(), name='crear_insumo'),
+    path('insumos/editar/<int:pk>/', insumos.InsumoUpdateView.as_view(), name='editar_insumo'),
+    path('insumos/inactivar/<int:pk>/', insumos.InsumoInactivarView.as_view(), name='inactivar_insumo'),
+    path('insumos/activar/<int:pk>/', insumos.InsumoActivarView.as_view(), name='activar_insumo'),
 
-    # PROVEEDORES
+    # --- CALENDARIO ---
+    path('calendario/', calendario.CalendarioView.as_view(), name='calendario'),
+    path('calendario/data/', calendario.EventoDataView.as_view(), name='eventos_data'),
+    path('calendario/obtener/<int:pk>/', calendario.EventoDetailView.as_view(), name='obtener_evento'),
+    path('calendario/crear/', calendario.EventoCreateView.as_view(), name='crear_evento'),
+    path('calendario/editar/<int:pk>/', calendario.EventoUpdateView.as_view(), name='editar_evento'),
+    path('calendario/estado/<int:pk>/', calendario.EventoEstadoView.as_view(), name='cambiar_estado_evento'),
+    path('calendario/inactivar/<int:pk>/', calendario.EventoInactivarView.as_view(), name='inactivar_evento'),
+    path('calendario/restaurar/<int:pk>/', calendario.EventoRestaurarView.as_view(), name='restaurar_evento'),
+
+    # --- PROVEEDORES ---
     path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores'),
     path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedor_create'),
     path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedor_edit'),
     path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedor_delete'),
-    path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedor_activar')
-
+    path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedor_activar'),
 ]

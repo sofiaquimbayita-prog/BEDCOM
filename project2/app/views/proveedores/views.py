@@ -87,3 +87,4 @@ class ProveedorActivateView(SuccessMessageMixin, DeleteView):
 
         messages.success(request, f"El proveedor '{self.object.nombre}' fue activado correctamente.")
         return HttpResponseRedirect(success_url)
+

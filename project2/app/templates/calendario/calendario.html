@@ -3,13 +3,16 @@
 {% block header_title %}AGENDA BEDCOM{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
 
 <main class="main-container">
+
     <div class="btn-agregar-container">
         <label class="switch-inactivos-wrap" id="switch-inactivos-label" for="switch-inactivos">
-            <span class="switch-label-texto"><i class="fa-solid fa-eye-slash" style="margin-right:4px;font-size:0.75rem;"></i> Ver inactivos</span>
+            <span class="switch-label-texto">
+                <i class="fa-solid fa-eye-slash" style="margin-right:4px;font-size:0.75rem;"></i> Ver inactivos
+            </span>
             <span class="switch-pill">
                 <input type="checkbox" id="switch-inactivos">
                 <span class="switch-pill-track"></span>
@@ -31,7 +34,6 @@
                     <option value="cancelado">Cancelado</option>
                 </select>
             </div>
-
             <div class="filtro-item">
                 <label class="filtro-label"><i class="fa-solid fa-tag"></i> Categoría</label>
                 <select id="filtro-categoria" class="filtro-control">
@@ -41,52 +43,17 @@
                     {% endfor %}
                 </select>
             </div>
-
-            <div class="filtro-item">
-                <label class="filtro-label"><i class="fa-solid fa-arrow-up-wide-short"></i> Orden</label>
-                <select id="filtro-orden" class="filtro-control">
-                    <option value="desc">Más reciente</option>
-                    <option value="asc">Más antiguo</option>
-                </select>
-            </div>
-
-            <div class="filtro-item">
-                <label class="filtro-label"><i class="fa-solid fa-calendar-days"></i> Desde</label>
-                <input type="date" id="filtro-fecha-desde" class="filtro-control">
-            </div>
-
-            <div class="filtro-item">
-                <label class="filtro-label"><i class="fa-solid fa-calendar-days"></i> Hasta</label>
-                <input type="date" id="filtro-fecha-hasta" class="filtro-control">
-            </div>
-
-            <div class="filtro-item search-datatable-container">
-                <label class="filtro-label"><i class="fa-solid fa-search"></i> Buscar</label>
-            </div>
-
             <div class="filtro-item filtro-accion">
                 <button class="btn-limpiar-filtros" id="btn-limpiar-filtros" title="Limpiar filtros">
                     <i class="fa-solid fa-xmark"></i> Limpiar
                 </button>
             </div>
-            
         </div>
     </div>
-    <div class="filtros-resultado" id="filtros-resultado"></div>
 
-
-    <table id="tablaEventos" class="display">
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Categoría</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-    </table>
+    <div class="calendar-shell">
+        <div id="calendar"></div>
+    </div>
 
 </main>
 
@@ -95,13 +62,14 @@
 {% include "calendario/modal_inactivar.html" %}
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
 <script>
-    const EVENTOS_DATA_URL     = "{% url 'eventos_data' %}";
-    const CREAR_EVENTO_URL     = "{% url 'crear_evento' %}";
-    const EDITAR_EVENTO_BASE   = "{% url 'editar_evento' 0 %}".replace('/0/', '/');
-    const OBTENER_EVENTO_BASE  = "{% url 'obtener_evento' 0 %}".replace('/0/', '/');
-    const CAMBIAR_ESTADO_BASE  = "{% url 'cambiar_estado_evento' 0 %}".replace('/0/', '/');
+    const EVENTOS_DATA_URL      = "{% url 'eventos_data' %}";
+    const CREAR_EVENTO_URL      = "{% url 'crear_evento' %}";
+    const EDITAR_EVENTO_BASE    = "{% url 'editar_evento' 0 %}".replace('/0/', '/');
+    const OBTENER_EVENTO_BASE   = "{% url 'obtener_evento' 0 %}".replace('/0/', '/');
+    const CAMBIAR_ESTADO_BASE   = "{% url 'cambiar_estado_evento' 0 %}".replace('/0/', '/');
     const INACTIVAR_EVENTO_BASE = "{% url 'inactivar_evento' 0 %}".replace('/0/', '/');
     const RESTAURAR_EVENTO_BASE = "{% url 'restaurar_evento' 0 %}".replace('/0/', '/');
 </script>

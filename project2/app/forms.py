@@ -24,8 +24,7 @@ class insumosForm(forms.ModelForm):
             raise forms.ValidationError('El nombre debe tener al menos 5 caracteres.')
         if len(nombre) > 100:
             raise forms.ValidationError('El nombre no puede superar los 100 caracteres.')
-        if re.search(r'[<>{}[\]\\!|¬*]', nombre):
-            raise forms.ValidationError('El nombre contiene caracteres no permitidos.')
+
         return nombre
 
     def clean_descripcion(self):
@@ -74,8 +73,6 @@ class calendarioForm(forms.ModelForm):
             raise forms.ValidationError('El título debe tener al menos 5 caracteres.')
         if len(titulo) > 150:
             raise forms.ValidationError('El título no puede superar los 150 caracteres.')
-        if re.search(r'[<>{}[\]\\!@|¬°+*]', titulo):
-            raise forms.ValidationError('El título contiene caracteres no permitidos.')
         return titulo
 
     def clean_fecha(self):

@@ -1,18 +1,13 @@
 $(document).ready(function () {
 
     /* ═══════════════════════════════════════════════════
-       SISTEMA DE TOASTS — diseño de proveedores
+       TOASTS — igual que el original
        ═══════════════════════════════════════════════════ */
-
     function obtenerContenedor() {
         let $c = $('#toast-container');
-        if (!$c.length) {
-            $c = $('<div class="messages" id="toast-container"></div>');
-            $('body').append($c);
-        }
+        if (!$c.length) { $c = $('<div class="messages" id="toast-container"></div>'); $('body').append($c); }
         return $c;
     }
-
     function mostrarToast(tipo, texto, duracion = 4500) {
         const iconos = { success: 'fa-circle-check', warning: 'fa-triangle-exclamation', error: 'fa-circle-xmark' };
         const $toast = $(`
@@ -31,28 +26,19 @@ $(document).ready(function () {
         $toast[0].offsetHeight;
         $toast.addClass('toast-visible');
         if (duracion > 0) setTimeout(() => cerrarToastElement($toast), duracion);
-        return $toast;
     }
-
-    function cerrarToastElement($t) {
-        $t.addClass('fade-out');
-        setTimeout(() => $t.remove(), 400);
-    }
-
+    function cerrarToastElement($t) { $t.addClass('fade-out'); setTimeout(() => $t.remove(), 400); }
     window.cerrarToast = btn => cerrarToastElement($(btn).closest('.message'));
 
     const Alerta = {
         exito(titulo, texto)       { mostrarToast('success', `<strong>${titulo}</strong> ${texto}`); return Promise.resolve(); },
         advertencia(titulo, texto) { mostrarToast('warning', `<strong>${titulo}:</strong> ${texto}`, 0); return Promise.resolve(); },
         error(titulo, texto)       { mostrarToast('error',   `<strong>${titulo}:</strong> ${texto}`, 0); return Promise.resolve(); },
-        rangoFechaInvalido()       { mostrarToast('warning', '<strong>Rango de fechas inválido:</strong> La fecha "Desde" no puede ser posterior a "Hasta".', 3500); return Promise.resolve(); },
     };
 
-
     /* ═══════════════════════════════════════════════════
-       REFERENCIAS
+       REFERENCIAS — igual que el original
        ═══════════════════════════════════════════════════ */
-
     const modal          = $('#modal-evento');
     const modalDetalle   = $('#modal-detalle-evento');
     const modalInactivar = $('#modal-inactivar');
@@ -63,6 +49,9 @@ $(document).ready(function () {
     let eventoDetalleId   = null;
     let eventoInactivarId = null;
     let mostrandoInactivos = false;
+    let calendarInstance   = null;
+    let filtroEstado       = '';
+    let filtroCategoria    = '';
 
     const estadoConfig = {
         pendiente:  { label: 'Pendiente',  color: '#f1c40f', icon: 'fa-regular fa-clock'      },
@@ -70,11 +59,180 @@ $(document).ready(function () {
         cancelado:  { label: 'Cancelado',  color: '#e74c3c', icon: 'fa-solid fa-ban'           },
     };
 
+    /* ═══════════════════════════════════════════════════
+       HELPERS
+       ═══════════════════════════════════════════════════ */
+    function getCookie(name) {
+        let v = null;
+        if (document.cookie) document.cookie.split(';').forEach(c => {
+            const t = c.trim();
+            if (t.startsWith(name + '=')) v = decodeURIComponent(t.slice(name.length + 1));
+        });
+        return v;
+    }
+    function renderEstadoBadge(estado) {
+        const cfg = estadoConfig[estado] || estadoConfig.pendiente;
+        $('#detalle-estado-badge')
+            .html(`<i class="${cfg.icon}"></i> ${cfg.label}`)
+            .css({ background: 'rgba(0,0,0,0.25)', border: `1px solid ${cfg.color}55`, color: cfg.color });
+    }
+    function marcarBotonActivo(estadoActual) {
+        $('.btn-estado-opcion').each(function () {
+            const es = $(this).data('estado');
+            $(this).css({
+                opacity:   es === estadoActual ? '1' : '0.45',
+                boxShadow: es === estadoActual ? `0 0 0 2px ${estadoConfig[es].color}88` : 'none',
+            });
+        });
+    }
 
     /* ═══════════════════════════════════════════════════
-       VALIDACIÓN INLINE
+       CARGA EVENTOS PARA FULLCALENDAR
        ═══════════════════════════════════════════════════ */
+    async function cargarEventos() {
+        const url = mostrandoInactivos ? EVENTOS_DATA_URL + '?inactivos=1' : EVENTOS_DATA_URL;
+        try {
+            const resp = await fetch(url);
+            const json = await resp.json();
+            let eventos = json.data || [];
 
+            if (filtroEstado)    eventos = eventos.filter(e => e.estado === filtroEstado);
+            if (filtroCategoria) eventos = eventos.filter(e => e.categoria.toLowerCase() === filtroCategoria.toLowerCase());
+
+            return eventos.map(e => {
+                const color   = e.categoria_color || '#3498db';
+                const estCfg  = estadoConfig[e.estado] || estadoConfig.pendiente;
+                const [h, m]  = (e.hora || '00:00').split(':').map(Number);
+                const endHour = Math.min(h + 1, 21);
+                const endStr  = `${String(endHour).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+
+                return {
+                    id:              e.id,
+                    title:           e.titulo,
+                    start:           `${e.fecha}T${e.hora || '00:00'}`,
+                    end:             `${e.fecha}T${endStr}`,
+                    backgroundColor: color + '1a',
+                    borderColor:     color,
+                    textColor:       '#eef2f8',
+                    extendedProps: {
+                        categoria:       e.categoria,
+                        categoria_color: color,
+                        descripcion:     e.descripcion,
+                        estado:          e.estado,
+                        estado_color:    estCfg.color,
+                        estado_label:    estCfg.label,
+                        estado_icon:     estCfg.icon,
+                        fecha_display:   e.fecha_display,
+                        activo:          e.activo,
+                        raw_hora:        e.hora,
+                    }
+                };
+            });
+        } catch (err) {
+            console.error('Error cargando eventos:', err);
+            return [];
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FULLCALENDAR
+       ═══════════════════════════════════════════════════ */
+    calendarInstance = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        locale:          'es',
+        initialView:     'timeGridWeek',
+        headerToolbar: {
+            left:   'prev,next today',
+            center: 'title',
+            right:  'dayGridMonth,timeGridWeek,timeGridDay',
+        },
+        buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
+        height:            'auto',
+        slotMinTime:       '06:00:00',
+        slotMaxTime:       '22:00:00',
+        slotDuration:      '00:30:00',
+        slotLabelInterval: '01:00:00',
+        allDaySlot:        false,
+        nowIndicator:      true,
+        dayHeaderFormat: { weekday: 'short', day: 'numeric', month: 'short', omitCommas: true },
+        slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+
+        eventContent: function (arg) {
+            const ep    = arg.event.extendedProps;
+            const color = ep.categoria_color || '#3498db';
+            return {
+                html: `
+                <div class="fc-event-custom" style="border-left-color:${color};">
+                    <div class="fce-header">
+                        <span class="fce-dot" style="background:${color};"></span>
+                        <span class="fce-title">${arg.event.title}</span>
+                    </div>
+                    <div class="fce-meta">
+                        <span class="fce-hora"><i class="fa-regular fa-clock"></i> ${ep.raw_hora || ''}</span>
+                        <span class="fce-cat" style="color:${color};">${ep.categoria}</span>
+                    </div>
+                    <span class="fce-estado" style="color:${ep.estado_color};border-color:${ep.estado_color}44;">
+                        <i class="${ep.estado_icon}"></i> ${ep.estado_label}
+                    </span>
+                </div>`
+            };
+        },
+
+        // Click en evento → modal detalle (igual que antes)
+        eventClick: function (info) {
+            verEvento(info.event.id);
+        },
+
+        // Click en celda vacía → modal crear con fecha/hora pre-rellenas
+        dateClick: function (info) {
+            const fecha = info.dateStr.slice(0, 10);
+            const hora  = info.dateStr.length > 10 ? info.dateStr.slice(11, 16) : '';
+            abrirModalCrear(fecha, hora);
+        },
+
+        events: async function (fetchInfo, successCallback, failureCallback) {
+            try { successCallback(await cargarEventos()); }
+            catch (e) { failureCallback(e); }
+        },
+    });
+
+    calendarInstance.render();
+
+    /* ═══════════════════════════════════════════════════
+       SWITCH INACTIVOS — mismo comportamiento original
+       ═══════════════════════════════════════════════════ */
+    $('#switch-inactivos').on('change', function () {
+        mostrandoInactivos = this.checked;
+        $('#switch-inactivos-label').toggleClass('activo', mostrandoInactivos);
+        $('#filtro-estado')
+            .val('')
+            .prop('disabled', mostrandoInactivos)
+            .toggleClass('filtro-deshabilitado', mostrandoInactivos);
+        if (mostrandoInactivos) filtroEstado = '';
+        calendarInstance.refetchEvents();
+    });
+
+    /* ═══════════════════════════════════════════════════
+       FILTROS
+       ═══════════════════════════════════════════════════ */
+    $('#filtro-estado').on('change', function () {
+        filtroEstado = $(this).val();
+        $(this).toggleClass('filtro-activo', filtroEstado !== '');
+        calendarInstance.refetchEvents();
+    });
+    $('#filtro-categoria').on('change', function () {
+        filtroCategoria = $(this).val();
+        $(this).toggleClass('filtro-activo', filtroCategoria !== '');
+        calendarInstance.refetchEvents();
+    });
+    $('#btn-limpiar-filtros').on('click', function () {
+        filtroEstado = ''; filtroCategoria = '';
+        $('#filtro-estado, #filtro-categoria').val('').removeClass('filtro-activo');
+        calendarInstance.refetchEvents();
+    });
+
+    /* ═══════════════════════════════════════════════════
+       VALIDACIÓN INLINE — igual que el original
+       ═══════════════════════════════════════════════════ */
     function mostrarError(fieldId, mensaje) {
         const $f = $('#' + fieldId);
         $f.addClass('input-error').attr('aria-invalid', 'true');
@@ -82,18 +240,14 @@ $(document).ready(function () {
         $g.find('.msg-error').remove();
         $g.append(`<span class="msg-error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i> ${mensaje}</span>`);
     }
-
     function limpiarEstado(fieldId) {
         $('#' + fieldId).removeClass('input-error input-ok').removeAttr('aria-invalid')
             .closest('.form-grupo').find('.msg-error').remove();
     }
-
     function limpiarTodosLosErrores() {
         ['in_titulo', 'in_fecha', 'in_hora', 'in_categoria'].forEach(limpiarEstado);
     }
-
     const CAMPO_A_INPUT = { titulo: 'in_titulo', fecha: 'in_fecha', hora: 'in_hora', categoria: 'in_categoria' };
-
     function mostrarErroresBackend(errores) {
         let errorGeneral = null;
         Object.entries(errores).forEach(([campo, mensaje]) => {
@@ -105,7 +259,6 @@ $(document).ready(function () {
         if (errorGeneral) Alerta.advertencia('No se pudo guardar', errorGeneral);
     }
 
-    /* ── Contadores ── */
     $('#in_titulo').on('input', function () {
         limpiarEstado('in_titulo');
         const len = $(this).val().trim().length;
@@ -123,226 +276,23 @@ $(document).ready(function () {
     $('#in_hora').on('change',      () => limpiarEstado('in_hora'));
     $('#in_categoria').on('change', () => limpiarEstado('in_categoria'));
 
-
     /* ═══════════════════════════════════════════════════
-       HELPERS
+       CRUD — misma lógica, solo recargar con refetchEvents
        ═══════════════════════════════════════════════════ */
-
-    function renderEstadoBadge(estado) {
-        const cfg = estadoConfig[estado] || estadoConfig.pendiente;
-        $('#detalle-estado-badge')
-            .html(`<i class="${cfg.icon}"></i> ${cfg.label}`)
-            .css({ background: 'rgba(0,0,0,0.25)', border: `1px solid ${cfg.color}55`, color: cfg.color });
-    }
-
-    function marcarBotonActivo(estadoActual) {
-        $('.btn-estado-opcion').each(function () {
-            const es = $(this).data('estado');
-            $(this).css({
-                opacity:   es === estadoActual ? '1' : '0.45',
-                boxShadow: es === estadoActual ? `0 0 0 2px ${estadoConfig[es].color}88` : 'none',
-            });
-        });
-    }
-
-    function getCookie(name) {
-        let v = null;
-        if (document.cookie) document.cookie.split(';').forEach(c => {
-            const t = c.trim();
-            if (t.startsWith(name + '=')) v = decodeURIComponent(t.slice(name.length + 1));
-        });
-        return v;
-    }
-
-    function urlActual() {
-        return mostrandoInactivos ? EVENTOS_DATA_URL + '?inactivos=1' : EVENTOS_DATA_URL;
-    }
-
-    function recargarTabla() {
-        tabla.ajax.url(urlActual()).load(null, false);
-    }
-
-
-    /* ═══════════════════════════════════════════════════
-       DATATABLE
-       ═══════════════════════════════════════════════════ */
-
-    const tabla = $('#tablaEventos').DataTable({
-        ajax: { url: urlActual(), dataSrc: 'data' },
-        columns: [
-            { data: 'titulo' },
-            { data: 'categoria', render: (data, type, row) =>
-                `<span style="color:${row.categoria_color};">&#11044;</span> ${data}` },
-            { data: 'fecha_display' },
-            { data: 'hora' },
-            { data: 'descripcion', render: data =>
-                data && data.length > 50 ? data.substr(0, 50) + '…' : (data || '') },
-            { data: 'id', render: (data, type, row) => {
-                const est   = estadoConfig[row.estado] || estadoConfig.pendiente;
-                const badge = `<span style="display:inline-flex;align-items:center;gap:5px;
-                    font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;
-                    padding:3px 10px;border-radius:20px;color:${est.color};background:${est.color}18;
-                    border:1px solid ${est.color}44;margin-right:6px;">
-                    <i class="${est.icon}" style="font-size:0.65rem;"></i> ${est.label}</span>`;
-
-                const acciones = row.activo
-                    ? `<div class="acciones-tabla">
-                           <button class="btn-accion btn-ver"       title="Ver detalles"  onclick="verEvento(${data})"><i class="fa-solid fa-eye"></i></button>
-                           <button class="btn-accion btn-editar"    title="Editar"         onclick="editarEvento(${data})"><i class="fa-solid fa-pen-to-square"></i></button>
-                           <button class="btn-accion btn-inactivar" title="Inactivar"      onclick="abrirModalInactivar(${data})"><i class="fa-solid fa-eye-slash"></i></button>
-                       </div>`
-                    : `<div class="acciones-tabla acciones-inactivo">
-                           <span class="badge-inactivo-tabla"><i class="fa-solid fa-eye-slash"></i> Inactiva</span>
-                           <button class="btn-accion btn-restaurar" title="Restaurar" onclick="restaurarEvento(${data})">
-                               <i class="fa-solid fa-rotate-left"></i> Restaurar
-                           </button>
-                       </div>`;
-
-                return `<div class="acciones-tabla-wrap">${badge}${acciones}</div>`;
-            }}
-        ],
-        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
-        order: [[2, 'desc']]
-    });
-
-    function moverBuscador() {
-        const $s = $('.dataTables_filter input');
-        if ($s.length && !$s.parents('.search-datatable-container').length)
-            $s.detach().appendTo('.search-datatable-container').addClass('filtro-control');
-    }
-    moverBuscador();
-    $('.dataTables_filter').hide();
-
-    function aplicarClasesCategoria() {
-        $('#tablaEventos tbody tr').each(function () {
-            const $row   = $(this);
-            const catTxt = $row.find('td:nth-child(2)').clone().find('span').remove().end().text().trim().toLowerCase();
-            const map    = {
-                'pedido':'cat-pedido-row','compra':'cat-compra-row','pago':'cat-pago-row',
-                'mantenimiento':'cat-mantenimiento-row','reuni':'cat-reunion-row',
-                'entrega':'cat-entrega-row','capacitaci':'cat-capacitacion-row',
-            };
-            $row.removeClass(Object.values(map).join(' ') + ' evento-completado evento-cancelado evento-inactivo-row');
-
-            if (mostrandoInactivos) {
-                $row.addClass('evento-inactivo-row');
-            } else {
-                for (const [k, cls] of Object.entries(map)) {
-                    if (catTxt.includes(k)) { $row.addClass(cls); break; }
-                }
-                const badgeTxt = $row.find('.acciones-tabla-wrap > span').first().text().trim().toLowerCase();
-                if      (badgeTxt.includes('completado')) $row.addClass('evento-completado');
-                else if (badgeTxt.includes('cancelado'))  $row.addClass('evento-cancelado');
-            }
-        });
-    }
-
-    function actualizarBannerModo() {
-        const $banner = $('#banner-modo-inactivos');
-        if (mostrandoInactivos) {
-            if (!$banner.length) {
-                $('<div id="banner-modo-inactivos" class="banner-inactivos">' +
-                  '<i class="fa-solid fa-eye-slash"></i> Viendo actividades <strong>inactivas</strong>. ' +
-                  'Usa <em>Restaurar</em> para reactivarlas en la lista principal.</div>')
-                    .insertBefore('#tablaEventos');
-            }
-        } else {
-            $banner.remove();
-        }
-    }
-
-    tabla.on('draw', () => { moverBuscador(); aplicarClasesCategoria(); actualizarContador(); actualizarBannerModo(); });
-    aplicarClasesCategoria();
-
-
-    /* ═══════════════════════════════════════════════════
-       SWITCH INACTIVOS
-       ═══════════════════════════════════════════════════ */
-
-    $('#switch-inactivos').on('change', function () {
-        mostrandoInactivos = this.checked;
-
-        // estilo visual del label
-        $('#switch-inactivos-label').toggleClass('activo', mostrandoInactivos);
-
-        // deshabilitar filtro de estado en vista inactivos (no aplica)
-        $('#filtro-estado')
-            .val('')
-            .prop('disabled', mostrandoInactivos)
-            .toggleClass('filtro-deshabilitado', mostrandoInactivos);
-
-        recargarTabla();
-        actualizarEstiloFiltros();
-    });
-
-
-    /* ═══════════════════════════════════════════════════
-       FILTROS
-       ═══════════════════════════════════════════════════ */
-
-    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
-        if (mostrandoInactivos) return true;
-        const filtro = $('#filtro-estado').val();
-        return !filtro || tabla.row(dataIndex).data().estado === filtro;
-    });
-    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
-        const filtro = $('#filtro-categoria').val().toLowerCase();
-        return !filtro || tabla.row(dataIndex).data().categoria.toLowerCase() === filtro;
-    });
-    $.fn.dataTable.ext.search.push((settings, data, dataIndex) => {
-        const desde = $('#filtro-fecha-desde').val(), hasta = $('#filtro-fecha-hasta').val();
-        if (!desde && !hasta) return true;
-        const fecha = tabla.row(dataIndex).data().fecha;
-        if (desde && fecha < desde) return false;
-        if (hasta && fecha > hasta) return false;
-        return true;
-    });
-
-    $('#filtro-fecha-desde, #filtro-fecha-hasta').on('change', function () {
-        const desde = $('#filtro-fecha-desde').val(), hasta = $('#filtro-fecha-hasta').val();
-        if (desde && hasta && desde > hasta) { Alerta.rangoFechaInvalido(); $(this).val(''); return; }
-        tabla.draw(); actualizarEstiloFiltros();
-    });
-    $('#filtro-estado, #filtro-categoria').on('change', () => { tabla.draw(); actualizarEstiloFiltros(); });
-    $('#filtro-orden').on('change', function () { tabla.order([2, $(this).val()]).draw(); actualizarEstiloFiltros(); });
-    $('#btn-limpiar-filtros').on('click', function () {
-        $('#filtro-estado, #filtro-categoria, #filtro-fecha-desde, #filtro-fecha-hasta').val('');
-        $('#filtro-orden').val('desc');
-        $('.dataTables_filter input').val('').trigger('keyup');
-        tabla.order([2, 'desc']).draw(); actualizarEstiloFiltros();
-    });
-
-    function actualizarContador() {
-        const info = tabla.page.info(), total = info.recordsTotal, filtrado = info.recordsDisplay;
-        const tipo = mostrandoInactivos ? 'inactiva' : 'actividad';
-        $('#filtros-resultado').html(filtrado === total
-            ? `Mostrando ${total} ${tipo}${total !== 1 ? 'es' : ''}`
-            : `Mostrando <strong>${filtrado}</strong> de ${total} ${tipo}${total !== 1 ? 'es' : ''}`);
-    }
-
-    function actualizarEstiloFiltros() {
-        ['#filtro-estado','#filtro-categoria','#filtro-fecha-desde','#filtro-fecha-hasta','#filtro-orden']
-            .forEach(id => {
-                const $el = $(id), isDefault = id === '#filtro-orden' ? $el.val() === 'desc' : $el.val() === '';
-                $el.toggleClass('filtro-activo', !isDefault);
-            });
-    }
-
-
-    /* ═══════════════════════════════════════════════════
-       CRUD
-       ═══════════════════════════════════════════════════ */
-
-    $('#btn-nueva-actividad').on('click', function () {
+    function abrirModalCrear(fecha = '', hora = '') {
         form.reset(); limpiarTodosLosErrores();
         $('#contador-titulo, #contador-descripcion').remove();
         if (eventoIdInput) eventoIdInput.value = '';
         tituloModal.innerText = 'Agregar Nueva Actividad';
         form.action = CREAR_EVENTO_URL;
-        $('#in_fecha').attr('min', new Date().toISOString().slice(0, 10));
+        if (fecha) $('#in_fecha').val(fecha);
+        else       $('#in_fecha').attr('min', new Date().toISOString().slice(0, 10));
+        if (hora) $('#in_hora').val(hora);
         modal.addClass('mostrar');
         setTimeout(() => $('#in_titulo').focus(), 150);
-    });
+    }
+
+    $('#btn-nueva-actividad').on('click', () => abrirModalCrear());
 
     form.onsubmit = function (e) {
         e.preventDefault();
@@ -363,7 +313,7 @@ $(document).ready(function () {
                 }
                 modal.removeClass('mostrar'); form.reset(); limpiarTodosLosErrores();
                 $('#contador-titulo, #contador-descripcion').remove();
-                recargarTabla();
+                calendarInstance.refetchEvents();
                 Alerta.exito(esEdicion ? '¡Actualizado!' : '¡Guardado!',
                     `La actividad "${titulo}" fue ${esEdicion ? 'actualizada' : 'creada'} con éxito.`);
             })
@@ -400,7 +350,8 @@ $(document).ready(function () {
             .then(r => r.json())
             .then(data => {
                 if (data.status === 'error') { Alerta.advertencia('No permitido', data.message); return; }
-                renderEstadoBadge(data.estado); marcarBotonActivo(data.estado); recargarTabla();
+                renderEstadoBadge(data.estado); marcarBotonActivo(data.estado);
+                calendarInstance.refetchEvents();
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo cambiar el estado.'))
             .finally(() => $btn.prop('disabled', false));
@@ -426,11 +377,9 @@ $(document).ready(function () {
             .catch(() => Alerta.error('Error de conexión', 'No se pudo cargar la información del evento.'));
     };
 
-
     /* ═══════════════════════════════════════════════════
-       INACTIVAR
+       INACTIVAR / RESTAURAR
        ═══════════════════════════════════════════════════ */
-
     window.abrirModalInactivar = function (id) {
         fetch(OBTENER_EVENTO_BASE + id + '/')
             .then(r => { if (!r.ok) throw new Error(); return r.json(); })
@@ -446,7 +395,6 @@ $(document).ready(function () {
         if (!eventoInactivarId) return;
         const $btn = $(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Procesando…');
-
         fetch(INACTIVAR_EVENTO_BASE + eventoInactivarId + '/', {
             method: 'POST',
             headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' }
@@ -456,7 +404,7 @@ $(document).ready(function () {
                 if (resp.status === 'error') { Alerta.error('No permitido', resp.message); return; }
                 modalInactivar.removeClass('mostrar');
                 Alerta.exito('Inactivada', 'La actividad ya no aparece en la lista principal.');
-                recargarTabla();
+                calendarInstance.refetchEvents();
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo inactivar la actividad.'))
             .finally(() => {
@@ -464,11 +412,6 @@ $(document).ready(function () {
                 $btn.prop('disabled', false).html('<i class="fa-solid fa-eye-slash"></i> Sí, inactivar');
             });
     });
-
-
-    /* ═══════════════════════════════════════════════════
-       RESTAURAR
-       ═══════════════════════════════════════════════════ */
 
     window.restaurarEvento = function (id) {
         fetch(RESTAURAR_EVENTO_BASE + id + '/', {
@@ -479,16 +422,14 @@ $(document).ready(function () {
             .then(resp => {
                 if (resp.status === 'error') { Alerta.error('No permitido', resp.message); return; }
                 Alerta.exito('¡Restaurada!', 'La actividad vuelve a estar activa en la lista principal.');
-                recargarTabla();
+                calendarInstance.refetchEvents();
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo restaurar la actividad.'));
     };
 
-
     /* ═══════════════════════════════════════════════════
-       CERRAR MODALES
+       CERRAR MODALES — igual que el original
        ═══════════════════════════════════════════════════ */
-
     function cerrarModalEvento()    { modal.removeClass('mostrar'); limpiarTodosLosErrores(); $('#contador-titulo, #contador-descripcion').remove(); }
     function cerrarModalDetalle()   { modalDetalle.removeClass('mostrar'); eventoDetalleId = null; }
     function cerrarModalInactivar() { modalInactivar.removeClass('mostrar'); eventoInactivarId = null; }
@@ -502,7 +443,6 @@ $(document).ready(function () {
         if ($(e.target).is(modalDetalle))   cerrarModalDetalle();
         if ($(e.target).is(modalInactivar)) cerrarModalInactivar();
     });
-
     $(document).on('keydown', e => {
         if (e.key !== 'Escape') return;
         if (modal.hasClass('mostrar'))          cerrarModalEvento();
