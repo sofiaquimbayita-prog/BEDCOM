@@ -1,4 +1,3 @@
-
 <div class="modal" id="modal-detalle-evento">
   <div class="modal-contenido" style="width:520px;">
 
@@ -41,60 +40,31 @@
       </div>
     </div>
 
-    <div class="form-grupo">
-      <label><i class="fa-solid fa-circle-half-stroke"></i> Estado actual</label>
-      <div id="detalle-estado-badge"
-           style="display:inline-flex;align-items:center;gap:8px;
-                  padding:8px 18px;border-radius:30px;font-size:0.82rem;
-                  font-weight:700;letter-spacing:0.04em;">
-        —
-      </div>
+    <!-- Toggle único: Marcar como completado (solo visible en modo manual) -->
+    <div class="form-grupo" id="toggle-completado-row" style="display:none;">
+      <label><i class="fa-solid fa-circle-check"></i> Estado</label>
+      <label class="completado-toggle-wrap">
+        <input type="checkbox" id="detalle-toggle-completado">
+        <span class="completado-toggle-track">
+          <span class="completado-toggle-thumb"></span>
+        </span>
+        <span class="completado-toggle-texto" id="completado-toggle-texto">Marcar como completado</span>
+      </label>
     </div>
 
-    <div class="form-grupo">
-      <label><i class="fa-solid fa-arrows-rotate"></i> Cambiar estado</label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-
-        <button type="button" class="btn-estado-opcion"
-                data-estado="pendiente"
-                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
-                       border:1px solid rgba(241,196,15,0.35);
-                       background:rgba(241,196,15,0.08);
-                       color:#f1c40f;font-size:0.82rem;font-weight:700;
-                       cursor:pointer;transition:all 0.2s ease;
-                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
-          <i class="fa-regular fa-clock"></i> Pendiente
-        </button>
-
-        <button type="button" class="btn-estado-opcion"
-                data-estado="completado"
-                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
-                       border:1px solid rgba(46,204,113,0.35);
-                       background:rgba(46,204,113,0.08);
-                       color:#2ecc71;font-size:0.82rem;font-weight:700;
-                       cursor:pointer;transition:all 0.2s ease;
-                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
-          <i class="fa-solid fa-circle-check"></i> Completado
-        </button>
-
-        <button type="button" class="btn-estado-opcion"
-                data-estado="cancelado"
-                style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;
-                       border:1px solid rgba(231,76,60,0.35);
-                       background:rgba(231,76,60,0.08);
-                       color:#e74c3c;font-size:0.82rem;font-weight:700;
-                       cursor:pointer;transition:all 0.2s ease;
-                       display:inline-flex;align-items:center;justify-content:center;gap:7px;">
-          <i class="fa-solid fa-ban"></i> Cancelado
-        </button>
-
-      </div>
-    </div>
-
-    <div class="form-botones">
+    <!-- Footer: Cerrar | Editar + Inactivar -->
+    <div class="form-botones" style="margin-top:24px;justify-content:space-between;flex-wrap:wrap;gap:10px;">
       <button type="button" class="btn-cancelar" id="btn-cancelar-detalle">
         <i class="fa-solid fa-xmark"></i> Cerrar
       </button>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="btn-detalle-editar" id="btn-detalle-editar">
+          <i class="fa-solid fa-pen-to-square"></i> Editar
+        </button>
+        <button type="button" class="btn-detalle-inactivar" id="btn-detalle-inactivar">
+          <i class="fa-solid fa-eye-slash"></i> Inactivar
+        </button>
+      </div>
     </div>
 
   </div>

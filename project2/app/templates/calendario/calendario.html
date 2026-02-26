@@ -4,74 +4,125 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/calendario.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
 
-<main class="main-container">
+<div class="cal-layout">
 
-    <div class="btn-agregar-container">
-        <label class="switch-inactivos-wrap" id="switch-inactivos-label" for="switch-inactivos">
-            <span class="switch-label-texto">
-                <i class="fa-solid fa-eye-slash" style="margin-right:4px;font-size:0.75rem;"></i> Ver inactivos
-            </span>
-            <span class="switch-pill">
-                <input type="checkbox" id="switch-inactivos">
-                <span class="switch-pill-track"></span>
-            </span>
-        </label>
-        <button class="btn-agregar" id="btn-nueva-actividad">
-            <i class="fas fa-plus"></i> Nueva Actividad
-        </button>
-    </div>
 
-    <div class="filtros-bar">
-        <div class="filtros-grid">
-            <div class="filtro-item">
-                <label class="filtro-label"><i class="fa-solid fa-circle-half-stroke"></i> Estado</label>
-                <select id="filtro-estado" class="filtro-control">
-                    <option value="">Todos</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="completado">Completado</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
-            </div>
-            <div class="filtro-item">
-                <label class="filtro-label"><i class="fa-solid fa-tag"></i> Categoría</label>
-                <select id="filtro-categoria" class="filtro-control">
-                    <option value="">Todas</option>
-                    {% for c in categorias %}
-                        <option value="{{ c.nombre }}">{{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filtro-item filtro-accion">
-                <button class="btn-limpiar-filtros" id="btn-limpiar-filtros" title="Limpiar filtros">
-                    <i class="fa-solid fa-xmark"></i> Limpiar
-                </button>
-            </div>
+  <aside class="cal-sidebar">
+
+    <!-- Categorías -->
+    <div>
+      <p class="sidebar-section-title">Categorías</p>
+      <div class="cat-list" id="cat-list">
+        <!-- Renderizado por JS -->
+        <div class="empty-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
         </div>
+      </div>
     </div>
 
-    <div class="calendar-shell">
-        <div id="calendar"></div>
+    <!-- Próximas Actividades -->
+    <div>
+      <p class="sidebar-section-title">Próximas Actividades</p>
+      <div id="proximas-list" class="proximas-list">
+        <div class="empty-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </div>
+      </div>
     </div>
 
-</main>
+  </aside>
+
+  <main class="cal-main">
+
+    <!-- Toolbar -->
+    <div class="cal-toolbar">
+      <div class="busqueda-wrap" id="busqueda-wrap">
+        <i class="fa-solid fa-magnifying-glass busqueda-icon"></i>
+        <input type="text" id="input-busqueda" class="input-busqueda"
+               placeholder="Buscar actividad..." autocomplete="off">
+        <button type="button" class="busqueda-clear" id="busqueda-clear" title="Limpiar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <button class="btn-nueva-actividad" id="btn-nueva-actividad">
+        <i class="fas fa-plus"></i> Nueva Actividad
+      </button>
+    </div>
+
+    <!-- FullCalendar -->
+    <div class="cal-fc-wrap">
+      <div id="calendar"></div>
+    </div>
+
+  </main>
+
+  <aside class="cal-right">
+
+    <!-- Header fecha -->
+    <div class="right-header">
+      <div class="right-fecha-numero" id="right-fecha-numero">—</div>
+      <div class="right-fecha-texto" id="right-fecha-texto">Selecciona un día</div>
+      <div class="right-clima">
+        <i class="fa-solid fa-sun"></i>
+        <span id="right-clima-text">—</span>
+      </div>
+    </div>
+
+    <!-- Tareas del día -->
+    <div class="right-section">
+      <p class="right-section-title">Tareas del Día</p>
+      <div class="tareas-timeline" id="tareas-timeline">
+        <div class="empty-state">
+          <i class="fa-regular fa-calendar-xmark"></i>
+          <p>Sin actividades este día</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividades completadas recientes -->
+    <div class="right-section right-section--completadas">
+      <div class="completadas-header">
+        <p class="right-section-title">Completadas Recientes</p>
+        <div class="completadas-limit-wrap">
+          <button type="button" class="completadas-limit-btn active" data-limit="5">5</button>
+          <button type="button" class="completadas-limit-btn" data-limit="10">10</button>
+        </div>
+      </div>
+      <div id="completadas-list" class="completadas-list">
+        <div class="empty-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
 
 {% include "calendario/modal_calendario.html" %}
 {% include "calendario/modal_detalle_calendario.html" %}
-{% include "calendario/modal_inactivar.html" %}
+{% include "calendario/modal_eliminar.html" %}
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  const URLS = {
+    eventosData:      "{% url 'eventos_data' %}",
+    eventosPorFecha:  "{% url 'eventos_por_fecha' %}",
+    categoriasStats:  "{% url 'categorias_stats' %}",
+    crearEvento:      "{% url 'crear_evento' %}",
+    editarBase:       "{% url 'editar_evento' 0 %}".replace('/0/', '/'),
+    obtenerBase:      "{% url 'obtener_evento' 0 %}".replace('/0/', '/'),
+    completarBase:    "{% url 'completar_evento' 0 %}".replace('/0/', '/'),
+    eliminarBase:     "{% url 'eliminar_evento' 0 %}".replace('/0/', '/'),
+  };
+  const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-
-<script>
-    const EVENTOS_DATA_URL      = "{% url 'eventos_data' %}";
-    const CREAR_EVENTO_URL      = "{% url 'crear_evento' %}";
-    const EDITAR_EVENTO_BASE    = "{% url 'editar_evento' 0 %}".replace('/0/', '/');
-    const OBTENER_EVENTO_BASE   = "{% url 'obtener_evento' 0 %}".replace('/0/', '/');
-    const CAMBIAR_ESTADO_BASE   = "{% url 'cambiar_estado_evento' 0 %}".replace('/0/', '/');
-    const INACTIVAR_EVENTO_BASE = "{% url 'inactivar_evento' 0 %}".replace('/0/', '/');
-    const RESTAURAR_EVENTO_BASE = "{% url 'restaurar_evento' 0 %}".replace('/0/', '/');
-</script>
 <script src="{% static 'ap1/js/calendario.js' %}"></script>
 {% endblock %}

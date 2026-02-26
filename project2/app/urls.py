@@ -18,12 +18,13 @@ urlpatterns = [
     # --- CALENDARIO ---
     path('calendario/', calendario.CalendarioView.as_view(), name='calendario'),
     path('calendario/data/', calendario.EventoDataView.as_view(), name='eventos_data'),
+    path('calendario/por-fecha/', calendario.EventosPorFechaView.as_view(), name='eventos_por_fecha'),
+    path('calendario/categorias-stats/', calendario.EventoCategoriaStatsView.as_view(), name='categorias_stats'),
     path('calendario/obtener/<int:pk>/', calendario.EventoDetailView.as_view(), name='obtener_evento'),
     path('calendario/crear/', calendario.EventoCreateView.as_view(), name='crear_evento'),
     path('calendario/editar/<int:pk>/', calendario.EventoUpdateView.as_view(), name='editar_evento'),
-    path('calendario/estado/<int:pk>/', calendario.EventoEstadoView.as_view(), name='cambiar_estado_evento'),
-    path('calendario/inactivar/<int:pk>/', calendario.EventoInactivarView.as_view(), name='inactivar_evento'),
-    path('calendario/restaurar/<int:pk>/', calendario.EventoRestaurarView.as_view(), name='restaurar_evento'),
+    path('calendario/completar/<int:pk>/', calendario.EventoCompletarView.as_view(), name='completar_evento'),
+    path('calendario/eliminar/<int:pk>/', calendario.EventoEliminarView.as_view(), name='eliminar_evento'),
 
     # --- PROVEEDORES ---
     path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores'),

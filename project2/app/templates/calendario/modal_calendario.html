@@ -1,51 +1,91 @@
-<div class="modal" id="modal-evento">
-    <div class="modal-contenido">
-        <div class="btc">
-            <button class="btn-cerrar" id="btn-cerrar-modal-evento">&times;</button>
-        </div>
-        <div class="modal-header">
-            <h3 class="modal-titulo" id="modal-titulo-evento">Gestionar Actividad</h3>
-        </div>
+<!-- MODAL CREAR / EDITAR EVENTO -->
+<div class="modal-overlay" id="modal-evento">
+  <div class="modal-box">
 
-        <form method="post" id="form-evento">
-            {% csrf_token %}
-            <input type="hidden" name="id" id="evento-id">
-
-            <div class="form-grupo">
-                <label>Título de la Actividad</label>
-                <input type="text" name="titulo" id="in_titulo" class="form-input" required>
-            </div>
-
-            <div class="divicion">
-                <div class="form-grupo">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" id="in_fecha" class="form-input" required>
-                </div>
-                <div class="form-grupo">
-                    <label>Hora</label>
-                    <input type="time" name="hora" id="in_hora" class="form-input" required>
-                </div>
-            </div>
-
-            <div class="form-grupo">
-                <label>Categoría</label>
-                <select name="categoria" id="in_categoria" class="form-select" required>
-                    <option value="">--- Seleccione ---</option>
-                    {% for c in categorias %}
-                        <option value="{{ c.id }}" data-color="{{ c.color }}">{{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-grupo">
-                <label>Detalles</label>
-                <textarea name="descripcion" id="in_descripcion" rows="3" class="form-input" placeholder="Notas..."></textarea>
-            </div>
-
-            <div class="form-botones">
-                <button type="button" class="btn-cancelar" id="btn-cancelar-evento">Cancelar</button>
-                <button type="submit" class="btn-guardar">Guardar</button>
-            </div>
-        </form>
+    <div class="modal-header">
+      <h3 class="modal-titulo">
+    
+        <span id="modal-evento-titulo">Nueva Actividad</span>
+      </h3>
+      <button type="button" class="btn-cerrar-modal" id="btn-cerrar-modal-evento">&times;</button>
     </div>
+
+    <form id="form-evento" novalidate>
+      {% csrf_token %}
+      <input type="hidden" id="evento-id" value="">
+
+      <div class="modal-body">
+
+        <!-- Título -->
+        <div class="form-grupo">
+          <label class="form-label">
+            Título de la Actividad
+          </label>
+          <input type="text" name="titulo" id="in_titulo"
+                 class="form-input" placeholder="Ej: Reunión con proveedores" required>
+        </div>
+
+        <!-- Fecha y Hora -->
+        <div class="form-row">
+          <div class="form-grupo">
+            <label class="form-label"><i class="fa-solid fa-calendar"></i> Fecha</label>
+            <input type="date" name="fecha" id="in_fecha" class="form-input" required>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label"><i class="fa-regular fa-clock"></i> Hora</label>
+            <input type="time" name="hora" id="in_hora" class="form-input" required>
+          </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="form-grupo">
+          <label class="form-label"><i class="fa-solid fa-tag"></i> Categoría</label>
+          <select name="categoria" id="in_categoria" class="form-select" required>
+            <option value="">— Selecciona una categoría —</option>
+            {% for c in categorias %}
+              <option value="{{ c.id }}" data-color="{{ c.color }}">{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Detalles -->
+        <div class="form-grupo">
+          <label class="form-label"><i class="fa-solid fa-align-left"></i> Detalles</label>
+          <textarea name="descripcion" id="in_descripcion" class="form-textarea"
+                    placeholder="Notas adicionales sobre la actividad..."></textarea>
+        </div>
+
+        <!-- Modo de completado -->
+        <div class="form-grupo">
+          <label class="form-label"><i class="fa-solid fa-circle-check"></i> Modo de Completado</label>
+          <div class="modo-toggle-wrap">
+
+            <label class="modo-option selected" id="modo-opt-auto">
+              <input type="radio" name="modo_completado" value="automatico" checked>
+              <span>Automático</span>
+              <small>Se marca al cumplirse la fecha y hora</small>
+            </label>
+
+            <label class="modo-option" id="modo-opt-manual">
+              <input type="radio" name="modo_completado" value="manual">
+              <span>Manual</span>
+              <small>El usuario marca cuando esté listo</small>
+            </label>
+
+          </div>
+        </div>
+
+      </div><!-- /.modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-evento">
+          <i class="fa-solid fa-xmark"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-evento">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>

@@ -221,6 +221,8 @@ class pago (models.Model):
         db_table = "pagos"
 
 # --- MODELOS DE CALENDARIO ---
+# Fragmento para reemplazar el modelo calendario en models.py
+
 class CategoriaEvento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     color = models.CharField(max_length=7, default='#3498db')  # código hex
@@ -240,21 +242,33 @@ class calendario(models.Model):
 
     ESTADO_PENDIENTE   = 'pendiente'
     ESTADO_COMPLETADO  = 'completado'
-    ESTADO_CANCELADO   = 'cancelado'
-    
+    ESTADO_ELIMINADO   = 'eliminado'
+
     ESTADO_CHOICES = [
         (ESTADO_PENDIENTE,  'Pendiente'),
         (ESTADO_COMPLETADO, 'Completado'),
-        (ESTADO_CANCELADO,  'Cancelado'),
+        (ESTADO_ELIMINADO,  'Eliminado'),
     ]
 
-    titulo      = models.CharField(max_length=100)
-    fecha       = models.DateField()
-    hora        = models.TimeField()
-    categoria   = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
-    descripcion = models.TextField(blank=True, null=True)  
-    activo = models.BooleanField(default=True) 
-    estado      = models.CharField(              
+    MODO_AUTOMATICO = 'automatico'
+    MODO_MANUAL     = 'manual'
+
+    MODO_CHOICES = [
+        (MODO_AUTOMATICO, 'Automático'),
+        (MODO_MANUAL,     'Manual'),
+    ]
+
+    titulo             = models.CharField(max_length=100)
+    fecha              = models.DateField()
+    hora               = models.TimeField()
+    categoria          = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
+    descripcion        = models.TextField(blank=True, null=True)
+    modo_completado    = models.CharField(
+        max_length=15,
+        choices=MODO_CHOICES,
+        default=MODO_AUTOMATICO,
+    )
+    estado             = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default=ESTADO_PENDIENTE,
@@ -264,6 +278,6 @@ class calendario(models.Model):
         return self.titulo
 
     class Meta:
-        verbose_name = "calendario"
-        verbose_name_plural = "calendarios"
+        verbose_name = "Evento"
+        verbose_name_plural = "Eventos"
         db_table = "calendario"

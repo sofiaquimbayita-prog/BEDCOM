@@ -1,0 +1,40 @@
+<div class="modal-overlay" id="modal-eliminar">
+  <div class="modal-box modal-box--confirm">
+
+    <div class="modal-header">
+      <h3 class="modal-titulo">
+        <i class="fa-solid fa-trash" style="color:var(--danger);"></i>
+        Eliminar Actividad
+      </h3>
+      <button type="button" class="btn-cerrar-modal" id="btn-cerrar-eliminar">&times;</button>
+    </div>
+
+    <div class="confirm-icon-wrap">
+      <div class="confirm-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+    </div>
+
+    <div class="confirm-body">
+      <p class="confirm-titulo">¿Inactivar esta actividad?</p>
+      <p class="confirm-subtitulo">
+        <strong id="eliminar-nombre-evento">"—"</strong> será inactivado del calendario.
+        
+      </p>
+      <div class="confirm-nota">
+        <i class="fa-solid fa-circle-info" style="flex-shrink:0;margin-top:1px;"></i>
+        <span>Esta acción  NO se puede deshacer.</span>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:8px;">
+      <button type="button" class="btn btn-secondary" id="btn-cancelar-eliminar">
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" id="btn-confirmar-eliminar">
+        <i class="fa-solid fa-trash"></i> Sí, Inactivar
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,11 +1,11 @@
 from .views import (
     CalendarioView,
     EventoDataView,
+    EventosPorFechaView,
+    EventoCategoriaStatsView,
     EventoDetailView,
     EventoCreateView,
     EventoUpdateView,
-    EventoEstadoView,
-    EventoInactivarView,
-    EventoRestaurarView,
-    EventoEliminarView,
+    EventoCompletarView,
+    EventoEliminarView
 )
