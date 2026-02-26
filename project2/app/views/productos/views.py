@@ -4,19 +4,21 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.decorators import login_required
 from datetime import date
 from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
 
 # Importación de tus modelos
-from ...models import Producto,Categoria, Reporte, Usuario
+from ...models import producto, categoria, reporte, usuario
 
-# Expresión regular para validar nombre: solo letras, números, espacios y caracteres seguros
-# No permite: @ # $ % ^ & * ( ) + = [ ] { } | \ / < > , . ; : " ' ` ~
+
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
 
 # --- VISTA DE LISTADO ---
-class ProductoListView(ListView):
-    model = Producto
+@method_decorator(login_required, name='dispatch')
+class producto_list_view(ListView):
+    model = producto
     template_name = 'productos/index_productos.html'
     context_object_name = 'productos'
 
@@ -24,29 +26,30 @@ class ProductoListView(ListView):
         # Filtra solo activos y optimiza la carga de categorías e imágenes
         # Devolver todos los productos (activos e inactivos). El filtrado por
         # estado se hará en el cliente mediante el switch/ DataTable.
-        return Producto.objects.select_related('categoria').order_by('-id')
+        return producto.objects.select_related('categoria').order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = Categoria.objects.all()
+        context['categorias'] = categoria.objects.all()
         context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
         return context
 
 
 # --- VISTA DE CREACIÓN (AGREGAR) ---
-class ProductoCreateView(SuccessMessageMixin, CreateView):
-    model = Producto
+@method_decorator(login_required, name='dispatch')
+class producto_create_view(SuccessMessageMixin, CreateView):
+    model = producto
     # Se agrega 'imagen' para capturar fotos de espaldares o basecamas
-    fields = ['nombre', 'tipo', 'precio', 'stock', 'categoria', 'imagen']
+    fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
     success_url = reverse_lazy('productos')
     success_message = "¡El producto %(nombre)s se guardó correctamente!"
 
     def form_valid(self, form):
         # Validación de negocio: Precio y Stock no negativos
-        if form.cleaned_data['stock'] < 0:
+        if form.cleaned_data['stock'] <= 0:
             messages.error(self.request, "El stock inicial no puede ser negativo.")
             return redirect('productos')
-        if form.cleaned_data['precio'] < 0:
+        if form.cleaned_data['precio'] <= 0:
             messages.error(self.request, "El precio inicial no puede ser negativo.")
             return redirect('productos')
         if form.cleaned_data['precio'] > 99999999:
@@ -70,26 +73,27 @@ class ProductoCreateView(SuccessMessageMixin, CreateView):
 
 
 # --- VISTA DE EDICIÓN (MODIFICAR) ---
-class ProductoUpdateView(SuccessMessageMixin, UpdateView):
-    model = Producto
+# @method_decorator(login_required, name='dispatch')
+class producto_update_view(SuccessMessageMixin, UpdateView):
+    model = producto
     # Se agrega 'imagen' para permitir actualizar fotos del catálogo
-    fields = ['nombre', 'tipo', 'precio', 'stock', 'categoria', 'imagen']
+    fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
     template_name = 'productos/modal_edit.html'
     success_url = reverse_lazy('productos')
     success_message = "Producto actualizado correctamente"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = Categoria.objects.all()
+        context['categorias'] = categoria.objects.all()
         return context
 
     def form_valid(self, form):
         # Validación de negocio: Precio y Stock no negativos
-        if form.cleaned_data['stock'] < 0:
-            messages.error(self.request, "El stock no puede ser negativo.")
+        if form.cleaned_data['stock'] <= 0:
+            messages.error(self.request, "El stock no puede ser negativo o cero.")
             return super().form_invalid(form)
-        if form.cleaned_data['precio'] < 0:
-            messages.error(self.request, "El precio no puede ser negativo.")
+        if form.cleaned_data['precio'] <= 0:
+            messages.error(self.request, "El precio no puede ser negativo o cero.")
             return super().form_invalid(form)
         if form.cleaned_data['precio'] > 99999999:
             messages.error(self.request, "El precio no puede exceder 99,999,999.")
@@ -109,8 +113,9 @@ class ProductoUpdateView(SuccessMessageMixin, UpdateView):
 
 
 # --- VISTA DE ELIMINACIÓN (BORRADO LÓGICO) ---
-class ProductoDeleteView(DeleteView):
-    model = Producto  # Asegúrate de que la clase empiece con Mayúscula 'Producto'
+@method_decorator(login_required, name='dispatch')
+class producto_delete_view(DeleteView):
+    model = producto
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):
@@ -130,8 +135,9 @@ class ProductoDeleteView(DeleteView):
 
 
 # --- VISTA DE ACTIVACIÓN ---
-class ProductoActivateView(SuccessMessageMixin, DeleteView):
-    model = Producto
+@method_decorator(login_required, name='dispatch')
+class producto_activate_view(SuccessMessageMixin, DeleteView):
+    model = producto
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):

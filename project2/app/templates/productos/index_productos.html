@@ -3,28 +3,58 @@
 
 {% block header_title %}Gestión de Productos{% endblock %}
 
+{% block messages %}
+{% if messages %}
+<div class="messages" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
 
 <main class="productos">
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; gap:12px;">
-        <button class="button-3" onclick="abrirModal('modalAdd')">
-            <i class="fas fa-plus"></i> Nuevo Producto
-        </button>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="switch-container">
+                <span class="switch-text">Mostrar inactivos</span>
+                <label class="switch-control">
+                    <input type="checkbox" id="toggleInactivos">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
         
+        <div class="toolbar-right">
+<button class="button-3" onclick="event.preventDefault(); abrirModal('modalAdd');">
+                <i class="fas fa-plus"></i> <span class="btn-text">Nuevo Producto</span>
+            </button>
         </div>
     </div>
 
-    <div class="container-tabla"  >
-        <div class="switch-container">
-    <span class="switch-text">Mostrar inactivos</span>
-    <label class="switch-control">
-        <input type="checkbox" id="toggleInactivos">
-        <span class="slider"></span>
-    </label>
-</div>
+    <div class="container-tabla">
         <table id="tablaProductos" class="display responsive nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -37,6 +67,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
+            
             <tbody>
                 {% for p in productos %}
                 <tr>
@@ -60,7 +91,7 @@
                     <td>
                         <div class="acciones">
                             <button class="view-btn" title="Ver detalle"
-                                    onclick="abrirModalVer('{{ p.nombre }}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}', '{{ p.precio }}', '{{ p.stock }}', '{{ p.categoria.nombre }}')">
+                                    onclick="abrirModalVer('{{ p.nombre }}', '{% if p.descripcion %}{{ p.descripcion }}{% endif %}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}', '{{ p.precio }}', '{{ p.stock }}', '{{ p.categoria.nombre }}')">
                                 <i class="fas fa-eye"></i>
                             </button>
                             <button class="edit-btn" title="Editar producto" onclick="abrirModalEditar('{{ p.id }}')">
@@ -98,6 +129,9 @@
 
 <div id="modalDelete" class="modal" style="display: none;">
     {% include "productos/modal_delete.html" %}
+</div>
+<div id="modalActivar" class="modal" style="display: none;">
+    {% include "productos/modal_activar.html" %}
 </div>
 <div id="modalView" class="modal" style="display: none;">
     {% include "productos/modal_view.html" %}

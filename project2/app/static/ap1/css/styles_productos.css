@@ -46,7 +46,7 @@ header {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   position: sticky;
   top: 0;
-  z-index: 1000; /* Debajo de la accesibilidad pero sobre la tabla */
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,7 +110,8 @@ header {
   margin: 30px auto;
   box-shadow: var(--sombra-lg);
   position: relative;
-  z-index: 1; /* Bajo la accesibilidad */
+  z-index: 1;
+  overflow-x: auto;
 }
 
 .dataTables_wrapper {
@@ -120,21 +121,16 @@ header {
 .dataTables_wrapper .dataTables_paginate .paginate_button {
   color: white !important;
 }
-/* Aplicar a la columna 6 (Estado) */
+
 #tablaProductos tbody td:nth-child(6) {
-    color: #2ecc71; /* Verde por defecto (Activo) */
+    color: #2ecc71;
     font-weight: bold;
 }
 
-/* Si el texto es Inactivo, el CSS no puede cambiar el color solo. 
-   Pero tus botones de ACCIONES sí cambian. Podemos usar eso: */
-
-/* Si dentro de la fila existe un .activate-btn, significa que el producto está INACTIVO */
 #tablaProductos tr:has(.activate-btn) td:nth-child(6) {
-    color: #e74c3c; /* Cambia a Rojo */
+    color: #e74c3c;
 }
 
-/* Estilo de "Badge" simulado para esa celda */
 #tablaProductos td:nth-child(6) {
     display: table-cell;
     text-align: center;
@@ -154,23 +150,47 @@ header {
   backdrop-filter: blur(8px);
   z-index: 10000;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 20px 10px;
+  overflow-y: auto;
 }
 
 .modal-content {
-  background: #0f172a !important; /* Fondo oscuro sólido */
+  background: #0f172a !important;
   color: #ffffff !important;
   padding: 30px !important;
   border-radius: 15px !important;
   width: 90% !important;
   max-width: 500px !important;
+  max-height: 90vh !important;
   border: 1px solid #334155 !important;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
   animation: modalFadeIn 0.3s ease-out;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Scrollbar personalizada para modales */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 .modal-header h2 {
-  color: #38bdf8 !important; /* Azul celeste */
+  color: #38bdf8 !important;
   font-size: 1.5rem;
   margin-bottom: 20px;
   border-bottom: 1px solid #334155;
@@ -184,13 +204,14 @@ header {
 
 .modal-content label {
   display: block !important;
-  color: #94a3b8 !important; /* Texto gris claro */
+  color: #94a3b8 !important;
   font-weight: 500 !important;
   margin-bottom: 5px !important;
 }
 
 .modal-content input, 
-.modal-content select {
+.modal-content select,
+.modal-content textarea {
   width: 100% !important;
   padding: 12px !important;
   background: #1e293b !important;
@@ -200,20 +221,74 @@ header {
   outline: none;
 }
 
-.modal-content input:focus {
+.modal-content input:focus,
+.modal-content textarea:focus {
   border-color: #38bdf8 !important;
 }
+
 .img-producto {
-    width: 100%;        /* Ocupa el ancho del contenedor */
-    height: 300px;      /* Altura fija obligatoria */
-    object-fit: cover;  /* ¡CLAVE! Recorta la imagen para que llene el cuadro sin deformarse */
-    object-position: center; /* Centra el recorte en lo más importante */
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    object-position: center;
+}
+/* Asegúrate de que esto exista en tu CSS */
+.error-msg {
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.error-msg.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 20px;
+    z-index: 999;
+}
+
+
+/* ==================================================
+   MODAL VIEW (VISTA DE PRODUCTO)
+   ================================================== */
+.modal-body-view {
+    padding: 20px;
+}
+
+.modal-body-view .form-group label {
+    display: block !important;
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px !important;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-body-view .badge {
+    color: #2ecc71;
+    font-weight: bold;
+    display: block;
+}
+
+.modal-body-view .badge.inactive {
+    color: #ef4444;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill {
+    border: 1px solid var(--color-principal) !important;
 }
 /* ==================================================
    BOTONES
    ================================================== */
 .button-3 {
-  margin-left: auto;
   background: var(--color-superficie);
   color: var(--color-texto);
   padding: 12px 20px;
@@ -227,7 +302,6 @@ header {
   background: #374b72cc;
   box-shadow: var(--sombra-lg);
 }
-
 
 .modal-footer {
   display: flex;
@@ -256,18 +330,67 @@ header {
   flex: 1;
 }
 
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
 .acciones button {
   border: none;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   color: white;
+  white-space: nowrap;
 }
 
-.view-btn { background: #3b82f6; }
-.edit-btn { background: #f59e0b; }
-.delete-btn { background: #ef4444; }
-.activate-btn { background: #2ecc71; }
+.view-btn {
+  color: #7dd3fc;
+  background-color: transparent;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.view-btn:hover {
+  color: #0ea5e9;
+  transform: translateY(-3px);
+}
+
+.edit-btn {
+  color: #fde68a;
+  background-color: transparent;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.edit-btn:hover {
+  color: #f59e0b;
+  transform: translateY(-3px);
+}
+
+.delete-btn {
+  color: #ef4444;
+  background-color: transparent;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.delete-btn:hover {
+  color: #dc2626;
+  transform: translateY(-3px);
+}
+
+.activate-btn,
+.reactivar-btn {
+  color: #2ecc71;
+  background-color: transparent;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.activate-btn:hover,
+.reactivar-btn:hover {
+  color: #27ae60;
+  transform: translateY(-3px);
+}
 
 .modal-delete {
     border-left: 4px solid #ef4444;
@@ -293,7 +416,13 @@ header {
 
 .delete-icon {
     font-size: 60px;
-    color: #ef4444;
+    color: #ff0000;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+.activate-icon {
+    font-size: 60px;
+    color: #51ff00;
     margin-bottom: 20px;
     opacity: 0.8;
 }
@@ -362,85 +491,44 @@ header {
     transform: translateY(0);
 }
 
-/* Contenedor principal alineado a la derecha */
+/* ==================================================
+   TOOLBAR Y SWITCH
+   ================================================== */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
 .switch-container {
-    margin-left: auto;
     display: flex;
     gap: 12px;
     padding: 8px 15px;
     background: var(--color-superficie);
     border-radius: 50px;
     border: 1px solid var(--color-borde);
-    justify-content: flex-end;
-    align-items: right;
-    width: auto;
-    max-width: 210px;
-    flex-wrap: wrap;
-}
-
-/* Media queries para responsividad */
-@media (max-width: 768px) {
-    .switch-container {
-        max-width: 200px;
-        padding: 8px 12px;
-        gap: 8px;
-    }
-    
-    .switch-text {
-        font-size: 0.8rem;
-    }
-    
-    .switch-control {
-        width: 40px;
-        height: 22px;
-    }
-    
-    .slider:before {
-        height: 16px;
-        width: 16px;
-    }
-    
-    input:checked + .slider:before {
-        transform: translateX(18px);
-    }
-}
-
-@media (max-width: 480px) {
-    .switch-container {
-        max-width: 160px;
-        padding: 6px 10px;
-        gap: 6px;
-    }
-    
-    .switch-text {
-        font-size: 0.75rem;
-    }
-    
-    .switch-control {
-        width: 36px;
-        height: 20px;
-    }
-    
-    .slider:before {
-        height: 14px;
-        width: 14px;
-        left: 3px;
-        bottom: 3px;
-    }
-    
-    input:checked + .slider:before {
-        transform: translateX(16px);
-    }
+    align-items: center;
 }
 
 .switch-text {
-    margin-left: auto;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-texto);
 }
 
-/* El control oculto del checkbox original */
 .switch-control {
     position: relative;
     display: inline-block;
@@ -454,7 +542,6 @@ header {
     height: 0;
 }
 
-/* El cuerpo del Switch (Slider) */
 .slider {
     position: absolute;
     cursor: pointer;
@@ -462,12 +549,11 @@ header {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #64748b; /* Gris claro cuando está apagado para mayor visibilidad */
+    background-color: #64748b;
     transition: .4s;
     border-radius: 34px;
 }
 
-/* El círculo blanco que se mueve */
 .slider:before {
     position: absolute;
     content: "";
@@ -481,15 +567,14 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Color cuando está ACTIVADO (Inactivos visibles) */
 input:checked + .slider {
-    background-color: #64e73c; /* Rojo para indicar que estás viendo lo inactivo */
+    background-color: #64e73c;
 }
 
-/* Movimiento del círculo */
 input:checked + .slider:before {
     transform: translateX(21px);
 }
+
 /* ==================================================
    ANIMACIONES Y ACCESIBILIDAD EXTRA
    ================================================== */
@@ -505,20 +590,16 @@ input:checked + .slider:before {
 /* ==================================================
    HOVER EFECTO PARA LA DATATABLE
    ================================================== */
-
-/* 1. Cambiar el color de fondo de la fila cuando pasas el mouse */
 #tablaProductos tbody tr:hover {
-    background-color: rgba(56, 189, 248, 0.15) !important; /* Azul celeste con transparencia */
+    background-color: rgba(56, 189, 248, 0.15) !important;
     transition: var(--transicion-normal);
     cursor: pointer;
 }
 
-/* 2. Opcional: Cambiar el color del texto de la fila al pasar el mouse */
 #tablaProductos tbody tr:hover td {
-    color: #38bdf8 !important; /* El azul celeste de tus modales */
+    color: #38bdf8 !important;
 }
 
-/* 3. Estilo para las filas "cebreadas" (opcional para que no choque con el hover) */
 .dataTables_wrapper table.dataTable.display tbody tr.odd {
     background-color: rgba(255, 255, 255, 0.02) !important;
 }
@@ -526,19 +607,290 @@ input:checked + .slider:before {
 .dataTables_wrapper table.dataTable.display tbody tr.even {
     background-color: transparent !important;
 }
-/* Cambia el fondo del selector (el cuadro cerrado) */
+
 .dataTables_length select {
-    background-color: var(--color-borde) !important; /* Fondo oscuro */
-    color: var(--color-texto) !important;           /* Texto blanco */
+    background-color: var(--color-borde) !important;
+    color: var(--color-texto) !important;
     border: 1px solid #3d3d3d !important;
     border-radius: 4px;
     padding: 2px 4px;
 }
 .dataTables_length select:hover {
-    border-color: var(--color-principal-oscuro) !important; /* Borde verde al hacer hover */
+    border-color: var(--color-principal-oscuro) !important;
 }
 
 .dataTables_length select option {
     background-color: var(--color-borde) !important;
     color: var(--color-texto) !important;
+}
+
+/* ==================================================
+   MENSAJES DE ERROR PARA VALIDACIONES EN MODAL
+   ================================================== */
+.modal-content .error-msg {
+    display: none;
+    border: none;
+    border-left: 4px solid #ff4757;
+    background-color: rgba(255, 71, 87, 0.15);
+    color: #ff6b81 !important;
+    font-size: 12px !important;
+    padding: 10px 12px !important;
+    margin: 8px 0 15px !important;
+    border-radius: 0 8px 8px 0;
+    font-weight: 500 !important;
+    animation: slideInError 0.3s ease-out;
+}
+
+.modal-content .error-msg.show {
+    display: block !important;
+}
+
+.modal-content .input-error {
+    border-color: #e74c3c !important;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - TABLET (768px y menos)
+   ================================================== */
+@media (max-width: 768px) {
+  .toolbar {
+    padding: 10px 15px;
+    gap: 10px;
+  }
+  
+  .container-tabla {
+    padding: 15px;
+    margin: 15px auto;
+    width: 98%;
+  }
+  
+  .switch-container {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  
+  .switch-text {
+    font-size: 0.85rem;
+  }
+  
+  .switch-control {
+    width: 40px;
+    height: 22px;
+  }
+  
+  .slider:before {
+    height: 16px;
+    width: 16px;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+  
+  .button-3 {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter {
+    float: none;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .dataTables_wrapper .dataTables_filter {
+    margin-top: 0;
+  }
+  
+  .acciones {
+    gap: 6px;
+  }
+  
+  .acciones button {
+    padding: 5px 8px;
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - MOBILE (576px y menos)
+   ================================================== */
+@media (max-width: 576px) {
+  .toolbar {
+    padding: 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .toolbar-left {
+    order: 2;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .toolbar-right {
+    order: 1;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .switch-container {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    padding: 10px 15px;
+  }
+  
+  .switch-text {
+    font-size: 0.85rem;
+  }
+  
+  .button-3 {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .container-tabla {
+    padding: 10px;
+    margin: 10px auto;
+    width: 100%;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  
+  #tablaProductos {
+    font-size: 11px;
+    min-width: 500px;
+  }
+  
+  #tablaProductos th,
+  #tablaProductos td {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+  
+  #tablaProductos img {
+    width: 35px !important;
+    height: 35px !important;
+  }
+  
+  .acciones {
+    gap: 4px;
+    min-width: auto;
+  }
+  
+  .acciones button {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  
+  .modal-content {
+    width: 95% !important;
+    max-width: none !important;
+    padding: 20px !important;
+    margin: 10px;
+  }
+  
+  .form-group {
+    margin-bottom: 12px;
+  }
+  
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea {
+    padding: 10px !important;
+    font-size: 14px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-cancel,
+  .btn-save {
+    width: 100%;
+    flex: none;
+    padding: 12px;
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - EXTRA SMALL (380px y menos)
+   ================================================== */
+@media (max-width: 380px) {
+  .toolbar {
+    padding: 8px;
+  }
+  
+  .switch-text {
+    font-size: 0.8rem;
+  }
+  
+  .switch-control {
+    width: 38px;
+    height: 20px;
+  }
+  
+  .slider:before {
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+  
+  #tablaProductos thead th,
+  #tablaProductos tbody td {
+    font-size: 10px;
+    padding: 6px 2px;
+  }
+  
+  #tablaProductos img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  .button-3 {
+    font-size: 13px;
+    padding: 10px;
+  }
+  
+  .button-3 i {
+    margin-right: 4px;
+  }
+  
+  .modal-content {
+    padding: 15px !important;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .acciones {
+    gap: 2px;
+  }
+  
+  .acciones button {
+    padding: 3px 5px;
+    font-size: 9px;
+  }
 }

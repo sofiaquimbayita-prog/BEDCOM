@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app'
+    'app',
+    'login',
+
 ]
 
 MIDDLEWARE = [
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app.middleware.AuthenticationRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -62,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'app.context_processors.usuario_context',
             ],
         },
     },
@@ -135,9 +139,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Redirecciones de login/logout
-LOGIN_REDIRECT_URL = '/vistas/menu/'
-LOGOUT_REDIRECT_URL = '/vistas/login/'
-
+LOGIN_REDIRECT_URL = 'menu'  
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login:login'  # URL de login para @login_required
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

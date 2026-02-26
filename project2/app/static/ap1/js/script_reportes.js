@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadDataFromBridge() {
     const bridge = document.getElementById('data-bridge');
     if (!bridge) {
-        console.error("No se encontró el elemento 'data-bridge'.");
         return false;
     }
 
@@ -74,7 +73,6 @@ function loadDataFromBridge() {
 
         return true;
     } catch (e) {
-        console.error("Error al procesar JSON del bridge:", e);
         return false;
     }
 }
@@ -83,8 +81,6 @@ function loadDataFromBridge() {
  * Crea las instancias de las gráficas
  */
 function initCharts() {
-    console.log('Inicializando gráficas - Productos:', salesData.products);
-    
     // --- Gráfica de Distribución (Dona) ---
     const salesCtx = document.getElementById('salesChart');
     if (salesCtx && salesData.products.length > 0) {
@@ -118,9 +114,6 @@ function initCharts() {
                 }
             }
         });
-        console.log('Gráfica de ventas creada');
-    } else {
-        console.warn('No hay productos para mostrar en la gráfica');
     }
 
     // --- Gráfica de Evolución (Línea) ---
@@ -170,7 +163,6 @@ function initCharts() {
                 }
             }
         });
-        console.log('Gráfica mensual creada');
     }
 }
 

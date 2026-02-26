@@ -1,0 +1,36 @@
+<div class="modal-content modal-delete">
+    <div class="modal-header" style="">
+        <h2><i class="fas fa-check-circle"></i> Reactivar Producto</h2>
+    </div>
+    
+    <div class="modal-body-delete">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <img id="imgActivar" src="" alt="Vista previa" 
+                 style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid #27ae60; display: none; margin: 0 auto;">
+            
+            <div class="activate-icon" style="">
+                <i class="fas fa-redo"></i>
+            </div>
+        </div>
+        
+        <h3>¿Estás seguro?</h3>
+        
+        <p class="producto-nombre" id="nombreProductoActivar" style="font-weight: bold; color: #3498db;"></p>
+        
+        <p class="advertencia">
+            <i class="fas fa-info-circle"></i> Esta acción reactivará el producto. Volverá a aparecer en el listado de productos activos.
+        </p>
+    </div>
+    
+    <div class="modal-footer modal-footer-delete">
+        <button type="button" class="btn-cancel" onclick="cerrarModal('modalActivar')">
+            <i class="fas fa-times"></i> CANCELAR
+        </button>
+        <form id="formActivar" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                <i class="fas fa-redo"></i> REACTIVAR
+            </button>
+        </form>
+    </div>
+</div>

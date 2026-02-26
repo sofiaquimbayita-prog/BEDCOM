@@ -11,32 +11,13 @@
         <div class="form-group">
             <label>NOMBRE DEL PRODUCTO</label>
             <input type="text" name="nombre" id="inputNombre" placeholder="Ej: Capitoneado Plano">
-            <div class="error-message" id="errorNombre"></div>
+            <span class="error-msg" id="errorNombre"></span>
         </div>
 
         <div class="form-group">
-            <label>TIPO DE PRODUCTO</label>
-            <select name="tipo" id="inputTipo">
-                <option value="" disabled selected>Seleccione el tipo</option>
-                <option value="Espaldar">Espaldar</option>
-                <option value="Base Cama">Base Cama</option>
-                <option value="Colchón">Colchón</option>
-                <option value="Combo">Combo Completo</option>
-            </select>
-            <div class="error-message" id="errorTipo"></div>
-        </div>
-        
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex: 1;">
-                <label>PRECIO</label>
-                <input type="number" name="precio" id="inputPrecio" step="0.01" min="0" placeholder="0.00">
-                <div class="error-message" id="errorPrecio"></div>
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>STOCK INICIAL</label>
-                <input type="number" name="stock" id="inputStock" min="0" placeholder="0">
-                <div class="error-message" id="errorStock"></div>
-            </div>
+            <label>DESCRIPCIÓN</label>
+            <textarea name="descripcion" id="inputDescripcion" rows="3" placeholder="Ej: Producto de alta calidad con materiales premium..."></textarea>
+            <span class="error-msg" id="errorDescripcion"></span>
         </div>
 
         <div class="form-group">
@@ -47,7 +28,20 @@
                 <option value="{{ cat.id }}">{{ cat.nombre }}</option>
                 {% endfor %}
             </select>
-            <div class="error-message" id="errorCategoria"></div>
+            <span class="error-msg" id="errorCategoria"></span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+                <label>PRECIO</label>
+                <input type="number" name="precio" id="inputPrecio" step="0.01" min="0" placeholder="0.00">
+                <span class="error-msg" id="errorPrecio"></span>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>STOCK INICIAL</label>
+                <input type="number" name="stock" id="inputStock" min="0" placeholder="0">
+                <span class="error-msg" id="errorStock"></span>
+            </div>
         </div>
 
         <div class="form-group">
@@ -62,18 +56,3 @@
         </div>
     </form>
 </div>
-
-<style>
-.error-message {
-    color: #e74c3c;
-    font-size: 12px;
-    margin-top: 5px;
-    display: none;
-}
-.error-message.show {
-    display: block;
-}
-.input-error {
-    border-color: #e74c3c !important;
-}
-</style>

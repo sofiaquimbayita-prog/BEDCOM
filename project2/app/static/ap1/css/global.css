@@ -1,14 +1,54 @@
 :root {
-  /* Ruta al fondo: espera que la imagen esté en static/ap1/imagenes/fondo.jpg */
+  --fondo:url("../img/fondo.jpg");
+  --bg: #0b1220;
+  --card: #1b2537cc;
+  --card-hover: #374b72cc;
+  --text: #e9eef7;
+  --muted: #a9b3c7;
+  --brand: #5cc8ff;
+  --ok: #2ecc71;
+  --warn: #ffb020;
+  --info: #5fa8ff;
+  --accent: #6c5ce7;
+  --danger: #4ea3a5;
+  --espacio-sm: 8px;
+  --espacio-md: 16px;
+  --borde-md: 8px;
+  --borde-lg: 12px;
+  --transicion-rapida: 0.2s ease;
+  --fuente-sm: 14px;
+  --sombra-lg: 0 15px 35px rgba(0, 0, 0, 0.45);
+  --sombra-md: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --radius: 18px;
+
+  /* Variables específicas de login */
   --fondo-login: url('../img/fondo.jpg');
-  --color-texto: black;
+  --color-texto: #e9eef7;
   --color-botones: #007bff;
   --tamaño-titulo: 2.5vh;
   --tamaño-texto: 2vh;
   --color-texto-botones: white;
   --color-fondo-titulo: rgba(79, 137, 232, 0.5);
-  --color-borde: rgba(255, 255, 255, 0.62);
-  --color-fondo-formulario: rgba(80, 79, 87, 0.315);
+  --color-borde: rgba(255, 255, 255, 0.15);
+  --color-fondo-formulario: rgba(27, 37, 55, 0.85);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-input-border: rgba(255, 255, 255, 0.2);
+  --color-input-text: #e9eef7;
+
+  /* Variables para mensajes de éxito */
+  --success-bg-start: #d4edda;
+  --success-bg-end: #c3e6cb;
+  --success-text: #155724;
+  --success-border: #c3e6cb;
+
+  /* Variables para mensajes de error */
+  --error-bg: #fcebea;
+  --error-text: #e74c3c;
+  --error-border: #e74c3c;
+
+  /* Variable para hover de botones */
+  --color-botones-hover: #0056b3;
 }
 
 * {
@@ -68,7 +108,7 @@ body {
 }
 
 .boton-idioma:hover {
-  background: #0056b3;
+  background: var(--color-botones-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
@@ -109,7 +149,7 @@ body {
 }
 
 .boton-ayuda:hover {
-  background: #0056b3;
+  background: var(--color-botones-hover);
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
@@ -163,7 +203,7 @@ body {
 
 .contenedor {
   text-align: center;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--card);
   padding: 40px;
   border-radius: 10px;
   border: 1px solid var(--color-borde);
@@ -183,11 +223,24 @@ body {
   display: block;
   width: 100%;
   max-width: 300px;
-  padding: 10px;
+  padding: 12px 15px;
   margin: 10px auto;
-  border: none;
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
   font-size: var(--tamaño-texto);
+  background: var(--color-input);
+  color: var(--color-input-text);
+  transition: all 0.3s ease;
+}
+
+.formulario form input:focus {
+  outline: none;
+  border-color: var(--color-botones);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.formulario form input::placeholder {
+  color: var(--color-muted);
 }
 
 .botonr {
@@ -203,7 +256,7 @@ body {
 }
 
 .botonr:hover {
-  background: #0056b3;
+  background: var(--color-botones-hover);
 }
 
 .label {
@@ -303,7 +356,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
     display: none; /* Oculto por defecto */
     justify-content: center;
     align-items: center;
@@ -311,31 +365,38 @@ body {
 }
 
 .modal-content {
-    background-color: rgba(255, 255, 255, 0.644);
+    background: linear-gradient(180deg, #1b2537, #0f172a);
     padding: 30px;
-    border-radius: 10px;
+    border-radius: 18px;
     width: 90%;
     max-width: 500px;
     text-align: left;
-    color: black;
+    color: var(--color-texto);
     position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-close {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 15px;
+    right: 20px;
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-    color: #555;
+    color: var(--color-muted);
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: var(--color-texto);
 }
 
 .modal-title {
     font-size: 1.5rem;
     margin-bottom: 20px;
     text-align: center;
+    color: var(--color-texto);
 }
 
 .modal-faq-item {
@@ -351,38 +412,57 @@ body {
 .modal-faq-item p {
     margin-top: 5px;
     padding-left: 15px;
-    border-left: 2px solid #ddd;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
     display: none; /* Oculto por defecto */
+    color: var(--color-muted);
 }
 
 .modal-contact-form {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-contact-form label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    color: var(--color-texto);
 }
 
 .modal-contact-form input,
 .modal-contact-form textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--color-input-border);
+    border-radius: 8px;
+    background: var(--color-input);
+    color: var(--color-input-text);
+    font-size: 14px;
+}
+
+.modal-contact-form input:focus,
+.modal-contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-botones);
 }
 
 .modal-contact-form button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: var(--color-botones);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.modal-contact-form button:hover {
+    background: var(--color-botones-hover);
+    transform: translateY(-2px);
 }
 .error-msg {
   display: none; 
@@ -478,7 +558,8 @@ body {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -486,30 +567,61 @@ body {
 }
 
 .modal-content {
-  background: #fff;
-  padding: 25px;
-  border-radius: 10px;
+  background: linear-gradient(180deg, #1b2537, #0f172a);
+  padding: 30px;
+  border-radius: 18px;
   width: 90%;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-content h2 {
-  margin-bottom: 10px;
-  color: var(--color-texto, #333);
+  margin-bottom: 15px;
+  color: var(--color-texto);
 }
 
 .modal-content p {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   font-size: 1rem;
-  color: #555;
+  color: var(--color-muted);
 }
 
 .modal-buttons {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   gap: 15px;
+}
+
+.modal-buttons button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-buttons .btn-cancelar {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-texto);
+}
+
+.modal-buttons .btn-cancelar:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.modal-buttons .btn-confirmar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.modal-buttons .btn-confirmar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 
@@ -530,3 +642,15 @@ body {
     font-size: 20px;
   }
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill {
+    border: 1px solid var(--color-principal) !important;
+  }

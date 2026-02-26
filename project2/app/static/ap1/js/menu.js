@@ -1,8 +1,26 @@
-// =============================
-// TODO EL SCRIPT EN UN SOLO DOMContentLoaded
-// =============================
 document.addEventListener("DOMContentLoaded", () => {
   
+  // ============================
+  // MODAL LOGOUT - Funciones globales
+  // ============================
+  
+  // Hacer las funciones accesibles globalmente
+  window.abrirModalLogout = function() {
+    const modal = document.getElementById('logoutModal');
+    if (modal) {
+      modal.classList.remove('oculto');
+      console.log('Modal abierto');
+    }
+  };
+  
+  window.cerrarModalLogout = function() {
+    const modal = document.getElementById('logoutModal');
+    if (modal) {
+      modal.classList.add('oculto');
+      console.log('Modal cerrado');
+    }
+  };
+
   // ============================
   // TOAST NOTIFICATIONS
   // ============================
@@ -55,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (perfilBtn && dropdownMenu) {
     perfilBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // Evita que el clic se propague
+      e.stopPropagation();
       dropdownMenu.classList.toggle("oculto");
     });
   }
@@ -68,12 +86,176 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // if (logoutBtn) {
-  //   logoutBtn.addEventListener("click", (e) => {
-  //     e.preventDefault();
-  //     window.location.href = "/0-LOGIN/index_login.php";
-  //   });
-  // }
+  // =====================
+  // MODAL DE CONFIRMACIÓN
+  // =====================
+  const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+  console.log('Buscando botón btnCerrarSesion:', btnCerrarSesion);
+  
+  if (btnCerrarSesion) {
+    console.log('Botón encontrado, agregando event listener');
+    btnCerrarSesion.addEventListener('click', function(e) {
+      console.log('Click detectado en botón cerrar sesión');
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Verificar si ya existe un modal
+      const modalExistente = document.querySelector('.modal-confirmacion');
+      if (modalExistente) {
+        console.log('Ya existe un modal, no crear otro');
+        return;
+      }
+      
+      console.log('Creando modal de confirmación...');
+      
+      // Crear el modal
+      const modal = document.createElement('div');
+      modal.className = 'modal-confirmacion';
+      modal.innerHTML = `
+        <div class="modal-confirmacion-overlay"></div>
+        <div class="modal-confirmacion-content">
+          <div class="modal-confirmacion-header">
+            <i class="fas fa-sign-out-alt"></i>
+            <h2>Cerrar Sesión</h2>
+          </div>
+          <p class="modal-confirmacion-mensaje">¿Está seguro que desea cerrar sesión?</p>
+          <div class="modal-confirmacion-botones">
+            <button type="button" class="btn-cancelar" id="btnCancelarLogout">Cancelar</button>
+            <button type="button" class="btn-confirmar" id="btnConfirmarLogout">Sí, cerrar sesión</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      console.log('Modal agregado al DOM');
+      
+      // Agregar estilos
+      if (!document.getElementById('modal-confirmacion-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'modal-confirmacion-styles';
+        styles.textContent = `
+          .modal-confirmacion {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+          }
+          .modal-confirmacion-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+          }
+          .modal-confirmacion-content {
+            position: relative;
+            background: #0f172a !important;
+            color: #ffffff !important;
+            border-radius: 15px !important;
+            padding: 30px !important;
+            max-width: 400px !important;
+            width: 90% !important;
+            border: 1px solid #334155 !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+            animation: modalFadeIn 0.3s ease-out;
+            text-align: center;
+          }
+          @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .modal-confirmacion-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+          }
+          .modal-confirmacion-header i {
+            font-size: 3rem;
+            color: #ef4444;
+            margin-bottom: 12px;
+          }
+          .modal-confirmacion-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #ef4444;
+            font-weight: 600;
+          }
+          .modal-confirmacion-mensaje {
+            margin: 0 0 25px;
+            font-size: 15px;
+            color: #94a3b8;
+            line-height: 1.6;
+          }
+          .modal-confirmacion-botones {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+          }
+          .modal-confirmacion-botones button {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            flex: 1;
+          }
+          .btn-cancelar { 
+            background: #1f6684 !important;
+            color: white;
+          }
+          .btn-cancelar:hover { 
+            background: #165e7a !important;
+          }
+          .btn-confirmar { 
+            background: #ef4444;
+            color: white;
+          }
+          .btn-confirmar:hover { 
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+          }
+        `;
+        document.head.appendChild(styles);
+      }
+      
+      // Botón cancelar
+      document.getElementById('btnCancelarLogout').addEventListener('click', () => {
+        console.log('Clic en Cancelar');
+        document.body.removeChild(modal);
+      });
+      
+      // Botón confirmar
+      document.getElementById('btnConfirmarLogout').addEventListener('click', () => {
+        console.log('Clic en Confirmar - enviando formulario');
+        document.body.removeChild(modal);
+        const logoutForm = document.getElementById('logoutForm');
+        if (logoutForm) {
+          logoutForm.submit();
+        }
+      });
+      
+      // Cerrar al hacer clic en overlay
+      modal.querySelector('.modal-confirmacion-overlay').addEventListener('click', () => {
+        console.log('Clic en overlay - cerrando modal');
+        document.body.removeChild(modal);
+      });
+    });
+  } else {
+    console.log('NO se encontró el botón btnCerrarSesion');
+  }
 
   if (homeBtn) {
     homeBtn.addEventListener("click", (e) => {
@@ -152,38 +334,28 @@ document.addEventListener("DOMContentLoaded", () => {
   crearCalendario();
 
   // =============================
-  // BARRA DE BÚSQUEDA
-  // =============================
-
-
-  // ============================
   // MANEJO DE NOTIFICACIONES
   // ============================
 
-  // Referencias
   const notiBtn = document.getElementById("noti");
   const notiMenu = document.getElementById("noti-menu");
   const bell = document.querySelector(".icono-noti");
 
-  // Crear badge dinámico
   const badge = document.createElement("span");
   badge.classList.add("noti-badge");
   badge.textContent = "0";
   notiBtn.appendChild(badge);
   
-  // Estado
   let notiCount = 0;
-  let notificaciones = []; // aquí guardamos los mensajes
+  let notificaciones = [];
 
-  // Toggle menú
   notiBtn.addEventListener("click", () => {
     notiMenu.classList.toggle("oculto");
   });
 
-  // Función para renderizar lista
   function renderNotificaciones() {
     const notiList = notiMenu.querySelector("ul");
-    notiList.innerHTML = ""; // limpiar lista
+    notiList.innerHTML = "";
     if (notificaciones.length === 0) {
       const li = document.createElement("li");
       li.textContent = "No hay nuevas notificaciones";
@@ -197,38 +369,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Actualizar notificaciones
   function actualizarNotificaciones(nuevas) {
-    // agregar mensajes
     notificaciones.push(...nuevas);
     notiCount = notificaciones.length;
-
-    // actualizar badge
     badge.textContent = notiCount > 9 ? "9+" : notiCount;
     badge.classList.add("pop");
     setTimeout(() => badge.classList.remove("pop"), 400);
-
-    // actualizar lista
     renderNotificaciones();
-
-    // animar campana
     sonarCampanita();
   }
 
-  // Animación campana
   function sonarCampanita() {
     bell.classList.add("ring");
-
-    // Quita la clase cuando termine la animación
     bell.addEventListener("animationend", () => {
       bell.classList.remove("ring");
     }, { once: true });
   }
 
-  // ============================
-  // EJEMPLO DE USO
-  // ============================
-  // Simulamos que llegan notis después de 3s
   setTimeout(() => {
     actualizarNotificaciones([
       "Nueva entrada registrada",
@@ -237,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ]);
   }, 3000);
 
-  // Otra tanda a los 6s
   setTimeout(() => {
     actualizarNotificaciones([
       "Actualización del sistema completada"
@@ -268,7 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
       menuAccesibilidad.style.display === "block" ? "none" : "block";
   });
 
-  // Cierra si haces clic fuera
   document.addEventListener("click", (e) => {
     if (!btnAccesibilidad.contains(e.target) && !menuAccesibilidad.contains(e.target)) {
       menuAccesibilidad.style.display = "none";
