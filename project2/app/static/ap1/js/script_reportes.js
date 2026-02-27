@@ -169,11 +169,32 @@ function setupEventListeners() {
             if (targetChart) {
                 targetChart.config.type = chartType;
                 
-                // Ajustes de escalas si cambia a barras
+                // Ajustes de escalas dependiendo del tipo de gráfica
                 if (chartType === 'bar') {
                     targetChart.options.scales = {
-                        y: { beginAtZero: true, ticks: { color: '#fff' } },
-                        x: { ticks: { color: '#fff' } }
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: { 
+                            ticks: { color: '#fff' },
+                            grid: { display: false }
+                        }
+                    };
+                } else if (chartType === 'line') {
+                    targetChart.options.scales = {
+                        y: {
+                            ticks: {
+                                color: '#fff',
+                                callback: value => '$' + value.toLocaleString()
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: { 
+                            ticks: { color: '#fff' }, 
+                            grid: { display: false } 
+                        }
                     };
                 }
                 

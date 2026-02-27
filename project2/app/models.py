@@ -11,8 +11,8 @@ class categoria(models.Model):
         return self.nombre
 
     class Meta:
-        verbose_name = "categoría"
-        verbose_name_plural = "categorías"
+        verbose_name = "Categoría"
+        verbose_name_plural = "Categorías"
         db_table = "categorias"
 
 class proveedor(models.Model):
@@ -26,8 +26,8 @@ class proveedor(models.Model):
         return self.nombre
 
     class Meta:
-        verbose_name = "proveedor"
-        verbose_name_plural = "proveedores"
+        verbose_name = "Proveedor"
+        verbose_name_plural = "Proveedores"
         db_table = "proveedor"
 
 class cliente(models.Model):
@@ -41,8 +41,8 @@ class cliente(models.Model):
         return self.nombre
 
     class Meta:
-        verbose_name = "cliente"
-        verbose_name_plural = "clientes"
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
         db_table = "clientes"
 
 class usuario(models.Model): 
@@ -56,8 +56,8 @@ class usuario(models.Model):
         return self.nombre_usuario
 
     class Meta:
-        verbose_name = "usuario"
-        verbose_name_plural = "usuarios"
+        verbose_name = "Usuario"
+        verbose_name_plural = "Usuarios"
         db_table = "usuarios"
 
 # --- MODELOS DE PRODUCTOS Y REPORTES ---
@@ -71,8 +71,8 @@ class reporte(models.Model):
         return f"reporte {self.tipo} - {self.fecha}"
 
     class Meta:
-        verbose_name = "reporte"
-        verbose_name_plural = "reportes"
+        verbose_name = "Reporte"
+        verbose_name_plural = "Reportes"
         db_table = "reporte"
 
 class producto(models.Model):
@@ -88,26 +88,55 @@ class producto(models.Model):
         return self.nombre
 
     class Meta:
-        verbose_name = "producto"
-        verbose_name_plural = "productos"
+        verbose_name = "Producto"
+        verbose_name_plural = "Productos"
         db_table = "productos"
 
+
+class garantia (models.Model):
+    fecha = models.DateField()
+    descripcion = models.TextField()
+    estado = models.BooleanField(default=True)
+    id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        # Corregido: El campo 'duracion_meses' no existe. Retorna info básica.
+        return f"Garantia para producto {self.id_producto_id}"
+    class Meta :
+        verbose_name = "Garantia"
+        verbose_name_plural = "Garantias"
+        db_table = "garantias"
+
+class mantenimiento(models.Model):
+    fecha = models.DateField()
+    descripcion = models.TextField()
+    # Asumo que id_garantia debe apuntar a Garantia, no a Reporte.
+    id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE) 
+    
+    def __str__(self):
+        return f"Mantenimiento del {self.fecha}"
+    class Meta:
+        verbose_name = "Mantenimiento"
+        verbose_name_plural = "Mantenimientos"
+        db_table = "mantenimiento"
 # --- MODELOS DE INSUMOS Y PRODUCCIÓN (BOM) ---
 
 class insumo(models.Model):
     nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=20)
+    precio = models.DecimalField(max_digits=10, decimal_places=2) 
     estado = models.CharField(max_length=20)
-    categoria = models.ForeignKey(categoria, on_delete=models.CASCADE)
+    id_categoria = models.ForeignKey('categoria', on_delete=models.CASCADE)
+    id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nombre
-
     class Meta:
-        verbose_name = "insumo"
-        verbose_name_plural = "insumos"
-        db_table = "insumo"
+        verbose_name = "Insumo"
+        verbose_name_plural = "Insumos" 
+        db_table = "insumo" 
 
 class bom(models.Model):
     cantidad = models.IntegerField()
@@ -147,8 +176,8 @@ class pedido(models.Model):
         return f"pedido #{self.id} - {self.cliente.nombre}"
 
     class Meta:
-        verbose_name = "pedido"
-        verbose_name_plural = "pedidos"
+        verbose_name = "Pedido"
+        verbose_name_plural = "Pedidos"
         db_table = "pedido"
 
 class detalle_pedido(models.Model):
@@ -179,8 +208,8 @@ class supervision(models.Model):
         return f"supervisión del {self.fecha} por {self.usuario.nombre_usuario}"
 
     class Meta:
-        verbose_name = "supervisión"
-        verbose_name_plural = "supervisiones"
+        verbose_name = "Supervisión"
+        verbose_name_plural = "Supervisiones"
         db_table = "supervision"
 
 class despacho(models.Model): 
@@ -193,6 +222,66 @@ class despacho(models.Model):
         return f"despacho pedido #{self.pedido.id} - estado: {self.estado_entrega}"
 
     class Meta:
-        verbose_name = "despacho"
-        verbose_name_plural = "despachos"
+        verbose_name = "Despacho"
+        verbose_name_plural = "Despachos"
         db_table = "despacho"
+# --- MODELOS DE CALENDARIO ---
+
+class CategoriaEvento(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    color = models.CharField(max_length=7, default='#3498db')  # código hex
+    descripcion = models.TextField(blank=True)
+    estado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Categoría de Evento"
+        verbose_name_plural = "Categorías de Eventos"
+        db_table = "categoria_evento"
+
+
+class calendario(models.Model):
+
+    ESTADO_PENDIENTE   = 'pendiente'
+    ESTADO_COMPLETADO  = 'completado'
+    ESTADO_ELIMINADO   = 'eliminado'
+
+    ESTADO_CHOICES = [
+        (ESTADO_PENDIENTE,  'Pendiente'),
+        (ESTADO_COMPLETADO, 'Completado'),
+        (ESTADO_ELIMINADO,  'Eliminado'),
+    ]
+
+    MODO_AUTOMATICO = 'automatico'
+    MODO_MANUAL     = 'manual'
+
+    MODO_CHOICES = [
+        (MODO_AUTOMATICO, 'Automático'),
+        (MODO_MANUAL,     'Manual'),
+    ]
+
+    titulo             = models.CharField(max_length=100)
+    fecha              = models.DateField()
+    hora               = models.TimeField()
+    categoria          = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
+    descripcion        = models.TextField(blank=True, null=True)
+    modo_completado    = models.CharField(
+        max_length=15,
+        choices=MODO_CHOICES,
+        default=MODO_AUTOMATICO,
+    )
+    estado             = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default=ESTADO_PENDIENTE,
+    )
+
+    def __str__(self):
+        return self.titulo
+
+    class Meta:
+        verbose_name = "Evento"
+        verbose_name_plural = "Eventos"
+        db_table = "calendario"
