@@ -126,8 +126,12 @@ class bom(models.Model):
 class compra(models.Model):
     fecha_suministro = models.DateField()
     cantidad = models.IntegerField()
+    precio_unidad = models.DecimalField(max_digits=12, decimal_places=2, default=0) # CAMBIO AQUÍ
     proveedor = models.ForeignKey(proveedor, on_delete=models.CASCADE)
     insumo = models.ForeignKey(insumo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Compra {self.insumo.nombre} - {self.fecha_suministro}"
 
     class Meta:
         db_table = "proveedor_insumo"

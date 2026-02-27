@@ -22,6 +22,16 @@ function validarNombre(nombre) {
     return errores;
 }
 
+function validarDescripcion(descripcion) {
+    var errores = [];
+    if (!descripcion || descripcion.trim() === '') {
+        errores.push('La descripción es requerida');
+    } else if (descripcion.trim().length < 10) {
+        errores.push('La descripción debe tener al menos 10 caracteres');
+    }
+    return errores;
+}
+
 function validarTelefono(telefono) {
     var errores = [];
     if (!telefono || telefono.trim() === '') {
@@ -90,12 +100,47 @@ function mostrarErroresPorElemento(elemento, errores) {
     }
 }
 
+// Función para mostrar mensaje de advertencia en el modal
+function mostrarAdvertenciaModal(mensaje) {
+    var modal = document.getElementById('modalAdd');
+    if (!modal) return;
+    
+    // Buscar o crear contenedor de mensajes
+    var msgContainer = modal.querySelector('.modal-messages');
+    if (!msgContainer) {
+        msgContainer = document.createElement('div');
+        msgContainer.className = 'modal-messages';
+        msgContainer.style.padding = '10px';
+        msgContainer.style.marginBottom = '10px';
+        msgContainer.style.borderRadius = '4px';
+        
+        // Insertar al inicio del contenido del formulario
+        var form = modal.querySelector('form');
+        if (form) {
+            form.insertBefore(msgContainer, form.firstChild);
+        }
+    }
+    
+    msgContainer.innerHTML = '<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba;">' + mensaje + '</div>';
+    
+    // Auto隐藏 después de 5 segundos
+    setTimeout(function() {
+        msgContainer.innerHTML = '';
+    }, 5000);
+}
+
 // Función para limpiar errores
 function limpiarErrores(form) {
     var errorMessages = form.querySelectorAll('.error-message');
     errorMessages.forEach(function(el) {
         el.innerHTML = '';
     });
+    
+    // Limpiar mensajes del modal
+    var modalMessages = form.parentElement.querySelector('.modal-messages');
+    if (modalMessages) {
+        modalMessages.innerHTML = '';
+    }
 }
 
 // Funciones globales para modales
@@ -156,8 +201,10 @@ $(document).ready(function() {
         $('#tablaProductos').DataTable().draw();
     });
 
-    // Validar formulario agregar producto
+    // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
     $(document).on('submit', '#formAddProducto', function(e) {
+        e.preventDefault(); // Prevenir submit normal
+        
         limpiarErrores(this);
         
         var nombre = this.querySelector('input[name="nombre"]');
@@ -176,7 +223,14 @@ $(document).ready(function() {
             }
         }
         
-        // Descripcion es opcional, no se valida como requerido
+        // Descripcion es requerida
+        if (descripcion) {
+            var erroresDescripcion = validarDescripcion(descripcion.value);
+            if (erroresDescripcion.length > 0) {
+                mostrarErroresPorElemento(descripcion, erroresDescripcion);
+                hasErrors = true;
+            }
+        }
         
         if (precio) {
             var erroresPrecio = validarPrecio(precio.value);
@@ -201,14 +255,71 @@ $(document).ready(function() {
         }
         
         if (hasErrors) {
-            e.preventDefault();
             return false;
         }
+        
+        // Si stock es 0, mostrar advertencia pero permitir guardar
+        var stockValor = parseInt(stock.value);
+        var mostrarAdvertenciaStock0 = (stockValor === 0);
+        
+        // Enviar formulario via AJAX
+        var formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                // Producto guardado exitosamente
+                cerrarModal('modalAdd');
+                
+                // Recargar la página para actualizar la tabla
+                window.location.reload();
+            } else {
+                // Mostrar errores
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function(field) {
+                        var input = document.querySelector('#formAddProducto [name="' + field + '"]');
+                        if (input) {
+                            var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                            mostrarErroresPorElemento(input, mensajes);
+                        }
+                    });
+                }
+                
+                // Verificar si hay mensaje de warning (stock 0)
+                if (data.warning) {
+                    mostrarAdvertenciaModal(data.warning);
+                }
+                
+                if (data.message) {
+                    mostrarAdvertenciaModal(data.message);
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            mostrarAdvertenciaModal('Error al conectar con el servidor. Por favor intenta de nuevo.');
+        });
+        
+        return false;
     });
 
     // Validación en tiempo real para el formulario de agregar (solo en blur)
     $(document).on('blur', '#formAddProducto input[name="nombre"]', function() {
         var errores = validarNombre(this.value);
+        mostrarErroresPorElemento(this, errores);
+    });
+
+    $(document).on('blur', '#formAddProducto textarea[name="descripcion"]', function() {
+        var errores = validarDescripcion(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
@@ -231,16 +342,10 @@ $(document).ready(function() {
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('change', '#formAddProducto select[name="categoria"]', function() {
-        var errores = [];
-        if (!$(this).val()) {
-            errores.push('La categoría es requerida');
-        }
-        mostrarErroresPorElemento(this, errores);
-    });
-
     // Validar formulario editar producto (cargado dinámicamente)
     $(document).on('submit', '#formEditarProducto', function(e) {
+        e.preventDefault();
+        
         limpiarErrores(this);
         
         var nombre = this.querySelector('input[name="nombre"]');
@@ -259,7 +364,14 @@ $(document).ready(function() {
             }
         }
         
-        // Descripcion es opcional, no se valida como requerido
+        // Descripcion es requerida
+        if (descripcion) {
+            var erroresDescripcion = validarDescripcion(descripcion.value);
+            if (erroresDescripcion.length > 0) {
+                mostrarErroresPorElemento(descripcion, erroresDescripcion);
+                hasErrors = true;
+            }
+        }
         
         if (precio) {
             var erroresPrecio = validarPrecio(precio.value);
@@ -284,14 +396,72 @@ $(document).ready(function() {
         }
         
         if (hasErrors) {
-            e.preventDefault();
             return false;
         }
+        
+        // Enviar formulario via AJAX
+        var formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                cerrarModal('modalEdit');
+                window.location.reload();
+            } else {
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(function(field) {
+                        var input = document.querySelector('#formEditarProducto [name="' + field + '"]');
+                        if (input) {
+                            var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                            mostrarErroresPorElemento(input, mensajes);
+                        }
+                    });
+                }
+                
+                if (data.warning) {
+                    var modal = document.getElementById('modalEdit');
+                    var msgContainer = modal.querySelector('.modal-messages');
+                    if (!msgContainer) {
+                        msgContainer = document.createElement('div');
+                        msgContainer.className = 'modal-messages';
+                        msgContainer.style.padding = '10px';
+                        msgContainer.style.marginBottom = '10px';
+                        var form = modal.querySelector('form');
+                        if (form) form.insertBefore(msgContainer, form.firstChild);
+                    }
+                    msgContainer.innerHTML = '<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px;">' + data.warning + '</div>';
+                }
+                
+                if (data.message) {
+                    alert(data.message);
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            alert('Error al conectar con el servidor.');
+        });
+        
+        return false;
     });
 
     // Validación en tiempo real para el formulario de editar (solo en blur)
     $(document).on('blur', '#formEditarProducto input[name="nombre"]', function() {
         var errores = validarNombre(this.value);
+        mostrarErroresPorElemento(this, errores);
+    });
+
+    $(document).on('blur', '#formEditarProducto textarea[name="descripcion"]', function() {
+        var errores = validarDescripcion(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
@@ -306,14 +476,6 @@ $(document).ready(function() {
     });
 
     // Validación en tiempo real para select en formulario de editar
-    $(document).on('change', '#formEditarProducto select[name="categoria"]', function() {
-        var errores = [];
-        if (!$(this).val()) {
-            errores.push('La categoría es requerida');
-        }
-        mostrarErroresPorElemento(this, errores);
-    });
-
     $(document).on('change', '#formEditarProducto select[name="categoria"]', function() {
         var errores = [];
         if (!$(this).val()) {
@@ -352,12 +514,20 @@ function abrirModalEditar(id) {
                 
                 // Agregar eventos de validación en tiempo real (solo blur)
                 var nombreInput = form.querySelector('input[name="nombre"]');
+                var descripcionInput = form.querySelector('textarea[name="descripcion"]');
                 var precioInput = form.querySelector('input[name="precio"]');
                 var stockInput = form.querySelector('input[name="stock"]');
                 
                 if (nombreInput) {
                     nombreInput.addEventListener('blur', function() {
                         var errores = validarNombre(this.value);
+                        mostrarErroresPorElemento(this, errores);
+                    });
+                }
+                
+                if (descripcionInput) {
+                    descripcionInput.addEventListener('blur', function() {
+                        var errores = validarDescripcion(this.value);
                         mostrarErroresPorElemento(this, errores);
                     });
                 }

@@ -1,13 +1,15 @@
 import re
+import json
 from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
-from datetime import date
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.safestring import mark_safe
 
 # Importación de tus modelos
 from ...models import producto, categoria, reporte, usuario
@@ -45,29 +47,75 @@ class producto_create_view(SuccessMessageMixin, CreateView):
     success_message = "¡El producto %(nombre)s se guardó correctamente!"
 
     def form_valid(self, form):
-        # Validación de negocio: Precio y Stock no negativos
-        if form.cleaned_data['stock'] <= 0:
-            messages.error(self.request, "El stock inicial no puede ser negativo.")
+        # Validación de descripción requerida
+        descripcion = form.cleaned_data.get('descripcion', '').strip()
+        if not descripcion:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción es requerida.']}})
+            messages.error(self.request, "La descripción es requerida.")
             return redirect('productos')
+        
+        if len(descripcion) < 10:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
+            messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return redirect('productos')
+        
+        # Validación de negocio: Precio no negativo
         if form.cleaned_data['precio'] <= 0:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'precio': ['El precio inicial no puede ser negativo o cero.']}})
             messages.error(self.request, "El precio inicial no puede ser negativo.")
             return redirect('productos')
         if form.cleaned_data['precio'] > 99999999:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'precio': ['El precio no puede exceder 99,999,999.']}})
             messages.error(self.request, "El precio no puede exceder 99,999,999.")
+            return redirect('productos')
+        
+        # Validación de stock: Si es 0, mostrar advertencia pero permitir crear
+        warning_message = None
+        if form.cleaned_data['stock'] == 0:
+            warning_message = "El stock inicial es 0. Considera agregar stock para tener disponibilidad."
+        elif form.cleaned_data['stock'] < 0:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'stock': ['El stock inicial no puede ser negativo.']}})
+            messages.error(self.request, "El stock inicial no puede ser negativo.")
             return redirect('productos')
 
         # Validación: El nombre no debe contener caracteres especiales
         nombre = form.cleaned_data['nombre']
         if not NOMBRE_PATTERN.match(nombre):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'nombre': ['El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).']}})
             messages.error(self.request, "El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).")
             return redirect('productos')
 
         form.instance.estado = True
 
-        # El método save() de la vista de clase manejará request.FILES automáticamente
-        return super().form_valid(form)
+        # Guardar el producto
+        self.object = form.save()
+        
+        # Responder según el tipo de request
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            response = {'success': True, 'message': 'Producto creado correctamente'}
+            if warning_message:
+                response['warning'] = warning_message
+            return JsonResponse(response)
+        
+        # Mensaje para request normal
+        if warning_message:
+            messages.warning(self.request, warning_message)
+        messages.success(self.request, f"¡El producto {self.object.nombre} se guardó correctamente!")
+        return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            errors = {}
+            for field, error_list in form.errors.items():
+                errors[field] = [str(e) for e in error_list]
+            return JsonResponse({'success': False, 'errors': errors})
+        
         messages.error(self.request, "Error al agregar producto. Verifica que la imagen sea válida.")
         return redirect('productos')
 
@@ -88,26 +136,71 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        # Validación de negocio: Precio y Stock no negativos
-        if form.cleaned_data['stock'] <= 0:
-            messages.error(self.request, "El stock no puede ser negativo o cero.")
+        # Validación de descripción requerida
+        descripcion = form.cleaned_data.get('descripcion', '').strip()
+        if not descripcion:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción es requerida.']}})
+            messages.error(self.request, "La descripción es requerida.")
             return super().form_invalid(form)
+        
+        if len(descripcion) < 10:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
+            messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return super().form_invalid(form)
+        
+        # Validación de negocio: Precio no negativo
         if form.cleaned_data['precio'] <= 0:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'precio': ['El precio no puede ser negativo o cero.']}})
             messages.error(self.request, "El precio no puede ser negativo o cero.")
             return super().form_invalid(form)
         if form.cleaned_data['precio'] > 99999999:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'precio': ['El precio no puede exceder 99,999,999.']}})
             messages.error(self.request, "El precio no puede exceder 99,999,999.")
+            return super().form_invalid(form)
+        
+        # Validación de stock: Si es 0, mostrar advertencia pero permitir guardar
+        warning_message = None
+        if form.cleaned_data['stock'] == 0:
+            warning_message = "El stock es 0. Considera agregar stock para tener disponibilidad."
+        elif form.cleaned_data['stock'] < 0:
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'stock': ['El stock no puede ser negativo o cero.']}})
+            messages.error(self.request, "El stock no puede ser negativo o cero.")
             return super().form_invalid(form)
 
         # Validación: El nombre no debe contener caracteres especiales
         nombre = form.cleaned_data['nombre']
         if not NOMBRE_PATTERN.match(nombre):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'nombre': ['El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).']}})
             messages.error(self.request, "El nombre del producto no puede contener caracteres especiales (solo se permiten letras, números, espacios, guiones y guiones bajos).")
             return super().form_invalid(form)
 
-        return super().form_valid(form)
+        # Guardar
+        self.object = form.save()
+        
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            response = {'success': True, 'message': 'Producto actualizado correctamente'}
+            if warning_message:
+                response['warning'] = warning_message
+            return JsonResponse(response)
+        
+        if warning_message:
+            messages.warning(self.request, warning_message)
+        messages.success(self.request, "Producto actualizado correctamente")
+        return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            errors = {}
+            for field, error_list in form.errors.items():
+                errors[field] = [str(e) for e in error_list]
+            return JsonResponse({'success': False, 'errors': errors})
+        
         messages.error(self.request, f"Error de validación: {form.errors}")
         return super().form_invalid(form)
 
