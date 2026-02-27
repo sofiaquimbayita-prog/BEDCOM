@@ -1,107 +1,59 @@
-from django.db import models # Librerias
-from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator, RegexValidator
-
-# --- VALIDADORES PERSONALIZADOS PARA PROVEEDOR ---
-def validar_telefono(value):
-    """Valida que el teléfono tenga exactamente 10 dígitos"""
-    if not value.isdigit():
-        raise ValidationError('El teléfono debe contener solo números.')
-    if len(value) != 10:
-        raise ValidationError('El teléfono debe tener exactamente 10 dígitos.')
-
-def validar_nombre_proveedor(value):
-    """Valida que el nombre solo contenga letras, números y espacios"""
-    import re
-    if not re.match(r'^[a-zA-Z0-9\s]+$', value):
-        raise ValidationError('El nombre solo puede contener letras, números y espacios.')
+from django.db import models
 
 # --- MODELOS BASE ---
 
-class categoria (models.Model):
+class categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField()
     estado = models.BooleanField(default=True)
+
     def __str__(self):
         return self.nombre
-    class Meta :
+
+    class Meta:
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"
         db_table = "categorias"
 
-class proveedor (models.Model): # Clase Proveedor
-    nombre = models.CharField(
-        max_length=100,
-        validators=[
-            MinLengthValidator(3, message="El nombre debe tener al menos 3 caracteres"),
-            validar_nombre_proveedor
-        ]
-    )
-    telefono = models.CharField(
-        max_length=10,
-        validators=[
-            RegexValidator(r'^\d{10}$', message="El teléfono debe tener exactamente 10 dígitos"),
-            validar_telefono
-        ]
-    )
-    direccion = models.CharField(
-        max_length=200,
-        validators=[
-            MinLengthValidator(10, message="La dirección debe tener al menos 10 caracteres")
-        ]
-    )
-    # NUEVO CAMPO: Imagen para el proveedor
+class proveedor(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    telefono = models.CharField(max_length=10)
+    direccion = models.CharField(max_length=200)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
     estado = models.BooleanField(default=True)
     
-    def clean(self):
-        super().clean()
-        # Validar teléfono
-        if self.telefono:
-            if not self.telefono.isdigit():
-                raise ValidationError({'telefono': 'El teléfono debe contener solo números.'})
-            if len(self.telefono) != 10:
-                raise ValidationError({'telefono': 'El teléfono debe tener exactamente 10 dígitos.'})
-        
-        # Validar nombre
-        if self.nombre:
-            import re
-            if not re.match(r'^[a-zA-Z0-9\s]+$', self.nombre):
-                raise ValidationError({'nombre': 'El nombre solo puede contener letras, números y espacios.'})
-            if len(self.nombre) < 3:
-                raise ValidationError({'nombre': 'El nombre debe tener al menos 3 caracteres.'})
-        
-        # Validar dirección
-        if self.direccion and len(self.direccion) < 10:
-            raise ValidationError({'direccion': 'La dirección debe tener al menos 10 caracteres.'})
-    
     def __str__(self):
         return self.nombre
+
     class Meta:
         verbose_name = "Proveedor"
         verbose_name_plural = "Proveedores"
         db_table = "proveedor"
 
-class cliente (models.Model):
+class cliente(models.Model):
     cedula = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
     direccion = models.CharField(max_length=200)
     estado = models.BooleanField(default=True)
+
     def __str__(self):
         return self.nombre
-    class Meta :
+
+    class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
         db_table = "clientes"
         
-class usuario (models.Model): 
+class usuario(models.Model): 
     cedula = models.CharField(max_length=20, unique=True)
     nombre_usuar = models.CharField(max_length=50)
     rol = models.CharField(max_length=20)
     estado = models.CharField(max_length=20)
+
     def __str__(self):
         return self.nombre_usuar
+
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
@@ -113,38 +65,42 @@ class reporte(models.Model):
     tipo = models.CharField(max_length=100)
     fecha = models.DateField()
     id_usuario = models.ForeignKey('usuario', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Reporte {self.tipo} del {self.fecha}"
+
     class Meta:
         verbose_name = "Reporte"
         verbose_name_plural = "Reportes"
         db_table = "reporte"
 
-class producto (models.Model):
+class producto(models.Model):
     nombre = models.CharField(max_length=100)
     tipo = models.CharField(max_length=50)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    stock= models.IntegerField()
+    stock = models.IntegerField()
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
     estado = models.BooleanField(default=True)
     id_cat = models.ForeignKey('categoria', on_delete=models.CASCADE)
     id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
-    objects = models.Manager() 
-    all_objects = models.Manager()
+
     def __str__(self):
         return self.nombre
+
     class Meta :
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
         db_table = "productos"
 
-class garantia (models.Model):
+class garantia(models.Model):
     fecha = models.DateField()
     descripcion = models.TextField()
     estado = models.BooleanField(default=True)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Garantia para producto {self.id_producto_id}"
+
     class Meta :
         verbose_name = "Garantia"
         verbose_name_plural = "Garantias"
@@ -154,8 +110,10 @@ class mantenimiento(models.Model):
     fecha = models.DateField()
     descripcion = models.TextField()
     id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Mantenimiento del {self.fecha}"
+
     class Meta:
         verbose_name = "Mantenimiento"
         verbose_name_plural = "Mantenimientos"
@@ -169,8 +127,10 @@ class insumo(models.Model):
     unidad_medida = models.CharField(max_length=20)
     estado = models.CharField(max_length=20)
     id_categoria = models.ForeignKey('categoria', on_delete=models.CASCADE)
+
     def __str__(self):
         return self.nombre
+
     class Meta:
         verbose_name = "Insumo"
         verbose_name_plural = "Insumos"
@@ -181,19 +141,24 @@ class compra(models.Model):
     cantidad = models.IntegerField()
     id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
     id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Compra de {self.cantidad} unidades"
+
     class Meta:
         verbose_name = "Proveedor Insumo (Compra)"
         verbose_name_plural = "Proveedores Insumos (Compras)"
         db_table = "proveedor_insumo"
         unique_together = ('id_proveedor', 'id_insumo')
+
 class supervision(models.Model): 
     fecha = models.DateField()
     descripcion = models.TextField()
     id_usuario = models.ForeignKey('usuario', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Supervisión del {self.fecha}"
+
     class Meta:
         verbose_name = "Supervision"
         verbose_name_plural = "Supervisiones"
@@ -204,8 +169,10 @@ class BOM(models.Model):
     unidad_medida = models.CharField(max_length=50)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
     id_insumo = models.ForeignKey('insumo', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"BOM - Producto: {self.id_producto_id}, Insumo: {self.id_insumo_id}"
+
     class Meta:
         verbose_name = "Producto Insumo (BOM)"
         verbose_name_plural = "Productos Insumos (BOM)"
@@ -214,15 +181,17 @@ class BOM(models.Model):
 
 # --- MODELOS DE PEDIDO Y DESPACHO ---
 
-class pedido (models.Model):
+class pedido(models.Model):
     nombre = models.CharField(max_length=100)
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     id_cliente = models.ForeignKey('cliente', on_delete=models.CASCADE)
     id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Pedido #{self.id} - {self.fecha.strftime('%Y-%m-%d')}"
+
     class Meta:
         verbose_name = "Pedido"
         verbose_name_plural = "Pedidos"
@@ -234,8 +203,10 @@ class detalle_pedido(models.Model):
     sub_total = models.DecimalField(max_digits=10, decimal_places=2)
     id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"{self.cantidad} de Producto {self.id_producto_id}"
+
     class Meta:
         verbose_name = "Detalle de Pedido"
         verbose_name_plural = "Detalles de Pedidos"
@@ -246,36 +217,41 @@ class despacho(models.Model):
     estado_entrega = models.CharField(max_length=50)
     id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
     id_supervision = models.ForeignKey('supervision', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Despacho del pedido {self.id_pedido_id}"
+
     class Meta:
         verbose_name = "Despacho"
         verbose_name_plural = "Despachos"
         db_table = "despacho"
 
-class pago (models.Model):
+class pago(models.Model):
     id_pedido = models.ForeignKey('pedido', on_delete=models.CASCADE)
     fecha_pago = models.DateField()
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.BooleanField(default=True)
     id_reporte = models.ForeignKey('reporte', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Pago de {self.monto} el {self.fecha_pago}"
+
     class Meta :
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"
         db_table = "pagos"
+
 class respaldo(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     usuario = models.CharField(max_length=100)
     tipo_respaldo = models.CharField(max_length=20)
     descripcion = models.TextField(blank=True, null=True)
-    # Este es el campo que maneja el archivo
     archivo = models.FileField(upload_to='respaldos_sql/') 
     estado = models.BooleanField(default=True)
 
     def __str__(self):
         return f"Respaldo {self.fecha}"
+
     class Meta:
         verbose_name = "Respaldo"
         verbose_name_plural = "Respaldos"
