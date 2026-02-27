@@ -31,7 +31,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ================= TOPBAR ================= */
+/*TOPBAR*/
 .topbar {
   position: fixed;
   top: 0;
@@ -197,7 +197,7 @@ body {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ================= CONTENIDO PRINCIPAL ================= */
+/*CONTENIDO PRINCIPAL*/
 .content {
   margin-top: 85px;
   padding: 30px 20px;
@@ -310,7 +310,7 @@ body {
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
-/* ================= TABLA ================= */
+/* TABLA */
 .table-container {
   background: rgba(255,255,255,0.92);
   border-radius: 12px;
@@ -950,7 +950,7 @@ body {
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* ================= FONDO ================= */
+/* FONDO */
 body {
   background: var(--fondo);
   background-size: cover;
@@ -960,7 +960,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ================= TOPBAR ================= */
+/* TOPBAR */
 .menu-topbar {
   height: 65px;
   gap: 14px;
@@ -986,7 +986,7 @@ body {
   color: var(--text);
 }
 
-/* ================= BUSCADOR ================= */
+/* BUSCADOR */
 .menu-search {
   display: flex;
   align-items: center;
@@ -1003,7 +1003,7 @@ body {
   color: #fff;
 }
 
-/* ================= ICONOS TOPBAR ================= */
+/* ICONOS TOPBAR */
 .circle-icon {
   width: 40px;
   height: 40px;
@@ -1055,7 +1055,7 @@ body {
   font-weight: bold;
 }
 
-/* ================= CONTENIDO PRINCIPAL ================= */
+/* CONTENIDO PRINCIPAL */
 .content {
   padding: 30px;
   min-height: calc(100vh - 65px);
@@ -1077,7 +1077,7 @@ body {
   }
 }
 
-/* ================= TARJETAS ================= */
+/* TARJETAS */
 .card {
   background: var(--card);
   border-radius: var(--borde-lg);
@@ -1122,7 +1122,7 @@ body {
   color: var(--text);
 }
 
-/* ================= TARJETA RESPALDO ================= */
+/* TARJETA RESPALDO */
 .backup {
   display: flex;
   flex-direction: column;
@@ -1202,7 +1202,7 @@ body {
   color: var(--brand);
 }
 
-/* ================= MENSAJES ================= */
+/* MENSAJES */
 .messages {
   position: fixed;
   top: 20px;
@@ -1248,7 +1248,7 @@ body {
   border-left: 4px solid #ffb020;
 }
 
-/* ================= MODALES ================= */
+/* ================= MODALES */
 .modal {
   display: none;
   position: fixed;

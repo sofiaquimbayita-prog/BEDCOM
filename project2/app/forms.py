@@ -10,18 +10,20 @@ class ProveedorForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'maxlength': 100,
-                'placeholder': 'Ej: BedCom S.A.',
-                'class': 'form-control'
+                'placeholder': 'sergio tela (sin caracteres especiales)',
+                'class': 'form-control',
+                'oninput': 'validarNombreProveedor(this)'
             }),
             'telefono': forms.TextInput(attrs={
                 'maxlength': 10,
-                'placeholder': 'Ej: 3001234567',
-                'class': 'form-control'
+                'placeholder': 'Ingrese 10 dígitos (1234567890)',
+                'class': 'form-control',
+                'oninput': 'validarTelefonoProveedor(this)'
             }),
             'direccion': forms.Textarea(attrs={
-                'rows': 3,
+                'rows': 2,
                 'maxlength': 200,
-                'placeholder': 'Dirección completa del proveedor',
+                'placeholder': 'Dirección(mínimo 10 caracteres)',
                 'class': 'form-control'
             }),
             'imagen': forms.FileInput(attrs={
@@ -33,24 +35,24 @@ class ProveedorForm(forms.ModelForm):
     def clean_telefono(self):
         tel = self.cleaned_data.get('telefono', '')
         if not tel:
-            raise forms.ValidationError('El teléfono es requerido')
+            raise forms.ValidationError('El numero de teléfono es obligatorio')
         
         # Eliminar espacios en blanco
         tel = tel.strip()
         
         # Validar que solo contenga dígitos
         if not tel.isdigit():
-            raise forms.ValidationError('El teléfono solo debe contener números (0-9)')
+            raise forms.ValidationError('El numero de teléfono solo debe contener números (0-9)')
         
         if len(tel) != 10:
-            raise forms.ValidationError('El teléfono debe tener exactamente 10 dígitos (formato: 3001234567)')
+            raise forms.ValidationError('El numero de teléfono debe tener exactamente 10 dígitos (1234567890)')
         
         return tel
 
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre', '').strip()
         if not nombre:
-            raise forms.ValidationError('El nombre del proveedor es requerido')
+            raise forms.ValidationError('El nombre del proveedor es obligatorio')
         
         if len(nombre) < 3:
             raise forms.ValidationError('El nombre debe tener al menos 3 caracteres')
@@ -69,7 +71,7 @@ class ProveedorForm(forms.ModelForm):
     def clean_direccion(self):
         direccion = self.cleaned_data.get('direccion', '').strip()
         if not direccion:
-            raise forms.ValidationError('La dirección es requerida')
+            raise forms.ValidationError('La dirección es obligatoria')
         
         if len(direccion) < 10:
             raise forms.ValidationError('La dirección debe tener al menos 10 caracteres')
@@ -113,9 +115,7 @@ class RespaldoForm(forms.ModelForm):
     def clean_tipo_respaldo(self):
         tipo = self.cleaned_data.get('tipo_respaldo')
         if not tipo:
-            raise forms.ValidationError('El tipo de respaldo es requerido')
-        
-        # Validar que sea uno de los valores permitidos
+            raise forms.ValidationError('El tipo de respaldo es obligatorio')
         tipos_permitidos = ['completo', 'parcial']
         if tipo not in tipos_permitidos:
             raise forms.ValidationError('El tipo de respaldo debe ser "completo" o "parcial"')
@@ -125,16 +125,14 @@ class RespaldoForm(forms.ModelForm):
     def clean_descripcion(self):
         descripcion = self.cleaned_data.get('descripcion', '').strip()
         
-        # Si está vacía, es válida (es campo opcional)
+    
         if not descripcion:
             return descripcion
         
-        # Validar longitud máxima de 200 caracteres
+        # Validar caracteres
         if len(descripcion) > 200:
             raise forms.ValidationError('La descripción no puede exceder 200 caracteres')
-        
-        # Validar que no tenga caracteres especiales peligrosos
-        # Permite letras, números, espacios, y signos de puntuación básicos
+
         if not re.match(r'^[a-zA-Z0-9\s.,;:¡!¿?\-_()]+$', descripcion):
             raise forms.ValidationError('La descripción no puede contener caracteres especiales')
         
