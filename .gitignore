@@ -17,3 +17,6 @@ _pycache_/
 # Archivos de configuración de IDE
 .vscode/
 .idea/
+.sqlite3
+db.sqlite3}
+
