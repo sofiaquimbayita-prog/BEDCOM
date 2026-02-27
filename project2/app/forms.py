@@ -34,11 +34,8 @@ class ProveedorForm(forms.ModelForm):
         telefono = cleaned_data.get('telefono', '').strip()
         direccion = cleaned_data.get('direccion', '').strip()
 
-        # --- VALIDACIÓN DE NOMBRE DUPLICADO ---
         if nombre:
-            # Filtramos por nombre exacto (ignorando mayúsculas/minúsculas)
-            # El .exclude(pk=self.instance.pk) permite que si estás editando, 
-            # no te dé error por tu propio nombre actual.
+            
             query_duplicado = proveedor.objects.filter(nombre__iexact=nombre)
             
             if self.instance.pk:
