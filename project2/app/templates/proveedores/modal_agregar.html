@@ -1,41 +1,42 @@
-<div class="modal-content form-container">
-    <div class="modal-header">
-        <h2><i class="fas fa-truck"></i> Agregar Proveedor</h2>
+<!-- Modal Agregar -->
+<div id="modalAdd" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-plus"></i> Nuevo Proveedor</h2>
+            <button type="button" class="close-modal" onclick="cerrarModal('modalAdd')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="formAgregarProveedor">
+                <div class="form-group">
+                    <label for="inputNombre">Nombre del Proveedor</label>
+                    <input type="text" id="inputNombre" name="nombre" placeholder="Ej: BedCom S.A." required>
+                    <div class="helper-text">Mínimo 3 caracteres, máximo 100. Solo letras, números y espacios.</div>
+                    <div id="errorinputNombre" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="inputTelefono">Teléfono</label>
+                    <input type="text" id="inputTelefono" name="telefono" placeholder="Ej: 3001234567" required maxlength="10">
+                    <div class="helper-text">Ingrese exactamente 10 dígitos (ej: 3001234567)</div>
+                    <div id="errorinputTelefono" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="inputDireccion">Dirección</label>
+                    <input type="text" id="inputDireccion" name="direccion" placeholder="Dirección completa" required>
+                    <div class="helper-text">Mínimo 10 caracteres, máximo 200</div>
+                    <div id="errorinputDireccion" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="inputImagen">Logo del Proveedor</label>
+                    <input type="file" id="inputImagen" name="imagen" accept="image/*">
+                    <div class="helper-text">Formatos permitidos: JPG, PNG, GIF, WebP. Máximo 2MB</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
-    
-    <form id="addProveedorForm" method="post" action="{% url 'proveedor_create' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="addNombre">Nombre del Proveedor:</label>
-            <input type="text" id="addNombre" name="nombre" placeholder="Ej: BedCom S.A." maxlength="100" required>
-        </div>
-
-        <div class="form-group">
-            <label for="addTelefono">Teléfono:</label>
-            <input type="tel" id="addTelefono" name="telefono" placeholder="Ej: 3001234567" maxlength="10" required>
-        </div>
-
-        <div class="form-group">
-            <label for="addDireccion">Dirección:</label>
-            <textarea id="addDireccion" name="direccion" placeholder="Dirección completa" maxlength="200" rows="3" required></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="addImagen">Logo / Imagen:</label>
-            <input type="file" id="addImagen" name="imagen" accept="image/*">
-        </div>
-
-
-
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button type="submit" class="btn-save" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #38bdf8; color: #0f172a;">
-                <i class="fas fa-save"></i> GUARDAR
-            </button>
-            
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #334155; color: white;">
-                CANCELAR
-            </button>
-        </div>
-    </form>
 </div>
