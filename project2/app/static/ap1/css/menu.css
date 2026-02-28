@@ -1,6 +1,6 @@
 :root {
   /* Color palette */
-  --fondo:url("../imagenes/fondo.jpg");
+  --fondo:url("../img/fondo.jpg");
   --bg: #0b1220;
   --card: #1b2537cc;
   --card-hover: #374b72cc;
@@ -225,18 +225,15 @@ a {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10rem; /* Espacio entre tarjetas y aside */
+  gap: 10rem;
 }
 
-/* Ajustamos el grid para que ocupe 3/4 del ancho */
 .grid {
   flex: 0 0 auto;
 }
 .menu-grid {
   flex: 1;
 }
-
-
 
 .menu-feed {
   list-style: none;
@@ -248,6 +245,7 @@ a {
   flex-direction: column;
   gap: 12px;
 }
+
 /* Perfil */
 .perfil-container {
   order: 0;
@@ -279,11 +277,54 @@ a {
   justify-content: center;
   align-items: center;
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 .user-photo i {
   font-size: 18px;
   color: white;
+}
+
+.foto-perfil-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ========================
+   BOTÓN CERRAR SESIÓN
+   ======================== */
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--card);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-logout:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-logout:active {
+  transform: translateY(0);
+}
+
+.btn-logout i {
+  font-size: 14px;
 }
 
 /* Botones con estilo de la imagen de referencia */
@@ -326,7 +367,7 @@ a {
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity .2s ease, transform .2s ease;
-  pointer-events: none; /* Habilita los clics solo cuando está visible */
+  pointer-events: none;
 }
 
 .dropdown a {
@@ -341,21 +382,133 @@ a {
   background-color: #6d6d6d;
 }
 
-/* Regla para mostrar el menú, eliminamos la clase .oculto */
 .dropdown:not(.oculto) {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: auto; /* Permite los clics cuando es visible */
+  pointer-events: auto;
 }
 
 .oculto {
   display: none;
 }
-/* Notificaciones */
-/* ======================== */
-/* NOTIFICACIONES           */
-/* ======================== */
 
+/* ========================
+   MODAL LOGOUT
+   ======================== */
+
+#logoutModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 20px 10px;
+    overflow-y: auto;
+}
+
+#logoutModal .modal-content {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    padding: 30px !important;
+    border-radius: 15px !important;
+    width: 90% !important;
+    max-width: 400px !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+    animation: modalFadeIn 0.3s ease-out;
+    text-align: center;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#logoutModal .modal-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 15px;
+}
+
+#logoutModal .modal-header i {
+    font-size: 3rem;
+    color: #ef4444;
+    margin-bottom: 12px;
+}
+
+#logoutModal .modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #ef4444;
+    font-weight: 600;
+}
+
+#logoutModal .modal-body {
+    margin-bottom: 25px;
+}
+
+#logoutModal .modal-body p {
+    margin: 0;
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.6;
+}
+
+#logoutModal .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#logoutModal .btn-cancelar { 
+    background: #1f6684 !important;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#logoutModal .btn-cancelar:hover {
+    background: #165e7a !important;
+}
+
+#logoutModal .btn-confirmar { 
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+    transition: all 0.2s ease;
+}
+
+#logoutModal .btn-confirmar:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.oculto { 
+    display: none !important; 
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Notificaciones */
 .notificaciones-container {
   position: relative;
   display: inline-block;
@@ -382,8 +535,6 @@ a {
   color: var(--text);
 }
 
-
-/* 🔽 Menú desplegable */
 #noti-menu {
   position: absolute;
   top: 45px;
@@ -427,7 +578,7 @@ a {
 .dropdown.activo {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: auto; /* Click habilitado cuando visible */
+  pointer-events: auto;
 }
 
 .notif-btn.has-unread::after {
@@ -449,7 +600,6 @@ a {
   cursor: pointer;
 }
 
-/* Badge rojo arriba de la campanita */
 .noti-badge {
   position: absolute;
   top: -6px;
@@ -460,17 +610,15 @@ a {
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 999px;
-box-shadow: 0 0 10px rgba(255, 59, 48, .6);
+  box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   transform: scale(1);
   transition: transform .2s ease;
 }
 
-/* Pop cuando cambia número */
 .noti-badge.pop {
   transform: scale(1.3);
 }
 
-/* Animación vibración campanita */
 @keyframes bell-ring {
   0% { transform: rotate(0); }
   15% { transform: rotate(-15deg); }
@@ -485,7 +633,6 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   animation: bell-ring 0.8s ease;
 }
 
-
 /* Accesos */
 .accesos {
   margin-top: 90px;
@@ -494,9 +641,8 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
-/* ======================== */
-/* CALENDARIO               */
-/* ======================== */
+
+/* CALENDARIO */
 .cal {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -517,13 +663,12 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
 }
 .calendar {
   display: grid;
-  grid-template-columns: repeat(7, 1fr); /* 7 días */
-  width: 100%; /* Ancho fijo */
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
   border-radius: var(--radius);
   height: auto;
 }
 
-/* Encabezado */
 .calendar-header {
   grid-column: 1 / span 7;
   font-weight: bold;
@@ -535,19 +680,17 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   background-color: #393E46;
 }
 
-/* Primera fila del header */
 .calendar-header .fecha-actual {
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--brand);
 }
 
-/* Segunda fila (día resaltado) */
 .calendar-header .dia-resaltado {
   font-size: 2rem;
   font-weight: bold;
   color: var(--accent);
-  background-color: #0066ff; /* Fondo oscuro para resaltar el día */
+  background-color: #0066ff;
   border-radius: 50%;
   padding: 10px;
   margin-top: 8px;
@@ -559,17 +702,15 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   line-height: 30px;
   text-align: center;
   border: 1px solid #041424b5;
-  background-color: #1234cb78; /* color base */
+  background-color: #1234cb78;
 }
 
 .calendar-dates.hoy {
-  background-color: #1bd1ff61; /* 🔥 color para el día actual */
+  background-color: #1bd1ff61;
   color: #000;
   border: 1px solid #ffe092;
 }
 
-
-/* Celdas de eventos */
 .calendar-cells {
   border: 1px solid #01070d7a;
   position: relative;
@@ -578,7 +719,6 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   background-color: #c4d7ea48;
 }
 
-/* Icono de evento */
 .event-icon {
   position: absolute;
   top: 25%;
@@ -594,8 +734,7 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   user-select: none;
 }
 
-/* --- MENÚ DE ACCESIBILIDAD --- */
-
+/* MENÚ DE ACCESIBILIDAD */
 .accesibilidad {
   order: 4;
   position: relative;
@@ -634,8 +773,7 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* --- EFECTOS DE ACCESIBILIDAD --- */
-
+/* EFECTOS DE ACCESIBILIDAD */
 .cursor-grande {
   cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto;
 }
@@ -677,7 +815,6 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   color: #f1f1f1 !important;
 }
 
-
 /* Responsive calendario */
 @media (max-width: 900px) {
   .tile.calendario-tile {
@@ -715,4 +852,105 @@ box-shadow: 0 0 10px rgba(255, 59, 48, .6);
   .topbar {
     padding: 10px 14px;
   }
+}
+
+/* TOAST NOTIFICATIONS */
+.messages {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1b2537, #2a3550);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: slideIn 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-content i {
+  font-size: 20px;
+}
+
+.message .text {
+  font-size: 14px;
+  color: #e9eef7;
+}
+
+.message.success {
+  border-left: 4px solid #2ecc71;
+}
+
+.message.success .message-content i {
+  color: #2ecc71;
+}
+
+.message.error {
+  border-left: 4px solid #e74c3c;
+}
+
+.message.error .message-content i {
+  color: #e74c3c;
+}
+
+.message.warning {
+  border-left: 4px solid #f39c12;
+}
+
+.message.warning .message-content i {
+  color: #f39c12;
+}
+
+.message.info {
+  border-left: 4px solid #3498db;
+}
+
+.message.info .message-content i {
+  color: #3498db;
+}
+
+.close-toast {
+  background: none;
+  border: none;
+  color: #a9b3c7;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 12px;
+  transition: color 0.2s ease;
+}
+
+.close-toast:hover {
+  color: #ffffff;
+}
+
+.close-toast i {
+  font-size: 14px;
 }

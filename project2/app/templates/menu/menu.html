@@ -2,14 +2,40 @@
 
 {% block title %}Menú Principal del Sistema{% endblock %}
 
-{% block header_title %}MENÚ PRINCIPAL{% endblock %} 
+{% block header_title %}MENÚ PRINCIPAL{% endblock %}
+
+{% block messages %}
+{% if messages %}
+<div class="messages" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <main class="container menu">
     <div class="menu-layout">
 
         <section class="grid menu-grid">
-            <a href="../productos/">
+            <a href="{% url 'productos' %}">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-productos">
                         <svg viewBox="0 0 24 24">
@@ -48,7 +74,7 @@
                     </div>
                 </article>
             </a>
-            <a href="/Proyecto_2/5-INVENTARIO/Inventario.html">
+            <a href="../inventario">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-inventario">
                         <svg viewBox="0 0 24 24">
@@ -61,7 +87,7 @@
                     </div>
                 </article>
             </a>
-            <a href="/Proyecto_2/6-REPORTES/index_reportes.html">
+            <a href="../reportes/">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-reportes">
                         <svg viewBox="0 0 24 24">
@@ -87,7 +113,7 @@
                     </div>
                 </article>
             </a>
-            <a href="/Proyecto_2/8-RESPALDOS/index_respaldos.html">
+            <a href="../respaldos">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-respaldos">
                         <svg viewBox="0 0 24 24">
@@ -102,7 +128,7 @@
                     </div>
                 </article>
             </a>
-            <a href="/Proyecto_2/9-SALIDA DE PRODUCTOS/index_salidas.html">
+            <a href="../salidas">
                 <article class="tile" role="button" tabindex="0">
                     <div class="glyph is-salida">
                         <svg viewBox="0 0 24 24">

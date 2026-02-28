@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app'
+    'app',
+    'login',
+
 ]
 
 MIDDLEWARE = [
@@ -48,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app.middleware.AuthenticationRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -62,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'app.context_processors.usuario_context',
             ],
         },
     },
@@ -111,15 +115,33 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'app.backends.EmailBackend',  # Permite login con email
+    'django.contrib.auth.backends.ModelBackend',  # Backend por defecto (respaldo)
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# Usar el directorio estático dentro de la app (`app/static`) que sí existe
 STATICFILES_DIRS = [
-    BASE_DIR / 'static_ap1', 
+    BASE_DIR / 'app' / 'static',
 ]
 
+# Media files (uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Email backend para desarrollo (muestra correos en la consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Redirecciones de login/logout
+LOGIN_REDIRECT_URL = 'menu'  
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login:login'  # URL de login para @login_required
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

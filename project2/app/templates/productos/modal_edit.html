@@ -1,0 +1,65 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Editar Producto</h2>
+        
+    
+    <form method="POST" id="formEditarProducto" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>NOMBRE DEL PRODUCTO</label>
+            <input type="text" name="nombre" id="inputEditNombre" value="{{ object.nombre }}" placeholder="Ej: Lineal Banana">
+            <span class="error-msg" id="errorEditNombre"></span>
+        </div>
+
+        <div class="form-group">
+            <label>DESCRIPCIÓN</label>
+            <textarea name="descripcion" id="inputEditDescripcion" rows="3" placeholder="Ej: Producto de alta calidad con materiales premium...">{{ object.descripcion|default:'' }}</textarea>
+            <span class="error-msg" id="errorEditDescripcion"></span>
+        </div>
+
+        <div class="form-group">
+            <label>CATEGORÍA</label>
+            <select name="categoria" id="inputEditCategoria">
+                {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if object.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+            <span class="error-msg" id="errorEditCategoria"></span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+                <label>PRECIO</label>
+                <input type="number" name="precio" id="inputEditPrecio" step="0.01" min="0" value="{{ object.precio|stringformat:'.2f' }}">
+                <span class="error-msg" id="errorEditPrecio"></span>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>STOCK</label>
+                <input type="number" name="stock" id="inputEditStock" min="0" value="{{ object.stock }}">
+                <span class="error-msg" id="errorEditStock"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-image"></i> FOTO DEL PRODUCTO</label>
+            
+            {% if object.imagen %}
+                <div style="margin-bottom: 10px; text-align: center;">
+                    
+                    <img src="{{ object.imagen.url }}" alt="{{ object.nombre }}" style="max-width: 150px; border-radius: 8px; border: 1px solid #ddd;">
+                </div>
+            {% endif %}
+            
+            <input type="file" name="imagen" accept="image/*" class="form-control">
+            <small style="color: #666;">Selecciona una nueva foto si deseas actualizar la actual.</small>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEdit')">Cancelar</button>
+            <button type="submit" class="btn-save">Actualizar Cambios</button>
+        </div>
+    </form>
+</div>

@@ -1,12 +1,21 @@
 from django.urls import path
-from .views import calendario, insumos, menu, proveedores
+from django.contrib.auth import views as auth_views
+from .views import calendario, insumos, menu, proveedores,productos,reportes
 
 urlpatterns = [
-
-    # --- MENÚ ---
+    # --- MENÚ / DASHBOARD ---
     path('menu/', menu.MenuView.as_view(), name='menu'),
 
-    # --- INSUMOS ---
+    # --- PRODUCTOS ---
+    path('productos/', productos.producto_list_view.as_view(), name='productos'),
+    path('productos/crear/', productos.producto_create_view.as_view(), name='crear_producto'),
+    path('productos/editar/<int:pk>/', productos.producto_update_view.as_view(), name='editar_producto'),
+    path('productos/eliminar/<int:pk>/', productos.producto_delete_view.as_view(), name='eliminar_producto'),
+    path('productos/activar/<int:pk>/', productos.producto_activate_view.as_view(), name='activar_producto'),
+    # --- REPORTES ---
+    path('reportes/', reportes.reporte_ventas, name='reportes')  
+    
+ # --- INSUMOS ---
     path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
     path('insumos/data/', insumos.InsumoDataView.as_view(), name='insumos_data'),
     path('insumos/obtener/<int:pk>/', insumos.InsumoDetailView.as_view(), name='obtener_insumo'),
@@ -32,4 +41,4 @@ urlpatterns = [
     path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedor_edit'),
     path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedor_delete'),
     path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedor_activar'),
-]
+    ]

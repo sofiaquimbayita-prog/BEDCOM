@@ -1,0 +1,44 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos.css' %}">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2><i class="fas fa-search-plus"></i> Detalle del Producto</h2>
+    </div>
+    
+    <div class="form-group">
+        <label>NOMBRE DEL PRODUCTO</label>
+        <div id="viewNombre" style="padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #3498db; font-weight: bold;"></div>
+    </div>
+
+    <div class="form-group">
+        <label>DESCRIPCIÓN</label>
+        <div id="viewDescripcion" style="padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; min-height: 60px;"></div>
+    </div>
+
+    <div class="form-group">
+        <label>CATEGORÍA</label>
+        <div id="viewCategoria" style="padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white;"></div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <div class="form-group" style="flex: 1;">
+            <label>PRECIO</label>
+            <div id="viewPrecio" style="padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #2ecc71; font-weight: bold;"></div>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>STOCK</label>
+            <div id="viewStock" class="badge" style="padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label><i class="fas fa-image"></i> FOTO DEL PRODUCTO</label>
+        <div style="margin-bottom: 10px; text-align: center;">
+            <img id="viewImagen" src="" alt="Producto" style="max-width: 150px; border-radius: 8px; border: 1px solid #ddd;">
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="cerrarModal('modalView')">Cerrar</button>
+    </div>
+</div>
