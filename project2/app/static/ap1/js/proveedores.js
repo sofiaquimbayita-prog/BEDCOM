@@ -260,12 +260,7 @@ function cerrarToast(btn) {
     }
 }
 
-// el modal se cierra si se hace click en la pantalla 
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-};
+
 
 // botones de acción
 function generarBotonesAccion(proveedor) {

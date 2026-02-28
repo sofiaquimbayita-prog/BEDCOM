@@ -70,11 +70,6 @@ $(document).ready(function() {
         $(`#${id}`).fadeOut(200);
     };
 
-    $(window).on('click', function(event) {
-        if ($(event.target).hasClass('modal')) {
-            $('.modal').fadeOut(200);
-        }
-    });
 
     window.cerrarToast = function(btn) {
         const toast = $(btn).closest('.message');
