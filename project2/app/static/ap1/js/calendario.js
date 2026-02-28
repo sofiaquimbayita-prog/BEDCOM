@@ -38,7 +38,6 @@ $(document).ready(function () {
 
     /* 
        REFERENCIAS DOM
-       — compatibles con el HTML nuevo —
      */
     const modal          = $('#modal-evento');
     const modalDetalle   = $('#modal-detalle-evento');
@@ -51,14 +50,13 @@ $(document).ready(function () {
     let eventoInactivarId = null;
     let textoBusqueda     = '';
     let calendarInstance  = null;
-    let fechaSeleccionada = null;      // para el panel derecho
-    let completadasLimit  = 5;         // cuántas completadas mostrar
+    let fechaSeleccionada = null;
+    let completadasLimit  = 5;
 
     /* 
        UTILS
      */
     function getCsrf() {
-        // Primero intenta la constante del HTML nuevo, luego la cookie
         if (typeof CSRF_TOKEN !== 'undefined') return CSRF_TOKEN;
         let v = null;
         document.cookie.split(';').forEach(c => {
@@ -77,10 +75,8 @@ $(document).ready(function () {
         return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     }
 
-    // Resuelve la URL correcta sin importar si viene de URLS (nuevo) o constante suelta (viejo)
     function url(nombre) {
         if (typeof URLS !== 'undefined' && URLS[nombre]) return URLS[nombre];
-        // fallback a variables sueltas por si acaso
         const mapa = {
             eventosData:   typeof EVENTOS_DATA_URL    !== 'undefined' ? EVENTOS_DATA_URL    : '',
             crearEvento:   typeof CREAR_EVENTO_URL    !== 'undefined' ? CREAR_EVENTO_URL    : '',
@@ -124,7 +120,6 @@ $(document).ready(function () {
             const json = await resp.json();
             let eventos = json.data || [];
 
-            // Excluir eliminados siempre; excluir completados de la vista normal
             eventos = eventos.filter(e => e.estado !== 'eliminado' && e.estado !== 'completado');
 
             if (textoBusqueda) {
@@ -134,7 +129,6 @@ $(document).ready(function () {
                 );
             }
 
-            // Actualizar sidebar con todos los eventos (sin filtro de búsqueda para el conteo)
             actualizarSidebar(json.data || []);
 
             return eventos.map(e => {
@@ -164,7 +158,6 @@ $(document).ready(function () {
         }
     }
 
-    // Cache de todos los eventos para el sidebar
     let _todosEventos = [];
 
     async function cargarTodosParaSidebar() {
@@ -181,7 +174,7 @@ $(document).ready(function () {
 
 
     /* 
-       SIDEBAR IZQUIERDO — Categorías + Próximas
+       SIDEBAR IZQUIERDO
      */
     function actualizarSidebar(eventos) {
         _todosEventos = eventos.filter(e => e.estado !== 'eliminado');
@@ -267,7 +260,6 @@ $(document).ready(function () {
         const completadas = _todosEventos
             .filter(e => e.estado === 'completado')
             .sort((a, b) => {
-                // Ordenar por fecha+hora descendente (más reciente primero)
                 const da = new Date(`${a.fecha}T${a.hora || '00:00'}`);
                 const db = new Date(`${b.fecha}T${b.hora || '00:00'}`);
                 return db - da;
@@ -306,7 +298,6 @@ $(document).ready(function () {
         `).join(''));
     }
 
-    // Toggle botones 5 / 10
     $(document).on('click', '.completadas-limit-btn', function () {
         completadasLimit = parseInt($(this).data('limit'));
         $('.completadas-limit-btn').removeClass('active');
@@ -314,7 +305,6 @@ $(document).ready(function () {
         renderCompletadas();
     });
 
-    // Reactivar: cambiar estado de completado → pendiente
     $(document).on('click', '.completada-reactivar', function (e) {
         e.stopPropagation();
         const id  = $(this).data('id');
@@ -348,7 +338,7 @@ $(document).ready(function () {
                 $btn.prop('disabled', false).html('<i class="fa-solid fa-rotate-left"></i>');
             });
     });
-     
+
     function seleccionarFecha(fechaStr) {
         fechaSeleccionada = fechaStr;
         actualizarPanelDerecho(fechaStr);
@@ -463,16 +453,14 @@ $(document).ready(function () {
 
     calendarInstance.render();
 
-    // Cargar sidebar al inicio
     cargarTodosParaSidebar();
 
-    // Panel derecho con hoy por defecto
     const hoyStr = new Date().toISOString().slice(0, 10);
     seleccionarFecha(hoyStr);
 
 
     /* 
-       VALIDACIÓN  FORMULARIO
+       VALIDACIÓN INLINE
      */
     function mostrarError(fieldId, mensaje) {
         const $f = $('#' + fieldId);
@@ -486,7 +474,7 @@ $(document).ready(function () {
             .closest('.form-grupo').find('.msg-error').remove();
     }
     function limpiarTodosLosErrores() {
-        ['in_titulo', 'in_fecha', 'in_hora', 'in_categoria'].forEach(limpiarEstado);
+        ['in_titulo', 'in_fecha', 'in_hora', 'in_categoria', 'in_descripcion'].forEach(limpiarEstado);
     }
     const CAMPO_A_INPUT = { titulo: 'in_titulo', fecha: 'in_fecha', hora: 'in_hora', categoria: 'in_categoria' };
     function mostrarErroresBackend(errores) {
@@ -498,8 +486,74 @@ $(document).ready(function () {
         $('.form-input.input-error, .form-select.input-error').first().focus();
     }
 
-    $('#in_titulo').on('input', function () {
+    /* ── Validación en tiempo real ── */
+    function validarTitulo() {
+        const val = $('#in_titulo').val().trim();
+        if (!val)             return mostrarError('in_titulo', 'El título es obligatorio.');
+        if (val.length < 5)   return mostrarError('in_titulo', 'El título debe tener al menos 5 caracteres.');
+        if (val.length > 100) return mostrarError('in_titulo', 'El título no puede superar los 100 caracteres.');
         limpiarEstado('in_titulo');
+    }
+
+    function esEdicion() {
+        return form && form.action && form.action.includes('editar');
+    }
+
+    function validarFecha() {
+        const val = $('#in_fecha').val();
+        if (!val) return mostrarError('in_fecha', 'La fecha es obligatoria.');
+
+        const fecha  = new Date(val + 'T12:00:00');
+        const hoy    = new Date(); hoy.setHours(0, 0, 0, 0);
+        const limite = new Date(); limite.setFullYear(limite.getFullYear() + 5);
+
+        if (!esEdicion() && fecha < hoy)
+            return mostrarError('in_fecha', 'No puedes agendar actividades en fechas pasadas.');
+        if (fecha > limite)
+            return mostrarError('in_fecha', 'La fecha no puede superar 5 años en el futuro.');
+
+        limpiarEstado('in_fecha');
+        if ($('#in_hora').val()) validarHora();
+    }
+
+    function validarHora() {
+        const valHora  = $('#in_hora').val();
+        const valFecha = $('#in_fecha').val();
+        if (!valHora) return mostrarError('in_hora', 'La hora es obligatoria.');
+
+        if (!esEdicion() && valFecha) {
+            const hoy = new Date().toISOString().slice(0, 10);
+            if (valFecha === hoy) {
+                const [h, m] = valHora.split(':').map(Number);
+                const ahora  = new Date();
+                if (h < ahora.getHours() || (h === ahora.getHours() && m <= ahora.getMinutes()))
+                    return mostrarError('in_hora', 'La hora ya pasó. Elige una hora futura para hoy.');
+            }
+        }
+
+        limpiarEstado('in_hora');
+    }
+
+    function validarCategoria() {
+        const val = $('#in_categoria').val();
+        if (!val) return mostrarError('in_categoria', 'La categoría es obligatoria.');
+        limpiarEstado('in_categoria');
+    }
+
+    function validarDescripcion() {
+        const val = ($('#in_descripcion').val() || '');
+        if (val.length > 500) return mostrarError('in_descripcion', 'La descripción no puede superar los 500 caracteres.');
+        limpiarEstado('in_descripcion');
+    }
+
+    $('#in_titulo').on('blur input',  validarTitulo);
+    $('#in_fecha').on('blur change',  validarFecha);
+    $('#in_hora').on('blur change',   validarHora);
+    $('#in_categoria').on('change',   validarCategoria);
+    $('#in_descripcion').on('blur',   validarDescripcion);
+
+    /* Contadores */
+    $('#in_titulo').on('input', function () {
         const len = $(this).val().trim().length;
         let $c = $('#contador-titulo');
         if (!$c.length) { $c = $('<span id="contador-titulo" class="campo-contador"></span>'); $(this).parent().append($c); }
@@ -511,13 +565,10 @@ $(document).ready(function () {
         if (!$c.length) { $c = $('<span id="contador-descripcion" class="campo-contador"></span>'); $(this).parent().append($c); }
         $c.text(len + '/500').toggleClass('contador-alerta', len > 480);
     });
-    $('#in_fecha').on('change',     () => limpiarEstado('in_fecha'));
-    $('#in_hora').on('change',      () => limpiarEstado('in_hora'));
-    $('#in_categoria').on('change', () => limpiarEstado('in_categoria'));
 
 
     /* 
-       CREAR / EDITAR — formulario
+       CREAR / EDITAR
      */
     function abrirModalCrear(fecha = '', hora = '') {
         if (!form) return;
@@ -533,7 +584,6 @@ $(document).ready(function () {
         setTimeout(() => $('#in_titulo').focus(), 150);
     }
 
-    // Toggle visual modo completado
     $(document).on('change', 'input[name="modo_completado"]', function () {
         $('.modo-option').removeClass('selected');
         $(this).closest('.modo-option').addClass('selected');
@@ -574,7 +624,7 @@ $(document).ready(function () {
     }
 
 
-    /*  
+    /* 
        VER DETALLE
      */
     window.verEvento = function (id) {
@@ -591,7 +641,6 @@ $(document).ready(function () {
                     .text(data.categoria_nombre)
                     .css({ color: data.categoria_color, borderColor: data.categoria_color + '55' });
 
-                // Toggle completado: solo visible en modo manual
                 const esModoManual = data.modo_completado === 'manual';
                 const $toggleRow   = $('#toggle-completado-row');
                 if (esModoManual) {
@@ -602,9 +651,7 @@ $(document).ready(function () {
                     $toggleRow.hide();
                 }
 
-                // Botón inactivar: solo si está activo
                 $('#btn-detalle-inactivar').toggle(data.activo !== false);
-
                 modalDetalle.addClass('mostrar');
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo cargar la información del evento.'));
@@ -612,7 +659,7 @@ $(document).ready(function () {
 
 
     /* 
-       TOGGLE COMPLETADO (modo manual)
+       TOGGLE COMPLETADO
      */
     $('#detalle-toggle-completado').on('change', function () {
         if (!eventoDetalleId) return;
@@ -623,7 +670,6 @@ $(document).ready(function () {
         const fd = new FormData();
         fd.append('estado', nuevoEstado);
 
-        // Intenta primero con URLS.completarBase (nuevo), si no con CAMBIAR_ESTADO_BASE (viejo)
         const urlEstado = (typeof URLS !== 'undefined' && URLS.completarBase)
             ? URLS.completarBase + eventoDetalleId + '/'
             : (typeof CAMBIAR_ESTADO_BASE !== 'undefined' ? CAMBIAR_ESTADO_BASE + eventoDetalleId + '/' : '');
@@ -703,22 +749,21 @@ $(document).ready(function () {
     };
 
 
-    /*       INACTIVAR ACTIVIDAD    */
+    /* 
+       INACTIVAR / ELIMINAR
+     */
     window.abrirModalInactivar = function (id) {
         fetch(url('obtenerBase') + id + '/')
             .then(r => { if (!r.ok) throw new Error(); return r.json(); })
             .then(data => {
                 eventoInactivarId = data.id;
-                // Soporta ambos IDs de nombre del evento
                 $('#inactivar-nombre-evento, #eliminar-nombre-evento').text(`"${data.titulo}"`);
-                // Abre el modal que exista en el HTML
                 if ($('#modal-eliminar').length)   $('#modal-eliminar').addClass('mostrar');
                 else if (modalInactivar.length)    modalInactivar.addClass('mostrar');
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo obtener la información del evento.'));
     };
 
-    // Confirmar inactivar (modal viejo)
     $('#btn-confirmar-inactivar').on('click', function () {
         if (!eventoInactivarId) return;
         const $btn = $(this);
@@ -747,7 +792,6 @@ $(document).ready(function () {
             });
     });
 
-    // Confirmar eliminar (modal nuevo)
     $('#btn-confirmar-eliminar').on('click', function () {
         if (!eventoInactivarId) return;
         const $btn = $(this);
@@ -777,7 +821,9 @@ $(document).ready(function () {
     });
 
 
-    /*        RESTAURAR EVENTO */
+    /* 
+       RESTAURAR
+     */
     window.restaurarEvento = function (id) {
         const restaurarUrl = typeof RESTAURAR_EVENTO_BASE !== 'undefined' ? RESTAURAR_EVENTO_BASE + id + '/' : '';
         if (!restaurarUrl) return;
@@ -796,7 +842,9 @@ $(document).ready(function () {
     };
 
 
-    /*        CERRAR MODALES     */
+    /* 
+       CERRAR MODALES
+     */
     function cerrarModalEvento() {
         modal.removeClass('mostrar');
         limpiarTodosLosErrores();

@@ -13,7 +13,7 @@ urlpatterns = [
     path('productos/eliminar/<int:pk>/', productos.producto_delete_view.as_view(), name='eliminar_producto'),
     path('productos/activar/<int:pk>/', productos.producto_activate_view.as_view(), name='activar_producto'),
     # --- REPORTES ---
-    path('reportes/', reportes.reporte_ventas, name='reportes')  
+    path('reportes/', reportes.reporte_ventas, name='reportes'),  
     
  # --- INSUMOS ---
     path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),

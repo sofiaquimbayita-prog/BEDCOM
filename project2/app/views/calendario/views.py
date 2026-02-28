@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import date, datetime
 from ...models import calendario, CategoriaEvento
+from ...forms import calendarioForm
 
 
 class CalendarioView(TemplateView):
@@ -17,7 +18,6 @@ class CalendarioView(TemplateView):
 
 class EventoDataView(View):
     def get(self, request):
-        # Auto-completar eventos automáticos vencidos
         hoy = date.today()
         ahora = datetime.now()
         
@@ -27,7 +27,6 @@ class EventoDataView(View):
             fecha__lt=hoy,
         ).update(estado=calendario.ESTADO_COMPLETADO)
 
-        # También verificar los de hoy que ya pasaron de hora
         from django.db.models import Q
         eventos_hoy_auto = calendario.objects.filter(
             modo_completado=calendario.MODO_AUTOMATICO,
@@ -40,7 +39,6 @@ class EventoDataView(View):
                 ev.estado = calendario.ESTADO_COMPLETADO
                 ev.save(update_fields=['estado'])
 
-        # Solo retornar eventos NO eliminados
         eventos = (
             calendario.objects
             .select_related('categoria')
@@ -64,7 +62,6 @@ class EventoDataView(View):
 
 
 class EventosPorFechaView(View):
-    """Retorna eventos de un día específico para el panel derecho."""
     def get(self, request):
         fecha_str = request.GET.get('fecha', '')
         try:
@@ -92,7 +89,6 @@ class EventosPorFechaView(View):
 
 
 class EventoCategoriaStatsView(View):
-    """Retorna conteo de eventos por categoría."""
     def get(self, request):
         from django.db.models import Count
         cats = (
@@ -132,50 +128,33 @@ class EventoCreateView(View):
         return self._guardar_evento(request)
 
     def _guardar_evento(self, request, instancia=None):
-        data = request.POST
-        titulo          = data.get('titulo', '').strip()
-        fecha_str       = data.get('fecha', '').strip()
-        hora_str        = data.get('hora', '').strip()
-        categoria_id    = data.get('categoria', '').strip()
-        descripcion     = data.get('descripcion', '').strip()
-        modo_completado = data.get('modo_completado', calendario.MODO_AUTOMATICO).strip()
-
-        errores = {}
-        if not titulo:
-            errores['titulo'] = 'El título es obligatorio.'
-        if not fecha_str:
-            errores['fecha'] = 'La fecha es obligatoria.'
-        if not hora_str:
-            errores['hora'] = 'La hora es obligatoria.'
-        if not categoria_id:
-            errores['categoria'] = 'La categoría es obligatoria.'
+        # ── Modo completado (no está en el ModelForm, se maneja aparte) ──
+        modo_completado = request.POST.get('modo_completado', calendario.MODO_AUTOMATICO).strip()
         if modo_completado not in [calendario.MODO_AUTOMATICO, calendario.MODO_MANUAL]:
-            errores['modo_completado'] = 'Modo no válido.'
+            return JsonResponse(
+                {'status': 'error', 'errores': {'modo_completado': 'Modo no válido.'}},
+                status=400
+            )
 
-        if errores:
-            return JsonResponse({'status': 'error', 'errores': errores}, status=400)
+        # ── Validar con el form (incluye clean_fecha y clean con hora pasada) ──
+        form = calendarioForm(request.POST, instance=instancia)
+        if form.is_valid():
+            evento = form.save(commit=False)
+            evento.modo_completado = modo_completado
+            evento.save()
+            return JsonResponse({
+                'status':  'success',
+                'message': 'Evento guardado correctamente.',
+                'id':      evento.id,
+            })
 
-        try:
-            cat = CategoriaEvento.objects.get(id=categoria_id)
-        except CategoriaEvento.DoesNotExist:
-            return JsonResponse({'status': 'error', 'errores': {'categoria': 'Categoría no existe.'}}, status=400)
-
-        if instancia is None:
-            instancia = calendario()
-
-        instancia.titulo          = titulo
-        instancia.fecha           = fecha_str
-        instancia.hora            = hora_str
-        instancia.categoria       = cat
-        instancia.descripcion     = descripcion
-        instancia.modo_completado = modo_completado
-        instancia.save()
-
+        # ── Devolver errores al frontend igual que insumos ──
+        errores = {campo: mensajes[0] for campo, mensajes in form.errors.items()}
         return JsonResponse({
-            'status':  'success',
-            'message': 'Evento guardado correctamente.',
-            'id':      instancia.id
-        })
+            'status':  'error',
+            'errores': errores,
+            'message': next(iter(errores.values())),
+        }, status=400)
 
 
 class EventoUpdateView(EventoCreateView):
@@ -190,13 +169,9 @@ class EventoCompletarView(View):
 
         estado = request.POST.get('estado')
 
-        if estado not in [
-            calendario.ESTADO_COMPLETADO,
-            calendario.ESTADO_PENDIENTE
-        ]:
+        if estado not in [calendario.ESTADO_COMPLETADO, calendario.ESTADO_PENDIENTE]:
             return JsonResponse({'status': 'error', 'message': 'Estado inválido'}, status=400)
 
-        # Validar modo automático
         if evento.modo_completado != calendario.MODO_MANUAL:
             return JsonResponse({
                 'status': 'error',
@@ -205,14 +180,10 @@ class EventoCompletarView(View):
 
         evento.estado = estado
         evento.save(update_fields=['estado'])
+        return JsonResponse({'status': 'success', 'estado': evento.estado})
 
-        return JsonResponse({
-            'status': 'success',
-            'estado': evento.estado
-        })
 
 class EventoEliminarView(View):
-    """Cambia estado a eliminado (soft delete)."""
     def post(self, request, pk):
         evento = get_object_or_404(calendario, id=pk)
         evento.estado = calendario.ESTADO_ELIMINADO

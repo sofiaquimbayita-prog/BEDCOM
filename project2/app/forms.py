@@ -1,7 +1,6 @@
 from django import forms
-from datetime import date
+from datetime import date, datetime
 from .models import calendario, insumo
-import re
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -24,7 +23,6 @@ class insumosForm(forms.ModelForm):
             raise forms.ValidationError('El nombre debe tener al menos 5 caracteres.')
         if len(nombre) > 100:
             raise forms.ValidationError('El nombre no puede superar los 100 caracteres.')
-
         return nombre
 
     def clean_descripcion(self):
@@ -37,8 +35,12 @@ class insumosForm(forms.ModelForm):
         cantidad = self.cleaned_data.get('cantidad')
         if cantidad is None:
             raise forms.ValidationError('La cantidad es obligatoria.')
+        if not isinstance(cantidad, int):
+            raise forms.ValidationError('La cantidad debe ser un número entero.')
         if cantidad <= 0:
-            raise forms.ValidationError('La cantidad debe ser un número positivo y mayor a cero.')
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        if cantidad > 1000:
+            raise forms.ValidationError('La cantidad no puede superar 1000.')
         return cantidad
 
     def clean_precio(self):
@@ -79,9 +81,16 @@ class calendarioForm(forms.ModelForm):
         fecha = self.cleaned_data.get('fecha')
         if not fecha:
             raise forms.ValidationError('La fecha es obligatoria.')
-        limite = date(date.today().year + 5, 12, 31)
+
+        hoy = date.today()
+
+        if not self.instance.pk and fecha < hoy:
+            raise forms.ValidationError('No puedes agendar actividades en fechas pasadas.')
+
+        limite = date(hoy.year + 5, 12, 31)
         if fecha > limite:
             raise forms.ValidationError('La fecha no puede superar 5 años en el futuro.')
+
         return fecha
 
     def clean_descripcion(self):
@@ -92,13 +101,21 @@ class calendarioForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        titulo  = cleaned.get('titulo')
         fecha   = cleaned.get('fecha')
         hora    = cleaned.get('hora')
+        titulo  = cleaned.get('titulo')
+
+        # Solo al crear: si la fecha es hoy, la hora no puede ser pasada
+        if not self.instance.pk and fecha and hora:
+            if fecha == date.today() and hora < datetime.now().time():
+                self.add_error('hora', 'La hora ya pasó. Elige una hora futura para hoy.')
+
+        # Duplicado: mismo título, fecha y hora
         if titulo and fecha and hora:
             qs = calendario.objects.filter(titulo__iexact=titulo, fecha=fecha, hora=hora)
             if self.instance.pk:
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
                 raise forms.ValidationError('Ya existe una actividad con el mismo título, fecha y hora.')
+
         return cleaned

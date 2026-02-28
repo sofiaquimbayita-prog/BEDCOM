@@ -135,6 +135,65 @@ $(document).ready(function () {
         $('#' + id).on('change input', () => limpiarEstado(id));
     });
 
+    /* ── Validación en tiempo real ── */
+    const UNIDADES_VALIDAS = new Set([
+        'kg','g','lb','t','L','ml','gal',
+        'm','cm','mm','m2','m3',
+        'und','par','docena','caja','paq','rollo','bolsa',
+    ]);
+
+    function validarNombre(id) {
+        const val = $('#' + id).val().trim();
+        if (!val)            return mostrarError(id, 'El nombre es obligatorio.');
+        if (val.length < 5)  return mostrarError(id, 'El nombre debe tener al menos 5 caracteres.');
+        if (val.length > 100) return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
+        limpiarEstado(id);
+    }
+
+    function validarCantidad(id) {
+        const raw = $('#' + id).val().trim();
+        if (!raw) return mostrarError(id, 'La cantidad es obligatoria.');
+        if (!/^\d+$/.test(raw))   return mostrarError(id, 'La cantidad debe ser un número entero.');
+        const val = parseInt(raw, 10);
+        if (val <= 0)   return mostrarError(id, 'La cantidad debe ser mayor a 0.');
+        if (val > 1000) return mostrarError(id, 'La cantidad no puede superar 1000.');
+        limpiarEstado(id);
+    }
+
+    function validarPrecio(id) {
+        const val = parseFloat($('#' + id).val());
+        if (!$('#' + id).val().trim()) return mostrarError(id, 'El precio es obligatorio.');
+        if (isNaN(val) || val <= 0)    return mostrarError(id, 'El precio debe ser mayor a 0.');
+        limpiarEstado(id);
+    }
+
+    function validarUnidad(id) {
+        const val = $('#' + id).val().trim();
+        if (!val)                        return mostrarError(id, 'La unidad de medida es obligatoria.');
+        if (!UNIDADES_VALIDAS.has(val))  return mostrarError(id, 'Unidad de medida no válida.');
+        limpiarEstado(id);
+    }
+
+    function validarDescripcion(id) {
+        const val = ($('#' + id).val() || '');
+        if (val.length > 600) return mostrarError(id, 'La descripción no puede superar los 600 caracteres.');
+        limpiarEstado(id);
+    }
+
+    // Agregar
+    $('#ag_nombre').on('blur input', () => validarNombre('ag_nombre'));
+    $('#ag_cantidad').on('blur input', () => validarCantidad('ag_cantidad'));
+    $('#ag_precio').on('blur input', () => validarPrecio('ag_precio'));
+    $('#ag_unidad').on('blur change', () => validarUnidad('ag_unidad'));
+    $('#ag_descripcion').on('blur', () => validarDescripcion('ag_descripcion'));
+
+    // Editar
+    $('#ed_nombre').on('blur input', () => validarNombre('ed_nombre'));
+    $('#ed_cantidad').on('blur input', () => validarCantidad('ed_cantidad'));
+    $('#ed_precio').on('blur input', () => validarPrecio('ed_precio'));
+    $('#ed_unidad').on('blur change', () => validarUnidad('ed_unidad'));
+    $('#ed_descripcion').on('blur', () => validarDescripcion('ed_descripcion'));
+
     /* ── DataTable con filtro de estado ── */
 
   
