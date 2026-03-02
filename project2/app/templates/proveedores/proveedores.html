@@ -1,0 +1,76 @@
+{% extends "includes/base.html" %}
+{% load static %}
+{% block header_title %}Proveedores{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+{% if messages %}
+<div class="messages-container" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% else %}
+                <i class="fas fa-exclamation-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main class="proveedores">
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; gap:12px;">
+        <button class="button-3" onclick="abrirModal('modalAdd')">
+            <i class="fas fa-plus"></i> Nuevo Proveedor
+        </button>
+    </div>
+
+    <div class="container-tabla">
+        <div class="switch-container">
+            <span class="switch-text">Mostrar inactivos</span>
+            <label class="switch-control">
+                <input type="checkbox" id="toggleInactivos">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <table id="tablaProveedores" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaProveedoresBody">
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- Modales-->
+{% include 'proveedores/modal_agregar.html' %}
+{% include 'proveedores/modal_editar.html' %}
+{% include 'proveedores/modal_eliminar.html' %}
+{% include 'proveedores/modal_activar.html' %}
+{% include 'proveedores/modal_ver.html' %}
+{% include 'proveedores/modal_notificacion.html' %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'ap1/js/proveedores.js' %}?v={% now 'U' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{% endblock %}

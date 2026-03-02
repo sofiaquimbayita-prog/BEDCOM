@@ -1,0 +1,29 @@
+<!-- Modal Ver -->
+<div id="modalView" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-user"></i> Detalles del Proveedor</h2>
+            <button type="button" class="close-modal" onclick="cerrarModal('modalView')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <img id="viewImagen" src="" alt="Imagen del proveedor" class="img-proveedor-view">
+            <div class="view-info">
+                <label>Nombre</label>
+                <p id="viewNombre"></p>
+            </div>
+            <div class="view-info">
+                <label>Teléfono</label>
+                <p id="viewTelefono"></p>
+            </div>
+            <div class="view-info">
+                <label>Dirección</label>
+                <p id="viewDireccion"></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalView')">Cerrar</button>
+        </div>
+    </div>
+</div>

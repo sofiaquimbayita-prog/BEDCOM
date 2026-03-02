@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title> 
+    
+    <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Estilo para los mensajes de Django */
+        .mensaje-django {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: mensajeSlideIn 0.4s ease;
+        }
+
+        @keyframes mensajeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mensaje-exito {
+            background: linear-gradient(135deg, var(--success-bg-start) 0%, var(--success-bg-end) 100%);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+
+        .mensaje-exito i {
+            font-size: 18px;
+        }
+
+        .mensaje-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+        }
+
+        .error-django {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid var(--error-border);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="idioma-container">
+        <button class="boton-idioma">
+            <i class="fa-solid fa-globe"></i> ES
+        </button>
+    </div>
+
+    <div class="ayuda-container">
+        <button class="boton-ayuda">
+            <i class="fa-solid fa-question"></i>
+        </button>
+    </div>
+
+    <div class="contenedor">
+        <h1 class="titulo" data-i18n="titulo-login">INICIAR SESIÓN</h1>
+        
+        <div class="formulario">
+            <form id="loginForm" method="post" action="{% url 'login:login' %}">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="error-django">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Usuario o contraseña incorrectos.
+                    </div>
+                {% endif %}
+                
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                            <div class="mensaje-django mensaje-exito">
+                                <i class="fas fa-check-circle"></i> {{ message }}
+                            </div>
+                        {% else %}
+                            <div class="mensaje-django mensaje-error">
+                                <i class="fa-solid fa-circle-info"></i> {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
+                <label for="loginCorreo" class="label" data-i18n="label-correo">Correo electrónico</label>
+                <input type="email" id="loginCorreo" name="username" placeholder="usuario@dominio.com" required>
+                <div id="loginEmailError" class="error-msg"></div>
+                
+                <label for="loginContrasena" class="label" data-i18n="label-contrasena">Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="loginContrasena" name="password" placeholder="Contraseña" required>
+                    <button type="button" id="toggleLoginPassword">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div id="loginPasswordError" class="error-msg"></div>
+                
+                <button type="submit" class="botonr" id="loginButton">Continuar</button>
+            </form>
+            
+            <p class="pregunta">
+                <a href="#" id="olvidaste-enlace" data-i18n="texto-olvidaste">¿Olvidaste tu contraseña?</a>
+            </p>
+
+            <p class="pregunta">
+                <a href="#" id="crear-cuenta-enlace" data-i18n="texto-crear-cuenta">¿No tienes una cuenta? Crear cuenta</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="{% static 'ap1/js/script_login.js' %}"></script>
+</body>
+</html>

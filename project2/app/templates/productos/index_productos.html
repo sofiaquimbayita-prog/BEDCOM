@@ -1,0 +1,40 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="productos">
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px;">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Buscar producto...">
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="button-3" onclick="abrirModal('modalAdd')">
+                <i class="fas fa-plus"></i> Nuevo Producto
+            </button>
+        </div>
+    </div>
+
+    <div class="grid" id="gridProductos">
+        {% for p in productos %}
+        <div class="card" data-precio="${{ p.precio }}">
+            <img src="{% static 'ap1/imagenes/cama.jpg' %}" alt="{{ p.nombre }}">
+            <p class="nombre">{{ p.nombre }}</p>
+            <p class="stock">Stock: {{ p.stock }} unidades</p>
+            <div class="acciones">
+                <button class="view-btn"><i class="fas fa-eye"></i></button>
+                <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<div id="modalAdd" class="modal" style="display: none;">
+    {% include "productos/modal_add.html" %}
+</div>
+
+<script src="{% static 'ap1/js/script_productos.js' %}"></script>
+{% endblock %}

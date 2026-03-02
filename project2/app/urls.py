@@ -1,10 +1,27 @@
 from django.urls import path
-from . import views
+from .views import respaldos
+from .views.proveedores.views import (
+    ProveedorListView,
+    ProveedorCreateView,
+    ProveedorUpdateView,
+    ProveedorDeleteView,
+    ProveedorActivateView,
+    ProveedorDataView
+)
+
 urlpatterns = [
-    # path(URL a mostrar, función de vista a llamar, nombre de la URL)
-    path('login/', views.MenuPrincipalView, name='MenuPrincipal'),
-    path('crear-cuenta/', views.crear_cuenta_view, name='crear_cuenta'),
-    path('cambiar-contrasena/', views.cambiar_contrasena_view, name='cambiar_contrasena'),
-    path('recuperar-contrasena/', views.recuperar_contrasena_view, name='recuperar_contrasena'),
-    path('menu/', views.menu_view, name='menu'),
+    # Rutas de Proveedores
+    path('proveedores/', ProveedorListView.as_view(), name='proveedores_list'),
+    path('proveedores/data/', ProveedorDataView.as_view(), name='proveedores_data'),
+    path('proveedores/crear/', ProveedorCreateView.as_view(), name='proveedores_create'),
+    path('proveedores/editar/<int:pk>/', ProveedorUpdateView.as_view(), name='proveedores_update'),
+    path('proveedores/eliminar/<int:pk>/', ProveedorDeleteView.as_view(), name='proveedores_delete'),
+    path('proveedores/activar/<int:pk>/', ProveedorActivateView.as_view(), name='proveedores_activate'),
+    
+    # Rutas de Respaldos
+    path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
+    path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),
+    path('respaldos/eliminar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
+    path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
+    path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
 ]

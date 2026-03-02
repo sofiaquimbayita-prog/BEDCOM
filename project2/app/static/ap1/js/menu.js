@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
   badge.classList.add("noti-badge");
   badge.textContent = "0";
   notiBtn.appendChild(badge);
-f
+  
   // Estado
   let notiCount = 0;
   let notificaciones = []; // aquí guardamos los mensajes

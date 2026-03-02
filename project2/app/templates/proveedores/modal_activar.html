@@ -1,0 +1,29 @@
+<!-- Modal Activar -->
+<div id="modalActivar" class="modal" style="display: none;">
+    <div class="modal-content modal-activate">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-check"></i> Confirmar Activación</h2>
+            <button type="button" class="close-modal" onclick="cerrarModal('modalActivar')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <i class="fas fa-user-check" style="font-size: 60px; color: #2ecc71; margin-bottom: 15px;"></i>
+                <h3 style="color: white; margin-bottom: 15px;">¿Estás seguro de activar este proveedor?</h3>
+                <p style="color: #94a3b8; margin-bottom: 20px;">El proveedor será visible en la lista de activos.</p>
+            </div>
+            <div class="view-info" style="text-align: left; max-width: 300px; margin: 0 auto;">
+                <label>Proveedor</label>
+                <p id="activarProveedorNombre" style="color: #2ecc71; font-weight: 600;"></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalActivar')">Cancelar</button>
+            <button type="button" class="btn-activate-modal" onclick="confirmarActivar()">
+                <i class="fas fa-power-off"></i> Activar
+            </button>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="activarProveedorId" value="">
