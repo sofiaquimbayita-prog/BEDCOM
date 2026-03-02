@@ -1,4 +1,4 @@
-var csrfToken = '';
+
 
 function getCookie(name) {
     var cookieValue = null;
