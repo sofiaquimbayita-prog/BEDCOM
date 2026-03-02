@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventario</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="Inventario.css">
+  <script src="Inventario.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="perfil-container">
+        <button id="perfilBtn" class="avatar-btn" aria-controls="dropdownMenu" aria-expanded="false"
+            aria-label="Menú de usuario">
+            <div class="user-photo">
+                <i class="fas fa-user"></i>
+            </div>
+        </button>
+        <div id="dropdownMenu" class="dropdown oculto">
+            <a href="/Proyecto_2/0-LOGIN/logout.php" id="logoutBtn">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="title">{% block header_title %}INVENTARIO{% endblock %}</div> 
+
+    <label class="search" aria-label="Buscar" for="searchInput">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="searchInput" placeholder="Buscar" />
+    </label>
+
+    <div class="icon-right-container">
+        <button id="noti" class="notif-btn" aria-label="Notificaciones">
+            <div class="rounded-icon-wrapper">
+                <i class="fas fa-bell icono-noti"></i>
+            </div>
+        </button>
+        <div id="noti-menu" class="oculto">
+            <ul></ul>
+        </div>
+
+        <a href="/Proyecto_2/10-AJUSTES/BCKUP-Ajustes.html" class="icon-btn-rounded" title="Ajustes">
+            <i class="fas fa-cog"></i>
+        </a>
+
+    </div>
+
+    <div class="accesibilidad">
+        <button id="btn-accesibilidad" title="Opciones de accesibilidad" class="icon-btn-rounded">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div id="menu-accesibilidad" class="menu-accesibilidad">
+            <button id="aumentar-texto">Aumentar texto</button>
+            <button id="disminuir-texto">Disminuir texto</button>
+            <button id="alto-contraste">Alto contraste</button>
+            <button id="modo-oscuro">Modo oscuro</button>
+            <button id="resaltar-enlaces">Resaltar enlaces</button>
+            <button id="fuente-legible">Fuente legible</button>
+            <button id="cursor-grande">Cursor grande</button>
+            <button id="desaturar">Blanco y negro</button>
+            <button id="reset-accesibilidad">Restablecer</button>
+        </div>
+    </div>
+</header>
+
+
+<section class="stats">
+  <div class="stat-card blue">
+    <span>Productos registrados</span>
+    <strong>160</strong>
+  </div>
+
+  <div class="stat-card green">
+    <span>Insumos registrados</span>
+    <strong>160</strong>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Tipos de productos</h2>
+
+  <div class="grid">
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+    <div class="card">
+      <strong>40</strong>
+      <span>Base sencilla</span>
+    </div>
+  </div>
+  
+</section>
+
+<section class="section">
+  <h2>Tipos de insumo</h2>
+
+  <div class="grid">
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+    <div class="card">
+      <strong>20</strong>
+      <span>Madera</span>
+    </div>
+  </div>
+</section>
+</body>
+
+</body>
+</html>

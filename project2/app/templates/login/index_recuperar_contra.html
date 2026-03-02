@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recuperar Contraseña{% endblock title %}
+
+{% block content %}
+
+<div class="idioma-container">
+    <button class="boton-idioma">
+        <i class="fa-solid fa-globe"></i> ES
+    </button>
+</div>
+
+<div class="ayuda-container">
+    <button class="boton-ayuda">
+        <i class="fa-solid fa-question"></i>
+    </button>
+</div>
+
+<h1 class="titulo" data-i18n="titulo-recuperar">RECUPERAR CONTRASEÑA</h1>
+
+<div class="contenedor">
+    <form id="recoveryForm">
+        <p class="form-instruction" data-i18n="texto-ingresa-correo">Ingrese un correo</p>
+        <div class="input-container">
+            <input 
+                type="email"
+                id="recoveryCorreo" data-i18n="placeholder-email"
+                placeholder="usuario@dominio.com"
+                class="email-input"
+                required
+            >
+        </div>
+        <span id="recoveryEmailError" class="error-msg"></span>
+        
+        <button
+            type="submit"
+            id="recoveryButton"
+            class="botonr"
+            disabled
+            data-i18n="texto-generar-codigo"
+        >
+            Generar código de verificación
+        </button>
+        
+        </form>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'ap1/js/script_login.js' %}"></script>
+{% endblock extra_js %}

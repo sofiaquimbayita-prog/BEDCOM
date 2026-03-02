@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salida de Productos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="SalidaP.css">
+    <script src="SalidaP.js" defer></script>
+</head>
+<body>
+    
+    <header class="topbar">
+    <div class="perfil-container">
+        <button id="perfilBtn" class="avatar-btn" aria-controls="dropdownMenu" aria-expanded="false"
+            aria-label="Menú de usuario">
+            <div class="user-photo">
+                <i class="fas fa-user"></i>
+            </div>
+        </button>
+        <div id="dropdownMenu" class="dropdown oculto">
+            <a href="/Proyecto_2/0-LOGIN/logout.php" id="logoutBtn">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="title">{% block header_title %}Salida de Productos{% endblock %}</div> 
+
+    <label class="search" aria-label="Buscar" for="searchInput">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="searchInput" placeholder="Buscar" />
+    </label>
+
+    <div class="icon-right-container">
+        <button id="noti" class="notif-btn" aria-label="Notificaciones">
+            <div class="rounded-icon-wrapper">
+                <i class="fas fa-bell icono-noti"></i>
+            </div>
+        </button>
+        <div id="noti-menu" class="oculto">
+            <ul></ul>
+        </div>
+
+        <a href="/Proyecto_2/10-AJUSTES/BCKUP-Ajustes.html" class="icon-btn-rounded" title="Ajustes">
+            <i class="fas fa-cog"></i>
+        </a>
+
+    </div>
+
+    <div class="accesibilidad">
+        <button id="btn-accesibilidad" title="Opciones de accesibilidad" class="icon-btn-rounded">
+            <i class="fas fa-universal-access"></i>
+        </button>
+        <div id="menu-accesibilidad" class="menu-accesibilidad">
+            <button id="aumentar-texto">Aumentar texto</button>
+            <button id="disminuir-texto">Disminuir texto</button>
+            <button id="alto-contraste">Alto contraste</button>
+            <button id="modo-oscuro">Modo oscuro</button>
+            <button id="resaltar-enlaces">Resaltar enlaces</button>
+            <button id="fuente-legible">Fuente legible</button>
+            <button id="cursor-grande">Cursor grande</button>
+            <button id="desaturar">Blanco y negro</button>
+            <button id="reset-accesibilidad">Restablecer</button>
+        </div>
+    </div>
+</header>
+
+<main class="main-content">
+        <div class="modal-container">
+            <div class="modal-header">
+                <i class="fas fa-shopping-cart"></i>
+                salida de productos
+            </div>
+            
+            <form id="formSalida" class="form-salida">
+            <div class="form-group">
+                    <label for="producto">Producto</label>
+                    <select id="producto" class="form-control">
+                    <option value="">Selecciona un producto</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" id="cantidad" class="form-control" placeholder="Ingrese la cantidad retirada">
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha de salidad</label>
+                <input type="date" id="fecha" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="motivo">Motivo de salida</label>
+                <textarea id="motivo" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="responsable">Responsable</label>
+                <input type="text" id="responsable" class="form-control" placeholder="Ingrese nombre">
+            </div>
+
+            <button type="submit" class="btn-submit">Registrar salida</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>
