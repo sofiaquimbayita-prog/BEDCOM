@@ -61,21 +61,35 @@
             <div class="divicion">
                 <div class="form-grupo">
                     <label for="ed_proveedor">Proveedor</label>
-                    <select name="id_proveedor" id="ed_proveedor" class="form-select" required>
-                        <option value="" disabled>— Selecciona —</option>
-                        {% for p in proveedor %}
-                            <option value="{{ p.id }}">{{ p.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="select-con-boton">
+                        <select name="id_proveedor" id="ed_proveedor" class="form-select select2-insumo" required>
+                            <option value="" disabled>— Selecciona —</option>
+                            {% for p in proveedor %}
+                                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn--add"
+                                onclick="abrirModalProveedor('ed_proveedor')"
+                                title="Agregar nuevo proveedor">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-grupo">
                     <label for="ed_categoria">Categoría</label>
-                    <select name="id_categoria" id="ed_categoria" class="form-select" required>
-                        <option value="" disabled>— Selecciona —</option>
-                        {% for c in categorias %}
-                            <option value="{{ c.id }}">{{ c.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="select-con-boton">
+                        <select name="id_categoria" id="ed_categoria" class="form-select select2-insumo" required>
+                            <option value="" disabled>— Selecciona —</option>
+                            {% for c in categorias %}
+                                <option value="{{ c.id }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn--add"
+                                onclick="abrirModalCategoria('ed_categoria')"
+                                title="Agregar nueva categoría">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 

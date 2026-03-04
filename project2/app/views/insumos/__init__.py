@@ -6,4 +6,6 @@ from .views import (
     InsumoUpdateView,
     InsumoInactivarView,
     InsumoActivarView,
+    CategoriaCreateView,
+    ProveedorCreateView,    
 )

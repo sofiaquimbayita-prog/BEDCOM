@@ -40,8 +40,8 @@ class insumosForm(forms.ModelForm):
             raise forms.ValidationError('La cantidad debe ser un número entero.')
         if cantidad <= 0:
             raise forms.ValidationError('La cantidad debe ser mayor a 0.')
-        if cantidad > 1000:
-            raise forms.ValidationError('La cantidad no puede superar 1000.')
+        if cantidad > 10000:
+            raise forms.ValidationError('La cantidad no puede superar 10000.')
         return cantidad
 
     def clean_precio(self):

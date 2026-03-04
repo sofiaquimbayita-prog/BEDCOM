@@ -1,0 +1,47 @@
+<div class="modal" id="modal--proveedor">
+    <div class="modal-contenido modal-contenido--">
+        <div class="modal-header modal-header--agregar">
+            <h3 class="modal-titulo">
+                <i class="fa-solid fa-truck-fast"></i>
+                Nuevo Proveedor
+            </h3>
+        </div>
+
+        <form id="form--proveedor" method="post">
+            {% csrf_token %}
+
+            <div class="form-grupo">
+                <label for="qprov_nombre">Nombre del proveedor</label>
+                <input type="text" name="nombre" id="qprov_nombre" class="form-input"
+                       maxlength="100" autocomplete="off"
+                       placeholder="Ej: Distribuidora Textil">
+                <span class="msg-error" id="error-qprov-nombre" role="alert" style="display:none;"></span>
+            </div>
+
+            <div class="form-grupo">
+                <label for="qprov_telefono">Teléfono <span class="label-opcional">(10 dígitos)</span></label>
+                <input type="text" name="telefono" id="qprov_telefono" class="form-input"
+                       maxlength="10" autocomplete="off"
+                       placeholder="Ej: 3101234567">
+                <span class="msg-error" id="error-qprov-telefono" role="alert" style="display:none;"></span>
+            </div>
+
+            <div class="form-grupo">
+                <label for="qprov_direccion">Dirección</label>
+                <input type="text" name="direccion" id="qprov_direccion" class="form-input"
+                       maxlength="200" autocomplete="off"
+                       placeholder="Ej: Calle 10 # 5-23, Sogamoso">
+                <span class="msg-error" id="error-qprov-direccion" role="alert" style="display:none;"></span>
+            </div>
+
+            <div class="form-botones">
+                <button type="button" class="btn-cancelar" data-modal="modal--proveedor">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button type="submit" id="btn--prov-guardar" class="btn-guardar">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

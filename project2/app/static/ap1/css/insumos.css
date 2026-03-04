@@ -1312,3 +1312,109 @@ input:checked+.slider::before {
     padding: 5px;
   }
 }
+
+/* ══════════════════════════════════════════════
+   SELECT CON BOTÓN -ADD
+   ══════════════════════════════════════════════ */
+.select-con-boton {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.select-con-boton .form-select,
+.select-con-boton .select2-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn--add {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #385ef8, #5b7aff);
+    color: #fff;
+    border: none;
+    border-radius: var(--borde-md);
+    cursor: pointer;
+    transition: background var(--transicion-rapida),
+                transform var(--transicion-rapida),
+                box-shadow var(--transicion-rapida);
+    box-shadow: 0 2px 8px rgba(56, 94, 248, 0.35);
+}
+
+.btn--add:hover {
+    background: linear-gradient(135deg, #2a4de0, #4a6bff);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(56, 94, 248, 0.5);
+}
+
+.btn--add:active {
+    transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════════
+   MODAL  (categoría / proveedor)
+   ══════════════════════════════════════════════ */
+.modal-contenido-- {
+    max-width: 420px;
+    width: 90%;
+}
+
+/* Select2 — integración con el tema oscuro */
+.select2-container--default .select2-selection--single {
+    background-color: var(--color-superficie-input) !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md) !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    color: var(--color-texto) !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--color-texto) !important;
+    line-height: 40px !important;
+    padding-left: 12px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--color-texto-muted) transparent transparent transparent !important;
+}
+
+.select2-dropdown {
+    background-color: #1e293b !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md) !important;
+    color: var(--color-texto) !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #385ef8 !important;
+    color: #fff !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: rgba(56, 94, 248, 0.2) !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+    background-color: var(--color-superficie-input) !important;
+    border: 1px solid var(--color-borde) !important;
+    color: var(--color-texto) !important;
+    border-radius: var(--borde-sm) !important;
+    padding: 6px 10px !important;
+    outline: none !important;
+}
+
+.select2-results__option {
+    color: var(--color-texto) !important;
+    padding: 8px 12px !important;
+}

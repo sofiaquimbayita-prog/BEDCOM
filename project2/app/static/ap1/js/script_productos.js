@@ -753,18 +753,18 @@ function abrirModalActivar(id, nombre, urlImagen) {
 }
 
 /* ==================================================
-   QUICK CATEGORY CREATION (FROM PRODUCTS)
+    CATEGORY CREATION (FROM PRODUCTS)
    ================================================== */
 var targetSelectId = null;
 
 // Función para abrir el modal de creación rápida de categoría
-window.abrirModalQuickCategoria = function(selectId) {
+window.abrirModalCategoria = function(selectId) {
     targetSelectId = selectId;
-    var modal = document.getElementById('modalQuickCategoria');
+    var modal = document.getElementById('modalCategoria');
     modal.style.display = 'flex';
     
     // Limpiar el formulario
-    var form = document.getElementById('formQuickCategoria');
+    var form = document.getElementById('formCategoria');
     if (form) {
         form.reset();
         // Limpiar errores
@@ -777,18 +777,18 @@ window.abrirModalQuickCategoria = function(selectId) {
 };
 
 // Función para mostrar errores en el formulario de categoría rápida
-function mostrarErroresQuickCategoria(errors) {
+function mostrarErroresCategoria(errors) {
     if (errors.nombre) {
-        var inputNombre = document.getElementById('inputQuickNombre');
-        var errorSpan = document.getElementById('errorQuickNombre');
+        var inputNombre = document.getElementById('inputNombre');
+        var errorSpan = document.getElementById('errorNombre');
         if (inputNombre && errorSpan) {
             errorSpan.textContent = errors.nombre.join(', ');
             errorSpan.style.display = 'block';
         }
     }
     if (errors.descripcion) {
-        var inputDesc = document.getElementById('inputQuickDescripcion');
-        var errorSpan = document.getElementById('errorQuickDescripcion');
+        var inputDesc = document.getElementById('inputDescripcion');
+        var errorSpan = document.getElementById('errorDescripcion');
         if (inputDesc && errorSpan) {
             errorSpan.textContent = errors.descripcion.join(', ');
             errorSpan.style.display = 'block';
@@ -798,7 +798,7 @@ function mostrarErroresQuickCategoria(errors) {
 
 // Evento para crear categoría rápida via AJAX
 $(document).ready(function() {
-    $(document).on('submit', '#formQuickCategoria', function(e) {
+    $(document).on('submit', '#formCategoria', function(e) {
         e.preventDefault();
         
         var form = this;
@@ -824,7 +824,7 @@ $(document).ready(function() {
         .then(function(data) {
             if (data.success) {
                 // Cerrar el modal de categoría
-                cerrarModal('modalQuickCategoria');
+                cerrarModal('modalCategoria');
                 
                 // Mostrar notificación de éxito
                 mostrarNotificacion('Éxito', data.message || 'Categoría creada correctamente', 'success');
@@ -851,7 +851,7 @@ $(document).ready(function() {
             } else {
                 // Mostrar errores
                 if (data.errors) {
-                    mostrarErroresQuickCategoria(data.errors);
+                    mostrarErroresCategoria(data.errors);
                 }
                 if (data.message) {
                     mostrarNotificacion('Error', data.message, 'error');

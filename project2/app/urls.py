@@ -43,6 +43,8 @@ urlpatterns = [
     path('insumos/editar/<int:pk>/', insumos.InsumoUpdateView.as_view(), name='editar_insumo'),
     path('insumos/inactivar/<int:pk>/', insumos.InsumoInactivarView.as_view(), name='inactivar_insumo'),
     path('insumos/activar/<int:pk>/', insumos.InsumoActivarView.as_view(), name='activar_insumo'),
+    path('insumos/crear_categoria/', insumos.CategoriaCreateView.as_view(), name='insumo_crear_categoria'),
+    path('insumos/crear_proveedor/', insumos.ProveedorCreateView.as_view(), name='insumo_crear_proveedor'),
 
     # --- CALENDARIO ---
     path('calendario/', calendario.CalendarioView.as_view(), name='calendario'),

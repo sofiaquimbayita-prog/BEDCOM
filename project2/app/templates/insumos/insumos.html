@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/insumos.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <main class="main-container">
 
@@ -45,15 +46,20 @@
     </div>
 </main>
 
-{% include "insumos/modal_insumos.html"   %}
-{% include "insumos/modal_editar.html"    %}
-{% include "insumos/modal_ver.html"       %}
-{% include "insumos/modal_inactivar.html" %}
+{% include "insumos/modal_insumos.html"         %}
+{% include "insumos/modal_editar.html"          %}
+{% include "insumos/modal_ver.html"             %}
+{% include "insumos/modal_inactivar.html"       %}
+{% include "insumos/modal_categoria.html" %}
+{% include "insumos/modal_proveedor.html" %}
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    const INSUMOS_DATA_URL = "{% url 'insumos_data' %}";
+    const INSUMOS_DATA_URL       = "{% url 'insumos_data' %}";
+    const INSUMO_CREAR_CAT_URL   = "{% url 'insumo_crear_categoria' %}";
+    const INSUMO_CREAR_PROV_URL  = "{% url 'insumo_crear_proveedor' %}";
 </script>
 <script src="{% static 'ap1/js/insumos.js' %}"></script>
 {% endblock %}

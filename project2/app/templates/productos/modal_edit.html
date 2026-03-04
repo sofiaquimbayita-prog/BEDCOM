@@ -28,7 +28,7 @@
                         <option value="{{ cat.id }}" {% if object.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
                     {% endfor %}
                 </select>
-                <button type="button" class="btn-quick-add" onclick="abrirModalQuickCategoria('inputEditCategoria')" title="Agregar nueva categoría" style="padding: 10px 14px; background: #385ef8; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                <button type="button" class="btn--add" onclick="abrirModalCategoria('inputEditCategoria')" title="Agregar nueva categoría" style="padding: 10px 14px; background: #385ef8; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
