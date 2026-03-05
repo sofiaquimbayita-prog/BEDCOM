@@ -3,6 +3,8 @@
         
         <div class="perfil-section">
             <div class="perfil-container">
+                {% if titulo_pagina == 'MENÚ PRINCIPAL' %}
+                {# Vista del Menú Principal: Mostrar botón de perfil #}
                 <button id="perfilBtn" class="avatar-btn" aria-controls="dropdownMenu" aria-expanded="false" aria-label="Menú de usuario">
                     <div class="user-photo">
                         {% if usuario_perfil.foto %}
@@ -57,6 +59,13 @@
                         </button>
                     </form>
                 </div>
+                {% else %}
+                {# Cualquier otro módulo: Mostrar botón para volver al menú #}
+                <a href="{% url 'menu' %}" class="btn-volver-menu" aria-label="Volver al Menú Principal">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver al Menú</span>
+                </a>
+                {% endif %}
             </div>
         </div>
 

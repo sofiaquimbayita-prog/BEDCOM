@@ -3,7 +3,7 @@
   --color-principal: #51a3d3;
   --color-principal-oscuro: #347ea9;
   --color-secundario: #4b89d4;
-  --color-acento: #e1f4d9;
+  --color-acento: #00b3ff;
   --imagen-fondo: url(../img/fondo.jpg);
   --color-superficie: rgba(30, 41, 59, 0.9);
   --color-texto: #ffffff;
@@ -120,7 +120,7 @@ header {
 }
 
 #tablaProductos tbody td:nth-child(6) {
-    color: #2ecc71;
+    color: #385ef8;
     font-weight: bold;
 }
 
@@ -131,6 +131,12 @@ header {
 #tablaProductos td:nth-child(6) {
     display: table-cell;
     text-align: center;
+}
+
+/* Precio en la tabla */
+#tablaProductos td:nth-child(4) {
+    color: #385ef8;
+    font-weight: bold;
 }
 
 /* ==================================================
@@ -294,10 +300,29 @@ input:-webkit-autofill {
   cursor: pointer;
   font-size: 16px;
   transition: all ease 0.3s;
+  position: relative;
+  overflow: hidden;
 }
+
+.button-3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
 .button-3:hover {
-  background: #374b72cc;
-  box-shadow: var(--sombra-lg);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+  background: linear-gradient(135deg, #363c3e 0%, #17272e 100%);
+}
+
+.button-3:hover::before {
+  left: 100%;
 }
 
 .modal-footer {
@@ -336,57 +361,55 @@ input:-webkit-autofill {
 
 .acciones button {
   border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 50%;
   cursor: pointer;
   color: white;
   white-space: nowrap;
 }
 
-.view-btn {
-  color: #7dd3fc;
-  background-color: transparent;
-  transition: color .18s ease, transform .18s ease;
+.view-btn, .edit-btn, .delete-btn, .activate-btn {
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 40px;
+  height: 40px;
 }
 
 .view-btn:hover {
-  color: #0ea5e9;
-  transform: translateY(-3px);
-}
-
-.edit-btn {
-  color: #fde68a;
-  background-color: transparent;
-  transition: color .18s ease, transform .18s ease;
+  color: #38bdf8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
 }
 
 .edit-btn:hover {
-  color: #f59e0b;
-  transform: translateY(-3px);
-}
-
-.delete-btn {
-  color: #ef4444;
-  background-color: transparent;
-  transition: color .18s ease, transform .18s ease;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
 }
 
 .delete-btn:hover {
-  color: #dc2626;
-  transform: translateY(-3px);
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-.activate-btn,
-.reactivar-btn {
-  color: #2ecc71;
-  background-color: transparent;
-  transition: color .18s ease, transform .18s ease;
-}
-
-.activate-btn:hover,
-.reactivar-btn:hover {
-  color: #27ae60;
-  transform: translateY(-3px);
+.activate-btn:hover { 
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 
 .modal-delete {
@@ -531,6 +554,9 @@ input:-webkit-autofill {
     display: inline-block;
     width: 45px;
     height: 24px;
+}
+.switch-container:hover {
+  border-color: var(--color-acento);
 }
 
 .switch-control input {
@@ -778,13 +804,11 @@ input:checked + .slider:before {
   }
   
   .toolbar-left {
-    order: 2;
     justify-content: center;
     width: 100%;
   }
   
   .toolbar-right {
-    order: 1;
     justify-content: center;
     width: 100%;
   }

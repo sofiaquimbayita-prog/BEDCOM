@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from ...models import proveedor
 from ...forms import ProveedorForm
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorListView(ListView):
     model = proveedor
     template_name = 'proveedores/proveedores.html'
@@ -107,7 +107,7 @@ class ProveedorUpdateView(View):
                 'message': str(e)
             }, status=500)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorDeleteView(View):
     def post(self, request, pk):
         try:
@@ -119,7 +119,7 @@ class ProveedorDeleteView(View):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorActivateView(View):
     def post(self, request, pk):
         try:
@@ -131,7 +131,7 @@ class ProveedorActivateView(View):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class ProveedorDataView(View):
     def get(self, request):
         try:

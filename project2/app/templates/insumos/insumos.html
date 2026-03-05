@@ -9,17 +9,21 @@
 
 <main class="main-container">
 
-    <div class="toolbar-insumos">
-        <button class="btn-agregar" id="btn-agregar-insumo">
-            <i class="fas fa-plus"></i> Agregar Insumo
-        </button>
-
-        <div class="switch-container" title="Mostrar insumos inactivos">
-            <span class="switch-text">Mostrar Inactivos</span>
-            <label class="switch-control">
-                <input type="checkbox" id="toggleInactivos">
-                <span class="slider"></span>
-            </label>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="switch-container" title="Mostrar insumos inactivos">
+                <span class="switch-text">Mostrar Inactivos</span>
+                <label class="switch-control">
+                    <input type="checkbox" id="toggleInactivos">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="toolbar-right">
+            <button class="btn-agregar" id="btn-agregar-insumo">
+                <i class="fas fa-plus"></i> Agregar Insumo
+            </button>
         </div>
     </div>
 

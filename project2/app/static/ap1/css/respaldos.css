@@ -1,5 +1,5 @@
 :root {
-  --imagen-fondo: url('../imagenes/fondo.jpg');
+  --fondo: url('../img/fondo.jpg');
   --bg: #0b1220;
   --card: #0f1724cc;
   --card-hover: #233142cc;
@@ -23,7 +23,6 @@
 }
 
 body {
-  background: var(--imagen-fondo);
   background-size: cover;
   background-attachment: fixed;
   color: var(--text);

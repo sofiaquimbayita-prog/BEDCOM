@@ -29,20 +29,25 @@
 {% endif %}
 
 <main class="proveedores">
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; gap:12px;">
-        <button class="button-3" onclick="abrirModal('modalAdd')">
-            <i class="fas fa-plus"></i> Nuevo Proveedor
-        </button>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="switch-container">
+                <span class="switch-text">Mostrar inactivos</span>
+                <label class="switch-control">
+                    <input type="checkbox" id="toggleInactivos">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="toolbar-right">
+            <button class="button-3" onclick="abrirModal('modalAdd')">
+                <i class="fas fa-plus"></i> Nuevo Proveedor
+            </button>
+        </div>
     </div>
 
     <div class="container-tabla">
-        <div class="switch-container">
-            <span class="switch-text">Mostrar inactivos</span>
-            <label class="switch-control">
-                <input type="checkbox" id="toggleInactivos">
-                <span class="slider"></span>
-            </label>
-        </div>
         <table id="tablaProveedores" class="display responsive nowrap" style="width:100%">
             <thead>
                 <tr>

@@ -268,9 +268,9 @@ function generarBotonesAccion(proveedor) {
     botones += '<button class="edit-btn" onclick="editarProveedor(' + proveedor.id + ')"><i class="fas fa-pen-to-square"></i></button> ';
     
     if (proveedor.estado) {
-        botones += '<button class="delete-btn" onclick="eliminarProveedor(' + proveedor.id + ', \'' + proveedor.nombre.replace(/'/g, "\\'") + '\')"><i class="fas fa-trash-can"></i></button>';
+        botones += '<button class="delete-btn" onclick="eliminarProveedor(' + proveedor.id + ', \'' + proveedor.nombre.replace(/'/g, "\\'") + '\')"><i class="fas fa-ban"></i></button>';
     } else {
-        botones += '<button class="activate-btn" onclick="activarProveedor(' + proveedor.id + ', \'' + proveedor.nombre.replace(/'/g, "\\'") + '\')"><i class="fas fa-power-off"></i></button>';
+        botones += '<button class="activate-btn" onclick="activarProveedor(' + proveedor.id + ', \'' + proveedor.nombre.replace(/'/g, "\\'") + '\')"><i class="fas fa-redo"></i></button>';
     }
     
     return botones;

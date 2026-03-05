@@ -3,12 +3,14 @@ from django.shortcuts import render
 from django.db.models import Sum, F, FloatField, Count
 from django.db.models.functions import ExtractMonth, Cast
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 
 # IMPORTACIÓN CORREGIDA: Apuntamos a la raíz de la app para encontrar los modelos
 from app.models import pedido, detalle_pedido, despacho, compra, insumo
 
-@login_required
+@method_decorator(csrf_exempt, name='dispatch')
 def reporte_ventas(request):
     # 1. TOTAL VENTAS MES ACTUAL
     ahora = timezone.now()
