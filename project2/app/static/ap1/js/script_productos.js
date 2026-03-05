@@ -211,7 +211,16 @@ function limpiarErrores(form) {
 // Funciones globales para modales
 window.abrirModal = function(idModal) {
     var modal = document.getElementById(idModal);
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // Inicializar Select2 cuando se abre el modal de agregar producto
+        if (idModal === 'modalAdd') {
+            setTimeout(function() {
+                initSelect2EnModal('modalAdd');
+            }, 100);
+        }
+    }
 };
 
 window.cerrarModal = function(idModal) {
@@ -233,6 +242,45 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
     }
 });
+
+// Función para inicializar Select2 en el modal de agregar producto
+function initSelect2EnModal(modalId) {
+    // Inicializar Select2 para el modal de agregar
+    if (modalId === 'modalAdd') {
+        var selectCategoria = $('#inputCategoria');
+        if (selectCategoria.length && !selectCategoria.hasClass('select2-hidden-accessible')) {
+            selectCategoria.select2({
+                dropdownParent: $('#modalAdd'),
+                placeholder: 'Seleccione o busque una categoría',
+                width: '100%',
+                minimumResultsForSearch: 0,
+                allowClear: true,
+                language: 'es'
+            });
+        }
+    }
+    
+    // Inicializar Select2 para el modal de editar
+    if (modalId === 'modalEdit') {
+        var selectEditCategoria = $('#inputEditCategoria');
+        if (selectEditCategoria.length && !selectEditCategoria.hasClass('select2-hidden-accessible')) {
+            selectEditCategoria.select2({
+                dropdownParent: $('#modalEdit'),
+                placeholder: 'Seleccione o busque una categoría',
+                width: '100%',
+                minimumResultsForSearch: 0,
+                allowClear: true,
+                language: 'es'
+            });
+        }
+    }
+}
+
+// Función para inicializar Select2 en ambos modales
+function initSelect2EnTodosLosModales() {
+    initSelect2EnModal('modalAdd');
+    initSelect2EnModal('modalEdit');
+}
 
 $(document).ready(function() {
     
@@ -617,6 +665,11 @@ function abrirModalEditar(id) {
                         mostrarErroresPorElemento(this, errores);
                     });
                 }
+                
+                // Inicializar Select2 en el modal de edición después de cargar el contenido
+                setTimeout(function() {
+                    initSelect2EnModal('modalEdit');
+                }, 100);
             }
         }
     })
@@ -698,3 +751,118 @@ function abrirModalActivar(id, nombre, urlImagen) {
 
     modal.style.display = 'flex';
 }
+
+/* ==================================================
+   QUICK CATEGORY CREATION (FROM PRODUCTS)
+   ================================================== */
+var targetSelectId = null;
+
+// Función para abrir el modal de creación rápida de categoría
+window.abrirModalQuickCategoria = function(selectId) {
+    targetSelectId = selectId;
+    var modal = document.getElementById('modalQuickCategoria');
+    modal.style.display = 'flex';
+    
+    // Limpiar el formulario
+    var form = document.getElementById('formQuickCategoria');
+    if (form) {
+        form.reset();
+        // Limpiar errores
+        var errorSpans = form.querySelectorAll('.error-msg');
+        errorSpans.forEach(function(span) {
+            span.textContent = '';
+            span.style.display = 'none';
+        });
+    }
+};
+
+// Función para mostrar errores en el formulario de categoría rápida
+function mostrarErroresQuickCategoria(errors) {
+    if (errors.nombre) {
+        var inputNombre = document.getElementById('inputQuickNombre');
+        var errorSpan = document.getElementById('errorQuickNombre');
+        if (inputNombre && errorSpan) {
+            errorSpan.textContent = errors.nombre.join(', ');
+            errorSpan.style.display = 'block';
+        }
+    }
+    if (errors.descripcion) {
+        var inputDesc = document.getElementById('inputQuickDescripcion');
+        var errorSpan = document.getElementById('errorQuickDescripcion');
+        if (inputDesc && errorSpan) {
+            errorSpan.textContent = errors.descripcion.join(', ');
+            errorSpan.style.display = 'block';
+        }
+    }
+}
+
+// Evento para crear categoría rápida via AJAX
+$(document).ready(function() {
+    $(document).on('submit', '#formQuickCategoria', function(e) {
+        e.preventDefault();
+        
+        var form = this;
+        var formData = new FormData(form);
+        
+        // Limpiar errores previos
+        var errorSpans = form.querySelectorAll('.error-msg');
+        errorSpans.forEach(function(span) {
+            span.textContent = '';
+            span.style.display = 'none';
+        });
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                // Cerrar el modal de categoría
+                cerrarModal('modalQuickCategoria');
+                
+                // Mostrar notificación de éxito
+                mostrarNotificacion('Éxito', data.message || 'Categoría creada correctamente', 'success');
+                
+                // Recargar las categorías en el select objetivo
+                if (targetSelectId) {
+                    var select = document.getElementById(targetSelectId);
+                    if (select) {
+                        // Verificar si es un Select2
+                        if ($(select).hasClass('select2-hidden-accessible')) {
+                            // Usar Select2 para agregar la opción
+                            var newOption = new Option(data.categoria_nombre, data.categoria_id, true, true);
+                            $(select).append(newOption).trigger('change');
+                        } else {
+                            // Usar método normal para select estándar
+                            var newOption = document.createElement('option');
+                            newOption.value = data.categoria_id;
+                            newOption.textContent = data.categoria_nombre;
+                            newOption.selected = true;
+                            select.appendChild(newOption);
+                        }
+                    }
+                }
+            } else {
+                // Mostrar errores
+                if (data.errors) {
+                    mostrarErroresQuickCategoria(data.errors);
+                }
+                if (data.message) {
+                    mostrarNotificacion('Error', data.message, 'error');
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            mostrarNotificacion('Error', 'Error al conectar con el servidor.', 'error');
+        });
+        
+        return false;
+    });
+});

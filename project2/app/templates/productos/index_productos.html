@@ -90,6 +90,9 @@
                     <td>{{ p.estado|yesno:'Activo,Inactivo' }}</td>
                     <td>
                         <div class="acciones">
+                            <button class="bom-btn" title="Enviar a BOM" onclick="event.stopPropagation();">
+                                <i class="fas fa-cogs"></i>
+                            </button>
                             <button class="view-btn" title="Ver detalle"
                                     onclick="abrirModalVer('{{ p.nombre }}', '{% if p.descripcion %}{{ p.descripcion }}{% endif %}', '{% if p.imagen %}{{ p.imagen.url }}{% endif %}', '{{ p.precio }}', '{{ p.stock }}', '{{ p.categoria.nombre }}')">
                                 <i class="fas fa-eye"></i>
@@ -135,6 +138,10 @@
 </div>
 <div id="modalView" class="modal" style="display: none;">
     {% include "productos/modal_view.html" %}
+</div>
+
+<div id="modalQuickCategoria" class="modal" style="display: none;">
+    {% include "productos/modal_quick_categoria.html" %}
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

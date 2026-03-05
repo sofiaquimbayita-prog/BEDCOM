@@ -1,0 +1,38 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'ap1/css/styles_categorias.css' %}">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2><i class="fas fa-edit"></i> Editar Categoría</h2>
+    </div>
+    
+    <form method="POST" id="formEditarCategoria" action="" >
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>NOMBRE DE LA CATEGORÍA</label>
+            <input type="text" name="nombre" id="inputEditNombre" value="{{ object.nombre }}" placeholder="Ej: Camas, Colchones, Muebles">
+            <span class="error-msg" id="errorEditNombre"></span>
+        </div>
+
+        <div class="form-group">
+            <label>DESCRIPCIÓN</label>
+            <textarea name="descripcion" id="inputEditDescripcion" rows="3" placeholder="Ej: Categoría para productos de cama...">{{ object.descripcion|default:'' }}</textarea>
+            <span class="error-msg" id="errorEditDescripcion"></span>
+        </div>
+
+        <div class="form-group">
+            <label>TIPO</label>
+            <select name="tipo" id="inputEditTipo">
+                <option value="producto" {% if object.tipo == 'producto' %}selected{% endif %}>Producto</option>
+                <option value="insumo" {% if object.tipo == 'insumo' %}selected{% endif %}>Insumo</option>
+            </select>
+            <span class="error-msg" id="errorEditTipo"></span>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEdit')">Cancelar</button>
+            <button type="submit" class="btn-save">Actualizar Cambios</button>
+        </div>
+    </form>
+</div>
+

@@ -32,7 +32,8 @@ class producto_list_view(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = categoria.objects.all()
+        # Filtrar solo categorías de tipo producto
+        context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
         context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
         return context
 
@@ -132,7 +133,8 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = categoria.objects.all()
+        # Filtrar solo categorías de tipo producto
+        context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
         return context
 
     def form_valid(self, form):

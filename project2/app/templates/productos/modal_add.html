@@ -22,12 +22,17 @@
 
         <div class="form-group">
             <label>CATEGORÍA</label>
-            <select name="categoria" id="inputCategoria">
-                <option value="" disabled selected>Seleccione categoría</option>
-                {% for cat in categorias %}
-                <option value="{{ cat.id }}">{{ cat.nombre }}</option>
-                {% endfor %}
-            </select>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <select name="categoria" id="inputCategoria" style="flex: 1;">
+                    <option value="" disabled selected>Seleccione categoría</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn-quick-add" onclick="abrirModalQuickCategoria('inputCategoria')" title="Agregar nueva categoría" style="padding: 10px 14px; background: #385ef8; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
             <span class="error-msg" id="errorCategoria"></span>
         </div>
 

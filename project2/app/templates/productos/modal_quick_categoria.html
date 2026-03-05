@@ -1,0 +1,31 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'ap1/css/styles_categorias.css' %}">
+<div class="modal-content">
+    <div class="modal-header">
+        <h2><i class="fas fa-folder-plus"></i> Nueva Categoría</h2>
+    </div>
+    
+    <form id="formQuickCategoria" method="POST" action="{% url 'crear_categoria' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>NOMBRE DE LA CATEGORÍA</label>
+            <input type="text" name="nombre" id="inputQuickNombre" placeholder="Ej: Camas, Colchones, Muebles">
+            <span class="error-msg" id="errorQuickNombre"></span>
+        </div>
+
+        <div class="form-group">
+            <label>DESCRIPCIÓN</label>
+            <textarea name="descripcion" id="inputQuickDescripcion" rows="3" placeholder="Ej: Categoría para productos de cama..."></textarea>
+            <span class="error-msg" id="errorQuickDescripcion"></span>
+        </div>
+
+        <input type="hidden" name="tipo" value="producto">
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalQuickCategoria')">Cancelar</button>
+            <button type="submit" id="btnQuickGuardar" class="btn-save">Guardar</button>
+        </div>
+    </form>
+</div>
+

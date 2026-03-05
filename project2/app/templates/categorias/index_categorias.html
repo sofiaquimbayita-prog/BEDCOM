@@ -1,0 +1,121 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Gestión de Categorías{% endblock %}
+
+{% block messages %}
+{% if messages %}
+<div class="messages" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/styles_categorias.css' %}">
+
+<main class="productos">
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="switch-container">
+                <span class="switch-text">Mostrar inactivos</span>
+                <label class="switch-control">
+                    <input type="checkbox" id="toggleInactivos">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="toolbar-right">
+            <button class="button-3" onclick="event.preventDefault(); abrirModal('modalAdd');">
+                <i class="fas fa-plus"></i> <span class="btn-text">Nueva Categoría</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container-tabla">
+        <table id="tablaCategorias" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for c in categorias %}
+                <tr>
+                    <td style="font-weight: bold;">{{ c.nombre }}</td>
+                    <td>{{ c.descripcion|truncatechars:80 }}</td>
+                    <td>{{ c.estado|yesno:'Activo,Inactivo' }}</td>
+                    <td>
+                        <div class="acciones">
+                            <button class="edit-btn" title="Editar categoría" onclick="abrirModalEditar('{{ c.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if c.estado %}
+                            <button class="delete-btn" title="Desactivar categoría"
+                                    onclick="abrirModalEliminar('{{ c.id }}', '{{ c.nombre }}')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            {% else %}
+                            <button class="activate-btn" title="Activar categoría"
+                                    onclick="abrirModalActivar('{{ c.id }}', '{{ c.nombre }}')">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 20px;">No hay categorías disponibles en la base de datos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<div id="modalAdd" class="modal" style="display: none;">
+    {% include "categorias/modal_add.html" %}
+</div>
+
+<div id="modalEdit" class="modal" style="display: none;"></div>
+
+<div id="modalDelete" class="modal" style="display: none;">
+    {% include "categorias/modal_delete.html" %}
+</div>
+
+<div id="modalActivar" class="modal" style="display: none;">
+    {% include "categorias/modal_activar.html" %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'ap1/js/script_categorias.js' %}"></script>
+
+{% endblock %}
+

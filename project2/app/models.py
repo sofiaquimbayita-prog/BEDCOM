@@ -3,8 +3,16 @@ from django.db import models
 # --- MODELOS BASE ---
 
 class categoria(models.Model):
+    TIPO_PRODUCTO = 'producto'
+    TIPO_INSUMO = 'insumo'
+    TIPO_CHOICES = [
+        (TIPO_PRODUCTO, 'Producto'),
+        (TIPO_INSUMO, 'Insumo'),
+    ]
+    
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField()
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default=TIPO_PRODUCTO)
     estado = models.BooleanField(default=True)
 
     def __str__(self):

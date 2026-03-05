@@ -22,11 +22,16 @@
 
         <div class="form-group">
             <label>CATEGORÍA</label>
-            <select name="categoria" id="inputEditCategoria">
-                {% for cat in categorias %}
-                    <option value="{{ cat.id }}" {% if object.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
-                {% endfor %}
-            </select>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <select name="categoria" id="inputEditCategoria" style="flex: 1;">
+                    {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if object.categoria.id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn-quick-add" onclick="abrirModalQuickCategoria('inputEditCategoria')" title="Agregar nueva categoría" style="padding: 10px 14px; background: #385ef8; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
             <span class="error-msg" id="errorEditCategoria"></span>
         </div>
 

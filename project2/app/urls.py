@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores,productos,reportes
+from .views import calendario, insumos, menu, proveedores,productos,reportes, categorias
 #==================================
 #           RAMA SOFIA
 from .views import respaldos
@@ -24,6 +24,14 @@ urlpatterns = [
     path('productos/editar/<int:pk>/', productos.producto_update_view.as_view(), name='editar_producto'),
     path('productos/eliminar/<int:pk>/', productos.producto_delete_view.as_view(), name='eliminar_producto'),
     path('productos/activar/<int:pk>/', productos.producto_activate_view.as_view(), name='activar_producto'),
+    
+    # --- CATEGORÍAS ---
+    path('categorias/', categorias.categoria_list_view.as_view(), name='categorias'),
+    path('categorias/crear/', categorias.categoria_create_view.as_view(), name='crear_categoria'),
+    path('categorias/editar/<int:pk>/', categorias.categoria_update_view.as_view(), name='editar_categoria'),
+    path('categorias/eliminar/<int:pk>/', categorias.categoria_delete_view.as_view(), name='eliminar_categoria'),
+    path('categorias/activar/<int:pk>/', categorias.categoria_activate_view.as_view(), name='activar_categoria'),
+    
     # --- REPORTES ---
     path('reportes/', reportes.reporte_ventas, name='reportes'),  
     
