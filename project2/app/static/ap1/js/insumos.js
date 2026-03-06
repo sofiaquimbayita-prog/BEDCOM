@@ -156,7 +156,7 @@ $(document).ready(function () {
         if (!/^\d+$/.test(raw))   return mostrarError(id, 'La cantidad debe ser un número entero.');
         const val = parseInt(raw, 10);
         if (val <= 0)   return mostrarError(id, 'La cantidad debe ser mayor a 0.');
-        if (val > 1000) return mostrarError(id, 'La cantidad no puede superar 1000.');
+        if (val > 10000) return mostrarError(id, 'La cantidad no puede superar 10000.');
         limpiarEstado(id);
     }
 
@@ -254,15 +254,7 @@ $(document).ready(function () {
         tabla.draw();
     });
 
-    /* ── Abrir modal Agregar ── */
-    $('#btn-agregar-insumo').on('click', function () {
-        formAgregar.reset();
-        limpiarCampos(CAMPOS_AGREGAR);
-        $('#cnt-ag-nombre, #cnt-ag-descripcion').remove();
-        formAgregar.action = 'crear/';
-        modalAgregar.addClass('mostrar');
-        setTimeout(() => $('#ag_nombre').focus(), 150);
-    });
+
 
     /* ── Submit compartido ── */
     function handleSubmit(e, $modal, campos) {
@@ -349,8 +341,6 @@ $(document).ready(function () {
                 formEditar.cantidad.value      = data.cantidad;
                 formEditar.unidad_medida.value = data.unidad_medida;
                 formEditar.precio.value        = data.precio;
-                formEditar.id_proveedor.value  = data.id_proveedor;
-                formEditar.id_categoria.value  = data.id_categoria;
                 formEditar.estado.value        = data.estado;
                 if (formEditar.descripcion) formEditar.descripcion.value = data.descripcion || '';
                 $('#ed_nombre').trigger('input');
@@ -358,6 +348,10 @@ $(document).ready(function () {
                 limpiarCampos(CAMPOS_EDITAR);
                 formEditar.action = `editar/${id}/`;
                 modalEditar.addClass('mostrar');
+                // Inicializar Select2 y luego asignar valores
+                modalEditar.trigger('modalAbierto');
+                $('#ed_proveedor').val(data.id_proveedor).trigger('change');
+                $('#ed_categoria').val(data.id_categoria).trigger('change');
                 setTimeout(() => $('#ed_nombre').focus(), 150);
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo cargar la información del insumo.'));
@@ -526,10 +520,13 @@ $(document).ready(function () {
             }
             $(this).select2({
                 dropdownParent: $(this).closest('.modal-contenido'),
-                placeholder: $(this).find('option[disabled]').text() || '— Selecciona —',
-                allowClear: false,
+                placeholder: $(this).find('option[disabled]').text() || '— Buscar o seleccionar —',
+                allowClear: true,
                 width: '100%',
-                language: { noResults: () => 'Sin resultados' },
+                language: {
+                    noResults:  () => 'Sin coincidencias',
+                    searching:  () => 'Buscando…',
+                },
             });
         });
     }
@@ -539,9 +536,10 @@ $(document).ready(function () {
     $('#modal-editar').on('modalAbierto',  function () { initSelect2(this); });
 
     // Disparar evento al abrir modales existentes
-    const _origAbrirAgregar = $('#btn-agregar-insumo').off('click').on.bind($('#btn-agregar-insumo'));
+    // El handler anterior se ha unificado; .off() limpia duplicados previos
     $('#btn-agregar-insumo').on('click', function () {
         formAgregar.reset();
+        $('#ag_proveedor, #ag_categoria').val(null).trigger('change');
         limpiarCampos(CAMPOS_AGREGAR);
         $('#cnt-ag-nombre, #cnt-ag-descripcion').remove();
         formAgregar.action = 'crear/';
