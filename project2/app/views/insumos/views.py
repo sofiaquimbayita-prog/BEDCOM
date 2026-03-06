@@ -81,18 +81,17 @@ class InsumoCreateView(View):
             if estado not in ESTADOS_PERMITIDOS:
                 return JsonResponse({'status': 'error', 'message': 'Estado inválido.'}, status=400)
             ins.estado = estado
-
+            
             qs = insumo.objects.filter(nombre__iexact=ins.nombre, id_proveedor_id=prov_id)
             if instancia and instancia.pk:
                 qs = qs.exclude(pk=instancia.pk)
             if qs.exists():
                 msg = f'Ya existe un insumo "{ins.nombre}" para el proveedor "{ins.id_proveedor.nombre}".'
                 return JsonResponse({'status': 'error', 'message': msg}, status=400)
-
             ins.save()
             return JsonResponse({'status': 'success', 'message': 'Insumo guardado correctamente.'})
-
         errores = {campo: mensajes[0] for campo, mensajes in form.errors.items()}
+        
         return JsonResponse({
             'status':  'error',
             'errores': errores,
@@ -126,11 +125,6 @@ class InsumoActivarView(View):
         return JsonResponse({'status': 'success', 'message': f'El insumo "{ins.nombre}" fue reactivado.'})
 
 
-# ─────────────────────────────────────────────
-#  QUICK CREATE — Categoría
-#  POST esperado: nombre, descripcion
-#  Respuesta:     {"status":"ok", "id":X, "nombre":"..."}
-# ─────────────────────────────────────────────
 
 class CategoriaCreateView(View):
     def post(self, request):
@@ -174,12 +168,6 @@ class CategoriaCreateView(View):
             'nombre': nueva.nombre,
         })
 
-
-# ─────────────────────────────────────────────
-#  QUICK CREATE — Proveedor
-#  POST esperado: nombre, telefono, direccion
-#  Respuesta:     {"status":"ok", "id":X, "nombre":"..."}
-# ─────────────────────────────────────────────
 
 class ProveedorCreateView(View):
     def post(self, request):

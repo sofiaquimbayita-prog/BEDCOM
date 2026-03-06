@@ -3,7 +3,7 @@
   --color-principal-oscuro: #347ea9;
   --color-acento: #00b3ff;
 
-  --color-editar: #f59e0b;
+  --color-editar: #00b3ff;
   --color-editar-glow: rgba(245, 158, 11, 0.15);
   --color-editar-glow-brd: rgba(245, 158, 11, 0.35);
 
@@ -11,7 +11,7 @@
   --color-ver-glow: rgba(167, 139, 250, 0.15);
   --color-ver-glow-brd: rgba(167, 139, 250, 0.35);
 
-  --color-inactivar: #ef4444;
+  --color-inactivar: #ef4444e7;
   --color-inactivar-glow: rgba(239, 68, 68, 0.15);
   --color-inactivar-brd: rgba(239, 68, 68, 0.35);
 
@@ -194,7 +194,7 @@
 }
 
 input:checked+.slider {
-  background: var(--color-advertencia);
+  background: var(--color-activar);
 }
 
 input:checked+.slider::before {
@@ -204,7 +204,7 @@ input:checked+.slider::before {
 /* Cuando el toggle está activo, resaltar el texto */
 #toggleInactivos:checked~.switch-text,
 .switch-container:has(#toggleInactivos:checked) .switch-text {
-  color: var(--color-advertencia);
+  color: var(--color-texto-oscuro);
 }
 
 /* CONTENEDOR TABLA*/

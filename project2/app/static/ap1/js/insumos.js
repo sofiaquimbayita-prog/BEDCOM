@@ -142,13 +142,35 @@ $(document).ready(function () {
         'und','par','docena','caja','paq','rollo','bolsa',
     ]);
 
-    function validarNombre(id) {
-        const val = $('#' + id).val().trim();
-        if (!val)            return mostrarError(id, 'El nombre es obligatorio.');
-        if (val.length < 5)  return mostrarError(id, 'El nombre debe tener al menos 5 caracteres.');
-        if (val.length > 100) return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
-        limpiarEstado(id);
-    }
+    function validarNombre(id, idActual = null) {
+    const val = $('#' + id).val().trim();
+
+    if (!val)
+        return mostrarError(id, 'El nombre es obligatorio.');
+
+    if (val.length < 5)
+        return mostrarError(id, 'El nombre debe tener al menos 5 caracteres.');
+
+    if (val.length > 100)
+        return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
+
+    if (nombreInsumoDuplicado(val, idActual))
+        return mostrarError(id, 'Ya existe un insumo con ese nombre.');
+
+    limpiarEstado(id);
+}
+
+    function nombreInsumoDuplicado(nombre, idActual = null) {
+    const datos = tabla.rows().data().toArray();
+
+    return datos.some(row => {
+        const mismoNombre = row.nombre.trim().toLowerCase() === nombre.toLowerCase();
+        const distintoId  = idActual ? row.id != idActual : true;
+        return mismoNombre && distintoId;
+    });
+}
+
+
 
     function validarCantidad(id) {
         const raw = $('#' + id).val().trim();
@@ -189,6 +211,10 @@ $(document).ready(function () {
 
     // Editar
     $('#ed_nombre').on('blur input', () => validarNombre('ed_nombre'));
+    $('#ed_nombre').on('blur input', () => {
+    const id = formEditar.action.match(/\d+/)?.[0];
+    validarNombre('ed_nombre', id);});
+    
     $('#ed_cantidad').on('blur input', () => validarCantidad('ed_cantidad'));
     $('#ed_precio').on('blur input', () => validarPrecio('ed_precio'));
     $('#ed_unidad').on('blur change', () => validarUnidad('ed_unidad'));
@@ -343,8 +369,6 @@ $(document).ready(function () {
                 formEditar.precio.value        = data.precio;
                 formEditar.estado.value        = data.estado;
                 if (formEditar.descripcion) formEditar.descripcion.value = data.descripcion || '';
-                $('#ed_nombre').trigger('input');
-                if (data.descripcion) $('#ed_descripcion').trigger('input');
                 limpiarCampos(CAMPOS_EDITAR);
                 formEditar.action = `editar/${id}/`;
                 modalEditar.addClass('mostrar');
@@ -663,13 +687,7 @@ $(document).ready(function () {
             .finally(() => $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> Guardar'));
     });
 
-    /* ══════════════════════════════════════════════════
-        MODAL — Proveedor
-       Reglas (espejo de ProveedorForm):
-         · nombre:    obligatorio, min 3 chars, solo letras/números/espacios
-         · telefono:  obligatorio, exactamente 10 dígitos numéricos
-         · direccion: obligatorio, min 10 chars
-       ══════════════════════════════════════════════════ */
+    
     let _ProvSelectId = null;
     const reNombreProv = /^[a-zA-Z0-9\s]+$/;
 

@@ -15,7 +15,7 @@ class insumosForm(forms.ModelForm):
     class Meta:
         model  = insumo
         fields = ['nombre', 'descripcion', 'cantidad', 'precio', 'unidad_medida']
-
+        
     def clean_nombre(self):
         nombre = self.cleaned_data.get('nombre', '').strip()
         if not nombre:
@@ -26,6 +26,8 @@ class insumosForm(forms.ModelForm):
             raise forms.ValidationError('El nombre no puede superar los 100 caracteres.')
         return nombre
 
+   
+   
     def clean_descripcion(self):
         descripcion = self.cleaned_data.get('descripcion') or ''
         if len(descripcion) > 600:
@@ -163,7 +165,6 @@ class ProveedorForm(forms.ModelForm):
             if query_duplicado.exists():
                 self.add_error('nombre', f'Ya existe un proveedor registrado con el nombre "{nombre}".')
 
-        # --- VALIDACIONES DE FORMATO Y LONGITUD ---
         if len(nombre) < 3:
             self.add_error('nombre', 'El nombre debe tener al menos 3 caracteres.')
         
