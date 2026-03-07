@@ -33,9 +33,21 @@ urlpatterns = [
     path('categorias/activar/<int:pk>/', categorias.categoria_activate_view.as_view(), name='activar_categoria'),
     
     # --- REPORTES ---
-    path('reportes/', reportes.reporte_ventas, name='reportes'),  
+    path('reportes/', reportes.ReporteVentasView.as_view(), name='reportes'),  
+    path('reportes/categorias/pdf/', reportes.ExportarCategoriasPDF.as_view(), name='categorias_pdf'),
+    path('reportes/categorias/excel/', reportes.ExportarCategoriasExcel.as_view(), name='categorias_excel'),
+    path('reportes/insumos/pdf/', reportes.ExportarInsumosPDF.as_view(), name='insumos_pdf'),
+    path('reportes/insumos/excel/', reportes.ExportarInsumosExcel.as_view(), name='insumos_excel'),
+    path('reportes/productos/pdf/', reportes.ExportarProductosPDF.as_view(), name='productos_pdf'),
+    path('reportes/productos/excel/', reportes.ExportarProductosExcel.as_view(), name='productos_excel'),
+    path('reportes/proveedores/pdf/', reportes.ExportarProveedoresPDF.as_view(), name='proveedores_pdf'),
+    path('reportes/proveedores/excel/', reportes.ExportarProveedoresExcel.as_view(), name='proveedores_excel'),
     
- # --- INSUMOS ---
+    # --- REPORTES GENERALES DE ESTADÍSTICAS ---
+    path('reportes/estadisticas/pdf/', reportes.ExportarEstadisticasPDF.as_view(), name='estadisticas_pdf'),
+    path('reportes/estadisticas/excel/', reportes.ExportarEstadisticasExcel.as_view(), name='estadisticas_excel'),
+    
+    # --- INSUMOS ---
     path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
     path('insumos/data/', insumos.InsumoDataView.as_view(), name='insumos_data'),
     path('insumos/obtener/<int:pk>/', insumos.InsumoDetailView.as_view(), name='obtener_insumo'),

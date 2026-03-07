@@ -1,3 +1,2 @@
-from .views import(
-    reporte_ventas
-)
+from .views import ReporteVentasView
+from .reportes import *

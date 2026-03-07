@@ -69,11 +69,7 @@
 </head>
 <body>
 
-    <div class="idioma-container">
-        <button class="boton-idioma">
-            <i class="fa-solid fa-globe"></i> ES
-        </button>
-    </div>
+
 
     <div class="ayuda-container">
         <button class="boton-ayuda">
@@ -134,6 +130,75 @@
         </div>
     </div>
 
+    <!-- Modal de Preguntas Frecuentes -->
+    <div class="modal-overlay" id="faqModal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" id="faqClose">&times;</span>
+            <h2 class="modal-title">Preguntas Frecuentes</h2>
+            
+            <div class="modal-faq-item">
+                <h4 onclick="toggleFaq(this)">¿Cómo inicio sesión?</h4>
+                <p>Ingresa tu correo electrónico y contraseña en los campos correspondientes, luego haz clic en "Continuar".</p>
+            </div>
+            
+            <div class="modal-faq-item">
+                <h4 onclick="toggleFaq(this)">¿Qué hago si olvidé mi contraseña?</h4>
+                <p>Haz clic en "¿Olvidaste tu contraseña?" y sigue las instrucciones para recuperarla.</p>
+            </div>
+            
+            <div class="modal-faq-item">
+                <h4 onclick="toggleFaq(this)">¿Cómo contacto al administrador?</h4>
+                <p>Envía un correo electrónico al soporte técnico indicando tu problema.</p>
+            </div>
+            
+            <div class="modal-faq-item">
+                <h4 onclick="toggleFaq(this)">¿El sistema acepta usuarios?</h4>
+                <p>Sí, el sistema permite crear usuarios. Contacta al administrador para crear una nueva cuenta.</p>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'ap1/js/script_login.js' %}"></script>
+    <script>
+        // Funcionalidad del FAQ modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqModal = document.getElementById('faqModal');
+            const ayudaBtn = document.querySelector('.boton-ayuda');
+            const faqClose = document.getElementById('faqClose');
+            
+            // Abrir modal al hacer clic en el botón de ayuda
+            if (ayudaBtn) {
+                ayudaBtn.addEventListener('click', function() {
+                    faqModal.style.display = 'flex';
+                });
+            }
+            
+            // Cerrar modal al hacer clic en la X
+            if (faqClose) {
+                faqClose.addEventListener('click', function() {
+                    faqModal.style.display = 'none';
+                });
+            }
+            
+            // Cerrar modal al hacer clic fuera del contenido
+            if (faqModal) {
+                faqModal.addEventListener('click', function(e) {
+                    if (e.target === faqModal) {
+                        faqModal.style.display = 'none';
+                    }
+                });
+            }
+        });
+        
+        // Función para togglear las preguntas
+        function toggleFaq(element) {
+            const respuesta = element.nextElementSibling;
+            if (respuesta.style.display === 'block') {
+                respuesta.style.display = 'none';
+            } else {
+                respuesta.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

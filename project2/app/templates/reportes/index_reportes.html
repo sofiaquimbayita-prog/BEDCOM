@@ -15,6 +15,61 @@
      style="display: none;">
 </div>
 
+<!-- Contenedor principal con el dropdown a la derecha -->
+<div class="reportes-header">
+    <h1 class="page-title">Módulo de Reportes</h1>
+    
+    <!-- Dropdown de Exportación -->
+    <div class="dropdown-export">
+        <button class="dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-download"></i> Exportar Reportes
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="exportDropdown">
+            <!-- Sección de Estadísticas Generales -->
+            <div class="dropdown-section" style="background-color: #2ecc71; color: white; font-weight: bold;">📊 Estadísticas Generales</div>
+            <a href="{% url 'estadisticas_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Estadísticas
+            </a>
+            <a href="{% url 'estadisticas_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Estadísticas
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Categorías</div>
+            <a href="{% url 'categorias_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Categorías
+            </a>
+            <a href="{% url 'categorias_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Categorías
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Insumos</div>
+            <a href="{% url 'insumos_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Insumos
+            </a>
+            <a href="{% url 'insumos_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Insumos
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Productos</div>
+            <a href="{% url 'productos_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Productos
+            </a>
+            <a href="{% url 'productos_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Productos
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Proveedores</div>
+            <a href="{% url 'proveedores_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Proveedores
+            </a>
+            <a href="{% url 'proveedores_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Proveedores
+            </a>
+        </div>
+    </div>
+</div>
+
 <div class="dashboard">
     <div class="report-card">
         <div class="card-header">
@@ -103,4 +158,26 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'ap1/js/script_reportes.js' %}"></script>
+
+<!-- Script para el dropdown de exportación -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdownExport = document.querySelector('.dropdown-export');
+    
+    if (dropdownToggle && dropdownExport) {
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownExport.classList.toggle('open');
+        });
+        
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!dropdownExport.contains(e.target)) {
+                dropdownExport.classList.remove('open');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
