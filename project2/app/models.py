@@ -111,6 +111,29 @@ class producto(models.Model):
         db_table = "productos"
 
 
+# --- MODELO DE ENTRADA DE PRODUCTOS ---
+class entrada(models.Model):
+    fecha = models.DateTimeField(auto_now_add=True)
+    producto = models.ForeignKey(producto, on_delete=models.CASCADE, related_name='entradas')
+    cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+    total = models.DecimalField(max_digits=12, decimal_places=2)
+    proveedor = models.ForeignKey(proveedor, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
+    usuario = models.ForeignKey(usuario, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
+    observaciones = models.TextField(blank=True, null=True)
+    estado = models.BooleanField(default=True)
+    anulado = models.BooleanField(default=False, verbose_name="Anulado")
+
+    def __str__(self):
+        return f"Entrada #{self.id} - {self.producto.nombre} - {self.fecha}"
+
+    class Meta:
+        verbose_name = "Entrada de Producto"
+        verbose_name_plural = "Entradas de Productos"
+        db_table = "entrada"
+        ordering = ['-fecha']
+
+
 class garantia (models.Model):
     fecha = models.DateField()
     descripcion = models.TextField()

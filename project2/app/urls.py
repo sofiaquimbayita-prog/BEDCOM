@@ -4,6 +4,14 @@ from .views import calendario, insumos, menu, proveedores,productos,reportes
 #==================================
 #           RAMA SOFIA
 from .views import respaldos
+from .views.entrada_p.views import (
+    EntradaListView,
+    EntradaDataView,
+    EntradaDetailView,
+    EntradaCreateView,
+    EntradaDeleteView,
+    EntradaReactivarView,
+)
 from .views.proveedores.views import (
     ProveedorListView,
     ProveedorCreateView,
@@ -57,8 +65,22 @@ urlpatterns = [
     
     # --- RESPALDOS ---
     path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
+    path('respaldos/data/', respaldos.RespaldoDataView.as_view(), name='respaldos_data'),
     path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),
-    path('respaldos/eliminar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
-    path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
-    path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
+    path('respaldos/inactivar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
+    path('respaldos/reactivar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
+    path('respaldos/descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
+
+    # --- ENTRADA DE PRODUCTOS ---
+    path('entrada_p/', EntradaListView.as_view(), name='entrada_p'),
+    path('entradas/', EntradaListView.as_view(), name='entradas'),  # Alias
+    path('entrada_p/data/', EntradaDataView.as_view(), name='entrada_p_data'),
+    path('entrada_p/obtener/<int:pk>/', EntradaDetailView.as_view(), name='obtener_entrada_p'),
+    path('entradas/obtener/<int:pk>/', EntradaDetailView.as_view(), name='obtener_entrada_p'),  # Alias
+    path('entrada_p/crear/', EntradaCreateView.as_view(), name='guardar_entrada_p'),
+    path('entradas/crear/', EntradaCreateView.as_view(), name='guardar_entrada_p'),  # Alias
+    path('entrada_p/eliminar/<int:pk>/', EntradaDeleteView.as_view(), name='eliminar_entrada_p'),
+    path('entradas/eliminar/<int:pk>/', EntradaDeleteView.as_view(), name='eliminar_entrada_p'),  # Alias
+    path('entrada_p/reactivar/<int:pk>/', EntradaReactivarView.as_view(), name='reactivar_entrada_p'),
+    path('entradas/reactivar/<int:pk>/', EntradaReactivarView.as_view(), name='reactivar_entrada_p'),  # Alias
 ]

@@ -1,4 +1,4 @@
-{% extends "includes/base.html" %}
+ {% extends "includes/base.html" %}
 {% load static %}
 
 {% block title %}Menú Principal del Sistema{% endblock %}
@@ -56,16 +56,16 @@
                 </article>
             </a>
 
-            <a href="../inventario" class="menu-card-link">
+            <a href="/vistas/entrada_p/" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/inventario.jpg' %}" alt="Módulo Inventario">
+                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Entrada de Productos">
                         <div class="image-overlay"></div>
                     </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-warehouse"></i></div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-arrow-down-to-bracket"></i></div>
                     <div class="menu-card-content">
-                        <h3>INVENTARIO</h3>
-                        <p class="muted">Existencias</p>
+                        <h3>ENTRADA PRODUCTOS</h3>
+                        <p class="muted">Ingresos de stock</p>
                     </div>
                 </article>
             </a>

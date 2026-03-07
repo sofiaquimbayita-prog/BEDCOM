@@ -4,4 +4,5 @@ from .views import (
     RespaldoDeleteView,
     RespaldoRestoreView,
     DescargarRespaldoView,
+    RespaldoDataView,
 )
