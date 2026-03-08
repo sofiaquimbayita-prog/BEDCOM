@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -179,10 +179,166 @@ class ProveedorForm(forms.ModelForm):
         return cleaned_data
 
 class RespaldoForm(forms.ModelForm):
+    TIPO_RESPALDO_CHOICES = [
+        ('', 'Seleccionar tipo...'),
+        ('completo', 'Respaldo Completo'),
+        ('parcial', 'Respaldo Parcial'),
+    ]
+    
+    tipo_respaldo = forms.ChoiceField(
+        choices=TIPO_RESPALDO_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'add_tipo'
+        })
+    )
+    
     class Meta:
         model = respaldo
         fields = ['tipo_respaldo', 'descripcion']
         widgets = {
-            'tipo_respaldo': forms.Select(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={
+                'rows': 3, 
+                'class': 'form-control',
+                'id': 'add_descripcion',
+                'placeholder': 'Notas sobre este respaldo...',
+                'maxlength': '255'
+            }),
         }
+
+    def clean_tipo_respaldo(self):
+        tipo = self.cleaned_data.get('tipo_respaldo')
+        if not tipo:
+            raise forms.ValidationError('Debe seleccionar un tipo de respaldo.')
+        return tipo
+
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion') or ''
+        
+        # Eliminar espacios al inicio y final
+        descripcion = descripcion.strip()
+        
+        # Campo obligatorio
+        if not descripcion:
+            raise forms.ValidationError('La descripción es obligatoria.')
+        
+        # Longitud mínima: 5 caracteres
+        if len(descripcion) < 5:
+            raise forms.ValidationError('La descripción debe tener al menos 5 caracteres.')
+        
+        # Longitud máxima: 255 caracteres
+        if len(descripcion) > 255:
+            raise forms.ValidationError('La descripción no puede superar los 255 caracteres.')
+        
+        # No permitir solo espacios en blanco
+        if descripcion.isspace():
+            raise forms.ValidationError('La descripción no puede contener solo espacios.')
+        
+        # Validar que contenga al menos una letra (no solo números)
+        import re
+        if not re.search(r'[a-zA-ZÁÉÍÓÚáéíóúÑñ]', descripcion):
+            raise forms.ValidationError('La descripción debe contener al menos una letra.')
+        
+        # Solo letras números y espacios (sin caracteres especiales)
+        if not re.match(r'^[a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ]+$', descripcion):
+            raise forms.ValidationError('La descripción solo puede contener letras, números y espacios.')
+        
+        return descripcion
+
+
+# --- FORMULARIOS DE ENTRADA DE PRODUCTOS ---
+class EntradaForm(forms.ModelForm):
+    class Meta:
+        model = entrada
+        fields = ['producto', 'cantidad', 'precio_unitario', 'observaciones']
+        widgets = {
+            'producto': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_producto'
+            }),
+            'cantidad': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'id': 'id_cantidad',
+                'min': '1'
+            }),
+            'precio_unitario': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'id': 'id_precio_unitario',
+                'min': '0',
+                'step': '0.01'
+            }),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'id': 'id_observaciones',
+                'rows': 3
+            }),
+        }
+
+    def clean_producto(self):
+        producto = self.cleaned_data.get('producto')
+        if not producto:
+            raise forms.ValidationError('Debe seleccionar un producto.')
+        if not producto.estado:
+            raise forms.ValidationError('El producto seleccionado está inactivo.')
+        return producto
+
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+        if cantidad is None:
+            raise forms.ValidationError('La cantidad es obligatoria.')
+        if not isinstance(cantidad, int):
+            raise forms.ValidationError('La cantidad debe ser un número entero.')
+        if cantidad <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        if cantidad > 10000:
+            raise forms.ValidationError('La cantidad no puede superar 10,000 unidades.')
+        return cantidad
+
+    def clean_precio_unitario(self):
+        precio = self.cleaned_data.get('precio_unitario')
+        if precio is None:
+            raise forms.ValidationError('El precio unitario es obligatorio.')
+        if precio < 0:
+            raise forms.ValidationError('El precio no puede ser negativo.')
+        if precio == 0:
+            raise forms.ValidationError('El precio debe ser mayor a 0.')
+        if precio > 10000000:
+            raise forms.ValidationError('El precio no puede superar 10,000,000.')
+        
+        # Validar máximo 2 decimales
+        precio_str = str(precio)
+        if '.' in precio_str:
+            partes_decimales = precio_str.split('.')[1]
+            if len(partes_decimales) > 2:
+                raise forms.ValidationError('El precio solo puede tener hasta 2 decimales.')
+        
+        return precio
+
+    def clean_observaciones(self):
+        observaciones = self.cleaned_data.get('observaciones') or ''
+        if len(observaciones) > 500:
+            raise forms.ValidationError('Las observaciones no pueden superar los 500 caracteres.')
+        
+        # Validar que no contenga caracteres especiales peligrosos
+        import re
+        # Bloquear caracteres especiales: ++}}++"#$%&/()=***°°° y otros perigosos
+        if re.search(r'[+\$\#\%\&\/\)\=\*\°\°\°\<\>\[\]\{\}\"\']', observaciones):
+            raise forms.ValidationError('Las observaciones no pueden contener caracteres especiales.')
+        
+        return observaciones
+
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('producto')
+        cantidad = cleaned_data.get('cantidad')
+        precio_unitario = cleaned_data.get('precio_unitario')
+
+        # Calcular y validar el total
+        if producto and cantidad and precio_unitario:
+            total_calculado = cantidad * precio_unitario
+            if total_calculado <= 0:
+                self.add_error('cantidad', 'El total debe ser mayor a 0.')
+            if total_calculado > 999999999.99:
+                self.add_error('cantidad', 'El total supera el límite permitido.')
+
+        return cleaned_data

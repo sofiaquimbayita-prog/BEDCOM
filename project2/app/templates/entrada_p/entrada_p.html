@@ -1,0 +1,332 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Entradas de Productos{% endblock %}
+
+{% block messages %}
+{% if messages %}
+<div class="messages-container" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/entrada_p.css' %}">
+
+<main class="entradas-productos">
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <!-- Buscador eliminado -->
+        </div>
+        
+        <div class="toolbar-right">
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleAnulados">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Ver anulados</span>
+            </div>
+            <button class="btn-agregar" onclick="event.preventDefault(); abrirModal('modalAdd');">
+                <i class="fas fa-plus"></i> 
+                <span class="btn-text">Nueva Entrada</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container-tabla">
+        <table id="tablaEntradas" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unit.</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- Modales externos -->
+<div id="modalAdd" class="modal" style="display: none;">
+    {% include "entrada_p/modal_agregar.html" %}
+</div>
+
+<div id="modalDelete" class="modal" style="display: none;">
+    {% include "entrada_p/modal_eliminar.html" %}
+</div>
+
+<div id="modalView" class="modal" style="display: none;">
+    {% include "entrada_p/modal_ver.html" %}
+</div>
+
+<div id="modalReactivate" class="modal" style="display: none;">
+    {% include "entrada_p/modal_reactivar.html" %}
+</div>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'ap1/js/entrada_p.js' %}"></script>
+
+<script>
+// Función global para cerrar modales
+function cerrarModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Función global para abrir modales
+function abrirModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Función para cerrar toast
+function cerrarToast(btn) {
+    const message = btn.closest('.message');
+    if (message) {
+        message.style.animation = 'slideInToast 0.3s ease-out reverse';
+        setTimeout(() => message.remove(), 300);
+    }
+}
+
+// Auto cerrar mensajes después de 5 segundos
+document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.message');
+    messages.forEach(function(msg) {
+        setTimeout(function() {
+            msg.style.animation = 'slideInToast 0.3s ease-out reverse';
+            setTimeout(function() { msg.remove(); }, 300);
+        }, 5000);
+    });
+});
+
+// Función para mostrar mensajes
+function mostrarMensaje(tipo, texto) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        // Crear el contenedor si no existe
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'messages-container';
+        document.body.appendChild(container);
+    }
+    
+    const iconos = {
+        success: 'fa-check-circle',
+        error: 'fa-times-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    const mensaje = document.createElement('div');
+    mensaje.className = 'message ' + tipo;
+    mensaje.innerHTML = `
+        <div class="message-content">
+            <i class="fas ${iconos[tipo] || iconos.info}"></i>
+            <span class="text">${texto}</span>
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(mensaje);
+    
+    // Auto cerrar después de 5 segundos
+    setTimeout(function() {
+        mensaje.style.animation = 'slideInToast 0.3s ease-out reverse';
+        setTimeout(function() { mensaje.remove(); }, 300);
+    }, 5000);
+}
+
+// Variable global para DataTable
+var dataTableEntradas = null;
+
+// Inicializar DataTable con AJAX
+$(document).ready(function() {
+    if (typeof $.fn.DataTable !== 'undefined') {
+        dataTableEntradas = $('#tablaEntradas').DataTable({
+            language: {
+                processing: "Cargando datos...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                infoEmpty: "No hay entradas disponibles",
+                infoFiltered: "(filtrado de _MAX_ entradas totales)",
+                emptyTable: "No hay datos disponibles en la tabla",
+                zeroRecords: "No se encontraron coincidencias",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                }
+            },
+            responsive: true,
+            dom: '<"top"fl<"clear">>rt<"bottom"ip<"clear">>',
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
+            order: [[1, 'desc']], // Ordenar por fecha descendente
+            columnDefs: [
+                { orderable: false, targets: [7] } // Desactivar orden en columna acciones
+            ],
+            ajax: {
+                url: '/vistas/entrada_p/data/',
+                type: 'GET',
+                dataSrc: function(json) {
+                    if (json.data) {
+                        return json.data;
+                    }
+                    return [];
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('Error cargando datos:', thrown);
+                }
+            },
+            columns: [
+                { 
+                    data: 'id',
+                    render: function(data) {
+                        return '#' + data;
+                    }
+                },
+                { data: 'fecha' },
+                { 
+                    data: 'producto',
+                    render: function(data) {
+                        return '<strong>' + data + '</strong>';
+                    }
+                },
+                { 
+                    data: 'cantidad',
+                    render: function(data) {
+                        return '<span class="badge-cantidad">' + data + ' unidades</span>';
+                    }
+                },
+                { 
+                    data: 'precio_unitario',
+                    render: function(data) {
+                        return '<span style="color: #38bdf8; font-weight: bold;">$' + data.toFixed(2) + '</span>';
+                    }
+                },
+                { 
+                    data: 'total',
+                    render: function(data) {
+                        return '<span style="color: #2ecc71; font-weight: bold;">$' + data.toFixed(2) + '</span>';
+                    }
+                },
+                { 
+                    data: 'estado',
+                    render: function(data, type, row) {
+                        if (row.anulado) {
+                            return '<span class="badge-estado inactive">Anulado</span>';
+                        } else if (data) {
+                            return '<span class="badge-estado active">Activo</span>';
+                        } else {
+                            return '<span class="badge-estado inactive">Inactivo</span>';
+                        }
+                    }
+                },
+                {
+                    data: 'id',
+                    render: function(data, type, row) {
+                        if (row.anulado) {
+                            return `
+                                <div class="acciones">
+                                    <button class="view-btn" title="Ver detalle" onclick="abrirModalVer('${data}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="activate-btn" title="Reactivar entrada" onclick="abrirModalReactivar('${data}', '${row.producto}')">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            return `
+                                <div class="acciones">
+                                    <button class="view-btn" title="Ver detalle" onclick="abrirModalVer('${data}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="delete-btn" title="Anular entrada" onclick="abrirModalEliminar('${data}', '${row.producto}')">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            ]
+        });
+        
+        // Personalizar búsqueda
+        $('#buscarEntrada').on('keyup', function() {
+            $('#tablaEntradas').DataTable().search($(this).val()).draw();
+        });
+    }
+});
+
+// Función para recargar la tabla
+function recargarTabla() {
+    if (dataTableEntradas) {
+        dataTableEntradas.ajax.reload();
+    } else {
+        location.reload();
+    }
+}
+
+// Manejar el toggle de mostrar anulados
+$('#toggleAnulados').on('change', function() {
+    const mostrarAnulados = $(this).is(':checked');
+    
+    // Recargar DataTable con el nuevo parámetro
+    if (dataTableEntradas) {
+        dataTableEntradas.ajax.url('/vistas/entrada_p/data/?mostrar_solo_anulados=' + mostrarAnulados).load();
+    }
+});
+
+// Función para abrir modal de reactivar
+function abrirModalReactivar(id, nombre) {
+    $('#reactivate_entrada_id').val(id);
+    $('#reactivate_entrada_nombre').text('Producto: ' + nombre);
+    $('#modalReactivate').css('display', 'flex');
+    $('body').css('overflow', 'hidden');
+}
+</script>
+
+{% endblock %}
+

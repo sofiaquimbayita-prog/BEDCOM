@@ -1,4 +1,183 @@
-document.addEventListener("DOMContentLoaded", () => {
+/**
+ * ENTRADA DE PRODUCTOS - JavaScript
+ * Funcionalidad para gestión de entradas de productos
+ */
+
+// Funciones globales para compatibilidad con el HTML
+window.abrirModalEliminar = abrirModalEliminar;
+window.abrirModalVer = abrirModalVer;
+window.abrirModalReactivar = abrirModalReactivar;
+window.cerrarModal = cerrarModal;
+window.mostrarMensaje = mostrarMensaje;
+window.cerrarToast = cerrarToast;
+window.mostrarStockActual = mostrarStockActual;
+window.calcularNuevoStock = calcularNuevoStock;
+
+/**
+ * Abre el modal de edición con los datos de la entrada
+ */
+function abrirModalEditar(id) {
+    $('#edit_id').val(id);
+    
+    $.ajax({
+        url: '/vistas/entrada_p/obtener/' + id + '/',
+        type: 'GET',
+        success: function(data) {
+            $('#edit_id').val(data.id);
+            $('#edit_producto').val(data.producto_id);
+            $('#edit_cantidad').val(data.cantidad);
+            $('#edit_precio').val(data.precio_unitario);
+            $('#edit_observaciones').val(data.observaciones || '');
+            
+            // Calcular total
+            const total = data.cantidad * data.precio_unitario;
+            $('#edit_total').val('$' + total.toFixed(2));
+        },
+        error: function() {
+            mostrarMensaje('error', 'Error al cargar los datos de la entrada');
+        }
+    });
+    
+    $('#modalEdit').css('display', 'flex');
+    $('body').css('overflow', 'hidden');
+}
+
+/**
+ * Abre el modal de eliminación
+ */
+function abrirModalEliminar(id, nombre) {
+    $('#delete_entrada_id').val(id);
+    $('#delete_entrada_nombre').text('Producto: ' + nombre);
+    $('#modalDelete').css('display', 'flex');
+    $('body').css('overflow', 'hidden');
+}
+
+/**
+ * Abre el modal de ver detalle
+ */
+function abrirModalVer(id) {
+    $.ajax({
+        url: '/vistas/entrada_p/obtener/' + id + '/',
+        type: 'GET',
+        success: function(data) {
+            $('#view_id').text('#' + data.id);
+            $('#view_fecha').text(data.fecha);
+            $('#view_producto').text(data.producto);
+            $('#view_cantidad').text(data.cantidad + ' unidades');
+            $('#view_precio').text('$' + data.precio_unitario.toFixed(2));
+            $('#view_total').text('$' + data.total.toFixed(2));
+            $('#view_usuario').text(data.usuario);
+            $('#view_observaciones').text(data.observaciones || 'Sin observaciones');
+        },
+        error: function() {
+            mostrarMensaje('error', 'Error al cargar los datos de la entrada');
+        }
+    });
+    
+    $('#modalView').css('display', 'flex');
+    $('body').css('overflow', 'hidden');
+}
+
+/**
+ * Cierra un modal específico
+ */
+function cerrarModal(modalId) {
+    $('#' + modalId).css('display', 'none');
+    $('body').css('overflow', 'auto');
+}
+
+/**
+ * Muestra un mensaje toast
+ */
+function mostrarMensaje(tipo, texto) {
+    const container = $('#toast-container');
+    if (container.length === 0) {
+        $('body').append('<div class="messages-container" id="toast-container"></div>');
+    }
+    
+    const iconos = {
+        success: 'fa-check-circle',
+        error: 'fa-times-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    const mensaje = `
+        <div class="message ${tipo}">
+            <div class="message-content">
+                <i class="fas ${iconos[tipo] || iconos.info}"></i>
+                <span class="text">${texto}</span>
+            </div>
+            <button type="button" class="close-toast" onclick="cerrarToast(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    $('#toast-container').append(mensaje);
+    
+    // Auto cerrar después de 5 segundos
+    setTimeout(function() {
+        $('.message').last().fadeOut(300, function() {
+            $(this).remove();
+        });
+    }, 5000);
+}
+
+/**
+ * Cierra un toast específico
+ */
+function cerrarToast(btn) {
+    const message = $(btn).closest('.message');
+    message.fadeOut(300, function() {
+        $(this).remove();
+    });
+}
+
+/**
+ * Muestra el stock actual del producto seleccionado
+ */
+function mostrarStockActual() {
+    const selectProducto = document.getElementById('producto');
+    const stockActual = document.getElementById('stock-actual');
+    const selectedOption = selectProducto.options[selectProducto.selectedIndex];
+    const stock = selectedOption.getAttribute('data-stock') || 0;
+    stockActual.textContent = stock;
+    calcularNuevoStock();
+}
+
+/**
+ * Calcula el nuevo stock
+ */
+function calcularNuevoStock() {
+    const selectProducto = document.getElementById('producto');
+    const cantidadInput = document.getElementById('cantidad');
+    const nuevoStock = document.getElementById('nuevo-stock');
+    
+    if (!selectProducto || !cantidadInput || !nuevoStock) return;
+    
+    const selectedOption = selectProducto.options[selectProducto.selectedIndex];
+    const stockActual = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+    const cantidad = parseInt(cantidadInput.value) || 0;
+    
+    nuevoStock.textContent = stockActual + cantidad;
+}
+
+/**
+ * Abre el modal de reactivar entrada
+ */
+function abrirModalReactivar(id, nombre) {
+    $('#reactivate_entrada_id').val(id);
+    $('#reactivate_entrada_nombre').text('Producto: ' + nombre);
+    $('#modalReactivate').css('display', 'flex');
+    $('body').css('overflow', 'hidden');
+}
+
+// =====================================================
+// INICIALIZACIÓN ADICIONAL - Logout y notificaciones
+// =====================================================
+
+document.addEventListener("DOMContentLoaded", function() {
   
   // ============================
   // MODAL LOGOUT - Funciones globales
@@ -180,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // INICIALIZACIÓN ADICIONAL
   // ============================
   
-  console.log('Menú cargado correctamente');
+  console.log('DOM completamente cargado');
   
 }); // Fin DOMContentLoaded
 

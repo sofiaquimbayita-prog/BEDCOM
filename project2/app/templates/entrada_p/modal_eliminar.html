@@ -1,0 +1,80 @@
+{% load static %}
+<div class="modal-content modal-delete">
+    <div class="modal-header modal-header-delete">
+        <h2><i class="fas fa-ban"></i> Anular Entrada</h2>
+        <button type="button" class="modal-close" onclick="cerrarModal('modalDelete')">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="modal-body-delete">
+        <div class="delete-icon">
+            <i class="fas fa-ban"></i>
+        </div>
+        <h3>¿Está seguro de anular esta entrada?</h3>
+        <div class="entrada-nombre" id="delete_entrada_nombre">
+            Producto: --
+        </div>
+        <p class="advertencia">
+            <i class="fas fa-exclamation-circle"></i>
+            Esta acción no se puede deshacer. La entrada será anulada y mantendrá su trazabilidad en el sistema, pero no se mostrará en la lista de entradas activas.
+        </p>
+    </div>
+    
+<form id="formEliminarEntrada" method="POST" action="/vistas/entrada_p/eliminar/0/" onsubmit="return false;">
+        {% csrf_token %}
+        <input type="hidden" id="delete_entrada_id" name="id">
+        
+        <div class="modal-footer-delete">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalDelete')">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="submit" class="btn-delete">
+                <i class="fas fa-ban"></i> Anular
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+$('#formEliminarEntrada').on('submit', function(e) {
+    e.preventDefault();
+    
+    const form = $(this);
+    const entradaId = $('#delete_entrada_id').val();
+    const submitBtn = form.find('button[type="submit"]');
+    const originalBtnText = submitBtn.html();
+    
+    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Anulando...');
+    
+    $.ajax({
+        url: '/vistas/entrada_p/eliminar/' + entradaId + '/',
+        type: 'POST',
+        data: form.serialize(),
+        success: function(response) {
+            if (response.success) {
+                mostrarMensaje('success', response.message);
+                cerrarModal('modalDelete');
+                // Recargar la página para actualizar la tabla
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            } else {
+                mostrarMensaje('error', response.message);
+            }
+        },
+        error: function(xhr) {
+            let errorMsg = 'Error al procesar la solicitud';
+            try {
+                const response = JSON.parse(xhr.responseText);
+                errorMsg = response.message || errorMsg;
+            } catch(e) {}
+            mostrarMensaje('error', errorMsg);
+        },
+        complete: function() {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+        }
+    });
+});
+</script>
+
