@@ -8,12 +8,16 @@ from ...forms import insumosForm
 ESTADOS_PERMITIDOS = {'Activo', 'Inactivo'}
 
 
+# ─────────────────────────────────────────────
+#  INSUMOS
+# ─────────────────────────────────────────────
+
 class InsumoListView(TemplateView):
     template_name = 'insumos/insumos.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = categoria.objects.filter(estado=True)
+        context['categorias'] = categoria.objects.filter(estado=True, tipo=categoria.TIPO_INSUMO)
         context['proveedor']  = proveedor.objects.filter(estado=True)
         return context
 
@@ -77,18 +81,17 @@ class InsumoCreateView(View):
             if estado not in ESTADOS_PERMITIDOS:
                 return JsonResponse({'status': 'error', 'message': 'Estado inválido.'}, status=400)
             ins.estado = estado
-
+            
             qs = insumo.objects.filter(nombre__iexact=ins.nombre, id_proveedor_id=prov_id)
             if instancia and instancia.pk:
                 qs = qs.exclude(pk=instancia.pk)
             if qs.exists():
                 msg = f'Ya existe un insumo "{ins.nombre}" para el proveedor "{ins.id_proveedor.nombre}".'
                 return JsonResponse({'status': 'error', 'message': msg}, status=400)
-
             ins.save()
             return JsonResponse({'status': 'success', 'message': 'Insumo guardado correctamente.'})
-
         errores = {campo: mensajes[0] for campo, mensajes in form.errors.items()}
+        
         return JsonResponse({
             'status':  'error',
             'errores': errores,
@@ -120,3 +123,99 @@ class InsumoActivarView(View):
         ins.estado = 'Activo'
         ins.save(update_fields=['estado'])
         return JsonResponse({'status': 'success', 'message': f'El insumo "{ins.nombre}" fue reactivado.'})
+
+
+
+class CategoriaCreateView(View):
+    def post(self, request):
+        nombre     = request.POST.get('nombre', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        # ── Validaciones ──────────────────────────────
+        if not nombre:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El nombre de la categoría es obligatorio.'},
+                status=400
+            )
+        if len(nombre) > 100:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El nombre no puede superar los 100 caracteres.'},
+                status=400
+            )
+        if not descripcion:
+            return JsonResponse(
+                {'status': 'error', 'message': 'La descripción es obligatoria.'},
+                status=400
+            )
+
+        # ── Unicidad (nombre único en el modelo) ──────
+        if categoria.objects.filter(nombre__iexact=nombre).exists():
+            return JsonResponse(
+                {'status': 'error', 'message': f'Ya existe una categoría llamada "{nombre}".'},
+                status=400
+            )
+
+        # ── Crear ──────────────────────────────────────
+        nueva = categoria.objects.create(
+            nombre=nombre,
+            descripcion=descripcion,
+            tipo=categoria.TIPO_INSUMO,   # siempre 'insumo' desde este modal
+            estado=True,
+        )
+        return JsonResponse({
+            'success':          True,
+            'categoria_id':     nueva.id,
+            'categoria_nombre': nueva.nombre,
+        })
+
+
+class ProveedorCreateView(View):
+    def post(self, request):
+        nombre    = request.POST.get('nombre', '').strip()
+        telefono  = request.POST.get('telefono', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+
+        # ── Validaciones ──────────────────────────────
+        if not nombre:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El nombre del proveedor es obligatorio.'},
+                status=400
+            )
+        if len(nombre) > 100:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El nombre no puede superar los 100 caracteres.'},
+                status=400
+            )
+        if not telefono:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El teléfono es obligatorio.'},
+                status=400
+            )
+        if len(telefono) > 15:
+            return JsonResponse(
+                {'status': 'error', 'message': 'El teléfono no puede superar los 15 caracteres.'},
+                status=400
+            )
+        if not direccion:
+            return JsonResponse(
+                {'status': 'error', 'message': 'La dirección es obligatoria.'},
+                status=400
+            )
+        if len(direccion) > 200:
+            return JsonResponse(
+                {'status': 'error', 'message': 'La dirección no puede superar los 200 caracteres.'},
+                status=400
+            )
+
+        # ── Crear ──────────────────────────────────────
+        nuevo = proveedor.objects.create(
+            nombre=nombre,
+            telefono=telefono,
+            direccion=direccion,
+            estado=True,
+        )
+        return JsonResponse({
+            'success': True,
+            'proveedor_id':     nuevo.id,
+            'proveedor_nombre': nuevo.nombre,
+        })

@@ -1,0 +1,40 @@
+<div class="modal" id="modal--categoria">
+    <div class="modal-contenido modal-contenido--">
+        <div class="modal-header modal-header--agregar">
+            <h3 class="modal-titulo">
+                <i class="fa-solid fa-folder-plus"></i>
+                Nueva Categoría
+            </h3>
+        </div>
+
+        <form id="form--categoria" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="tipo" value="insumo">
+
+            <div class="form-grupo">
+                <label for="qcat_nombre">Nombre de la categoría</label>
+                <input type="text" name="nombre" id="qcat_nombre" class="form-input"
+                       maxlength="100" autocomplete="off"
+                       placeholder="Ej: Telas, Espumas, Maderas…">
+                <span class="msg-error" id="error-qcat-nombre" role="alert" style="display:none;"></span>
+            </div>
+
+            <div class="form-grupo">
+                <label for="qcat_descripcion">Descripción</label>
+                <textarea name="descripcion" id="qcat_descripcion" class="form-input form-textarea"
+                          maxlength="600" rows="2"
+                          placeholder="Ej: Categoría para materiales de tapizado…"></textarea>
+                <span class="msg-error" id="error-qcat-descripcion" role="alert" style="display:none;"></span>
+            </div>
+
+            <div class="form-botones">
+                <button type="button" class="btn-cancelar" data-modal="modal--categoria">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button type="submit" id="btn--cat-guardar" class="btn-guardar">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

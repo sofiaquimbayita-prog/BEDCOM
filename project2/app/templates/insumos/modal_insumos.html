@@ -34,41 +34,55 @@
                 </div>
             </div>
 
-         <div class="form-grupo">
-                <label for="ed_unidad">Unidad de medida</label>
-                <select name="unidad_medida" id="ed_unidad" class="form-select" required>
-                    <option value="" disabled>— Selecciona una unidad —</option>
-                        <option value="kg">Kilogramo </option>
-                        <option value="L">Litro</option>
-                        <option value="gal">Galón </option>
-                        <option value="m">Metro </option>
-                        <option value="m2">Metro cuadrado </option>
-                        <option value="m3">Metro cúbico</option>
-                        <option value="und">Unidad</option>
-                        <option value="caja">Caja</option>
-                        <option value="rollo">Rollo</option>
-                    </optgroup>
+        <div class="form-grupo">
+                <label for="ag_unidad">Unidad de medida</label>
+                <select name="unidad_medida" id="ag_unidad" class="form-select" required>
+                    <option value="" disabled selected>— Selecciona una unidad —</option>
+                    <option value="kg">Kilogramo (kg)</option>
+                    <option value="lb">Libra (lb)</option>
+                    <option value="L">Litro (L)</option>
+                    <option value="gal">Galón (gal)</option>
+                    <option value="m">Metro (m)</option>
+                    <option value="m2">Metro cuadrado (m²)</option>
+                    <option value="m3">Metro cúbico (m³)</option>
+                    <option value="und">Unidad (und)</option>
+                    <option value="caja">Caja</option>
+                    <option value="rollo">Rollo</option>
                 </select>
             </div>
 
             <div class="divicion">
                 <div class="form-grupo">
                     <label for="ag_proveedor">Proveedor</label>
-                    <select name="id_proveedor" id="ag_proveedor" class="form-select" required>
-                        <option value="" disabled selected>— Selecciona —</option>
-                        {% for p in proveedor %}
-                            <option value="{{ p.id }}">{{ p.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="select-con-boton">
+                        <select name="id_proveedor" id="ag_proveedor" class="form-select select2-insumo" required>
+                            <option value="" disabled selected>— Selecciona —</option>
+                            {% for p in proveedor %}
+                                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn--add"
+                                onclick="abrirModalProveedor('ag_proveedor')"
+                                title="Agregar nuevo proveedor">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-grupo">
                     <label for="ag_categoria">Categoría</label>
-                    <select name="id_categoria" id="ag_categoria" class="form-select" required>
-                        <option value="" disabled selected>— Selecciona —</option>
-                        {% for c in categorias %}
-                            <option value="{{ c.id }}">{{ c.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="select-con-boton">
+                        <select name="id_categoria" id="ag_categoria" class="form-select select2-insumo" required>
+                            <option value="" disabled selected>— Selecciona —</option>
+                            {% for c in categorias %}
+                                <option value="{{ c.id }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn--add"
+                                onclick="abrirModalCategoria('ag_categoria')"
+                                title="Agregar nueva categoría">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 

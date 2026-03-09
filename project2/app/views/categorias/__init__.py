@@ -4,6 +4,6 @@ from .views import (
     categoria_create_view,
     categoria_update_view,
     categoria_delete_view,
-    categoria_activate_view,
+    categoria_activate_view
 )
 

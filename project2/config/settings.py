@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g'
 
 # IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
-DEBUG = False 
+DEBUG = True 
 
 # Dominios permitidos para acceder al servidor
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
