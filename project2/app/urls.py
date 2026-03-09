@@ -1,20 +1,17 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores,productos,reportes, categorias
-#==================================
-#           RAMA SOFIA
-from .views import respaldos
-from .views.proveedores.views import (
-    ProveedorListView,
-    ProveedorCreateView,
-    ProveedorUpdateView,
-    ProveedorDeleteView,
-    ProveedorActivateView,
-    ProveedorDataView
-)
-#==================================
+from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos
 
 urlpatterns = [
+    # --- ENTRADA DE PRODUCTOS ---
+    path('entrada_p/', entrada_p.EntradaListView.as_view(), name='entrada_p'),
+    path('entrada_p/data/', entrada_p.EntradaDataView.as_view(), name='entrada_p_data'),
+    path('entrada_p/obtener/<int:pk>/', entrada_p.EntradaDetailView.as_view(), name='entrada_p_obtener'),
+    path('entrada_p/crear/', entrada_p.EntradaCreateView.as_view(), name='entrada_p_crear'),
+    path('entrada_p/editar/<int:pk>/', entrada_p.EntradaUpdateView.as_view(), name='entrada_p_editar'),
+    path('entrada_p/eliminar/<int:pk>/', entrada_p.EntradaDeleteView.as_view(), name='entrada_p_eliminar'),
+    path('entrada_p/reactivar/<int:pk>/', entrada_p.EntradaReactivarView.as_view(), name='entrada_p_reactivar'),
+
     # --- MENÚ / DASHBOARD ---
     path('menu/', menu.MenuView.as_view(), name='menu'),
 
@@ -32,9 +29,19 @@ urlpatterns = [
     path('categorias/eliminar/<int:pk>/', categorias.categoria_delete_view.as_view(), name='eliminar_categoria'),
     path('categorias/activar/<int:pk>/', categorias.categoria_activate_view.as_view(), name='activar_categoria'),
     
-    # --- REPORTES ---
-    path('reportes/', reportes.ReporteVentasView.as_view, name='reportes'),  
-    
+    # --- REPORTES ---  
+    path('reportes/', reportes.ReporteVentasView.as_view(), name='reportes'),  
+    path('reportes/estadisticas/pdf/',   reportes.ExportarEstadisticasPDF.as_view(),   name='estadisticas_pdf'),
+    path('reportes/estadisticas/excel/', reportes.ExportarEstadisticasExcel.as_view(), name='estadisticas_excel'),
+    path('reportes/categorias/pdf/', reportes.ExportarCategoriasPDF.as_view(), name='categorias_pdf'),
+    path('reportes/categorias/excel/', reportes.ExportarCategoriasExcel.as_view(), name='categorias_excel'),
+    path('reportes/insumos/pdf/', reportes.ExportarInsumosPDF.as_view(), name='insumos_pdf'),
+    path('reportes/insumos/excel/', reportes.ExportarInsumosExcel.as_view(), name='insumos_excel'),
+    path('reportes/productos/pdf/', reportes.ExportarProductosPDF.as_view(), name='productos_pdf'),
+    path('reportes/productos/excel/', reportes.ExportarProductosExcel.as_view(), name='productos_excel'),
+    path('reportes/proveedores/pdf/', reportes.ExportarProveedoresPDF.as_view(), name='proveedores_pdf'),
+    path('reportes/proveedores/excel/', reportes.ExportarProveedoresExcel.as_view(), name='proveedores_excel'),
+
  # --- INSUMOS ---
     path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
     path('insumos/data/', insumos.InsumoDataView.as_view(), name='insumos_data'),
@@ -58,12 +65,12 @@ urlpatterns = [
     path('calendario/eliminar/<int:pk>/', calendario.EventoEliminarView.as_view(), name='eliminar_evento'),
 
   # --- PROVEEDORES ---
-    path('proveedores/', ProveedorListView.as_view(), name='proveedores_list'),
-    path('proveedores/data/', ProveedorDataView.as_view(), name='proveedores_data'),
-    path('proveedores/crear/', ProveedorCreateView.as_view(), name='proveedores_create'),
-    path('proveedores/editar/<int:pk>/', ProveedorUpdateView.as_view(), name='proveedores_update'),
-    path('proveedores/eliminar/<int:pk>/', ProveedorDeleteView.as_view(), name='proveedores_delete'),
-    path('proveedores/activar/<int:pk>/', ProveedorActivateView.as_view(), name='proveedores_activate'),
+    path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),
+    path('proveedores/data/', proveedores.ProveedorDataView.as_view(), name='proveedores_data'),
+    path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedores_create'),
+    path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedores_update'),
+    path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
+    path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
     
     # --- RESPALDOS ---
     path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),

@@ -6,5 +6,6 @@ from .views import (
     EntradaUpdateView,
     EntradaDeleteView,
     EntradaDetailView,
+    EntradaReactivarView,
 )
 
