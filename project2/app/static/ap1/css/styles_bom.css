@@ -1,0 +1,1100 @@
+/* ==================================================
+   BOM - ESTILOS CON TEMA OSCURO
+   Coincide con productos, insumos y otros módulos
+   ================================================== */
+
+:root {
+  /* 🎨 Paleta de colores */
+  --color-principal: #51a3d3;
+  --color-principal-oscuro: #347ea9;
+  --color-acento: #00b3ff;
+  --imagen-fondo: url(../img/fondo.jpg);
+  --color-superficie: rgba(30, 41, 59, 0.9);
+  --color-superficie-dark: #0f172a;
+  --color-superficie-input: #1e293b;
+  --color-texto: #ffffff;
+  --color-texto-oscuro: #f1f1f1;
+  --color-texto-muted: #94a3b8;
+  --color-texto-disabled: #475569;
+  --color-borde: #334155;
+  --color-exito: #2ecc71;
+  --color-error: #ef4444;
+
+  /* Colores para badges */
+  --color-producto: #a78bfa;
+  --color-producto-glow: rgba(167, 139, 250, 0.15);
+  --color-producto-brd: rgba(167, 139, 250, 0.35);
+  --color-insumo: #f59e0b;
+  --color-insumo-glow: rgba(245, 158, 11, 0.15);
+  --color-insumo-brd: rgba(245, 158, 11, 0.35);
+
+  /* Botones */
+  --color-editar: #f59e0b;
+  --color-editar-glow: rgba(245, 158, 11, 0.15);
+  --color-ver: #a78bfa;
+  --color-ver-glow: rgba(167, 139, 250, 0.15);
+  --color-inactivar: #ef4444;
+  --color-inactivar-glow: rgba(239, 68, 68, 0.15);
+  --color-activar: #10b981;
+  --color-activar-glow: rgba(16, 185, 129, 0.15);
+
+  /* 📏 Variables de diseño */
+  --borde-sm: 6px;
+  --borde-md: 8px;
+  --borde-lg: 12px;
+  --borde-xl: 15px;
+  --sombra-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+  --sombra-xl: 0 25px 50px rgba(0, 0, 0, 0.6);
+  --transicion-rapida: 0.2s ease;
+  --transicion-normal: 0.3s ease;
+
+  --acento-glow: rgba(56, 189, 248, 0.15);
+  --acento-glow-border: rgba(56, 189, 248, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==================================================
+   CONTENEDOR PRINCIPAL
+   ================================================== */
+.bom-gestion {
+  padding: 24px;
+  color: var(--color-texto);
+  min-height: calc(100vh - 80px);
+}
+
+/* ==================================================
+   TOOLBAR
+   ================================================== */
+.bom-gestion .toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 15px 20px;
+  background: var(--color-superficie);
+  border-radius: var(--borde-lg);
+  border: 1px solid var(--color-borde);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bom-gestion .toolbar h1 {
+  font-size: 1.5rem;
+  color: var(--color-texto);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.bom-gestion .toolbar h1 i {
+  color: var(--color-acento);
+}
+
+/* Toolbar right */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==================================================
+   INFO BOX
+   ================================================== */
+.info-box {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  color: var(--color-texto-muted);
+  padding: 15px 20px;
+  border-radius: var(--borde-lg);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.info-box i {
+  font-size: 20px;
+  flex-shrink: 0;
+  color: var(--color-acento);
+}
+
+.info-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.info-box strong {
+  color: var(--color-texto);
+}
+
+/* ==================================================
+   CONTENEDOR TABLA
+   ================================================== */
+.container-tabla {
+  background: var(--color-superficie);
+  border-radius: var(--borde-lg);
+  padding: 25px;
+  width: 95%;
+  margin: 0 auto 30px auto;
+  box-shadow: var(--sombra-lg);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* ==================================================
+   BADGES
+   ================================================== */
+.producto-badge, .insumo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.producto-badge {
+  background: var(--color-producto-glow);
+  color: var(--color-producto);
+  border: 1px solid var(--color-producto-brd);
+}
+
+.insumo-badge {
+  background: var(--color-insumo-glow);
+  color: var(--color-insumo);
+  border: 1px solid var(--color-insumo-brd);
+}
+
+.producto-badge i, .insumo-badge i {
+  font-size: 12px;
+}
+
+/* ==================================================
+   ACCIONES EN TABLA
+   ================================================== */
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.edit-btn, .delete-btn, .view-btn, .bom-btn {
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 40px;
+  height: 40px;
+}
+
+.bom-btn {
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+}
+
+.bom-btn:hover {
+  background: rgba(167, 85, 247, 0.2);
+  color: #a855f7;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.edit-btn:hover {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.view-btn:hover {
+  color: #38bdf8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+/* ==================================================
+   BOTONES PRINCIPALES
+   ================================================== */
+.button-2, .button-3 {
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--borde-md);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--transicion-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.button-2::before, .button-3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.button-2:hover, .button-3:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+  background: linear-gradient(135deg, #363c3e 0%, #17272e 100%);
+}
+
+.button-2:hover::before, .button-3:hover::before {
+  left: 100%;
+}
+
+.button-2 i, .button-3 i {
+  font-size: 16px;
+}
+
+/* ==================================================
+   MODALES
+   ================================================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 10px;
+  overflow-y: auto;
+}
+
+.modal.show {
+  display: flex;
+  animation: modalFadeIn var(--transicion-normal) ease-out;
+}
+
+.modal-content {
+  background: var(--color-superficie-dark) !important;
+  color: var(--color-texto) !important;
+  border-radius: var(--borde-xl) !important;
+  width: 90% !important;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--sombra-xl) !important;
+  border: 1px solid var(--color-borde) !important;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  padding: 0 !important;
+}
+
+.modal.show .modal-content {
+  transform: scale(1);
+}
+
+/* Scrollbar personalizada */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+/* Modal Header */
+.modal-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid var(--color-borde);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--color-texto) !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.modal-header h2 i {
+  color: var(--color-acento);
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--color-texto-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color var(--transicion-rapida);
+}
+
+.close-modal:hover {
+  color: var(--color-error);
+}
+
+/* ==================================================
+   FORMULARIOS
+   ================================================== */
+.form-group {
+  padding: 0 25px;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-texto-muted) !important;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--borde-md);
+  font-size: 0.92rem;
+  transition: border-color var(--transicion-rapida), box-shadow var(--transicion-rapida);
+  box-sizing: border-box;
+  background: var(--color-superficie-input) !important;
+  color: var(--color-texto) !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-acento);
+  box-shadow: 0 0 0 2px var(--acento-glow);
+}
+
+.form-group input::placeholder {
+  color: var(--color-texto-disabled);
+}
+
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 35px;
+}
+
+.form-group select option {
+  background: var(--color-superficie-dark);
+  color: var(--color-texto);
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 20px 25px;
+  border-top: 1px solid var(--color-borde);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel, .btn-save, .btn-delete {
+  padding: 12px 25px;
+  border: none;
+  border-radius: var(--borde-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transicion-rapida);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-cancel {
+  background: rgba(71, 85, 105, 0.5) !important;
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde);
+}
+
+.btn-cancel:hover {
+  background: rgba(71, 85, 105, 0.8) !important;
+}
+
+.btn-save {
+  background: var(--color-acento) !important;
+  color: #0f172a;
+}
+
+.btn-save:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--acento-glow);
+}
+
+.btn-delete {
+  background: var(--color-error) !important;
+  color: white;
+}
+
+.btn-delete:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--color-inactivar-glow);
+}
+
+/* ==================================================
+   DATATABLE
+   ================================================== */
+.dataTables_wrapper {
+  padding: 20px 0;
+  color: var(--color-texto) !important;
+}
+
+table.dataTable {
+  width: 100% !important;
+  border-collapse: collapse;
+}
+
+table.dataTable thead th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-texto);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  padding: 14px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--acento-glow-border) !important;
+}
+
+table.dataTable tbody td {
+  padding: 14px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  vertical-align: middle;
+  color: var(--color-texto-oscuro);
+  font-size: 0.9rem;
+}
+
+table.dataTable tbody tr:hover {
+  background: var(--acento-glow) !important;
+  cursor: pointer;
+}
+
+table.dataTable tbody tr:hover td {
+  color: var(--color-acento) !important;
+}
+
+table.dataTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* DataTable controls */
+.dataTables_wrapper .dataTables_filter input {
+  background: var(--color-superficie-input) !important;
+  border: 1px solid var(--color-borde) !important;
+  border-radius: var(--borde-sm);
+  padding: 6px 12px;
+  color: var(--color-texto) !important;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--color-acento) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--acento-glow);
+}
+
+.dataTables_length select {
+  background-color: var(--color-borde) !important;
+  color: var(--color-texto) !important;
+  border: 1px solid var(--color-borde) !important;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.dataTables_length select option {
+  background-color: var(--color-borde) !important;
+  color: var(--color-texto) !important;
+}
+
+/* Pagination */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: var(--color-texto) !important;
+  border-radius: var(--borde-sm) !important;
+  border: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--acento-glow) !important;
+  color: var(--color-acento) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: var(--color-acento) !important;
+  border: 1px solid var(--acento-glow-border) !important;
+  font-weight: bold;
+}
+
+/* ==================================================
+   ANIMACIONES
+   ================================================== */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==================================================
+   MENSAJES TOAST
+   ================================================== */
+.messages-container {
+  position: fixed;
+  top: 85px;
+  right: 25px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  min-width: 320px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: #1e293b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: slideInToast 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-content i {
+  font-size: 20px;
+}
+
+.message.success {
+  border-left: 5px solid #10b981;
+}
+
+.message.success .message-content i {
+  color: #10b981;
+}
+
+.message.error {
+  border-left: 5px solid #ef4444;
+}
+
+.message.error .message-content i {
+  color: #ef4444;
+}
+
+.message.warning {
+  border-left: 5px solid #f59e0b;
+}
+
+.message.warning .message-content i {
+  color: #f59e0b;
+}
+
+.message.info {
+  border-left: 5px solid #38bdf8;
+}
+
+.message.info .message-content i {
+  color: #38bdf8;
+}
+
+.close-toast {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 15px;
+}
+/* ==================================================
+   SELECT2 - ESTILO OSCURO PARA MODALES
+   ================================================== */
+
+/* Contenedor Select2 */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container .selection .select2-selection {
+    background: var(--color-superficie-input) !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md);
+    min-height: 44px;
+    padding: 4px 8px;
+}
+
+.select2-container .selection .select2-selection__rendered {
+    color: var(--color-texto) !important;
+    line-height: 32px;
+    padding-left: 4px;
+}
+
+.select2-container .selection .select2-selection__arrow {
+    background: transparent;
+    border: none;
+    top: 8px;
+}
+
+.select2-container .selection .select2-selection__arrow b {
+    border-color: var(--color-texto-muted) transparent transparent transparent !important;
+}
+
+/* Hover del select */
+.select2-container--open .select2-selection,
+.select2-container .selection .select2-selection:hover {
+    border-color: var(--color-acento) !important;
+    box-shadow: 0 0 0 2px var(--acento-glow);
+}
+
+/* Focus del select */
+.select2-container--focus .select2-selection {
+    border-color: var(--color-acento) !important;
+    box-shadow: 0 0 0 2px var(--acento-glow) !important;
+}
+
+/* Dropdown */
+.select2-dropdown {
+    background: var(--color-superficie-dark) !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md);
+    box-shadow: var(--sombra-lg);
+    z-index: 10001;
+}
+
+.select2-results__options {
+    padding: 4px;
+}
+
+.select2-results__option {
+    color: var(--color-texto) !important;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.select2-results__option--highlighted[aria-selected] {
+    background: var(--acento-glow) !important;
+    color: var(--color-acento) !important;
+}
+
+.select2-results__option[aria-selected="true"] {
+    background: rgba(81, 163, 211, 0.2) !important;
+    color: var(--color-acento) !important;
+}
+
+/* Placeholder */
+.select2-container .selection .select2-selection__placeholder {
+    color: var(--color-texto-disabled) !important;
+}
+
+/* Clear button */
+.select2-container .selection .select2-selection__clear {
+    color: var(--color-texto-muted);
+    margin-right: 8px;
+}
+
+.select2-container .selection .select2-selection__clear:hover {
+    color: var(--color-error);
+}
+
+/* Search in dropdown */
+.select2-search--dropdown {
+    padding: 8px;
+    background: var(--color-superficie-input);
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.select2-search--dropdown .select2-search__field {
+    background: var(--color-superficie-input) !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: 4px;
+    color: var(--color-texto) !important;
+    padding: 8px 12px;
+}
+
+.select2-search--dropdown .select2-search__field:focus {
+    outline: none;
+    border-color: var(--color-acento) !important;
+}
+
+.select2-search--dropdown .select2-search__field::placeholder {
+    color: var(--color-texto-disabled);
+}
+
+/* No results message */
+.select2-results__message {
+    color: var(--color-texto-muted) !important;
+    padding: 12px;
+}
+
+/* Loading message */
+.select2-container--default .select2-results__option--loading {
+    color: var(--color-texto-muted);
+}
+
+/* ==================================================
+   TABLA EN MODAL - ESTILO OSCURO
+   ================================================== */
+
+/* Tabla dentro del modal */
+#tablaReceta,
+#tablaEditReceta {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: var(--color-superficie-input);
+    border-radius: var(--borde-md);
+    overflow: hidden;
+}
+
+#tablaReceta thead tr,
+#tablaEditReceta thead tr {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+#tablaReceta thead th,
+#tablaEditReceta thead th {
+    padding: 12px 10px;
+    text-align: left;
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#tablaReceta tbody td,
+#tablaEditReceta tbody td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto-oscuro);
+    font-size: 0.9rem;
+}
+
+#tablaReceta tbody td[style*="text-align: center"],
+#tablaEditReceta tbody td[style*="text-align: center"] {
+    text-align: center;
+}
+
+#tablaReceta tbody tr:hover,
+#tablaEditReceta tbody tr:hover {
+    background: var(--acento-glow);
+}
+
+#tablaReceta tbody tr:hover td,
+#tablaEditReceta tbody tr:hover td {
+    color: var(--color-acento);
+}
+
+/* Mensaje cuando no hay insumos */
+#recetaVacio td,
+#editRecetaVacio td {
+    padding: 20px !important;
+    text-align: center !important;
+    color: var(--color-texto-muted) !important;
+    font-style: italic;
+}
+
+/* Botón de eliminar en la tabla del modal */
+#tablaReceta button,
+#tablaEditReceta button {
+    background: var(--color-error);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#tablaReceta button:hover,
+#tablaEditReceta button:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+/* Autofill fix for inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill {
+    border: 1px solid var(--color-principal) !important;
+}
+
+.close-toast:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: rotate(90deg);
+}
+
+@keyframes slideInToast {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - TABLET (768px y menos)
+   ================================================== */
+@media (max-width: 768px) {
+  .bom-gestion {
+    padding: 16px;
+  }
+
+  .bom-gestion .toolbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .bom-gestion .toolbar h1 {
+    font-size: 1.25rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toolbar-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .button-2, .button-3 {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .container-tabla {
+    padding: 15px;
+    margin: 15px auto;
+    width: 98%;
+  }
+
+  .info-box {
+    padding: 12px 15px;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    margin: 10px;
+    padding: 0 !important;
+  }
+
+  .modal-header {
+    padding: 15px 20px;
+  }
+
+  .form-group {
+    padding: 0 20px;
+  }
+
+  .modal-footer {
+    padding: 15px 20px;
+    flex-direction: column;
+  }
+
+  .btn-cancel, .btn-save, .btn-delete {
+    width: 100%;
+  }
+
+  .acciones {
+    gap: 6px;
+  }
+
+  .edit-btn, .delete-btn, .view-btn, .bom-btn {
+    width: 35px;
+    height: 35px;
+    padding: 8px;
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - MOBILE (576px y menos)
+   ================================================== */
+@media (max-width: 576px) {
+  .bom-gestion {
+    padding: 10px;
+  }
+
+  .container-tabla {
+    padding: 10px;
+    margin: 10px auto;
+    width: 100%;
+  }
+
+  .bom-gestion .toolbar {
+    padding: 10px;
+  }
+
+  .bom-gestion .toolbar h1 {
+    font-size: 1.1rem;
+  }
+
+  .info-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .info-box i {
+    font-size: 18px;
+  }
+
+  .modal-content {
+    width: 96% !important;
+    margin: 8px;
+    border-radius: var(--borde-lg) !important;
+  }
+
+  .form-group {
+    padding: 0 15px;
+    margin-bottom: 15px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 12px;
+  }
+
+  .modal-footer {
+    padding: 12px 15px;
+  }
+
+  .messages-container {
+    right: 12px;
+    left: 12px;
+    max-width: calc(100% - 24px);
+  }
+
+  .message {
+    min-width: auto;
+  }
+}
+
+/* ==================================================
+   RESPONSIVE - EXTRA SMALL (380px y menos)
+   ================================================== */
+@media (max-width: 380px) {
+  .bom-gestion {
+    padding: 8px;
+  }
+
+  .bom-gestion .toolbar {
+    padding: 8px;
+  }
+
+  .bom-gestion .toolbar h1 {
+    font-size: 1rem;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .container-tabla {
+    padding: 8px;
+  }
+
+  .producto-badge, .insumo-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .acciones {
+    gap: 4px;
+  }
+
+  .edit-btn, .delete-btn, .view-btn, .bom-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    font-size: 14px;
+  }
+}
+

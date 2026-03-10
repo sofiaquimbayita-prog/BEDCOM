@@ -74,6 +74,7 @@ class cliente(models.Model):
 class usuario(models.Model): 
     cedula = models.CharField(max_length=20, unique=True)
     nombre_usuario = models.CharField(max_length=50)
+    email = models.EmailField(max_length=100, null=True, blank=True)
     rol = models.CharField(max_length=20)
     estado = models.CharField(max_length=20)
     foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)

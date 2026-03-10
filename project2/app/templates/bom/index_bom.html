@@ -1,0 +1,288 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Gestión BOM - Estructura de Productos{% endblock %}
+
+{% block messages %}
+{% if messages %}
+<div class="messages" id="toast-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        <div class="message-content">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-times-circle"></i>
+            {% else %}
+                <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span class="text">{{ message }}</span>
+        </div>
+        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
+
+<main class="bom-gestion">
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <h1><i class="fas fa-cogs"></i> Estructura de Productos (BOM)</h1>
+        </div>
+        <div class="toolbar-right">
+            <button class="button-2" onclick="event.preventDefault(); abrirModal('modalReceta');">
+                <i class="fas fa-book-open"></i> <span class="btn-text">Crear Receta</span>
+            </button>
+        </div>
+    </div>
+    <div class="container-tabla">
+        <table id="tablaBom" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Insumo</th>
+                    <th>Cantidad</th>
+                    <th>Unidad Medida</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in boms %}
+                <tr>
+                    <td>{{ b.id }}</td>
+                    <td>
+                        <span class="producto-badge">
+                            <i class="fas fa-box"></i> {{ b.producto.nombre }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="insumo-badge">
+                            <i class="fas fa-tools"></i> {{ b.insumo.nombre }}
+                        </span>
+                    </td>
+                    <td style="font-weight: bold; text-align: center;">{{ b.cantidad }}</td>
+                    <td>{{ b.unidad_medida }}</td>
+                    <td>
+                        <div class="acciones">
+                            <button class="edit-btn" title="Editar" onclick="editarBom({{ b.producto.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" title="Eliminar" onclick="eliminarBom({{ b.id }}, '{{ b.producto.nombre|escapejs }}', '{{ b.insumo.nombre|escapejs }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 30px;">
+                        <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
+                        <p style="color: #666;">No hay relaciones BOM configuradas.</p>
+                        <p style="color: #999; font-size: 14px;">Agregue insumos a sus productos para ver la estructura aquí.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- Modal para crear RECETA completa (múltiples insumos) -->
+<div id="modalReceta" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-book-open"></i> Crear Receta (Estructura BOM)</h2>
+            <button class="close-modal" onclick="cerrarModal('modalReceta')">&times;</button>
+        </div>
+        
+        <form id="formReceta">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>PRODUCTO</label>
+                <select name="producto" id="recetaProducto" required>
+                    <option value="" disabled selected>Seleccione un producto</option>
+                    {% for p in productos %}
+                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>AGREGAR INSUMOS A LA RECETA</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <select id="recetaInsumo" style="flex: 2;">
+                        <option value="" disabled selected>Seleccione un insumo</option>
+                        {% for i in insumos %}
+                        <option value="{{ i.id }}">{{ i.nombre }}</option>
+                        {% endfor %}
+                    </select>
+<input type="number" id="recetaCantidad" min="1" step="1" value="1" style="flex: 1; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #1e293b; color: #fff;">
+<select id="recetaUnidad" style="flex: 1; background: #1e293b; color: #fff; border: 1px solid #334155;">
+                        <option value="und">und</option>
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="m">m</option>
+                        <option value="cm">cm</option>
+                        <option value="lt">lt</option>
+                        <option value="ml">ml</option>
+                        <option value="pza">pza</option>
+                    </select>
+                    <button type="button" onclick="agregarInsumoReceta()" class="btn-save" style="padding: 8px 15px;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>INSUMOS EN LA RECETA</label>
+                <table id="tablaReceta" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+<thead>
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Insumo</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Cantidad</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Unidad</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recetaInsumosBody">
+                        <tr id="recetaVacio">
+                            <td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">
+                                No hay insumos agregados. Use el formulario de arriba para agregar.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalReceta')">Cancelar</button>
+                <button type="submit" class="btn-save">Guardar Receta</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar receta (múltiples insumos) -->
+<div id="modalEditBom" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Editar Receta</h2>
+            <button class="close-modal" onclick="cerrarModal('modalEditBom')">&times;</button>
+        </div>
+        
+        <form id="formEditBom">
+            {% csrf_token %}
+            <input type="hidden" name="producto_id" id="editProductoId">
+            
+            <div class="form-group">
+                <label>PRODUCTO</label>
+                <select name="producto" id="editRecetaProducto" required disabled>
+                    {% for p in productos %}
+                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>AGREGAR INSUMOS A LA RECETA</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <select id="editRecetaInsumo" style="flex: 2;">
+                        <option value="" disabled selected>Seleccione un insumo</option>
+                        {% for i in insumos %}
+                        <option value="{{ i.id }}">{{ i.nombre }}</option>
+                        {% endfor %}
+                    </select>
+<input type="number" id="editRecetaCantidad" min="1" step="1" value="1" style="flex: 1; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #1e293b; color: #fff;">
+<select id="editRecetaUnidad" style="flex: 1; background: #1e293b; color: #fff; border: 1px solid #334155;">
+                        <option value="und">und</option>
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="m">m</option>
+                        <option value="cm">cm</option>
+                        <option value="lt">lt</option>
+                        <option value="ml">ml</option>
+                        <option value="pza">pza</option>
+                    </select>
+                    <button type="button" onclick="agregarInsumoEditReceta()" class="btn-save" style="padding: 8px 15px;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>INSUMOS EN LA RECETA</label>
+                <table id="tablaEditReceta" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+<thead>
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Insumo</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Cantidad</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Unidad</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="editRecetaInsumosBody">
+                        <tr id="editRecetaVacio">
+                            <td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">
+                                No hay insumos agregados.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalEditBom')">Cancelar</button>
+                <button type="submit" class="btn-save">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div id="modalDeleteBom" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Confirmar Eliminación</h2>
+            <button class="close-modal" onclick="cerrarModal('modalDeleteBom')">&times;</button>
+        </div>
+        
+        <form id="formDeleteBom" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" id="deleteId">
+            
+            <div style="text-align: center; padding: 20px;">
+                <p>¿Está seguro de eliminar la relación BOM?</p>
+<div style="background: #1e293b; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #334155;">
+                    <strong>Producto:</strong> <span id="deleteProducto"></span><br>
+                    <strong>Insumo:</strong> <span id="deleteInsumo"></span>
+                </div>
+                <p style="color: #e74c3c; font-size: 14px;">Esta acción no se puede deshacer.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalDeleteBom')">Cancelar</button>
+                <button type="submit" class="btn-delete">Eliminar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'ap1/js/script_bom.js' %}"></script>
+
+{% endblock %}
+

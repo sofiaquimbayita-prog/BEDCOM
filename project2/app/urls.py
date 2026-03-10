@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, inventario
+from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, bom
 
 urlpatterns = [
       # --- ENTRADA DE PRODUCTOS ---
@@ -14,6 +14,8 @@ urlpatterns = [
 
       # --- MENÚ / DASHBOARD ---
       path('menu/', menu.MenuView.as_view(), name='menu'),
+      path('menu/perfil/', menu.get_perfil, name='get_perfil'),
+      path('menu/perfil/actualizar/', menu.update_perfil, name='update_perfil'),
 
       # --- PRODUCTOS ---
       path('productos/', productos.producto_list_view.as_view(), name='productos'),
@@ -79,12 +81,17 @@ urlpatterns = [
       path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
       path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
       
-      # Inventario
-      path('inventario/', inventario.InventarioListView.as_view(), name='inventario_list'),
    # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
       path('salida/detalle/<int:pk>/', salida_p.SalidaProductoDetalleView.as_view(), name='salida_producto_detalle'),
       path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_producto_anular'),
       
+      # --- BOM (ESTRUCTURA DE PRODUCTOS) ---
+      path('bom/', bom.BomListView.as_view(), name='bom_list'),
+      path('bom/crear-receta/', bom.bom_crear_receta, name='bom_crear_receta'),
+      path('bom/editar-receta/', bom.bom_editar_receta, name='bom_editar_receta'),
+      path('bom/eliminar/<int:pk>/', bom.BomDeleteView.as_view(), name='bom_eliminar'),
+      path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
+      path('bom/data/', bom.bom_data, name='bom_data'),
 ]

@@ -38,7 +38,7 @@
                     </div>
                     <div class="sidebar-divider"></div>
                     <div class="sidebar-menu">
-                        <a href="#" class="sidebar-menu-item">
+                        <a href="#" class="sidebar-menu-item" id="btnMiPerfil">
                             <i class="fas fa-user-circle"></i>
                             <span>Mi Perfil</span>
                         </a>
@@ -93,3 +93,196 @@
         </div>
     </div>
 </header>
+
+<!-- Estilos para el Modal de Perfil -->
+<style>
+.modal-perfil-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-perfil-content {
+  background: #1e293b;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
+  animation: modalPerfilFadeIn 0.3s ease-out;
+}
+
+@keyframes modalPerfilFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-perfil-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #334155;
+}
+
+.modal-perfil-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-perfil-header h2 i {
+  color: #3b82f6;
+}
+
+.modal-perfil-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-perfil-close:hover {
+  color: #fff;
+}
+
+.modal-perfil-form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.form-group input.input-readonly {
+  background: #334155;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.modal-perfil-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+  margin-top: 20px;
+}
+
+.modal-perfil-footer button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.modal-perfil-footer .btn-cancelar {
+  background: #334155;
+  color: #fff;
+}
+
+.modal-perfil-footer .btn-cancelar:hover {
+  background: #475569;
+}
+
+.modal-perfil-footer .btn-guardar {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.modal-perfil-footer .btn-guardar:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Oculto class */
+.oculto {
+  display: none !important;
+}
+</style>
+
+<!-- Modal Editar Perfil -->
+<div id="modalPerfil" class="modal-perfil-overlay oculto">
+    <div class="modal-perfil-content">
+        <div class="modal-perfil-header">
+            <h2><i class="fas fa-user-edit"></i> Editar Perfil</h2>
+            <button class="modal-perfil-close" id="cerrarModalPerfil">&times;</button>
+        </div>
+        <form id="formPerfil" class="modal-perfil-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="perfilCedula">Cédula</label>
+                <input type="text" id="perfilCedula" name="cedula" readonly class="input-readonly">
+            </div>
+            <div class="form-group">
+                <label for="perfilNombre">Nombre de Usuario</label>
+                <input type="text" id="perfilNombre" name="nombre_usuario" required>
+            </div>
+            <div class="form-group">
+                <label for="perfilEmail">Correo Electrónico</label>
+                <input type="email" id="perfilEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="perfilRol">Rol</label>
+                <input type="text" id="perfilRol" name="rol" readonly class="input-readonly">
+            </div>
+            <div class="form-group">
+                <label for="perfilEstado">Estado</label>
+                <input type="text" id="perfilEstado" name="estado" readonly class="input-readonly">
+            </div>
+            <div class="modal-perfil-footer">
+                <button type="button" class="btn-cancelar" id="cancelarPerfil">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -90,7 +90,7 @@
                     <td>{{ p.estado|yesno:'Activo,Inactivo' }}</td>
                     <td>
                         <div class="acciones">
-                            <button class="bom-btn" title="Enviar a BOM" onclick="event.stopPropagation();">
+                            <button class="bom-btn" title="Ver BOM" onclick="event.stopPropagation(); window.location.href='/vistas/bom/';">
                                 <i class="fas fa-cogs"></i>
                             </button>
                             <button class="view-btn" title="Ver detalle"

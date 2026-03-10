@@ -83,21 +83,6 @@
                     </div>
                 </article>
             </a>
-
-
-            <a href="{% url 'inventario_list' %}">
-                <article class="tile" role="button" tabindex="0">
-                    <div class="glyph is-inventario">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 4h16v4H4V4zm0 6h16v10H4V10zm2 2v6h12v-6H6z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3>INVENTARIO</h3>
-                        <div class="muted">Existencias</div>
-                    </div>
-                </article>
-            </a>
         
 
             <a href=" {% url 'reportes' %}" class="menu-card-link">
@@ -152,6 +137,20 @@
                     <div class="menu-card-content">
                         <h3>SALIDA DE PRODUCTOS</h3>
                         <p class="muted">Movimientos</p>
+                    </div>
+                </article>
+            </a>
+
+            <a href="{% url 'bom_list' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/inventario.jpg' %}" alt="Módulo BOM">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="menu-card-content">
+                        <h3>BOM</h3>
+                        <p class="muted">Estructura de productos</p>
                     </div>
                 </article>
             </a>

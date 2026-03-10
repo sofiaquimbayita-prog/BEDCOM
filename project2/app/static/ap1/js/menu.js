@@ -85,6 +85,131 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =====================
+  // MODAL DE PERFIL
+  // =====================
+  const btnMiPerfil = document.getElementById('btnMiPerfil');
+  const modalPerfil = document.getElementById('modalPerfil');
+  const cerrarModalPerfil = document.getElementById('cerrarModalPerfil');
+  const cancelarPerfil = document.getElementById('cancelarPerfil');
+  const formPerfil = document.getElementById('formPerfil');
+  
+  // Función para abrir modal de perfil
+  if (btnMiPerfil && modalPerfil) {
+    btnMiPerfil.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Cerrar dropdown primero
+      if (dropdownMenu) {
+        dropdownMenu.classList.add('oculto');
+      }
+      
+      // Obtener datos del perfil
+      fetch('/vistas/menu/perfil/')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('perfilCedula').value = data.data.cedula;
+            document.getElementById('perfilNombre').value = data.data.nombre_usuario;
+            document.getElementById('perfilEmail').value = data.data.email;
+            document.getElementById('perfilRol').value = data.data.rol;
+            document.getElementById('perfilEstado').value = data.data.estado;
+            modalPerfil.classList.remove('oculto');
+          } else {
+            alert('Error al cargar perfil: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al cargar el perfil');
+        });
+    });
+  }
+  
+  // Cerrar modal de perfil
+  function cerrarModalPerfilFunc() {
+    if (modalPerfil) {
+      modalPerfil.classList.add('oculto');
+    }
+  }
+  
+  if (cerrarModalPerfil) {
+    cerrarModalPerfil.addEventListener('click', cerrarModalPerfilFunc);
+  }
+  
+  if (cancelarPerfil) {
+    cancelarPerfil.addEventListener('click', cerrarModalPerfilFunc);
+  }
+  
+  // Cerrar al hacer clic fuera del modal
+  if (modalPerfil) {
+    modalPerfil.addEventListener('click', function(e) {
+      if (e.target === modalPerfil) {
+        cerrarModalPerfilFunc();
+      }
+    });
+  }
+  
+  // Cerrar con tecla Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modalPerfil && !modalPerfil.classList.contains('oculto')) {
+      cerrarModalPerfilFunc();
+    }
+  });
+  
+  // Enviar formulario de perfil
+  if (formPerfil) {
+    formPerfil.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const data = {
+        nombre_usuario: document.getElementById('perfilNombre').value,
+        email: document.getElementById('perfilEmail').value
+      };
+      
+      fetch('/vistas/menu/perfil/actualizar/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Perfil actualizado correctamente');
+          cerrarModalPerfilFunc();
+          // Recargar la página para actualizar los datos en el header
+          location.reload();
+        } else {
+          alert('Error al actualizar perfil: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el perfil');
+      });
+    });
+  }
+  
+  // Función para obtener CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // =====================
   // MODAL DE CONFIRMACIÓN - with null check
   // =====================
   const btnCerrarSesion = document.getElementById('btnCerrarSesion');
