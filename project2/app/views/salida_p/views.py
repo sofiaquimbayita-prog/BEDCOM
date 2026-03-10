@@ -31,8 +31,7 @@ class SalidaProductoCreateView(View):
                     'success': False,
                     'message': 'La cantidad debe ser mayor a 0'
                 })
-
-            # Validar que la fecha no sea futura
+#g
             if salida.fecha > timezone.now().date():
                 return JsonResponse({
                     'success': False,
