@@ -1,0 +1,112 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Inventario{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/Inventario.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<main class="main-content">
+
+<section class="stats">
+  <div class="stat-card blue">
+    <span>Productos registrados</span>
+    <strong>{{ total_productos }}</strong>
+  </div>
+
+  <div class="stat-card green">
+    <span>Stock total productos</span>
+    <strong>{{ total_stock }}</strong>
+  </div>
+
+  <div class="stat-card orange">
+    <span>Insumos registrados</span>
+    <strong>{{ total_insumos }}</strong>
+  </div>
+
+  <div class="stat-card purple">
+    <span>Stock total insumos</span>
+    <strong>{{ total_stock_insumos }}</strong>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Productos</h2>
+
+  <table class="inventario-table">
+      <thead>
+          <tr>
+              <th><i class="fas fa-image"></i> Imagen</th>
+              <th><i class="fas fa-box"></i> Nombre</th>
+              <th><i class="fas fa-cubes"></i> Stock</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for p in productos %}
+          <tr>
+              <td class="text-center">
+                  {% if p.imagen %}
+                  <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="producto-imagen">
+                  {% else %}
+                  <div class="no-imagen"><i class="fas fa-image"></i></div>
+                  {% endif %}
+              </td>
+              <td><strong>{{ p.nombre }}</strong></td>
+              <td>
+                  <span class="stock-badge stock-{% if p.stock <= 5 %}bajo{% elif p.stock <= 20 %}medio{% else %}alto{% endif %}">
+                      {{ p.stock }}
+                  </span>
+              </td>
+          </tr>
+          {% empty %}
+          <tr>
+              <td colspan="3" class="text-center">No hay productos registrados</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+
+</section>
+
+<section class="section">
+  <h2>Insumos</h2>
+
+  <table class="inventario-table">
+      <thead>
+          <tr>
+              <th><i class="fas fa-box"></i> Nombre</th>
+              <th><i class="fas fa-cubes"></i> Stock</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for i in insumos %}
+          <tr>
+              <td><strong>{{ i.nombre }}</strong></td>
+              <td>
+                  <span class="stock-badge stock-{% if i.cantidad <= 5 %}bajo{% elif i.cantidad <= 20 %}medio{% else %}alto{% endif %}">
+                      {{ i.cantidad }} {{ i.unidad_medida }}
+                  </span>
+              </td>
+          </tr>
+          {% empty %}
+          <tr>
+              <td colspan="2" class="text-center">No hay insumos registrados</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+
+</section>
+
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+{% endblock %}

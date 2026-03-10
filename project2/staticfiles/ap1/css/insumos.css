@@ -1312,3 +1312,169 @@ input:checked+.slider::before {
     padding: 5px;
   }
 }
+/* ==================================================
+   SELECT CON BOTÓN + (proveedor / categoría)
+   ================================================== */
+.select-con-boton {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.select-con-boton .form-select,
+.select-con-boton .select2-insumo + .select2-container {
+  flex: 1;
+  min-width: 0;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Select2 hereda el radio del contenedor */
+.select-con-boton .select2-container .select2-selection {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.btn--add {
+  flex-shrink: 0;
+  width: 38px;
+  background: rgba(0, 179, 255, 0.12);
+  border: 1px solid var(--acento-glow-border);
+  border-left: none;
+  border-radius: 0 var(--borde-md) var(--borde-md) 0;
+  color: var(--color-acento);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transicion-rapida), color var(--transicion-rapida), transform var(--transicion-rapida);
+}
+
+.btn--add:hover {
+  background: rgba(0, 179, 255, 0.25);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.btn--add:active {
+  transform: scale(0.97);
+}
+/* ==================================================
+   SELECT2 — dropdown con estilo del modal
+   ================================================== */
+.select2-dropdown {
+  background: var(--color-superficie-dark) !important;
+  border: 1px solid var(--color-borde) !important;
+  border-radius: var(--borde-md) !important;
+  box-shadow: var(--sombra-xl) !important;
+  color: var(--color-texto) !important;
+}
+
+.select2-container--default .select2-selection--single {
+  background: var(--color-superficie-input) !important;
+  border: 1px solid var(--color-borde) !important;
+  border-radius: var(--borde-md) !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--color-texto) !important;
+  padding-left: 11px !important;
+  line-height: normal !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: var(--color-texto-muted) !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 42px !important;
+  right: 8px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--color-texto-muted) transparent transparent transparent !important;
+}
+
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+  border-color: transparent transparent var(--color-acento) transparent !important;
+}
+
+/* Botón X para limpiar */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  color: var(--color-texto-muted) !important;
+  font-size: 1rem;
+  margin-right: 20px;
+  transition: color var(--transicion-rapida);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear:hover {
+  color: var(--color-error) !important;
+}
+
+/* Buscador dentro del dropdown */
+.select2-search--dropdown {
+  padding: 8px !important;
+  background: var(--color-superficie-dark) !important;
+  border-bottom: 1px solid var(--color-borde) !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+  background: var(--color-superficie-input) !important;
+  border: 1px solid var(--color-borde) !important;
+  border-radius: var(--borde-sm) !important;
+  color: var(--color-texto) !important;
+  padding: 7px 10px !important;
+  outline: none !important;
+  width: 100% !important;
+  transition: border-color var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+
+.select2-search--dropdown .select2-search__field:focus {
+  border-color: var(--color-acento) !important;
+  box-shadow: 0 0 0 2px var(--acento-glow) !important;
+}
+
+/* Lista de opciones */
+.select2-results__options {
+  background: var(--color-superficie-dark) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borde) transparent;
+}
+
+.select2-results__option {
+  color: var(--color-texto-oscuro) !important;
+  padding: 9px 12px !important;
+  font-size: 0.9rem !important;
+  transition: background var(--transicion-rapida), color var(--transicion-rapida);
+}
+
+.select2-results__option--highlighted {
+  background: rgba(0, 179, 255, 0.12) !important;
+  color: var(--color-acento) !important;
+}
+
+.select2-results__option[aria-selected="true"] {
+  background: rgba(0, 179, 255, 0.2) !important;
+  color: var(--color-acento) !important;
+  font-weight: 600;
+}
+
+.select2-results__message {
+  color: var(--color-texto-muted) !important;
+  font-size: 0.85rem !important;
+  text-align: center;
+  padding: 10px !important;
+}
+
+/* Focus ring en modal editar */
+#modal-editar .select2-container--default.select2-container--focus .select2-selection--single,
+#modal-editar .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: var(--color-editar) !important;
+  box-shadow: 0 0 0 2px var(--color-editar-glow) !important;
+}

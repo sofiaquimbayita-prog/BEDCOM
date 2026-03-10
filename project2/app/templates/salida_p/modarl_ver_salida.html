@@ -1,0 +1,42 @@
+<!-- Modal Ver Detalle de Salida -->
+<div id="modalVerSalida" class="modal" style="display: none;" onclick="cerrarModalVerSalidaOnClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2><i class="fas fa-info-circle"></i> Detalle de Salida</h2>
+            <button type="button" class="close-modal" onclick="cerrarModalVerSalida()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="view-detail-grid">
+                <div class="view-info">
+                    <label>Producto</label>
+                    <p id="viewSalidaProducto">-</p>
+                </div>
+                <div class="view-info">
+                    <label>Cantidad</label>
+                    <p id="viewSalidaCantidad">-</p>
+                </div>
+                <div class="view-info">
+                    <label>Fecha</label>
+                    <p id="viewSalidaFecha">-</p>
+                </div>
+                <div class="view-info">
+                    <label>Responsable</label>
+                    <p id="viewSalidaResponsable">-</p>
+                </div>
+                <div class="view-info view-full">
+                    <label>Motivo</label>
+                    <p id="viewSalidaMotivo">-</p>
+                </div>
+                <div class="view-info">
+                    <label>Estado</label>
+                    <p id="viewSalidaEstado">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModalVerSalida()">Cerrar</button>
+        </div>
+    </div>
+</div>

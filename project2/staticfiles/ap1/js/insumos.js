@@ -142,12 +142,32 @@ $(document).ready(function () {
         'und','par','docena','caja','paq','rollo','bolsa',
     ]);
 
-    function validarNombre(id) {
+    function validarNombre(id, idActual = null) {
         const val = $('#' + id).val().trim();
-        if (!val)            return mostrarError(id, 'El nombre es obligatorio.');
-        if (val.length < 5)  return mostrarError(id, 'El nombre debe tener al menos 5 caracteres.');
-        if (val.length > 100) return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
+
+        if (!val)
+            return mostrarError(id, 'El nombre es obligatorio.');
+
+        if (val.length < 5)
+            return mostrarError(id, 'El nombre debe tener al menos 5 caracteres.');
+
+        if (val.length > 100)
+            return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
+
+        if (nombreInsumoDuplicado(val, idActual))
+            return mostrarError(id, 'Ya existe un insumo con ese nombre.');
+
         limpiarEstado(id);
+    }
+
+    function nombreInsumoDuplicado(nombre, idActual = null) {
+        const datos = tabla.rows().data().toArray();
+
+        return datos.some(row => {
+            const mismoNombre = row.nombre.trim().toLowerCase() === nombre.toLowerCase();
+            const distintoId  = idActual ? row.id != idActual : true;
+            return mismoNombre && distintoId;
+        });
     }
 
     function validarCantidad(id) {
@@ -156,7 +176,7 @@ $(document).ready(function () {
         if (!/^\d+$/.test(raw))   return mostrarError(id, 'La cantidad debe ser un número entero.');
         const val = parseInt(raw, 10);
         if (val <= 0)   return mostrarError(id, 'La cantidad debe ser mayor a 0.');
-        if (val > 1000) return mostrarError(id, 'La cantidad no puede superar 1000.');
+        if (val > 10000) return mostrarError(id, 'La cantidad no puede superar 10000.');
         limpiarEstado(id);
     }
 
@@ -188,15 +208,16 @@ $(document).ready(function () {
     $('#ag_descripcion').on('blur', () => validarDescripcion('ag_descripcion'));
 
     // Editar
-    $('#ed_nombre').on('blur input', () => validarNombre('ed_nombre'));
+    $('#ed_nombre').on('blur input', () => {
+        const id = formEditar.action.match(/\d+/)?.[0];
+        validarNombre('ed_nombre', id);
+    });
     $('#ed_cantidad').on('blur input', () => validarCantidad('ed_cantidad'));
     $('#ed_precio').on('blur input', () => validarPrecio('ed_precio'));
     $('#ed_unidad').on('blur change', () => validarUnidad('ed_unidad'));
     $('#ed_descripcion').on('blur', () => validarDescripcion('ed_descripcion'));
 
     /* ── DataTable con filtro de estado ── */
-
-  
     let mostrarInactivos = false;
 
     $.fn.dataTable.ext.search.push(function (settings, data) {
@@ -252,16 +273,6 @@ $(document).ready(function () {
     $('#toggleInactivos').on('change', function () {
         mostrarInactivos = $(this).is(':checked');
         tabla.draw();
-    });
-
-    /* ── Abrir modal Agregar ── */
-    $('#btn-agregar-insumo').on('click', function () {
-        formAgregar.reset();
-        limpiarCampos(CAMPOS_AGREGAR);
-        $('#cnt-ag-nombre, #cnt-ag-descripcion').remove();
-        formAgregar.action = 'crear/';
-        modalAgregar.addClass('mostrar');
-        setTimeout(() => $('#ag_nombre').focus(), 150);
     });
 
     /* ── Submit compartido ── */
@@ -349,15 +360,14 @@ $(document).ready(function () {
                 formEditar.cantidad.value      = data.cantidad;
                 formEditar.unidad_medida.value = data.unidad_medida;
                 formEditar.precio.value        = data.precio;
-                formEditar.id_proveedor.value  = data.id_proveedor;
-                formEditar.id_categoria.value  = data.id_categoria;
                 formEditar.estado.value        = data.estado;
                 if (formEditar.descripcion) formEditar.descripcion.value = data.descripcion || '';
-                $('#ed_nombre').trigger('input');
-                if (data.descripcion) $('#ed_descripcion').trigger('input');
                 limpiarCampos(CAMPOS_EDITAR);
                 formEditar.action = `editar/${id}/`;
                 modalEditar.addClass('mostrar');
+                modalEditar.trigger('modalAbierto');
+                $('#ed_proveedor').val(data.id_proveedor).trigger('change');
+                $('#ed_categoria').val(data.id_categoria).trigger('change');
                 setTimeout(() => $('#ed_nombre').focus(), 150);
             })
             .catch(() => Alerta.error('Error de conexión', 'No se pudo cargar la información del insumo.'));
@@ -372,7 +382,6 @@ $(document).ready(function () {
             .then(data => {
                 _inactivarId = id;
 
-                // Poblar el modal
                 $('#inactivar-titulo-texto').text('Inactivar Insumo');
                 $('#inactivar-icono').attr('class', 'fa-solid fa-ban');
                 $('#inactivar-nombre').text(data.nombre);
@@ -385,7 +394,6 @@ $(document).ready(function () {
                     'El insumo dejará de aparecer en la lista principal. Podrás reactivarlo cuando lo necesites.'
                 );
 
-                // Botón confirmar
                 $('#btn-inactivar-icono').attr('class', 'fa-solid fa-ban');
                 $('#btn-inactivar-texto').text('Inactivar');
                 $('#btn-confirmar-inactivar')
@@ -393,7 +401,6 @@ $(document).ready(function () {
                     .off('click')
                     .on('click', () => ejecutarCambioEstado('inactivar', id, data.nombre));
 
-                // Acento del modal → rojo
                 modalInactivar
                     .find('.modal-contenido')
                     .attr('class', 'modal-contenido modal-contenido--inactivar');
@@ -435,7 +442,6 @@ $(document).ready(function () {
                     .off('click')
                     .on('click', () => ejecutarCambioEstado('activar', id, data.nombre));
 
-                // Acento del modal → verde
                 modalInactivar
                     .find('.modal-contenido')
                     .attr('class', 'modal-contenido modal-contenido--activar');
@@ -488,7 +494,6 @@ $(document).ready(function () {
         if (campos) limpiarCampos(campos);
     }
 
-
     $(document).on('click', '[data-modal]', function () {
         const id = $(this).data('modal');
         $(`#${id}`).removeClass('mostrar');
@@ -500,4 +505,301 @@ $(document).ready(function () {
     setTimeout(() => {
         $('#toast-container .message').each(function () { cerrarToastElement($(this)); });
     }, 4000);
+
+    /* ══════════════════════════════════════════════════
+       HELPERS VALIDACIÓN
+       ══════════════════════════════════════════════════ */
+    function qMostrarError(inputId, spanId, msg) {
+        $('#' + inputId).addClass('input-error').attr('aria-invalid', 'true');
+        $('#' + spanId).text(msg).show();
+    }
+    function qLimpiar(inputId, spanId) {
+        $('#' + inputId).removeClass('input-error').removeAttr('aria-invalid');
+        $('#' + spanId).hide().text('');
+    }
+    function qLimpiarTodos(pares) {
+        pares.forEach(([i, s]) => qLimpiar(i, s));
+    }
+
+    /* ══════════════════════════════════════════════════
+       SELECT2 — inicializar en todos los selects marcados
+       ══════════════════════════════════════════════════ */
+    function initSelect2(contexto) {
+        $(contexto).find('.select2-insumo').each(function () {
+            if ($(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2('destroy');
+            }
+            $(this).select2({
+                dropdownParent: $(this).closest('.modal-contenido'),
+                placeholder: $(this).find('option[disabled]').text() || '— Buscar o seleccionar —',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults:  () => 'Sin coincidencias',
+                    searching:  () => 'Buscando…',
+                },
+            });
+        });
+    }
+
+    $('#modal-agregar').on('modalAbierto', function () { initSelect2(this); });
+    $('#modal-editar').on('modalAbierto',  function () { initSelect2(this); });
+
+    $('#btn-agregar-insumo').on('click', function () {
+        formAgregar.reset();
+        $('#ag_proveedor, #ag_categoria').val(null).trigger('change');
+        limpiarCampos(CAMPOS_AGREGAR);
+        $('#cnt-ag-nombre, #cnt-ag-descripcion').remove();
+        formAgregar.action = 'crear/';
+        modalAgregar.addClass('mostrar');
+        modalAgregar.trigger('modalAbierto');
+        setTimeout(() => $('#ag_nombre').focus(), 150);
+    });
+
+    /* ══════════════════════════════════════════════════
+       MODAL — Categoría
+       ══════════════════════════════════════════════════ */
+    let _CatSelectId = null;
+
+    window.abrirModalCategoria = function (selectId) {
+        _CatSelectId = selectId;
+        const $m = $('#modal--categoria');
+        $m.find('#form--categoria')[0].reset();
+        qLimpiarTodos([
+            ['qcat_nombre',      'error-qcat-nombre'],
+            ['qcat_descripcion', 'error-qcat-descripcion'],
+        ]);
+        $m.addClass('mostrar');
+        setTimeout(() => $('#qcat_nombre').focus(), 150);
+    };
+
+    const reNombreCat = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$/;
+
+    $('#qcat_nombre').on('blur input', function () {
+        const v = $(this).val().trim();
+        if (!v)             return qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre es requerido.');
+        if (v.length < 3)   return qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre debe tener al menos 3 caracteres.');
+        if (v.length > 100) return qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre no puede superar los 100 caracteres.');
+        if (!reNombreCat.test(v)) return qMostrarError('qcat_nombre', 'error-qcat-nombre', 'Solo se permiten letras, números, espacios, guiones y guiones bajos.');
+        qLimpiar('qcat_nombre', 'error-qcat-nombre');
+    });
+    $('#qcat_descripcion').on('blur', function () {
+        const v = $(this).val();
+        if (!v.trim())      return qMostrarError('qcat_descripcion', 'error-qcat-descripcion', 'La descripción es obligatoria.');
+        if (v.length > 600) return qMostrarError('qcat_descripcion', 'error-qcat-descripcion', 'La descripción no puede superar los 600 caracteres.');
+        qLimpiar('qcat_descripcion', 'error-qcat-descripcion');
+    });
+
+    $('#form--categoria').on('submit', function (e) {
+        e.preventDefault();
+        const $btn   = $('#btn--cat-guardar');
+        const nombre = $('#qcat_nombre').val().trim();
+        const desc   = $('#qcat_descripcion').val().trim();
+        let valido   = true;
+
+        if (!nombre) {
+            qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre es requerido.');
+            valido = false;
+        } else if (nombre.length < 3) {
+            qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre debe tener al menos 3 caracteres.');
+            valido = false;
+        } else if (nombre.length > 100) {
+            qMostrarError('qcat_nombre', 'error-qcat-nombre', 'El nombre no puede superar los 100 caracteres.');
+            valido = false;
+        } else if (!reNombreCat.test(nombre)) {
+            qMostrarError('qcat_nombre', 'error-qcat-nombre', 'Solo se permiten letras, números, espacios, guiones y guiones bajos.');
+            valido = false;
+        } else {
+            qLimpiar('qcat_nombre', 'error-qcat-nombre');
+        }
+
+        if (!desc) {
+            qMostrarError('qcat_descripcion', 'error-qcat-descripcion', 'La descripción es obligatoria.');
+            valido = false;
+        } else if (desc.length > 600) {
+            qMostrarError('qcat_descripcion', 'error-qcat-descripcion', 'La descripción no puede superar los 600 caracteres.');
+            valido = false;
+        } else {
+            qLimpiar('qcat_descripcion', 'error-qcat-descripcion');
+        }
+
+        if (!valido) { $('#qcat_nombre').focus(); return; }
+
+        const fd = new FormData(this);
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Guardando…');
+
+        // ✅ FIX: agregado X-CSRFToken para que Django acepte la request
+        fetch(INSUMO_CREAR_CAT_URL, {
+            method: 'POST', body: fd,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    const errs = data.errors || {};
+                    if (errs.nombre)      qMostrarError('qcat_nombre',      'error-qcat-nombre',      errs.nombre[0]);
+                    if (errs.descripcion) qMostrarError('qcat_descripcion', 'error-qcat-descripcion', errs.descripcion[0]);
+                    if (!errs.nombre && !errs.descripcion) {
+                        qMostrarError('qcat_nombre', 'error-qcat-nombre', data.message || 'No se pudo crear la categoría.');
+                    }
+                    $('#qcat_nombre').focus();
+                    return;
+                }
+                const catId     = data.categoria_id;
+                const catNombre = data.categoria_nombre;
+                const $opt = $(`<option value="${catId}">${catNombre}</option>`);
+                ['#ag_categoria', '#ed_categoria'].forEach(sel => {
+                    const $s = $(sel);
+                    if (!$s.length) return;
+                    if (!$s.find(`option[value="${catId}"]`).length) $s.append($opt.clone());
+                    $s.hasClass('select2-hidden-accessible') ? $s.val(catId).trigger('change') : $s.val(catId);
+                });
+                if (_CatSelectId) {
+                    const $t = $(`#${_CatSelectId}`);
+                    if (!$t.find(`option[value="${catId}"]`).length) $t.append($opt.clone());
+                    $t.hasClass('select2-hidden-accessible') ? $t.val(catId).trigger('change') : $t.val(catId);
+                }
+                $('#modal--categoria').removeClass('mostrar');
+                Alerta.exito('¡Creada!', `La categoría "${catNombre}" fue creada con éxito.`);
+            })
+            .catch(() => Alerta.error('Error del servidor', 'No se pudo crear la categoría.'))
+            .finally(() => $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> Guardar'));
+    });
+
+    /* ══════════════════════════════════════════════════
+       MODAL — Proveedor
+       ══════════════════════════════════════════════════ */
+    let _ProvSelectId = null;
+    const reNombreProv = /^[a-zA-Z0-9\s]+$/;
+
+    window.abrirModalProveedor = function (selectId) {
+        _ProvSelectId = selectId;
+        const $m = $('#modal--proveedor');
+        $m.find('#form--proveedor')[0].reset();
+        qLimpiarTodos([
+            ['qprov_nombre',    'error-qprov-nombre'],
+            ['qprov_telefono',  'error-qprov-telefono'],
+            ['qprov_direccion', 'error-qprov-direccion'],
+        ]);
+        $m.addClass('mostrar');
+        setTimeout(() => $('#qprov_nombre').focus(), 150);
+    };
+
+    $('#qprov_nombre').on('blur input', function () {
+        const v = $(this).val().trim();
+        if (!v)                    return qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre es obligatorio.');
+        if (v.length < 3)          return qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre debe tener al menos 3 caracteres.');
+        if (v.length > 100)        return qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre no puede superar los 100 caracteres.');
+        if (!reNombreProv.test(v)) return qMostrarError('qprov_nombre', 'error-qprov-nombre', 'Solo se permiten letras, números y espacios.');
+        qLimpiar('qprov_nombre', 'error-qprov-nombre');
+    });
+    $('#qprov_telefono').on('blur input', function () {
+        const v = $(this).val().trim();
+        if (!v)                  return qMostrarError('qprov_telefono', 'error-qprov-telefono', 'El teléfono es obligatorio.');
+        if (!/^\d{10}$/.test(v)) return qMostrarError('qprov_telefono', 'error-qprov-telefono', 'El teléfono debe tener exactamente 10 dígitos numéricos.');
+        qLimpiar('qprov_telefono', 'error-qprov-telefono');
+    });
+    $('#qprov_direccion').on('blur input', function () {
+        const v = $(this).val().trim();
+        if (!v)            return qMostrarError('qprov_direccion', 'error-qprov-direccion', 'La dirección es obligatoria.');
+        if (v.length < 10) return qMostrarError('qprov_direccion', 'error-qprov-direccion', 'La dirección debe tener al menos 10 caracteres.');
+        qLimpiar('qprov_direccion', 'error-qprov-direccion');
+    });
+
+    $('#form--proveedor').on('submit', function (e) {
+        e.preventDefault();
+        const $btn      = $('#btn--prov-guardar');
+        const nombre    = $('#qprov_nombre').val().trim();
+        const telefono  = $('#qprov_telefono').val().trim();
+        const direccion = $('#qprov_direccion').val().trim();
+        let valido = true;
+
+        if (!nombre) {
+            qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre es obligatorio.');
+            valido = false;
+        } else if (nombre.length < 3) {
+            qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre debe tener al menos 3 caracteres.');
+            valido = false;
+        } else if (nombre.length > 100) {
+            qMostrarError('qprov_nombre', 'error-qprov-nombre', 'El nombre no puede superar los 100 caracteres.');
+            valido = false;
+        } else if (!reNombreProv.test(nombre)) {
+            qMostrarError('qprov_nombre', 'error-qprov-nombre', 'Solo se permiten letras, números y espacios.');
+            valido = false;
+        } else {
+            qLimpiar('qprov_nombre', 'error-qprov-nombre');
+        }
+
+        if (!telefono) {
+            qMostrarError('qprov_telefono', 'error-qprov-telefono', 'El teléfono es obligatorio.');
+            valido = false;
+        } else if (!/^\d{10}$/.test(telefono)) {
+            qMostrarError('qprov_telefono', 'error-qprov-telefono', 'El teléfono debe tener exactamente 10 dígitos numéricos.');
+            valido = false;
+        } else {
+            qLimpiar('qprov_telefono', 'error-qprov-telefono');
+        }
+
+        if (!direccion) {
+            qMostrarError('qprov_direccion', 'error-qprov-direccion', 'La dirección es obligatoria.');
+            valido = false;
+        } else if (direccion.length < 10) {
+            qMostrarError('qprov_direccion', 'error-qprov-direccion', 'La dirección debe tener al menos 10 caracteres.');
+            valido = false;
+        } else {
+            qLimpiar('qprov_direccion', 'error-qprov-direccion');
+        }
+
+        if (!valido) { $('#qprov_nombre').focus(); return; }
+
+        const fd = new FormData(this);
+        $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Guardando…');
+
+        // ✅ FIX: agregado X-CSRFToken para que Django acepte la request
+        fetch(INSUMO_CREAR_PROV_URL, {
+            method: 'POST', body: fd,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    if (data.field === 'telefono') {
+                        qMostrarError('qprov_telefono', 'error-qprov-telefono', data.message);
+                    } else if (data.field === 'direccion') {
+                        qMostrarError('qprov_direccion', 'error-qprov-direccion', data.message);
+                    } else {
+                        qMostrarError('qprov_nombre', 'error-qprov-nombre', data.message || 'No se pudo crear el proveedor.');
+                    }
+                    $('#qprov_nombre').focus();
+                    return;
+                }
+                const $opt = $(`<option value="${data.id}">${data.nombre}</option>`);
+                ['#ag_proveedor', '#ed_proveedor'].forEach(sel => {
+                    const $s = $(sel);
+                    if (!$s.length) return;
+                    if (!$s.find(`option[value="${data.id}"]`).length) $s.append($opt.clone());
+                    $s.hasClass('select2-hidden-accessible') ? $s.val(data.id).trigger('change') : $s.val(data.id);
+                });
+                if (_ProvSelectId) {
+                    const $t = $(`#${_ProvSelectId}`);
+                    if (!$t.find(`option[value="${data.id}"]`).length) $t.append($opt.clone());
+                    $t.hasClass('select2-hidden-accessible') ? $t.val(data.id).trigger('change') : $t.val(data.id);
+                }
+                $('#modal--proveedor').removeClass('mostrar');
+                Alerta.exito('¡Creado!', `El proveedor "${data.nombre}" fue creado con éxito.`);
+            })
+            .catch(() => Alerta.error('Error del servidor', 'No se pudo crear el proveedor.'))
+            .finally(() => $btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk"></i> Guardar'));
+    });
+
+    // Cerrar modals con data-modal
+    $(document).on('click', '[data-modal="modal--categoria"]',  () => $('#modal--categoria').removeClass('mostrar'));
+    $(document).on('click', '[data-modal="modal--proveedor"]',  () => $('#modal--proveedor').removeClass('mostrar'));
+
 });

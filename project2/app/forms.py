@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -342,3 +342,98 @@ class EntradaForm(forms.ModelForm):
                 self.add_error('cantidad', 'El total supera el límite permitido.')
 
         return cleaned_data
+
+
+# --- FORMULARIOS DE SALIDA DE PRODUCTOS ---
+class SalidaProductoForm(forms.ModelForm):
+    class Meta:
+        model = salida_producto
+        fields = ['id_producto', 'cantidad', 'fecha', 'motivo', 'responsable']
+        widgets = {
+            'id_producto': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_producto'
+            }),
+            'cantidad': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'id': 'id_cantidad',
+                'min': '1'
+            }),
+            'fecha': forms.DateInput(attrs={
+                'class': 'form-control',
+                'id': 'id_fecha',
+                'type': 'date'
+            }),
+            'motivo': forms.Textarea(attrs={
+                'class': 'form-control',
+                'id': 'id_motivo',
+                'rows': 3,
+                'placeholder': 'Motivo de la salida (mínimo 5 caracteres)'
+            }),
+            'responsable': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'id_responsable',
+                'placeholder': 'Nombre del responsable'
+            }),
+        }
+
+    def clean_id_producto(self):
+        producto = self.cleaned_data.get('id_producto')
+        if not producto:
+            raise forms.ValidationError('Debe seleccionar un producto.')
+        if not producto.estado:
+            raise forms.ValidationError('El producto seleccionado está inactivo.')
+        return producto
+
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+        if cantidad is None:
+            raise forms.ValidationError('La cantidad es obligatoria.')
+        if not isinstance(cantidad, int):
+            raise forms.ValidationError('La cantidad debe ser un número entero.')
+        if cantidad <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        if cantidad > 10000:
+            raise forms.ValidationError('La cantidad no puede superar 10,000 unidades.')
+        return cantidad
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get('fecha')
+        if not fecha:
+            raise forms.ValidationError('La fecha es obligatoria.')
+        return fecha
+
+    def clean_motivo(self):
+        motivo = self.cleaned_data.get('motivo')
+        if not motivo:
+            raise forms.ValidationError('El motivo es obligatorio.')
+        motivo = motivo.strip()
+        if len(motivo) < 5:
+            raise forms.ValidationError('El motivo debe tener al menos 5 caracteres.')
+        if len(motivo) > 500:
+            raise forms.ValidationError('El motivo no puede superar los 500 caracteres.')
+        return motivo
+
+    def clean_responsable(self):
+        responsable = self.cleaned_data.get('responsable')
+        if not responsable:
+            raise forms.ValidationError('El nombre del responsable es obligatorio.')
+        responsable = responsable.strip()
+        if len(responsable) < 3:
+            raise forms.ValidationError('El nombre del responsable debe tener al menos 3 caracteres.')
+        if len(responsable) > 100:
+            raise forms.ValidationError('El nombre del responsable no puede superar los 100 caracteres.')
+        return responsable
+
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('id_producto')
+        cantidad = cleaned_data.get('cantidad')
+
+        # Validar stock si hay producto y cantidad
+        if producto and cantidad:
+            if cantidad > producto.stock:
+                self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
+
+        return cleaned_data
+

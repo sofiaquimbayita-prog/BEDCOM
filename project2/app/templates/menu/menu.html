@@ -70,7 +70,7 @@
                 </article>
             </a>
 
-            <a href="/vistas/entrada_p/" class="menu-card-link">
+            <a href= "{% url 'entrada_p' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Entrada de Productos">
@@ -84,7 +84,23 @@
                 </article>
             </a>
 
-            <a href="../reportes/" class="menu-card-link">
+
+            <a href="{% url 'inventario_list' %}">
+                <article class="tile" role="button" tabindex="0">
+                    <div class="glyph is-inventario">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 4h16v4H4V4zm0 6h16v10H4V10zm2 2v6h12v-6H6z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>INVENTARIO</h3>
+                        <div class="muted">Existencias</div>
+                    </div>
+                </article>
+            </a>
+        
+
+            <a href=" {% url 'reportes' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Reportes">
@@ -112,7 +128,7 @@
                 </article>
             </a>
 
-            <a href="../respaldos" class="menu-card-link">
+            <a href="{% url 'respaldos_list' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/respaldos.png' %}" alt="Módulo Respaldos">
@@ -126,7 +142,7 @@
                 </article>
             </a>
 
-            <a href="../salidas" class="menu-card-link">
+            <a href="{% url 'salida_producto' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/salida.jpg' %}" alt="Módulo Salida de Productos">

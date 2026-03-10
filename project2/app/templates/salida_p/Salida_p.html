@@ -1,0 +1,101 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Salida de Productos{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/SalidaP.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/modal_salida.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="main-content">
+
+{# Tabla de salidas de productos #}
+<div class="table-container">
+    <div class="table-header">
+        <h3><i class="fas fa-list"></i> Historial de Salida</h3>
+        <div class="header-actions">
+            <div class="switch-container">
+                <span class="switch-text">Mostrar anulados</span>
+                <label class="switch-control">
+                    <input type="checkbox" id="toggleAnulados" {% if mostrar_anulados %}checked{% endif %} onchange="toggleAnulados()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button type="button" class="btn-nueva-salida" onclick="abrirModalSalida()">
+                <i class="fas fa-plus"></i> Nueva Salida
+            </button>
+        </div>
+    </div>
+
+    {% if salidas %}
+    <table class="salidas-table">
+        <thead>
+            <tr>
+                <th><i class="fas fa-box"></i> Producto</th>
+                <th><i class="fas fa-sort-numeric-up"></i> Cantidad</th>
+                <th><i class="fas fa-calendar"></i> Fecha</th>
+                <th><i class="fas fa-align-left"></i> Motivo</th>
+                <th><i class="fas fa-user"></i> Responsable</th>
+                <th><i class="fas fa-cog"></i> Estado</th>
+                <th><i class="fas fa-bolt"></i> Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for salida in salidas %}
+            <tr class="{% if not salida.estado %}row-anulada{% endif %}">
+                <td>{{ salida.id_producto.nombre }}</td>
+                <td>{{ salida.cantidad }}</td>
+                <td>{{ salida.fecha|date:"d/m/Y" }}</td>
+                <td>{{ salida.motivo }}</td>
+                <td>{{ salida.responsable }}</td>
+                <td>
+                    {% if salida.estado %}
+                    <span class="badge badge-active"><i class="fas fa-check"></i> Activo</span>
+                    {% else %}
+                    <span class="badge badge-anulada"><i class="fas fa-times"></i> Anulada</span>
+                    {% endif %}
+                </td>
+<td class="actions-cell">
+                    <button type="button" class="btn-action btn-ver" onclick="verSalida({{ salida.id }})" title="Ver detalle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    {% if salida.estado %}
+                    <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn-action btn-disabled" disabled title="Ya anulado">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No hay salidas registradas</p>
+        <p>Haz clic en "Nueva Salida" para registrar la primera</p>
+    </div>
+    {% endif %}
+</div>
+
+</main>
+
+{# Modal separado - se carga fuera del main para mejor posicionamiento #}
+{% include 'salida_p/modal_salida.html' %}
+{% include 'salida_p/modal_anular_salida.html' %}
+{% include 'salida_p/modarl_ver_salida.html' %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
+{% endblock %}

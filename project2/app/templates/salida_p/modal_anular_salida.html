@@ -1,0 +1,147 @@
+<!-- Modal de Confirmación para Anular Salida -->
+<div id="modalAnularSalida" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header" style="background: #dc3545;">
+            <h2 style="color: white;"><i class="fas fa-exclamation-triangle"></i> Confirmar Anulación</h2>
+            <button type="button" class="close-modal" onclick="cerrarModalAnularSalida()" style="color: white;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                ¿Está seguro de que desea <strong>anular</strong> esta salida?
+            </p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="margin: 5px 0;"><strong>Producto:</strong> <span id="anularProducto"></span></p>
+                <p style="margin: 5px 0;"><strong>Cantidad:</strong> <span id="anularCantidad"></span></p>
+                <p style="margin: 5px 0;"><strong>Fecha:</strong> <span id="anularFecha"></span></p>
+            </div>
+            <p style="color: #dc3545; font-size: 14px;">
+                <i class="fas fa-info-circle"></i> El stock será reintegrado al producto.
+            </p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; gap: 10px;">
+            <button type="button" class="btn-cancel" onclick="cerrarModalAnularSalida()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn-save" style="background: #dc3545;" onclick="confirmarAnulacion()">
+                <i class="fas fa-ban"></i> Sí, Anular
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variable para almacenar el ID de la salida a anular
+var salidaIdAAnular = null;
+
+// Función para abrir el modal de confirmación de anulación
+function anularSalida(id) {
+    console.log('Intentando anular salida ID:', id);
+    
+    // Primero obtenemos los datos de la salida para mostrar en el modal
+    fetch('/vistas/salida/detalle/' + id + '/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            // Llenar los datos en el modal
+            var productoElem = document.getElementById('anularProducto');
+            var cantidadElem = document.getElementById('anularCantidad');
+            var fechaElem = document.getElementById('anularFecha');
+            
+            if (productoElem) productoElem.textContent = data.data.producto;
+            if (cantidadElem) cantidadElem.textContent = data.data.cantidad;
+            if (fechaElem) fechaElem.textContent = data.data.fecha;
+            
+            // Guardar el ID y abrir el modal
+            salidaIdAAnular = id;
+            var modal = document.getElementById('modalAnularSalida');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        } else {
+            showErrorToast(data.message || 'Error al obtener los detalles');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        showErrorToast('Ocurrió un error al procesar la solicitud');
+    });
+}
+
+// Función para cerrar el modal de anulación
+function cerrarModalAnularSalida() {
+    var modal = document.getElementById('modalAnularSalida');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    salidaIdAAnular = null;
+}
+
+// Función para confirmar la anulación
+function confirmarAnulacion() {
+    if (!salidaIdAAnular) {
+        showErrorToast('No se ha seleccionado una salida');
+        return;
+    }
+    
+    var id = salidaIdAAnular;
+    
+    // Cerrar el modal
+    cerrarModalAnularSalida();
+    
+    // Realizar la petición para anular
+    fetch('/vistas/salida/anular/' + id + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            showSuccessToast(data.message);
+            setTimeout(function() {
+                location.reload();
+            }, 1500);
+        } else {
+            showErrorToast(data.message || 'Error al anular la salida');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        showErrorToast('Ocurrió un error al procesar la solicitud');
+    });
+}
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Funciones globales
+window.anularSalida = anularSalida;
+window.cerrarModalAnularSalida = cerrarModalAnularSalida;
+window.confirmarAnulacion = confirmarAnulacion;
+</script>
