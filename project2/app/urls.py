@@ -81,7 +81,7 @@ urlpatterns = [
       path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
       path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
       
-   # --- SALIDA DE PRODUCTOS ---
+      # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
       path('salida/detalle/<int:pk>/', salida_p.SalidaProductoDetalleView.as_view(), name='salida_producto_detalle'),

@@ -59,7 +59,7 @@
                     {% endif %}
                 </td>
 <td class="actions-cell">
-                    <button type="button" class="btn-action btn-ver" onclick="verSalida({{ salida.id }})" title="Ver detalle">
+                    <button type="button" class="btn-action btn-ver" onclick="verDetalleSalida({{ salida.id }})" title="Ver detalles">
                         <i class="fas fa-eye"></i>
                     </button>
                     {% if salida.estado %}
@@ -91,7 +91,7 @@
 {# Modal separado - se carga fuera del main para mejor posicionamiento #}
 {% include 'salida_p/modal_salida.html' %}
 {% include 'salida_p/modal_anular_salida.html' %}
-{% include 'salida_p/modarl_ver_salida.html' %}
+{% include 'salida_p/modal_ver_salida.html' %}
 
 {% endblock %}
 

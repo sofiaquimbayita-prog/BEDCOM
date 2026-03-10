@@ -8,6 +8,32 @@ from django.utils import timezone
 from app.models import producto, salida_producto
 from app.forms import SalidaProductoForm
 
+
+class SalidaProductoDetalleView(View):
+    """Vista para obtener los detalles de una salida de producto"""
+    
+    def get(self, request, pk):
+        try:
+            salida = salida_producto.objects.select_related('id_producto').get(pk=pk)
+            
+            return JsonResponse({
+                'success': True,
+                'data': {
+                    'producto': salida.id_producto.nombre,
+                    'cantidad': salida.cantidad,
+                    'fecha': salida.fecha.strftime('%d/%m/%Y'),
+                    'motivo': salida.motivo,
+                    'responsable': salida.responsable,
+                    'estado': 'Activa' if salida.estado else 'Anulada'
+                }
+            })
+            
+        except salida_producto.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Registro no encontrado'
+            })
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SalidaProductoCreateView(View):
         
@@ -75,32 +101,6 @@ class SalidaProductoCreateView(View):
             'message': 'Error en el formulario',
             'errors': errores
         })
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class SalidaProductoDetalleView(View):
-    """Vista para obtener los detalles de una salida de producto"""
-    
-    def get(self, request, pk):
-        try:
-            salida = salida_producto.objects.select_related('id_producto').get(pk=pk)
-            return JsonResponse({
-                'success': True,
-                'data': {
-                    'id': salida.id,
-                    'producto': salida.id_producto.nombre,
-                    'cantidad': salida.cantidad,
-                    'fecha': salida.fecha.strftime('%d/%m/%Y'),
-                    'motivo': salida.motivo,
-                    'responsable': salida.responsable,
-                    'estado': salida.estado,
-                }
-            })
-        except salida_producto.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Registro no encontrado'
-            })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
