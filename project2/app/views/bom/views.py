@@ -28,12 +28,34 @@ class BomListView(ListView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = 'ESTRUCTURA DE PRODUCTOS (BOM)'
         
-        # Obtener todas las estructuras BOM para mostrar
+        # Obtener todas las estructuras BOM agrupadas por producto
+        # Esto permite mostrar una fila por receta (producto) con sus ingredientes
         boms = bom.objects.select_related('producto', 'insumo').order_by('producto__nombre', 'insumo__nombre')
-        context['boms'] = boms
         
-        # Obtener todos los insumos para los selects
-        context['insumos'] = insumo.objects.filter(estado='Activo').order_by('nombre')
+        # Agrupar por producto
+        recipes_dict = {}
+        for b in boms:
+            if b.producto.id not in recipes_dict:
+                recipes_dict[b.producto.id] = {
+                    'producto': b.producto,
+                    'insumos': []
+                }
+            recipes_dict[b.producto.id]['insumos'].append({
+                'insumo_nombre': b.insumo.nombre,
+                'cantidad': b.cantidad,
+                'unidad_medida': b.unidad_medida,
+                'bom_id': b.id
+            })
+        
+        context['recipes'] = list(recipes_dict.values())
+        
+        # Obtener todos los insumos para los selects (sin filtro de estado para mostrar todos)
+        context['insumos'] = insumo.objects.all().order_by('nombre')
+        
+        # Obtener lista de productos que ya tienen receta (para validación JS)
+        context['productos_con_receta'] = list(producto.objects.filter(
+            id__in=bom.objects.values_list('producto_id', flat=True).distinct()
+        ).values_list('id', flat=True))
         
         return context
 
@@ -99,7 +121,7 @@ def bom_crear_receta(request):
                 errors.append(f"Datos incompletos para un insumo")
                 continue
             
-            # Verificar si ya existe la relación
+            # Verificar si ya existe la relación (mismo producto e insumo)
             if bom.objects.filter(producto_id=producto_id, insumo_id=insumo_id).exists():
                 errors.append(f"El insumo ya está registrado para este producto")
                 continue
@@ -256,6 +278,40 @@ def bom_por_producto(request):
             })
         
         return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+@csrf_exempt
+def bom_eliminar_receta(request):
+    """API para eliminar una receta completa (todos los insumos de un producto)"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    
+    try:
+        producto_id = request.POST.get('producto_id')
+    except:
+        producto_id = None
+    
+    if not producto_id:
+        return JsonResponse({'success': False, 'error': 'Producto no especificado'})
+    
+    try:
+        # Eliminar todas las relaciones BOM para este producto
+        deleted_count = bom.objects.filter(producto_id=producto_id).delete()[0]
+        
+        if deleted_count > 0:
+            return JsonResponse({
+                'success': True, 
+                'message': f'Receta eliminada correctamente ({deleted_count} insumo(s) eliminado(s))'
+            })
+        else:
+            return JsonResponse({
+                'success': False, 
+                'error': 'No se encontró la receta para este producto'
+            })
+            
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 

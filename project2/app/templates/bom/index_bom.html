@@ -49,36 +49,39 @@
         <table id="tablaBom" class="display responsive nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Producto</th>
-                    <th>Insumo</th>
-                    <th>Cantidad</th>
-                    <th>Unidad Medida</th>
+                    <th>Insumos</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for b in boms %}
+                {% for recipe in recipes %}
                 <tr>
-                    <td>{{ b.id }}</td>
                     <td>
                         <span class="producto-badge">
-                            <i class="fas fa-box"></i> {{ b.producto.nombre }}
+                            <i class="fas fa-box"></i> {{ recipe.producto.nombre }}
                         </span>
                     </td>
                     <td>
-                        <span class="insumo-badge">
-                            <i class="fas fa-tools"></i> {{ b.insumo.nombre }}
+                        {% if recipe.insumos|length > 1 %}
+                        <span class="insumo-badge" style="display: inline-block; margin: 2px;">
+                            <i class="fas fa-tools"></i> {{ recipe.insumos.0.insumo_nombre }} (+{{ recipe.insumos|length|add:"-1" }} más)
                         </span>
+                        {% else %}
+                        <span class="insumo-badge" style="display: inline-block; margin: 2px;">
+                            <i class="fas fa-tools"></i> {{ recipe.insumos.0.insumo_nombre }} ({{ recipe.insumos.0.cantidad }} {{ recipe.insumos.0.unidad_medida }})
+                        </span>
+                        {% endif %}
                     </td>
-                    <td style="font-weight: bold; text-align: center;">{{ b.cantidad }}</td>
-                    <td>{{ b.unidad_medida }}</td>
                     <td>
                         <div class="acciones">
-                            <button class="edit-btn" title="Editar" onclick="editarBom({{ b.producto.id }})">
+                            <button class="view-btn" title="Ver Detalles" onclick="verDetalleReceta({{ recipe.producto.id }}, '{{ recipe.producto.nombre|escapejs }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="edit-btn" title="Editar" onclick="editarBom({{ recipe.producto.id }})">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="delete-btn" title="Eliminar" onclick="eliminarBom({{ b.id }}, '{{ b.producto.nombre|escapejs }}', '{{ b.insumo.nombre|escapejs }}')">
+                            <button class="delete-btn" title="Eliminar" onclick="eliminarRecetaCompleta({{ recipe.producto.id }}, '{{ recipe.producto.nombre|escapejs }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -86,10 +89,10 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px;">
+                    <td colspan="4" style="text-align: center; padding: 30px;">
                         <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
-                        <p style="color: #666;">No hay relaciones BOM configuradas.</p>
-                        <p style="color: #999; font-size: 14px;">Agregue insumos a sus productos para ver la estructura aquí.</p>
+                        <p style="color: #666;">No hay recetas configuradas.</p>
+                        <p style="color: #999; font-size: 14px;">Cree una receta para ver la estructura aquí.</p>
                     </td>
                 </tr>
                 {% endfor %}
@@ -282,9 +285,56 @@
     </div>
 </div>
 
+<!-- Modal Ver Detalles Receta -->
+<div id="modalVerReceta" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-eye"></i> Detalles de la Receta</h2>
+            <button class="close-modal" onclick="cerrarModal('modalVerReceta')">&times;</button>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #334155;">
+                <h3 style="margin: 0 0 10px 0; color: #3b82f6;"><i class="fas fa-box"></i> <span id="verProductoNombre"></span></h3>
+                <p style="margin: 0; color: #9ca3af; font-size: 14px;">ID: <span id="verProductoId"></span></p>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: #e2e8f0;">Insumos de la receta:</h4>
+            <table id="tablaVerReceta" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #334155;">
+                        <th style="padding: 10px; text-align: left; color: #e2e8f0;">Insumo</th>
+                        <th style="padding: 10px; text-align: center; color: #e2e8f0;">Cantidad</th>
+                        <th style="padding: 10px; text-align: center; color: #e2e8f0;">Unidad</th>
+                    </tr>
+                </thead>
+                <tbody id="verRecetaInsumosBody">
+                    <tr>
+                        <td colspan="3" style="padding: 20px; text-align: center; color: #999;">Cargando...</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #1e293b; border-radius: 8px; border: 1px solid #334155;">
+                <p style="margin: 0; color: #9ca3af; font-size: 14px;">
+                    <strong style="color: #e2e8f0;">Total de insumos:</strong> <span id="verTotalInsumos">0</span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalVerReceta')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    // Inicializar la lista de productos con receta desde el template Django
+    var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};
+</script>
 <script src="{% static 'ap1/js/script_bom.js' %}"></script>
 
 {% endblock %}
