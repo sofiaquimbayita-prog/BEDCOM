@@ -382,6 +382,8 @@
 /* ==================================================
    FORMULARIOS
    ================================================== */
+
+
 .form-group {
   padding: 0 25px;
   margin-bottom: 20px;
@@ -411,12 +413,10 @@
   color: var(--color-texto) !important;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--color-acento);
-  box-shadow: 0 0 0 2px var(--acento-glow);
+.form-group input,
+.form-group select,
+.form-group textarea {
+    color: var(--color-texto) !important; /* Esto asegura que el texto sea blanco (#ffffff) */
 }
 
 .form-group input::placeholder {
@@ -807,7 +807,78 @@ table.dataTable tbody tr:last-child td {
 .select2-container--default .select2-results__option--loading {
     color: var(--color-texto-muted);
 }
+/* Estilos específicos para los inputs pequeños del modal */
+.input-bom-mini, .select-bom-mini {
+    flex: 1;
+    background: var(--color-superficie-input) !important;
+    color: var(--color-texto) !important; /* Blanco */
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md);
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    min-width: 70px; /* Asegura espacio para ver el texto */
+}
 
+/* Para que las opciones del select se vean blancas en el desplegable */
+.select-bom-mini option {
+    background-color: var(--color-superficie-dark);
+    color: var(--color-texto);
+}
+
+/* Fix adicional: forzar visibilidad del texto en estados focus */
+.input-bom-mini:focus, .select-bom-mini:focus {
+    color: var(--color-texto) !important;
+    outline: none;
+    border-color: var(--color-acento) !important;
+}
+/* Contenedor alineado */
+.bom-inputs-inline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+/* El select de insumo toma más espacio */
+.select-insumo {
+    flex: 2;
+}
+
+/* Inputs y selects pequeños */
+.input-mini, .select-mini {
+    flex: 1;
+    min-width: 80px;
+    height: 44px; /* Misma altura que Select2 */
+    background: var(--color-superficie-input) !important;
+    color: var(--color-texto) !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: var(--borde-md);
+    padding: 0 10px;
+}
+
+/* Botón de agregar */
+.btn-add-item {
+    background: var(--color-acento) !important;
+    color: #0f172a !important;
+    border: none;
+    border-radius: var(--borde-md);
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-add-item:hover {
+    transform: scale(1.05);
+}
+
+/* Evitar que Select2 rompa la línea si lo usas */
+.select2-container--default {
+    flex: 2;
+}
 /* ==================================================
    TABLA EN MODAL - ESTILO OSCURO
    ================================================== */

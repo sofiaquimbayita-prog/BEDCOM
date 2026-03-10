@@ -98,7 +98,6 @@
     </div>
 </main>
 
-<!-- Modal para crear RECETA completa (múltiples insumos) -->
 <div id="modalReceta" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 700px;">
         <div class="modal-header">
@@ -121,15 +120,17 @@
 
             <div class="form-group">
                 <label>AGREGAR INSUMOS A LA RECETA</label>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select id="recetaInsumo" style="flex: 2;">
+                <div class="bom-inputs-inline">
+                    <select id="recetaInsumo" class="select-insumo">
                         <option value="" disabled selected>Seleccione un insumo</option>
                         {% for i in insumos %}
                         <option value="{{ i.id }}">{{ i.nombre }}</option>
                         {% endfor %}
                     </select>
-<input type="number" id="recetaCantidad" min="1" step="1" value="1" style="flex: 1; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #1e293b; color: #fff;">
-<select id="recetaUnidad" style="flex: 1; background: #1e293b; color: #fff; border: 1px solid #334155;">
+                    
+                    <input type="number" id="recetaCantidad" min="1" step="1" value="1" class="input-mini" placeholder="Cant.">
+                    
+                    <select id="recetaUnidad" class="select-mini">
                         <option value="und">und</option>
                         <option value="kg">kg</option>
                         <option value="g">g</option>
@@ -139,7 +140,8 @@
                         <option value="ml">ml</option>
                         <option value="pza">pza</option>
                     </select>
-                    <button type="button" onclick="agregarInsumoReceta()" class="btn-save" style="padding: 8px 15px;">
+
+                    <button type="button" onclick="agregarInsumoReceta()" class="btn-add-item">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -147,18 +149,18 @@
 
             <div class="form-group">
                 <label>INSUMOS EN LA RECETA</label>
-                <table id="tablaReceta" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-<thead>
+                <table id="tablaReceta">
+                    <thead>
                         <tr>
-                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Insumo</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Cantidad</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Unidad</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">Acción</th>
+                            <th>Insumo</th>
+                            <th style="width: 80px; text-align: center;">Cantidad</th>
+                            <th style="width: 80px; text-align: center;">Unidad</th>
+                            <th style="width: 50px; text-align: center;">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="recetaInsumosBody">
                         <tr id="recetaVacio">
-                            <td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">
+                            <td colspan="4">
                                 No hay insumos agregados. Use el formulario de arriba para agregar.
                             </td>
                         </tr>
@@ -174,7 +176,6 @@
     </div>
 </div>
 
-<!-- Modal para editar receta (múltiples insumos) -->
 <div id="modalEditBom" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 700px;">
         <div class="modal-header">
@@ -197,15 +198,17 @@
 
             <div class="form-group">
                 <label>AGREGAR INSUMOS A LA RECETA</label>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select id="editRecetaInsumo" style="flex: 2;">
+                <div class="bom-inputs-inline">
+                    <select id="editRecetaInsumo" class="select-insumo">
                         <option value="" disabled selected>Seleccione un insumo</option>
                         {% for i in insumos %}
                         <option value="{{ i.id }}">{{ i.nombre }}</option>
                         {% endfor %}
                     </select>
-<input type="number" id="editRecetaCantidad" min="1" step="1" value="1" style="flex: 1; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #1e293b; color: #fff;">
-<select id="editRecetaUnidad" style="flex: 1; background: #1e293b; color: #fff; border: 1px solid #334155;">
+                    
+                    <input type="number" id="editRecetaCantidad" min="1" step="1" value="1" class="input-mini">
+                    
+                    <select id="editRecetaUnidad" class="select-mini">
                         <option value="und">und</option>
                         <option value="kg">kg</option>
                         <option value="g">g</option>
@@ -215,7 +218,8 @@
                         <option value="ml">ml</option>
                         <option value="pza">pza</option>
                     </select>
-                    <button type="button" onclick="agregarInsumoEditReceta()" class="btn-save" style="padding: 8px 15px;">
+
+                    <button type="button" onclick="agregarInsumoEditReceta()" class="btn-add-item">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -223,18 +227,18 @@
 
             <div class="form-group">
                 <label>INSUMOS EN LA RECETA</label>
-                <table id="tablaEditReceta" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-<thead>
+                <table id="tablaEditReceta">
+                    <thead>
                         <tr>
-                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Insumo</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Cantidad</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 80px;">Unidad</th>
-                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">Acción</th>
+                            <th>Insumo</th>
+                            <th style="width: 80px; text-align: center;">Cantidad</th>
+                            <th style="width: 80px; text-align: center;">Unidad</th>
+                            <th style="width: 50px; text-align: center;">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="editRecetaInsumosBody">
                         <tr id="editRecetaVacio">
-                            <td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">
+                            <td colspan="4">
                                 No hay insumos agregados.
                             </td>
                         </tr>
@@ -250,11 +254,10 @@
     </div>
 </div>
 
-<!-- Modal para confirmar eliminación -->
 <div id="modalDeleteBom" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h2><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Confirmar Eliminación</h2>
+            <h2><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Confirmar Eliminación</h2>
             <button class="close-modal" onclick="cerrarModal('modalDeleteBom')">&times;</button>
         </div>
         
@@ -264,11 +267,11 @@
             
             <div style="text-align: center; padding: 20px;">
                 <p>¿Está seguro de eliminar la relación BOM?</p>
-<div style="background: #1e293b; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #334155;">
+                <div style="background: #1e293b; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #334155;">
                     <strong>Producto:</strong> <span id="deleteProducto"></span><br>
                     <strong>Insumo:</strong> <span id="deleteInsumo"></span>
                 </div>
-                <p style="color: #e74c3c; font-size: 14px;">Esta acción no se puede deshacer.</p>
+                <p style="color: #ef4444; font-size: 14px;">Esta acción no se puede deshacer.</p>
             </div>
 
             <div class="modal-footer">
@@ -285,4 +288,3 @@
 <script src="{% static 'ap1/js/script_bom.js' %}"></script>
 
 {% endblock %}
-
