@@ -49,7 +49,7 @@
                 <td>{{ salida.id_producto.nombre }}</td>
                 <td>{{ salida.cantidad }}</td>
                 <td>{{ salida.fecha|date:"d/m/Y" }}</td>
-                <td>{{ salida.motivo }}</td>
+                <td title="{{ salida.motivo }}">{{ salida.motivo|truncatewords:10 }}</td>
                 <td>{{ salida.responsable }}</td>
                 <td>
                     {% if salida.estado %}
@@ -58,7 +58,7 @@
                     <span class="badge badge-anulada"><i class="fas fa-times"></i> Anulada</span>
                     {% endif %}
                 </td>
-<td class="actions-cell">
+                <td class="actions-cell">
                     {% if salida.estado %}
                     <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
                         <i class="fas fa-ban"></i>
