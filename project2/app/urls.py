@@ -84,7 +84,6 @@ urlpatterns = [
       # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
-      path('salida/detalle/<int:pk>/', salida_p.SalidaProductoDetalleView.as_view(), name='salida_producto_detalle'),
       path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_producto_anular'),
       
       # --- BOM (ESTRUCTURA DE PRODUCTOS) ---

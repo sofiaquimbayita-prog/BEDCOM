@@ -59,9 +59,6 @@
                     {% endif %}
                 </td>
 <td class="actions-cell">
-                    <button type="button" class="btn-action btn-ver" onclick="verDetalleSalida({{ salida.id }})" title="Ver detalles">
-                        <i class="fas fa-eye"></i>
-                    </button>
                     {% if salida.estado %}
                     <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
                         <i class="fas fa-ban"></i>
@@ -91,7 +88,6 @@
 {# Modal separado - se carga fuera del main para mejor posicionamiento #}
 {% include 'salida_p/modal_salida.html' %}
 {% include 'salida_p/modal_anular_salida.html' %}
-{% include 'salida_p/modal_ver_salida.html' %}
 
 {% endblock %}
 

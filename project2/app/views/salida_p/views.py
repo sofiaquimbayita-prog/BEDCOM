@@ -1,38 +1,13 @@
 from django.views import View
 from django.views.generic import TemplateView
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from app.models import producto, salida_producto
+from app.models import producto, salida_producto, usuario
 from app.forms import SalidaProductoForm
 
-
-class SalidaProductoDetalleView(View):
-    """Vista para obtener los detalles de una salida de producto"""
-    
-    def get(self, request, pk):
-        try:
-            salida = salida_producto.objects.select_related('id_producto').get(pk=pk)
-            
-            return JsonResponse({
-                'success': True,
-                'data': {
-                    'producto': salida.id_producto.nombre,
-                    'cantidad': salida.cantidad,
-                    'fecha': salida.fecha.strftime('%d/%m/%Y'),
-                    'motivo': salida.motivo,
-                    'responsable': salida.responsable,
-                    'estado': 'Activa' if salida.estado else 'Anulada'
-                }
-            })
-            
-        except salida_producto.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Registro no encontrado'
-            })
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SalidaProductoCreateView(View):
@@ -72,13 +47,16 @@ class SalidaProductoCreateView(View):
                     'message': 'El motivo debe tener al menos 5 caracteres'
                 })
 
-            # Validar responsable
-            responsable = salida.responsable.strip() if salida.responsable else ''
-            if len(responsable) < 3:
+            # Validar responsable - ahora es un objeto usuario
+            if not salida.responsable:
                 return JsonResponse({
                     'success': False,
-                    'message': 'El nombre del responsable debe tener al menos 3 caracteres'
+                    'message': 'Debe seleccionar un responsable'
                 })
+            
+            # Convertir el objeto usuario a string para guardar en el campo CharField
+            responsable_nombre = str(salida.responsable)
+            salida.responsable = responsable_nombre
 
             # Actualizar stock y guardar
             producto_obj.stock -= salida.cantidad
@@ -144,6 +122,10 @@ class SalidaProductoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['productos'] = producto.objects.filter(estado=True)
+        # Agregar usuarios activos para el dropdown de responsable
+        context['usuarios'] = usuario.objects.all()
+        # Agregar el formulario al contexto
+        context['form'] = SalidaProductoForm()
         
         # Obtener parámetro para mostrar anulados
         mostrar_anulados = self.request.GET.get('mostrar_anulados', 'false').lower() == 'true'

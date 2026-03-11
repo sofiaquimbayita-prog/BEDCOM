@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -373,7 +373,7 @@ class SalidaProductoForm(forms.ModelForm):
             'responsable': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'id_responsable',
-                'placeholder': 'Nombre del responsable'
+                'readonly': 'readonly'
             }),
         }
 

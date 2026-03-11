@@ -60,8 +60,17 @@
 
 <div class="form-group">
 <label for="responsable">Responsable <span class="text-danger">*</span></label>
-<input type="text" name="responsable" id="responsable" class="form-control" required minlength="3" placeholder="Ingrese nombre del responsable" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$">
-<div class="helper-text">Minimo 3 caracteres (solo letras, números, espacios, guiones y puntos)</div>
+<select name="responsable" id="id_responsable" class="form-control" required>
+    <option value="">Seleccione un responsable</option>
+    {% if usuarios %}
+    {% for u in usuarios %}
+    <option value="{{ u.nombre_usuario }}">{{ u.nombre_usuario }}</option>
+    {% endfor %}
+    {% else %}
+    <option value="" disabled>No hay usuarios registrados</option>
+    {% endif %}
+</select>
+<div class="helper-text">Seleccione un usuario registrado como responsable</div>
 <small class="error-msg" id="errorResponsable"></small>
 </div>
 
