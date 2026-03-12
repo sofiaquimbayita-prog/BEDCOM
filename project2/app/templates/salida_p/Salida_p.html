@@ -86,7 +86,7 @@
 </main>
 
 {# Modal separado - se carga fuera del main para mejor posicionamiento #}
-{% include 'salida_p/modal_salida.html' %}
+{% include 'salida_p/modal_nueva_salida.html' %}
 {% include 'salida_p/modal_anular_salida.html' %}
 
 {% endblock %}
@@ -94,4 +94,5 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
 {% endblock %}
