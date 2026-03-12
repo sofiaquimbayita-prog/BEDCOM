@@ -6,6 +6,7 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/SalidaP.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/modal_salida.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/modal_detalle_salida.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -63,7 +64,14 @@
                     <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
                         <i class="fas fa-ban"></i>
                     </button>
-                    {% else %}
+                    {% endif %}
+                    
+                    <!-- Botón Ver Detalles -->
+                    <button type="button" class="btn-action btn-view" onclick="abrirModalDetalle({{ salida.id }})" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    
+                    {% if not salida.estado %}
                     <button type="button" class="btn-action btn-disabled" disabled title="Ya anulado">
                         <i class="fas fa-ban"></i>
                     </button>
@@ -85,9 +93,16 @@
 
 </main>
 
-{# Modal separado - se carga fuera del main para mejor posicionamiento #}
-{% include 'salida_p/modal_nueva_salida.html' %}
+<!-- Modales con z-index escalonado para apertura individual -->
+<div style="position: relative; z-index: 10005;">
 {% include 'salida_p/modal_anular_salida.html' %}
+</div>
+<div style="position: relative; z-index: 10010;">
+{% include 'salida_p/modal_nueva_salida.html' %}
+</div>
+<div style="position: relative; z-index: 10020;">
+{% include 'salida_p/modal_detalle_salida.html' %}
+</div>
 
 {% endblock %}
 
@@ -95,4 +110,5 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
 <script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
+<script src="{% static 'ap1/js/modal_detalle_salida.js' %}"></script>
 {% endblock %}

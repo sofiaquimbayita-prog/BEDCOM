@@ -2,12 +2,14 @@
 from .views import (
     SalidaProductoView,
     SalidaProductoCreateView,
-    SalidaProductoAnularView,
+SalidaProductoAnularView,
+    DetalleSalidaView,
 )
 
 __all__ = [
     'SalidaProductoView',
     'SalidaProductoCreateView',
     'SalidaProductoAnularView',
+    'DetalleSalidaView',
 ]
 
