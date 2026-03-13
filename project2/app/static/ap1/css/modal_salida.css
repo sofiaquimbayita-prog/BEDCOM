@@ -139,7 +139,7 @@
 }
 
 .btn-add-product {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-blue); /* Color de fondo del botón */
     border: 1px solid #475569;
     border-radius: 8px;
     color: white;
@@ -432,4 +432,17 @@
 #modalSalida .select2-container--default.select2-container--focus .select2-selection--multiple {
     background-color: var(--bg-element) !important;
     border-color: var(--accent-blue) !important;
+}
+
+/* ===============================
+   CAMPOS DEL MODAL SALIDA
+================================ */
+
+#modalSalida input,
+#modalSalida select,
+#modalSalida textarea {
+    background-color: var(--bg-element);
+    border: 1px solid #475569;
+    color: var(--text-main);
+    border-radius: 8px;
 }

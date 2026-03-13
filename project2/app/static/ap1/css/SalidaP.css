@@ -237,7 +237,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(202, 22, 22, 0.7);
     backdrop-filter: blur(5px);
     align-items: center;
     justify-content: center;
@@ -315,7 +315,7 @@ body {
   background-color: var(--bg-element);
   border: 1px solid #475569;
   border-radius: 8px;
-  color: var(--text-main);
+  color: var(--text-main); /* Color del texto dentro del input */
   font-size: 14px;
 }
 

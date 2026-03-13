@@ -20,10 +20,8 @@ function abrirModalSalida() {
     if (modal) {
         modal.style.display = 'flex';
         
-        // Usar evento nativo de change en lugar de Select2
         var productoSelect = document.getElementById('id_producto');
         if (productoSelect) {
-            // Remover eventos anteriores para evitar duplicados
             productoSelect.onchange = function() {
                 var stockInput = document.getElementById('stockDisponible');
                 var selectedOption = productoSelect.options[productoSelect.selectedIndex];
@@ -40,18 +38,17 @@ function abrirModalSalida() {
         // Validación en tiempo real para el campo responsable
         var responsableInput = document.getElementById('id_responsable');
         if (responsableInput) {
-            // Remover eventos anteriores para evitar duplicados
             responsableInput.oninput = function() {
                 var errorResponsable = document.getElementById('errorResponsable');
-                var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s\\-\\.]+$/;
+                var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
                 
                 if (!regex.test(this.value) && this.value.length > 0) {
                     if (errorResponsable) {
                         errorResponsable.textContent = 'No se permiten caracteres especiales';
                         errorResponsable.style.display = 'block';
                     }
-                    // Remover caracteres no permitidos
-                    this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s\\-\\.]/g, '');
+
+                    this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]/g, '');
                 } else {
                     if (errorResponsable) {
                         errorResponsable.textContent = '';
@@ -68,6 +65,7 @@ function abrirModalSalida() {
 // ===============================
 function showToast(message, type) {
     var toastContainer = document.getElementById('toastContainer');
+
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toastContainer';
@@ -98,7 +96,6 @@ function showToast(message, type) {
     
     toastContainer.appendChild(toast);
     
-    // Auto remove after 5 seconds
     setTimeout(function() {
         if (toast.parentElement) {
             toast.style.animation = 'slideOut 0.3s ease forwards';
@@ -119,8 +116,11 @@ function showSuccessToast(message) {
     showToast(message, 'success');
 }
 
-// Funcion para enviar el formulario
+// ===============================
+// FUNCION PARA ENVIAR EL FORMULARIO
+// ===============================
 function enviarFormularioSalida() {
+
     var form = document.getElementById('formSalida');
     if (!form) return;
     
@@ -140,27 +140,47 @@ function enviarFormularioSalida() {
         return response.json();
     })
     .then(data => {
+
         if (data.success) {
+
             cerrarModalSalida();
             showSuccessToast(data.message);
+
             setTimeout(function() {
                 location.reload();
             }, 1500);
+
         } else {
+
             var errorMessage = data.message || "Error al registrar";
+
             if (data.errors) {
+
+                var nombresCampos = {
+                    id_producto: "Producto",
+                    cantidad: "Cantidad",
+                    fecha: "Fecha",
+                    motivo: "Motivo",
+                    responsable: "Responsable"
+                };
+
                 var errores = [];
+
                 for (var campo in data.errors) {
-                    errores.push(campo + ": " + data.errors[campo].join(', '));
+                    var nombreCampo = nombresCampos[campo] || campo;
+                    errores.push("Debe completar el campo <b>" + nombreCampo + "</b>");
                 }
-                errorMessage = errores.join('\\n');
+
+                errorMessage = errores.join('<br>');
             }
+
             showErrorToast(errorMessage);
         }
+
     })
     .catch(function(error) {
         console.error('Error:', error);
-        showErrorToast("Ocurrio un error al procesar la solicitud");
+        showErrorToast("Ocurrió un error al procesar la solicitud");
     });
 }
 
@@ -171,4 +191,3 @@ window.enviarFormularioSalida = enviarFormularioSalida;
 window.showToast = showToast;
 window.showErrorToast = showErrorToast;
 window.showSuccessToast = showSuccessToast;
-
