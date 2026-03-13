@@ -35,12 +35,24 @@
     <table class="salidas-table">
         <thead>
             <tr>
-                <th><i class="fas fa-box"></i> Producto</th>
-                <th><i class="fas fa-sort-numeric-up"></i> Cantidad</th>
-                <th><i class="fas fa-calendar"></i> Fecha</th>
-                <th><i class="fas fa-align-left"></i> Motivo</th>
-                <th><i class="fas fa-user"></i> Responsable</th>
-                <th><i class="fas fa-cog"></i> Estado</th>
+                <th onclick="ordenarTabla(0)">
+                    <i class="fas fa-sort"></i> Producto
+                </th>
+                <th onclick="ordenarTabla(1)">
+                    <i class="fas fa-sort"></i> Cantidad
+                </th>
+                <th onclick="ordenarTabla(2)">
+                    <i class="fas fa-sort"></i> Fecha
+                </th>
+                <th onclick="ordenarTabla(3)">
+                    <i class="fas fa-sort"></i> Motivo
+                </th>
+                <th onclick="ordenarTabla(4)">
+                    <i class="fas fa-sort"></i> Responsable
+                </th>
+                <th onclick="ordenarTabla(5)">
+                    <i class="fas fa-sort"></i> Estado
+                </th>
                 <th><i class="fas fa-bolt"></i> Acciones</th>
             </tr>
         </thead>
@@ -115,7 +127,7 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
 <script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
 <script src="{% static 'ap1/js/modal_detalle_salida.js' %}"></script>
+<script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
 {% endblock %}

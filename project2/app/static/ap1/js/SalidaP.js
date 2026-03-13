@@ -625,5 +625,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    window.onload = function() {
+        // Función para ordenar la tabla al hacer clic en el encabezado
+        function ordenarTabla(columna) {
+
+            console.log('Ordenando por columna:', columna);  // Agrega esta línea para depuración
+
+            const tabla = document.querySelector(".salidas-table");
+            const tbody = tabla.querySelector("tbody");
+            const filas = Array.from(tbody.querySelectorAll("tr"));
+
+            // Alternar entre orden ascendente y descendente
+            const asc = tabla.classList.toggle("asc");
+            tabla.classList.toggle("desc", !asc);
+
+            filas.sort((a, b) => {
+                const celdaA = a.children[columna].innerText.trim();
+                const celdaB = b.children[columna].innerText.trim();
+
+                // Si los valores son números
+                if (!isNaN(celdaA) && !isNaN(celdaB)) {
+                    return asc ? celdaA - celdaB : celdaB - celdaA;
+                }
+
+                // Si son cadenas de texto
+                return asc
+                    ? celdaA.localeCompare(celdaB)
+                    : celdaB.localeCompare(celdaA);
+            });
+
+            filas.forEach(fila => tbody.appendChild(fila)); // Reorganizar las filas
+        }
+        // Asignamos la función al objeto window para que sea global
+        window.ordenarTabla = ordenarTabla; // Asegura que la función esté disponible globalmente
+    };
 });
 

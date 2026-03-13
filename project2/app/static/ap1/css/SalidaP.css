@@ -686,81 +686,86 @@ border:2px solid #22c55e !important;
 }
 
 /* ===============================
-   BOTONES DE ACCIÓN EN TABLA
+   BOTONES DE ACCIÓN TABLA
 ================================ */
-.actions-cell {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
+
+.actions-cell{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    align-items:center;
 }
 
-.btn-action {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 14px;
+/* botón base */
+
+.btn-action{
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+    border:none;
+
+    background:rgba(255,255,255,0.08);
+
+    color:#94a3b8;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:all .25s ease;
 }
 
-.btn-view {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-}
-
-.btn-view:hover {
-    background-color: #3b82f6;
-    color: white;
-    transform: scale(1.1);
-}
-
-.btn-anular {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid #ef4444;
-}
-
-.btn-anular:hover {
-    background-color: #ef4444;
-    color: white;
-    transform: scale(1.1);
-}
-
-.btn-ver {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-}
-
-.btn-ver:hover {
-    background-color: #3b82f6;
-    color: white;
-    transform: scale(1.1);
-}
-
-.btn-disabled {
-    background-color: rgba(148, 163, 184, 0.2);
-    color: #94a3b8;
-    border: 1px solid #94a3b8;
-    cursor: not-allowed;
-    opacity: 0.6;
+.btn-action i{
+    font-size:16px;
 }
 
 /* ===============================
-   FILA ANULADA
+   BOTÓN VER
 ================================ */
-.row-anulada {
-    background-color: rgba(239, 68, 68, 0.1) !important;
-    opacity: 0.7;
+
+.btn-view:hover{
+
+    color:#38bdf8;
+
+    background: radial-gradient(circle,
+                rgba(56,189,248,0.25) 0%,
+                rgba(56,189,248,0.15) 40%,
+                rgba(56,189,248,0.05) 70%);
+
+    box-shadow:0 0 12px rgba(56,189,248,0.35);
 }
 
-.row-anulada:hover {
-    background-color: rgba(239, 68, 68, 0.15) !important;
+/* ===============================
+   BOTÓN ANULAR
+================================ */
+
+.btn-anular:hover{
+
+    color:#ef4444;
+
+    background: radial-gradient(circle,
+                rgba(239,68,68,0.25) 0%,
+                rgba(239,68,68,0.15) 40%,
+                rgba(239,68,68,0.05) 70%);
+
+    box-shadow:0 0 12px rgba(239,68,68,0.35);
+}
+
+/* ===============================
+   BOTÓN DESHABILITADO
+================================ */
+
+.btn-disabled{
+    background:rgba(255,255,255,0.05);
+    color:#64748b;
+    cursor:not-allowed;
+}
+
+.btn-disabled:hover{
+    transform:none;
 }
 
 /* ===============================
@@ -838,22 +843,6 @@ border:2px solid #22c55e !important;
     background-color: rgba(59, 130, 246, 0.25) !important;
 }
 
-/* Botón Ver más visible */
-.btn-view {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.btn-view:hover {
-    background-color: #3b82f6;
-    color: white;
-    transform: scale(1.05);
-}
-
 /* ===============================
    BOTÓN FLOTANTE DE ACCIONES
 ================================ */
@@ -913,4 +902,8 @@ border:2px solid #22c55e !important;
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+}
+
+.salidas-table th {
+    cursor: pointer;
 }
