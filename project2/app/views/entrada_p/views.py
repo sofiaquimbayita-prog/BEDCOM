@@ -141,27 +141,27 @@ class EntradaCreateView(View):
             logger.error("REQUEST POST: " + str(request.POST))
             
             # Usar el formulario para validar
-            form = EntradaForm(request.POST)
+            # Raw validation matching HTML fields
+            producto_id = request.POST.get('producto')
+            cantidad_str = request.POST.get('cantidad')
+            precio_str = request.POST.get('precio_unitario')
+            observaciones = request.POST.get('observaciones', '')
             
-            if not form.is_valid():
-                # Recopilar errores de validación
-                errors = {}
-                for field, error_list in form.errors.items():
-                    errors[field] = error_list
-                
-                logger.error("ERRORES DE VALIDACIÓN: " + str(errors))
-                
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Por favor corrige los errores marcados',
-                    'errors': errors
-                }, status=400)
+            if not producto_id:
+                return JsonResponse({'success': False, 'message': 'Selecciona producto'}, status=400)
+            if not cantidad_str or int(cantidad_str) <= 0:
+                return JsonResponse({'success': False, 'message': 'Cantidad > 0'}, status=400)
+            if not precio_str or float(precio_str) <= 0:
+                return JsonResponse({'success': False, 'message': 'Precio > 0'}, status=400)
             
-            # Obtener datos validados del formulario
-            producto_obj = form.cleaned_data['producto']
-            cantidad = form.cleaned_data['cantidad']
-            precio_unitario = form.cleaned_data['precio_unitario']
-            observaciones = form.cleaned_data['observaciones'] or ''
+            try:
+                producto_obj = producto.objects.get(id=producto_id, estado=True)
+                cantidad = int(cantidad_str)
+                precio_unitario = float(precio_str)
+            except:
+                return JsonResponse({'success': False, 'message': 'Datos inválidos'}, status=400)
+            
+            logger.error(f"Raw validated: producto={producto_obj.nombre}, cant={cantidad}, precio={precio_unitario}")
             
             # Calcular total
             total = cantidad * precio_unitario

@@ -1,5 +1,6 @@
+
 {% load static %}
-<div class="modal-content" style="max-width: 500px !important;">
+<div class="modal-content" style="max-width: 600px !important; max-height: 90vh; overflow-y: auto;">
     <div class="modal-header" style="padding: 18px 22px !important;">
         <h2 style="font-size: 1.1rem !important;"><i class="fas fa-plus-circle"></i> Nueva Entrada</h2>
         <button type="button" class="modal-close" onclick="cerrarModal('modalAdd')">
@@ -12,7 +13,7 @@
 
         <div class="form-group" style="margin-bottom: 16px;">
             <label for="producto" style="font-size: 0.8rem !important; margin-bottom: 5px !important;">Producto *</label>
-            <select id="producto" name="producto" required onchange="mostrarStockActual()" style="padding: 10px 12px !important;">
+            <select id="producto" name="producto" class="form-control" onchange="mostrarBOMyStock(); mostrarStockActual(); validarCamposBasicos();" style="padding: 10px 12px !important;">
                 <option value="">Seleccionar...</option>
                 {% for p in productos %}
                 <option value="{{ p.id }}" data-stock="{{ p.stock }}">{{ p.nombre }}</option>
@@ -31,13 +32,35 @@
         <div class="form-row" style="gap: 12px;">
             <div class="form-group" style="flex: 1; margin-bottom: 16px;">
                 <label for="cantidad" style="font-size: 0.8rem !important; margin-bottom: 5px !important;">Cantidad *</label>
-                <input type="number" id="cantidad" name="cantidad" min="1" placeholder="0" required oninput="calcularNuevoStock()" style="padding: 10px 12px !important;">
+                <input type="number" id="cantidad" name="cantidad" class="form-control" min="1" oninput="calcularNuevoStock(); actualizarBOM(); validarCamposBasicos();" style="padding: 10px 12px !important;">
                 <div class="error-message" id="error-cantidad"></div>
             </div>
             <div class="form-group" style="flex: 1; margin-bottom: 16px;">
-                <label for="precio_unitario" style="font-size: 0.8rem !important; margin-bottom: 5px !important;">Precio *</label>
-                <input type="number" id="precio_unitario" name="precio_unitario" min="0" step="0.01" placeholder="0.00" required oninput="calcularTotal()" style="padding: 10px 12px !important;">
+                <label for="precio_unitario" style="font-size: 0.8rem !important; margin-bottom: 5px !important;">Precio Unit. *</label>
+                <input type="number" id="precio_unitario" name="precio_unitario" class="form-control" min="0" step="0.01" oninput="calcularTotal(); validarCamposBasicos();" style="padding: 10px 12px !important;">
                 <div class="error-message" id="error-precio_unitario"></div>
+            </div>
+        </div>
+
+        <!-- BOM INSUMOS SECTION -->
+        <div id="bom-section" style="display: none; margin-bottom: 16px;">
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px;">
+                <h4 style="margin: 0 0 12px 0; color: #059669; font-size: 0.95rem;"><i class="fas fa-cogs"></i> Insumos requeridos (BOM)</h4>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;">
+                        <thead style="background: rgba(16, 185, 129, 0.2);">
+                            <tr>
+                                <th style="padding: 8px 4px; text-align: left; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">Insumo</th>
+                                <th style="padding: 8px 4px; text-align: right; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">Requerido</th>
+                                <th style="padding: 8px 4px; text-align: right; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">Disponible</th>
+                                <th style="padding: 8px 4px; text-align: center; border-bottom: 1px solid rgba(16, 185, 129, 0.3);">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bom-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="bom-status" style="margin-top: 8px; font-size: 0.8rem;"></div>
             </div>
         </div>
 
@@ -46,7 +69,7 @@
             <span id="total" style="font-size: 1.3rem; font-weight: bold; color: #0ea5e9;">$0.00</span>
         </div>
 
-        <div class="form-group" style="margin-bottom: 0;">
+        <div class="form-group" style="margin-bottom: 16px;">
             <label for="observaciones" style="font-size: 0.8rem !important; margin-bottom: 5px !important;">Observaciones</label>
             <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional" style="padding: 10px 12px !important; resize: none;"></textarea>
             <div class="error-message" id="error-observaciones"></div>
@@ -57,7 +80,7 @@
         <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')" style="padding: 10px 18px !important; font-size: 0.85rem !important;">
             <i class="fas fa-times"></i> Cancelar
         </button>
-        <button type="submit" class="btn-save" form="formAgregarEntrada" style="padding: 10px 18px !important; font-size: 0.85rem !important;">
+        <button type="submit" id="btn-guardar" class="btn-save" form="formAgregarEntrada" style="padding: 10px 18px !important; font-size: 0.85rem !important;">
             <i class="fas fa-save"></i> Guardar
         </button>
     </div>
@@ -74,53 +97,53 @@
     }
     .error-message { color: #ef4444; font-size: 0.75rem; margin-top: 4px; display: none; }
     .error-message.show { display: block; }
+    
+    .bom-row-ok { background: rgba(34, 197, 94, 0.1); }
+    .bom-row-warning { background: rgba(245, 158, 11, 0.2); }
+    .status-ok { color: #22c55e; font-weight: bold; }
+    .status-warning { color: #f59e0b; font-weight: bold; }
+    #btn-guardar:not(:disabled) { cursor: pointer; }
 </style>
 
 <script>
+    let bomData = [];
+
+    // Fix functions
     function mostrarErrorCampo(campoId, mensaje) {
         const campo = document.getElementById(campoId);
         const errorDiv = document.getElementById('error-' + campoId);
-        if (campo) { campo.classList.add('error'); campo.classList.remove('valid'); }
-        if (errorDiv) { errorDiv.textContent = mensaje; errorDiv.classList.add('show'); }
+        if (campo) campo.classList.add('error');
+        if (errorDiv) {
+            errorDiv.textContent = mensaje;
+            errorDiv.classList.add('show');
+        }
     }
 
     function mostrarValidCampo(campoId) {
         const campo = document.getElementById(campoId);
         const errorDiv = document.getElementById('error-' + campoId);
-        if (campo) { campo.classList.remove('error'); campo.classList.add('valid'); }
-        if (errorDiv) { errorDiv.textContent = ''; errorDiv.classList.remove('show'); }
+        if (campo) campo.classList.remove('error');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
+        }
     }
 
     function limpiarErrores() {
-        ['producto', 'cantidad', 'precio_unitario', 'observaciones'].forEach(function(campoId) {
-            const campo = document.getElementById(campoId);
-            const errorDiv = document.getElementById('error-' + campoId);
-            if (campo) campo.classList.remove('error', 'valid');
-            if (errorDiv) { errorDiv.textContent = ''; errorDiv.classList.remove('show'); }
+        ['producto', 'cantidad', 'precio_unitario', 'observaciones'].forEach(campoId => {
+            mostrarValidCampo(campoId);
         });
     }
 
     function validarCampo(campoId, valor) {
+        const cantidad = parseInt(valor);
         if (campoId === 'cantidad') {
-            const cantidad = parseInt(valor);
-            if (!valor || cantidad <= 0) { mostrarErrorCampo('cantidad', 'La cantidad debe ser mayor a 0'); return false; }
-            else if (cantidad > 10000) { mostrarErrorCampo('cantidad', 'La cantidad no puede superar 10,000'); return false; }
-            else { mostrarValidCampo('cantidad'); return true; }
-        }
-        if (campoId === 'precio_unitario') {
-            const precio = parseFloat(valor);
-            if (!valor || precio <= 0) { mostrarErrorCampo('precio_unitario', 'El precio debe ser mayor a 0'); return false; }
-            else if (precio > 10000000) { mostrarErrorCampo('precio_unitario', 'El precio no puede superar 10,000,000'); return false; }
-            else if (valor.indexOf('.') !== -1 && valor.split('.')[1].length > 2) { mostrarErrorCampo('precio_unitario', 'Solo se permiten hasta 2 decimales'); return false; }
-            else { mostrarValidCampo('precio_unitario'); return true; }
-        }
-        if (campoId === 'observaciones') {
-            if (valor && valor.length > 500) { mostrarErrorCampo('observaciones', 'Las observaciones no pueden superar 500 caracteres'); return false; }
-            else { mostrarValidCampo('observaciones'); return true; }
-        }
-        if (campoId === 'producto') {
-            if (!valor) { mostrarErrorCampo('producto', 'Debe seleccionar un producto'); return false; }
-            else { mostrarValidCampo('producto'); return true; }
+            if (!valor || cantidad <= 0) {
+                mostrarErrorCampo('cantidad', 'Cantidad > 0');
+                return false;
+            }
+            mostrarValidCampo('cantidad');
+            return true;
         }
         return true;
     }
@@ -128,35 +151,104 @@
     function calcularTotal() {
         const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
         const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
-        document.getElementById('total').textContent = '$' + (cantidad * precio).toFixed(2);
-        validarCampo('cantidad', document.getElementById('cantidad').value);
-        validarCampo('precio_unitario', document.getElementById('precio_unitario').value);
+        document.getElementById('total').textContent = '$' + (cantidad * precio).toLocaleString('es-CO', {minimumFractionDigits: 2});
     }
 
     function calcularNuevoStock() {
-        const selectProducto = document.getElementById('producto');
-        const cantidadInput = document.getElementById('cantidad');
+        const select = document.getElementById('producto');
+        const cantidad = document.getElementById('cantidad');
         const nuevoStock = document.getElementById('nuevo-stock');
-        if (!selectProducto || !cantidadInput || !nuevoStock) return;
-        const stockActual = parseInt(selectProducto.options[selectProducto.selectedIndex].getAttribute('data-stock')) || 0;
-        nuevoStock.textContent = stockActual + (parseInt(cantidadInput.value) || 0);
-        validarCampo('cantidad', cantidadInput.value);
+        if (select && cantidad && nuevoStock) {
+            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
+            nuevoStock.textContent = stock + (parseInt(cantidad.value) || 0);
+        }
+        actualizarBOM();
         calcularTotal();
     }
 
     function mostrarStockActual() {
-        const selectProducto = document.getElementById('producto');
+        const select = document.getElementById('producto');
         const stockActual = document.getElementById('stock-actual');
-        const selectedOption = selectProducto.options[selectProducto.selectedIndex];
-        stockActual.textContent = selectedOption.getAttribute('data-stock') || 0;
-        validarCampo('producto', selectProducto.value);
+        if (select && stockActual) {
+            stockActual.textContent = select.selectedOptions[0].dataset.stock || 0;
+        }
         calcularNuevoStock();
     }
 
-    // Función para obtener el token CSRF de las cookies
+    function mostrarBOMyStock() {
+        mostrarStockActual();
+        cargarBOM();
+    }
+
+    // BOM functions - SIMPLE HTML table, NO DataTables
+    function cargarBOM() {
+        const productoId = document.getElementById('producto').value;
+        const bomSection = document.getElementById('bom-section');
+        if (!productoId || !bomSection) return;
+
+        fetch(`/vistas/bom/por-producto/?producto_id=${productoId}`)
+            .then(res => res.json())
+            .then(data => {
+                bomData = data;
+                bomSection.style.display = data.length ? 'block' : 'none';
+                actualizarBOM();
+            }).catch(() => bomSection.style.display = 'none');
+    }
+
+    function actualizarBOM() {
+        const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+        const tbody = document.getElementById('bom-tbody');
+        const status = document.getElementById('bom-status');
+        const btnGuardar = document.getElementById('btn-guardar');
+        let ok = true; // SIEMPRE OK - permitir guardar
+        let html = '';
+
+        if (!bomData.length) return;
+
+        bomData.forEach(item => {
+            const requerida = item.cantidad * cantidad;
+            const disponible = item.insumo_stock || 0;
+            const suficiente = disponible >= requerida;
+            ok &= suficiente;
+
+            html += `<tr class="${suficiente ? 'bom-row-ok' : 'bom-row-warning'}">
+                <td>${item.insumo_nombre}</td>
+                <td style="text-align: right;">${requerida.toLocaleString()}</td>
+                <td style="text-align: right; color: #38bdf8;">${disponible.toLocaleString()}</td>
+                <td style="text-align: center;"><span class="status-${suficiente ? 'ok' : 'warning'}">${suficiente ? 'OK' : 'INSUFICIENTE'}</span></td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+        status.innerHTML = ok ? 
+            '<span style="color: #22c55e;"><i class="fas fa-check-circle"></i> Todos OK</span>' : 
+            '<span style="color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i> Insuficientes</span>';
+
+        // BOM solo informativo, botón habilitado por validarCamposBasicos()
+    }
+
+    // Validación básica para habilitar botón cuando campos requeridos llenos
+    function validarCamposBasicos() {
+        const productoEl = document.getElementById('producto');
+        const cantidadEl = document.getElementById('cantidad');
+        const precioEl = document.getElementById('precio_unitario');
+        const btnGuardar = document.getElementById('btn-guardar');
+
+        if (!productoEl || !cantidadEl || !precioEl || !btnGuardar) return;
+
+        const producto = productoEl.value;
+        const cantidad = cantidadEl.value;
+        const precio = precioEl.value;
+
+        const isValid = producto && cantidad && parseInt(cantidad) > 0 && precio && parseFloat(precio) >= 0;
+        btnGuardar.disabled = !isValid;
+        btnGuardar.style.opacity = isValid ? '1' : '0.6';
+        btnGuardar.style.cursor = isValid ? 'pointer' : 'not-allowed';
+    }
+
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
+        if (document.cookie) {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
@@ -169,92 +261,42 @@
         return cookieValue;
     }
 
-    $(document).ready(function() {
-        $('#formAgregarEntrada').on('submit', function(e) {
-            e.preventDefault();
-            limpiarErrores();
-            const form = $(this);
-            const submitBtn = form.find('button[type="submit"]');
-            const originalBtnText = submitBtn.html();
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>...');
+    // Form submit
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formAgregarEntrada');
+        if (form) {
+            // Inicializar validación
+            validarCamposBasicos();
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btn-guardar');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-            // Obtener el token CSRF
-            const csrftoken = getCookie('csrftoken');
+                const formData = new FormData(form);
+                formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
 
-            $.ajax({
-                url: '/vistas/entrada_p/crear/',
-                type: 'POST',
-                data: new FormData(this),
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                success: function(response) {
-                    if (response.success) {
+                fetch('/vistas/entrada_p/crear/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
                         cerrarModal('modalAdd');
-                        form[0].reset();
-                        document.getElementById('stock-actual').textContent = '0';
-                        document.getElementById('nuevo-stock').textContent = '0';
-                        document.getElementById('total').textContent = '$0.00';
-                        mostrarMensaje('success', response.message || 'Entrada guardada correctamente');
-                        if (typeof dataTableEntradas !== 'undefined' && dataTableEntradas) dataTableEntradas.ajax.reload();
+                        form.reset();
+                        if (typeof recargarTabla === 'function') recargarTabla();
+                        mostrarMensaje('success', data.message);
                     } else {
-                        mostrarMensaje('error', response.message || 'Error al guardar');
+                        mostrarMensaje('error', data.message);
                     }
-                },
-                error: function(xhr) {
-                    let errorMsg = 'Error al guardar';
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.message) {
-                            if (response.errors) {
-                                Object.keys(response.errors).forEach(function(campo) {
-                                    const mensajes = response.errors[campo];
-                                    mostrarErrorCampo(campo, Array.isArray(mensajes) ? mensajes[0] : mensajes);
-                                });
-                            }
-                            errorMsg = response.message;
-                        }
-                    } catch (e) {}
-                    mostrarMensaje('error', errorMsg);
-                },
-                complete: function() { submitBtn.prop('disabled', false).html(originalBtnText); }
+                })
+                .catch(() => mostrarMensaje('error', 'Error'))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+                });
             });
-        });
-
-        $('#cantidad, #precio_unitario, #observaciones').on('blur', function() { validarCampo(this.id, this.value); });
-
-        $('#observaciones').on('input', function() {
-            const texto = $(this).val();
-            const textoLimpio = texto.replace(/[+\$\#\%\&\/\)\=\*\°\<\>\[\]\{\}\"\']/g, '');
-            if (texto !== textoLimpio) {
-                $(this).val(textoLimpio);
-                mostrarErrorCampo('observaciones', 'No se permiten caracteres especiales');
-                setTimeout(function() { $('#error-observaciones').fadeOut(200, function() { $(this).text('').removeClass('show'); }); }, 1500);
-            }
-        });
-
-        $('#cantidad').on('input', function() {
-            let valor = $(this).val().replace(/[^0-9]/g, '');
-            if (valor === '0' || valor === '') { $(this).val(''); mostrarErrorCampo('cantidad', 'La cantidad debe ser mayor a 0'); }
-            else { $(this).val(valor); validarCampo('cantidad', valor); }
-        });
-
-        $('#precio_unitario').on('input', function() {
-            let valor = $(this).val().replace(/[^0-9.]/g, '');
-            let partes = valor.split('.');
-            let final = partes[0];
-            // Limitar a máximo 2 decimales
-            if (partes.length > 1) {
-                final += '.' + partes[1].substring(0, 2);
-            }
-            if (final === '0' || final === '' || parseFloat(final) <= 0) { $(this).val(''); mostrarErrorCampo('precio_unitario', 'El precio debe ser mayor a 0'); }
-            else if (parseFloat(final) > 10000000) { $(this).val(final); mostrarErrorCampo('precio_unitario', 'El precio no puede superar 10,000,000'); }
-            else { $(this).val(final); validarCampo('precio_unitario', final); }
-        });
-
-        $('#producto').on('change', function() { validarCampo(this.id, this.value); });
+        }
     });
 </script>
-

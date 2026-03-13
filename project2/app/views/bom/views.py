@@ -9,6 +9,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from django.db import models
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.models import bom, producto, insumo
 
@@ -85,27 +88,37 @@ class BomCreateView(SuccessMessageMixin, CreateView):
 
 
 @login_required
-@csrf_exempt
 def bom_crear_receta(request):
     """API para crear una receta completa (múltiples insumos para un producto)"""
+    print("=== BOM CREAR RECETA HIT ===")
+    logger.info("BOM crear recipe view called")
     if request.method != 'POST':
+        print("Not POST")
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
     
     try:
         data = json.loads(request.body)
         producto_id = data.get('producto_id')
-        insumos = data.get('insumos', [])  # Lista de {insumo_id, cantidad, unidad_medida}
+        insumos = data.get('insumos', [])
+        print(f"Producto ID: {producto_id}")
+        print(f"N° insumos: {len(insumos)}")
+        print(f"Data: {data}")
+        logger.info(f"BOM crear: producto_id={producto_id}, num_insumos={len(insumos)}")
         
         if not producto_id:
+            print("No producto_id")
             return JsonResponse({'success': False, 'error': 'Producto no especificado'})
         
         if not insumos:
+            print("No insumos")
             return JsonResponse({'success': False, 'error': 'Debe agregar al menos un insumo'})
         
         # Verificar que el producto existe
         try:
             producto_obj = producto.objects.get(id=producto_id)
+            print(f"Producto encontrado: {producto_obj.nombre}")
         except producto.DoesNotExist:
+            print("Producto not found")
             return JsonResponse({'success': False, 'error': 'Producto no encontrado'})
         
         # Crear las relaciones BOM
@@ -116,6 +129,7 @@ def bom_crear_receta(request):
             insumo_id = item.get('insumo_id')
             cantidad = item.get('cantidad')
             unidad_medida = item.get('unidad_medida')
+            print(f"Processing insumo: {insumo_id}, cant: {cantidad}, um: {unidad_medida}")
             
             if not insumo_id or not cantidad or not unidad_medida:
                 errors.append(f"Datos incompletos para un insumo")
@@ -127,14 +141,16 @@ def bom_crear_receta(request):
                 continue
             
             # Crear la relación BOM
-            bom.objects.create(
+            bom_obj = bom.objects.create(
                 producto=producto_obj,
                 insumo_id=insumo_id,
                 cantidad=cantidad,
                 unidad_medida=unidad_medida
             )
+            print(f"BOM created ID: {bom_obj.id}")
             created_count += 1
         
+        print(f"Total created: {created_count}, errors: {errors}")
         if created_count > 0:
             return JsonResponse({
                 'success': True, 
@@ -146,14 +162,17 @@ def bom_crear_receta(request):
                 'error': 'No se pudo crear ninguna relación. ' + '; '.join(errors)
             })
             
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON error: {e}")
         return JsonResponse({'success': False, 'error': 'Datos JSON inválidos'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        print(f"FATAL ERROR: {str(e)}")
+        print(f"Traceback: {e}")
+        logger.error(f"BOM crear error: {str(e)}", exc_info=True)
+        return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'})
 
 
 @login_required
-@csrf_exempt
 def bom_editar_receta(request):
     """API para editar una receta completa (múltiples insumos para un producto)"""
     if request.method != 'POST':
@@ -215,6 +234,7 @@ def bom_editar_receta(request):
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'Datos JSON inválidos'})
     except Exception as e:
+        logger.error(f"BOM editar error: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': str(e)})
 
 
@@ -290,7 +310,8 @@ def bom_eliminar_receta(request):
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
     
     try:
-        producto_id = request.POST.get('producto_id')
+        producto_id = request.POST.get('id')  # JS sends 'id' = productoId
+        logger.info(f"BOM eliminar receta for producto_id={producto_id}")
     except:
         producto_id = None
     
