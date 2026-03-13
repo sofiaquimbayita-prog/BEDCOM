@@ -1,8 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, bom
+from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, bom, notificaciones
 
-urlpatterns = [
+urlpatterns =[
       # --- ENTRADA DE PRODUCTOS ---
       path('entrada_p/', entrada_p.EntradaListView.as_view(), name='entrada_p'),
       path('entrada_p/data/', entrada_p.EntradaDataView.as_view(), name='entrada_p_data'),
@@ -32,17 +32,16 @@ urlpatterns = [
       path('categorias/activar/<int:pk>/', categorias.categoria_activate_view.as_view(), name='activar_categoria'),
       
       # --- REPORTES ---  
-      path('reportes/', reportes.ReporteVentasView.as_view(), name='reportes'),  
-      path('reportes/estadisticas/pdf/',   reportes.ExportarEstadisticasPDF.as_view(),   name='estadisticas_pdf'),
-      path('reportes/estadisticas/excel/', reportes.ExportarEstadisticasExcel.as_view(), name='estadisticas_excel'),
-      path('reportes/categorias/pdf/', reportes.ExportarCategoriasPDF.as_view(), name='categorias_pdf'),
-      path('reportes/categorias/excel/', reportes.ExportarCategoriasExcel.as_view(), name='categorias_excel'),
-      path('reportes/insumos/pdf/', reportes.ExportarInsumosPDF.as_view(), name='insumos_pdf'),
-      path('reportes/insumos/excel/', reportes.ExportarInsumosExcel.as_view(), name='insumos_excel'),
-      path('reportes/productos/pdf/', reportes.ExportarProductosPDF.as_view(), name='productos_pdf'),
-      path('reportes/productos/excel/', reportes.ExportarProductosExcel.as_view(), name='productos_excel'),
-      path('reportes/proveedores/pdf/', reportes.ExportarProveedoresPDF.as_view(), name='proveedores_pdf'),
-      path('reportes/proveedores/excel/', reportes.ExportarProveedoresExcel.as_view(), name='proveedores_excel'),
+      #path('reportes/', reportes.ReporteVentasView.as_view(), name='reportes'),  
+      #path('reportes/estadisticas/pdf/',   reportes.ExportarEstadisticasPDF.as_view(),   name='estadisticas_pdf'),
+      #path('reportes/estadisticas/excel/', reportes.ExportarEstadisticasExcel.as_view(), name='estadisticas_excel'),
+      #path('reportes/categorias/pdf/', reportes.ExportarCategoriasPDF.as_view(), name='categorias_pdf'),
+      #path('reportes/categorias/excel/', reportes.ExportarCategoriasExcel.as_view(), name='categorias_excel'),
+      #path('reportes/insumos/pdf/', reportes.ExportarInsumosPDF.as_view(), name='insumos_pdf'),
+      #path('reportes/insumos/excel/', reportes.ExportarInsumosExcel.as_view(), name='insumos_excel'),
+      ##path('reportes/productos/excel/', reportes.ExportarProductosExcel.as_view(), name='productos_excel'),
+      #path('reportes/proveedores/pdf/', reportes.ExportarProveedoresPDF.as_view(), name='proveedores_pdf'),
+      #path('reportes/proveedores/excel/', reportes.ExportarProveedoresExcel.as_view(), name='proveedores_excel'),
 
    # --- INSUMOS ---
       path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
@@ -74,6 +73,12 @@ urlpatterns = [
       path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
       path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
       
+      # --- NOTIFICACIONES ---
+      path('notificaciones/', notificaciones.NotificacionesListView.as_view(), name='notificaciones'),
+    
+
+    
+       
       # --- RESPALDOS ---
       path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
       path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),

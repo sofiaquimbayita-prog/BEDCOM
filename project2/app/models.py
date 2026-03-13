@@ -354,3 +354,24 @@ class salida_producto(models.Model):
         verbose_name_plural = "Salidas de Productos"
         db_table = "salida_producto"
         ordering = ['-fecha']
+
+
+class Notificacion(models.Model):
+    titulo = models.CharField(max_length=200)
+    mensaje = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+    leida = models.BooleanField(default=False)
+    tipo = models.CharField(max_length=50)
+    relacionado_id = models.PositiveIntegerField(null=True, blank=True)
+    relacionado_tipo = models.CharField(max_length=50, null=True, blank=True)
+    estado = models.BooleanField(default=True)
+    usuario = models.ForeignKey(usuario, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Notificación"
+        verbose_name_plural = "Notificaciones"
+        db_table = "notificacion"
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return self.titulo

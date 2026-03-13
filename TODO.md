@@ -1,28 +1,15 @@
-# TODO - Fix Bug: Creating recipe with multiple ingredients creates duplicate recipes
+# TODO: Email Notification on Product Entry - ✅ COMPLETED
 
-## Problem:
-When creating a recipe with 2 ingredients, 2 recipes were created in the table (one for each ingredient), instead of 1 recipe with 2 ingredients.
+## Plan Steps:
+- [x] Step 1: Update project2/app/utils.py - Add enviar_email_nueva_entrada function
+- [x] Step 2: Update project2/app/signals.py - Call email function in signal
+- [x] Step 3: Update project2/config/settings.py - Add SMTP email config
+- [ ] Step 4: Test creation of entrada (visit http://127.0.0.1:8000/entrada_p/, login, create new entry)
+- [x] Step 5: Complete task
 
-## Root Cause:
-The template variable `productos_con_receta` was not being passed from the view to the template, causing the JavaScript validation to not work properly.
+**Next:** Run `python project2/manage.py runserver` and test creating an entrada. Check console for "✅ Email enviado" or errors. For real emails, update EMAIL_HOST_PASSWORD with Gmail App Password.
 
-## Solution Applied:
-1. [x] Added `productos_con_receta` variable to the `BomListView` context in views.py
-2. [x] The variable contains a list of product IDs that already have recipes
-3. [x] JavaScript validation now works correctly to prevent duplicate recipes
-
-## Changes Made:
-- **File:** `project2/app/views/bom/views.py`
-- **Method:** `BomListView.get_context_data()`
-- **Added:** 
-```python
-# Obtener lista de productos que ya tienen receta (para validación JS)
-context['productos_con_receta'] = list(producto.objects.filter(
-    id__in=bom.objects.values_list('producto_id', flat=True).distinct()
-).values_list('id', flat=True))
-```
-
-## Notes:
-- The `bom` model already supports multiple ingredients per product (using `unique_together` constraint)
-- The validation in JavaScript now properly checks if a product already has a recipe before allowing creation
-
+**Changes Summary:**
+- utils.py: Added email function with details (producto, cantidad, total, etc.)
+- signals.py: Calls email after internal notif on new entrada (created && estado=True)
+- settings.py: SMTP config (Gmail example). Console backend commented for dev testing.

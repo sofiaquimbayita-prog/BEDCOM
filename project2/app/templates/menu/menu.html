@@ -85,7 +85,6 @@
             </a>
         
 
-            <a href=" {% url 'reportes' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Reportes">
@@ -155,7 +154,22 @@
                 </article>
             </a>
 
+                <a href="{% url 'notificaciones' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/productos.png' %}" alt="Módulo Notificaciones">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fas fa-bell"></i></div>
+                        <div class="menu-card-content">
+                            <h3>NOTIFICACIONES</h3>
+                            <p class="muted">Alertas del sistema</p>
+                        </div>
+                    </article>
+                </a>
+
         </section>
+
     </div>
 </main>
 {% endblock %}

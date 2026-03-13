@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
-from django.contrib.auth import get_user_model
 from django.dispatch import receiver
-from .models import usuario
+from django.contrib.auth import get_user_model
+from .models import usuario, entrada, Notificacion
+from .utils import crear_notificacion_entrada, enviar_email_nueva_entrada
 
 User = get_user_model()
 
@@ -23,3 +24,11 @@ def crear_usuario_desde_superuser(sender, instance, created, **kwargs):
             )
             print(f"Usuario '{instance.username}' creado automáticamente en el modelo 'usuario'")
 
+@receiver(post_save, sender=entrada)
+def notificacion_nueva_entrada(sender, instance, created, **kwargs):
+    if created and instance.estado:
+        crear_notificacion_entrada(
+            f"Nueva entrada: {instance.producto.nombre}",
+            f"Se recibieron {instance.cantidad} unidades"
+        )
+        enviar_email_nueva_entrada(instance)

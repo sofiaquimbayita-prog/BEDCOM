@@ -1,0 +1,61 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}Notificaciones del Sistema{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'ap1/css/notificaciones.css' %}">
+
+<main>
+  <div class="container-tabla container-tabla-notif">
+    <div class="notif-toolbar">
+      <h2 class="notif-header-title">
+        <i class="fas fa-bell"></i>
+        Notificaciones del Sistema
+      </h2>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table-notif">
+        <thead>
+          <tr>
+            <th><i class="fas fa-clock"></i> Fecha</th>
+            <th><i class="fas fa-tag"></i> Título</th>
+            <th><i class="fas fa-comment"></i> Mensaje</th>
+            <th><i class="fas fa-eye"></i> Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for notif in notificaciones %}
+          <tr class="{% if not notif.leida %}notif-unread{% endif %}">
+            <td class="notif-fecha">{{ notif.fecha|date:'d/m/Y H:i' }}</td>
+            <td class="notif-titulo">{{ notif.titulo }}</td>
+            <td class="notif-mensaje">{{ notif.mensaje|truncatewords:15 }}</td>
+            <td>
+              <span class="notif-estado {% if notif.leida %}estado-leida{% else %}estado-no-leida{% endif %}">
+                {% if notif.leida %}Leída{% else %}Nueva{% endif %}
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="no-notifs">
+              <i class="fas fa-bell-slash"></i>
+              <h3>No hay notificaciones</h3>
+              <p>Todas las alertas del sistema aparecerán aquí</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+
+
+
+
+<xai:function_call name="edit_file">
+<parameter name="path">c:/Users/SENA/Desktop/BEDCOM/TODO-simplify-notif.md

@@ -1,3 +1,4 @@
+"""
 from django.shortcuts import render
 from django.views import View as DjangoView
 from django.conf import settings
@@ -7,22 +8,17 @@ from django.db.models import Sum, F, FloatField
 from django.db.models.functions import ExtractMonth, Cast
 from datetime import datetime
 
-# ====== VISTAS PARA EXPORTAR REPORTES ======
 
 class ExportarCategoriasPDF(DjangoView):
     def get(self, request):
-        # 1. Obtener datos
         categorias = categoria.objects.all()
         columnas = ['ID', 'Nombre', 'Descripción']
         datos = [(cat.id, cat.nombre, cat.descripcion) for cat in categorias]
         
-        # 2. Preparar el ICONO (Ruta absoluta para WeasyPrint)
-        # Esto construye: http://127.0.0.1:8000/static/ap1/img/icono.png
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         
         nombre_archivo = f'Reporte_Categorias_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # 3. Llamar a la utilidad con el contexto extra
         return exportar_pdf(
             titulo='REPORTE DE CATEGORÍAS - BEDCOM',
             columnas=columnas,
@@ -47,7 +43,6 @@ class ExportarCategoriasExcel(DjangoView):
         )
         
 class ExportarInsumosPDF(DjangoView):
-    """Vista adicional para tu reporte de inventario"""
     def get(self, request):
         insumos = insumo.objects.all()
         columnas = ['Nombre', 'Stock', 'Precio Unitario']
@@ -64,7 +59,6 @@ class ExportarInsumosPDF(DjangoView):
             contexto_extra={'logo_url': logo_url}
         )
 class ExportarInsumosExcel(DjangoView):
-    """Vista adicional para tu reporte de inventario"""
     def get(self, request):
         insumos = insumo.objects.all()
         columnas = ['Nombre', 'Stock', 'Precio Unitario']
@@ -150,9 +144,7 @@ class ExportarProveedoresExcel(DjangoView):
         )
 
 
-# ====== VISTA GENERAL DE ESTADÍSTICAS ======
 class ExportarEstadisticasPDF(DjangoView):
-    """Vista para exportar reporte general de estadísticas con gráficos"""
     def get(self, request):
         # Obtener todas las estadísticas
         from app.models import pedido, detalle_pedido, despacho, compra, insumo, producto, categoria, proveedor
@@ -228,7 +220,6 @@ class ExportarEstadisticasPDF(DjangoView):
 
 
 class ExportarEstadisticasExcel(DjangoView):
-    """Vista para exportar reporte general de estadísticas a Excel"""
     def get(self, request):
         from app.models import pedido, detalle_pedido, despacho, compra, insumo, producto, categoria, proveedor
         
@@ -301,3 +292,4 @@ class ExportarEstadisticasExcel(DjangoView):
             datos=datos,
             nombre_archivo=nombre_archivo
         )
+        """

@@ -131,7 +131,16 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# En desarrollo, los correos salen por la terminal
+# EMAIL SMTP CONFIG (descomenta para producción)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'iv3ym2maj4@lnovic.com'
+# EMAIL_HOST_PASSWORD = 'tu_app_password'
+# DEFAULT_FROM_EMAIL = 'iv3ym2maj4@lnovic.com'
+
+# Desarrollo - Emails por console (sin errores ASCII)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Redirecciones
