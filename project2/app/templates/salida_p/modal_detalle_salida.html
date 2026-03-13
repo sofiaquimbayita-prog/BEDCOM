@@ -1,82 +1,85 @@
-<div id="modalDetalleSalida">
+<div class="modal" id="modalDetalleSalida">
   <!-- Backdrop + Content -->
   <div class="modal-content">
     
     <!-- Close Button -->
     <button class="modal-close" onclick="cerrarModalDetalle()">
-      &#215;
+      <span>✕</span>
     </button>
     
-    <!-- Header -->
     <div class="modal-header">
-      <i class="fas fa-eye"></i>
-      <span>Detalle de Salida</span>
+      <div class="modal-header-content">
+        <i class="fas fa-eye"></i>
+        <span>Detalle de Salida</span>
+      </div>
     </div>
     
-    <!-- Content Grid -->
-    <div class="view-detail-grid">
-      
-      <!-- Producto -->
-      <div class="form-group">
-        <label>
-          <i class="fas fa-box"></i>
-          Producto
-        </label>
-        <p id="detalle-producto">--</p>
-      </div>
-      
-      <!-- Cantidad -->
-      <div class="form-group">
-        <label>
-          <i class="fas fa-sort-numeric-up"></i>
-          Cantidad
-        </label>
-        <p id="detalle-cantidad">--</p>
-      </div>
-      
-      <!-- Fecha -->
-      <div class="form-group">
-        <label>
-          <i class="fas fa-calendar"></i>
-          Fecha
-        </label>
-        <p id="detalle-fecha">--</p>
-      </div>
-      
-      <!-- Motivo (full width) -->
-      <div class="form-group view-full">
-        <label>
-          <i class="fas fa-align-left"></i>
-          Motivo
-        </label>
-        <p id="detalle-motivo">--</p>
-      </div>
-      
-      <!-- Responsable -->
-      <div class="form-group">
-        <label>
-          <i class="fas fa-user"></i>
-          Responsable
-        </label>
-        <p id="detalle-responsable">--</p>
-      </div>
-      
-      <!-- Estado -->
-      <div class="form-group">
-        <label>
-          <i class="fas fa-cog"></i>
-          Estado
-        </label>
-        <div id="detalle-estado">
-          <!-- Se llena dinámicamente por JS -->
+    <!-- Content -->
+    <div class="modal-body">
+      <div class="view-detail-grid">
+        
+        <!-- Producto -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-box"></i>
+            Producto
+          </label>
+          <p id="detalle-producto">--</p>
         </div>
+        
+        <!-- Cantidad -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-sort-numeric-up"></i>
+            Cantidad
+          </label>
+          <p id="detalle-cantidad">--</p>
+        </div>
+        
+        <!-- Fecha -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-calendar"></i>
+            Fecha
+          </label>
+          <p id="detalle-fecha">--</p>
+        </div>
+        
+        <!-- Motivo (full width) -->
+        <div class="form-group view-full">
+          <label>
+            <i class="fas fa-align-left"></i>
+            Motivo
+          </label>
+          <p id="detalle-motivo">--</p>
+        </div>
+        
+        <!-- Responsable -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-user"></i>
+            Responsable
+          </label>
+          <p id="detalle-responsable">--</p>
+        </div>
+        
+        <!-- Estado -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-cog"></i>
+            Estado
+          </label>
+          <div id="detalle-estado">
+            <!-- Se llena dinámicamente por JS -->
+          </div>
+        </div>
+        
       </div>
-      
     </div>
     
-    <!-- Actions -->
-    <div class="form-actions">
-      <button type="button" class="btn-cancelar" onclick="cerrarModalDetalle()">
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" onclick="cerrarModalDetalle()">
         <i class="fas fa-times"></i>
         Cerrar
       </button>
