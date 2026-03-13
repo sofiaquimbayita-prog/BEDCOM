@@ -14,7 +14,7 @@
                         {% endif %}
                     </div>
                     <span class="user-label">
-                        {% if usuario_perfil %}{{ usuario_perfil.nombre_usuario }}{% else %}{{ user.username }}{% endif %}
+                        {{ usuario_perfil.get_full_name|default:usuario_perfil.username|default:user.username|default:"Usuario" }}
                     </span>
                 </button>
 
@@ -29,10 +29,10 @@
                         </div>
                         <div class="sidebar-user-details">
                             <span class="sidebar-user-name">
-                                {% if usuario_perfil %}{{ usuario_perfil.nombre_usuario }}{% else %}{{ user.username }}{% endif %}
+                                {{ usuario_perfil.get_full_name|default:usuario_perfil.username|default:user.username|default:"Usuario" }}
                             </span>
                             <span class="sidebar-user-role">
-                                {% if usuario_perfil and usuario_perfil.rol %}{{ usuario_perfil.rol }}{% else %}Administrador{% endif %}
+                                {{ usuario_perfil.rol|default:"Administrador" }}
                             </span>
                         </div>
                     </div>

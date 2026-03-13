@@ -3,8 +3,8 @@ from .models import categoria, producto, usuario, proveedor
 
 @admin.register(usuario)
 class UsuarioAdmin(admin.ModelAdmin):
-    list_display = ('cedula', 'nombre_usuario', 'rol', 'estado')
-    search_fields = ('cedula', 'nombre_usuario')
+    list_display = ('cedula', 'username', 'rol', 'estado')
+    search_fields = ('cedula', 'username')
     list_filter = ('rol', 'estado')
 
 admin.site.register(categoria)

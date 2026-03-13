@@ -32,10 +32,13 @@ INSTALLED_APPS = [
     # Tus aplicaciones
     'app',
     
-    
     # Seguridad externa
     'axes',
+    
+    # Custom user model setting (must be string, after 'app')
+    
 ]
+AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
 
 # --------------------------------------------------------------------------
 # 4. MIDDLEWARE (EL ORDEN ES CRÍTICO AQUÍ)
@@ -101,8 +104,6 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = 3               # Intentos permitidos
 AXES_COOLOFF_TIME = 0.5             # Horas que dura el bloqueo
 AXES_RESET_ON_SUCCESS = True         # Limpia fallos si el usuario entra bien
-AXES_ONLY_USER_FAILURES = False      # Bloqueo estricto por IP/Usuario
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 
 # --------------------------------------------------------------------------
 # 8. ARCHIVOS ESTÁTICOS (CSS, JS, IMÁGENES)
@@ -156,3 +157,4 @@ LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+

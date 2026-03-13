@@ -21,12 +21,12 @@ class MenuView(TemplateView):
 def get_perfil(request):
     """API para obtener los datos del perfil del usuario"""
     try:
-        usuario_obj = usuario.objects.get(nombre_usuario=request.user.username)
+        usuario_obj = usuario.objects.get(username=request.user.username)
         return JsonResponse({
             'success': True,
             'data': {
                 'cedula': usuario_obj.cedula,
-                'nombre_usuario': usuario_obj.nombre_usuario,
+                'username': usuario_obj.username,
                 'email': usuario_obj.email or '',
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
@@ -45,13 +45,13 @@ def get_perfil(request):
 def update_perfil(request):
     """API para actualizar los datos del perfil del usuario"""
     try:
-        usuario_obj = usuario.objects.get(nombre_usuario=request.user.username)
+        usuario_obj = usuario.objects.get(username=request.user.username)
         
         data = json.loads(request.body)
         
         # Actualizar campos
-        if 'nombre_usuario' in data:
-            usuario_obj.nombre_usuario = data['nombre_usuario']
+        if 'username' in data:
+            usuario_obj.username = data['username']
         if 'email' in data:
             usuario_obj.email = data['email']
             
