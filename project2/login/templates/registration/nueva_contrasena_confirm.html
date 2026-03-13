@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Listo! - BEDCOM</title>
+    <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
+</head>
+<body>
+    <h1 class="titulo">¡LISTO!</h1>
+
+    <div class="contenedor">
+        <div class="formulario" style="text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <i class="fas fa-check-circle fa-4x" style="color: var(--ok);"></i>
+            </div>
+
+            <h2 style="color: var(--text); margin-bottom: 15px; font-size: 1.5rem;">Contraseña actualizada</h2>
+            
+            <p style="color: var(--muted); margin-bottom: 25px; line-height: 1.6;">
+                Tu contraseña ha sido cambiada exitosamente. Ahora puedes acceder a tu cuenta.
+            </p>
+
+            <a href="{% url 'login:login' %}" class="botonr" style="display: block; text-decoration: none;">
+                INICIAR SESIÓN
+            </a>
+
+            <div class="pregunta" style="margin-top: 25px; border-top: 1px solid var(--card-hover); padding-top: 15px;">
+                <span style="color: var(--muted); font-size: 0.9rem;">¿Problemas?</span> 
+                <a href="{% url 'login:password_reset' %}" style="color: var(--brand); text-decoration: none; font-weight: bold;">
+                    Recuperar otra vez
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

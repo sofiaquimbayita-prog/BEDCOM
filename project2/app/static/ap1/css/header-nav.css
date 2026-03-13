@@ -1,0 +1,40 @@
+/* CSS para asegurar botones lado a lado - Dropdown izquierda, casa derecha alineados */
+.perfil-container {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+}
+
+.nav-buttons-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    /* Dropdown ≡ izquierda, casa 🏠 derecha */
+}
+
+.home-btn {
+  position: relative;
+  top: -5px; /* Centro perfecto arriba/abajo */
+}
+
+
+.icon-btn-glass {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.icon-btn-glass:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}

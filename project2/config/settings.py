@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 # 3. DEFINICIÓN DE APLICACIONES
 # --------------------------------------------------------------------------
 INSTALLED_APPS = [
+    'login',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -30,7 +31,7 @@ INSTALLED_APPS = [
     
     # Tus aplicaciones
     'app',
-    'login',
+    
     
     # Seguridad externa
     'axes',
@@ -131,13 +132,20 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# En desarrollo, los correos salen por la terminal
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Configuración para enviar correos reales
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'porprobar221@gmail.com'
+EMAIL_HOST_PASSWORD = 'fitnkymdfulxiceg'  
+DEFAULT_FROM_EMAIL = 'Sistema BEDCOM <porprobar221@gmail.com>'
 
 # Redirecciones
 LOGIN_REDIRECT_URL = 'menu'  
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login:login'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

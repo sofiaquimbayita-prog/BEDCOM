@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, bom
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario
 
 urlpatterns = [
       # --- ENTRADA DE PRODUCTOS ---
@@ -84,6 +84,9 @@ urlpatterns = [
    # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
+      
+      # --- INVENTARIO ---
+      path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
       path('salida/detalle/<int:pk>/', salida_p.SalidaProductoDetalleView.as_view(), name='salida_producto_detalle'),
       path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_producto_anular'),
       

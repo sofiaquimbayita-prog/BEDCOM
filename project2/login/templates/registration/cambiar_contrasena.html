@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cambiar contraseña</title>
+  <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
+</head>
+<body>
+ <!-- Botón de Idioma - Esquina Superior Derecha -->
+<div class="idioma-container">
+    <button class="boton-idioma">
+        <i class="fa-solid fa-globe"></i> ES
+    </button>
+</div>
+
+<!-- Botón de Ayuda - Esquina Inferior Derecha -->
+<div class="ayuda-container">
+    <button class="boton-ayuda">
+        <i class="fa-solid fa-question"></i>
+    </button>
+</div>
+  <h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
+
+  <div class="contenedor">
+    <div class="formulario">
+<form method="post">
+        {% csrf_token %}
+        
+        <label class="label">{{ form.new_password1.label }}</label>
+        <div class="password-container">
+          {{ form.new_password1 }}
+          <button type="button" onclick="toggleView('id_new_password1')">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        {% if form.new_password1.errors %}
+          <span class="error-msg">{{ form.new_password1.errors }}</span>
+        {% endif %}
+
+        <label class="label">{{ form.new_password2.label }}</label>
+        <div class="password-container">
+          {{ form.new_password2 }}
+          <button type="button" onclick="toggleView('id_new_password2')">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+        {% if form.new_password2.errors %}
+          <span class="error-msg">{{ form.new_password2.errors }}</span>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="error-msg">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <button type="submit" class="botonr">CAMBIAR CONTRASEÑA</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    function toggleView(id) {
+      const input = document.getElementById(id);
+      const icon = input.nextElementSibling.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
+</body>
+</html>

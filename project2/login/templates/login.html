@@ -7,7 +7,8 @@
     <title>Iniciar Sesión</title> 
     
     <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
     
     <style>
         /* Estilo para los mensajes de Django */
@@ -121,11 +122,12 @@
             </form>
             
             <p class="pregunta">
-                <a href="#" id="olvidaste-enlace" data-i18n="texto-olvidaste">¿Olvidaste tu contraseña?</a>
+<a href="{% url 'login:password_reset' %}" class="menu-card-link">¿Olvidaste tu contraseña?</a>
+
             </p>
 
             <p class="pregunta">
-                <a href="#" id="crear-cuenta-enlace" data-i18n="texto-crear-cuenta">¿No tienes una cuenta? Crear cuenta</a>
+                <a href="{% static "login/crear_cuenta.html" %}" id="crear-cuenta-enlace" data-i18n="texto-crear-cuenta">¿No tienes una cuenta? Crear cuenta</a>
             </p>
         </div>
     </div>
