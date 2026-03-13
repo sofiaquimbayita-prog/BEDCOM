@@ -27,40 +27,30 @@
                             <i class="fas fa-user"></i>
                             {% endif %}
                         </div>
-                        <div class="sidebar-user-details">
-                            <span class="sidebar-user-name">
-                                {{ usuario_perfil.get_full_name|default:usuario_perfil.username|default:user.username|default:"Usuario" }}
-                            </span>
-                            <span class="sidebar-user-role">
-                                {{ usuario_perfil.rol|default:"Administrador" }}
-                            </span>
+                        <div class="sidebar-text">
+                            <span class="sidebar-name">{{ user.get_full_name|default:user.username }}</span>
+                            <span class="sidebar-role">{{ user.groups.all.0.name|default:"Usuario" }}</span>
                         </div>
                     </div>
-                    <div class="sidebar-divider"></div>
-                    <div class="sidebar-menu">
-                        <a href="#" class="sidebar-menu-item" onclick="abrirModalPerfil(); return false;">
+                    
+                    <nav class="sidebar-nav">
+                        <a href="#" class="sidebar-menu-item" id="btnMiPerfil">
                             <i class="fas fa-user-circle"></i>
                             <span>Mi Perfil</span>
                         </a>
-                        <a href="#" class="sidebar-menu-item">
-                            <i class="fas fa-cog"></i>
-                            <span>Configuración</span>
+                        <a href="#" class="sidebar-menu-item" id="btnCambiarPass">
+                            <i class="fas fa-key"></i>
+                            <span>Seguridad</span>
                         </a>
-                        <a href="#" class="sidebar-menu-item">
-                            <i class="fas fa-history"></i>
-                            <span>Historial</span>
+                        <div class="sidebar-divider"></div>
+                        <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Cerrar Sesión</span>
                         </a>
-                    </div>
-                    <div class="sidebar-divider"></div>
-                    <form method="post" action="{% url 'login:logout' %}" id="logoutForm">
-                        {% csrf_token %}
-                        <button type="submit" class="sidebar-logout-btn" id="btnCerrarSesion">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-                        </button>
-                    </form>
+                    </nav>
                 </div>
                 {% else %}
-                {# Cualquier otro módulo: Dropdown ≡ izquierda + 🏠 derecha #}
+                {# Cualquier otro módulo: Dropdown e Icono de Home #}
                 <button id="moduleToggle" class="icon-btn-glass" onclick="toggleModuleSidebar();" aria-label="Menú de Módulos" title="Navegar módulos">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -79,7 +69,8 @@
             <div class="notif-wrapper">
                 <button id="noti" class="icon-btn-glass" aria-label="Notificaciones">
                     <i class="fas fa-bell"></i>
-                    <span class="notif-dot"></span> </button>
+                    <span class="notif-dot"></span> 
+                </button>
                 <div id="noti-menu" class="dropdown-sidebar oculto">
                     <ul class="notif-list">
                         <li><small>No hay notificaciones nuevas</small></li>
@@ -90,8 +81,90 @@
             <a href="#" class="icon-btn-glass" title="Ajustes">
                 <i class="fas fa-cog"></i>
             </a>
-
-            
         </div>
     </div>
 </header>
+
+<div id="modalPerfil" class="modal-logout-overlay oculto">
+    <div class="modal-confirmacion-content profile-modal-card">
+        <div class="modal-confirmacion-header">
+            <h2>Perfil de Usuario</h2>
+        </div>
+
+        <form id="formPerfil" class="profile-form-grid" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-grid-row">
+                <div class="input-group">
+                    <label>Cédula</label>
+                    <input type="text" id="perfilCedula" name="cedula" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label>Rol</label>
+                    <input type="text" id="perfilRol" class="readonly-field" readonly>
+                </div>
+            </div>
+
+            <div class="input-group full">
+                <label>Foto de Perfil</label>
+                <div class="foto-preview-container">
+                    <div class="foto-wrapper">
+                        <img id="fotoPreview" src="" alt="Foto actual" class="foto-preview" style="display: none;">
+                        <i class="fas fa-user" id="fotoIcon" style="font-size: 4rem; color: #94a3b8;"></i>
+                    </div>
+                </div>
+                <input type="file" id="perfilFoto" name="foto_perfil" accept="image/*" class="input-field">
+                <small>Selecciona una imagen JPG/PNG (máx 2MB)</small>
+            </div>
+
+            <div class="input-group full">
+                <label for="perfilNombre">Nombre de Usuario</label>
+                <input type="text" id="perfilNombre" name="nombre_usuario" required>
+            </div>
+
+            <div class="input-group full">
+                <label for="perfilEmail">Correo Electrónico</label>
+                <input type="email" id="perfilEmail" name="email" required>
+            </div>
+
+            <div class="input-group full">
+                <label>Estado de Cuenta</label>
+                <input type="text" id="perfilEstado" class="readonly-field" readonly>
+            </div>
+
+<style>
+                .foto-preview-container {
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                .foto-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100px;
+                    height: 100px;
+                    margin: 0 auto;
+                }
+                .foto-preview {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid #38bdf8;
+                }
+                #fotoIcon {
+                    width: 100px;
+                    height: 100px;
+                    line-height: 100px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            </style>
+            <div class="modal-confirmacion-botones">
+                <button type="button" id="cancelarPerfil" class="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn-confirmar">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>

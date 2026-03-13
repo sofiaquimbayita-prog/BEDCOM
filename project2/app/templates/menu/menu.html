@@ -14,146 +14,53 @@
     <div class="menu-layout">
         <section class="grid menu-grid">
             
-            <a href="{% url 'productos' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/productos.png' %}" alt="Módulo Productos">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-bed"></i></div>
-                    <div class="menu-card-content">
-                        <h3>PRODUCTOS</h3>
-                        <p class="muted">Catálogo y precios</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'categorias' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/categorias.png' %}" alt="Módulo Categorías">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-tags"></i></div>
-                    <div class="menu-card-content">
-                        <h3>CATEGORÍAS</h3>
-                        <p class="muted">Gestión de categorías</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'insumos' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Insumos">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-box-open"></i></div>
-                    <div class="menu-card-content">
-                        <h3>INSUMOS</h3>
-                        <p class="muted">Entradas y stock</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'calendario' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/calendario.png' %}" alt="Módulo Calendario">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-calendar-check"></i></div>
-                    <div class="menu-card-content">
-                        <h3>CALENDARIO</h3>
-                        <p class="muted">Fechas y reservas</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href= "{% url 'entrada_p' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Entrada de Productos">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-arrow-up"></i></div>
-                    <div class="menu-card-content">
-                        <h3>ENTRADA PRODUCTOS</h3>
-                        <p class="muted">Ingresos de stock</p>
-                    </div>
-                </article>
-            </a>
-        
 
-            <a href=" {% url 'reportes' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Reportes">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-chart-line"></i></div>
-                    <div class="menu-card-content">
-                        <h3>REPORTES</h3>
-                        <p class="muted">Gráficos y KPIs</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'proveedores_list' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/proveedores.png' %}" alt="Módulo Proveedores">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-truck-field"></i></div>
-                    <div class="menu-card-content">
-                        <h3>PROVEEDORES</h3>
-                        <p class="muted">Contactos & pagos</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'respaldos_list' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/respaldos.png' %}" alt="Módulo Respaldos">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                    <div class="menu-card-content">
-                        <h3>RESPALDOS</h3>
-                        <p class="muted">Copias en la nube</p>
-                    </div>
-                </article>
-            </a>
 
-            <a href="{% url 'salida_producto' %}" class="menu-card-link">
+            <a href="{% url 'suministros' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/salida.jpg' %}" alt="Módulo Salida de Productos">
+                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Suministros">
                         <div class="image-overlay"></div>
                     </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-file-export"></i></div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-shopping-cart"></i></div>
                     <div class="menu-card-content">
-                        <h3>SALIDA DE PRODUCTOS</h3>
-                        <p class="muted">Movimientos</p>
+                        <h3>SUMINISTROS</h3>
+                        <p class="muted">Suministros y compras</p>
                     </div>
                 </article>
             </a>
+            <a href="{% url 'logistica' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Logística y Planeación">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-truck"></i></div>
+                    <div class="menu-card-content">
+                        <h3>LOGÍSTICA Y PLANEACIÓN</h3>
+                        <p class="muted">Rutas y programación</p>
+                    </div> 
+                </article>
+            </a>
+            <a href="{% url 'gestion' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/gestion.png' %}" alt="Módulo Gestión de Datos">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-database"></i></div>
+                    <div class="menu-card-content">
+                        <h3>GESTIÓN DE DATOS</h3>
+                        <p class="muted">Mantenimiento y control</p>
+                    </div> 
+                </article>
 
-            <a href="{% url 'bom_list' %}" class="menu-card-link">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/inventario.jpg' %}" alt="Módulo BOM">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-layer-group"></i></div>
-                    <div class="menu-card-content">
-                        <h3>BOM</h3>
-                        <p class="muted">Estructura de productos</p>
-                    </div>
-                </article>
-            </a>
 
         </section>
     </div>

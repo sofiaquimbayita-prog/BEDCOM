@@ -38,3 +38,134 @@
     background: rgba(255,255,255,0.2);
     transform: scale(1.05);
 }
+/* ==============================================================
+   MODAL DE PERFIL - ESTILOS
+   ============================================================== */
+
+/* Contenedor de fondo (Overlay) */
+.modal-logout-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10005;
+}
+
+/* Tarjeta del Modal */
+.profile-modal-card {
+    background: var(--bg-modal, #0f1623) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    max-width: 500px !important;
+    width: 95%;
+    padding: 30px !important;
+    border-radius: 15px !important;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Icono de cabecera */
+.profile-avatar-view {
+    width: 60px;
+    height: 60px;
+    background: var(--brand);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 0 20px rgba(3, 23, 204, 0.3);
+}
+
+/* Formulario */
+.profile-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.form-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--brand);
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(3, 23, 204, 0.2);
+}
+
+/* Campos bloqueados */
+.readonly-field {
+    background: rgba(0, 0, 0, 0.3) !important;
+    color: #777 !important;
+    cursor: not-allowed;
+    border-style: dashed !important;
+}
+
+/* Botones de acción */
+.modal-confirmacion-botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancelar, .btn-confirmar {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+.btn-cancelar {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.btn-confirmar {
+    background: var(--brand);
+    color: white;
+}
+
+.btn-confirmar:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
+
+/* Utilidad */
+.oculto { display: none !important; }

@@ -1,0 +1,49 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Gestion de datos{% endblock %}
+
+{% block header_title %}GESTION DE DATOS{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="container menu">
+        <div class="menu-layout">
+            <section class="grid menu-grid">
+
+                <a href="{% url 'reportes' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Reportes">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="menu-card-content">
+                            <h3>REPORTES</h3>
+                            <p class="muted">Gráficos y KPIs</p>
+                        </div>
+                    </article>
+                </a>
+                <a href="{% url 'respaldos_list' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/respaldos.png' %}" alt="Módulo Respaldo de Datos">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fa-solid fa-database"></i></div>
+                        <div class="menu-card-content">
+                            <h3>RESPALDO DE DATOS</h3>
+                            <p class="muted">Seguridad y restauración</p>
+                        </div>
+                    </article>
+                </a>
+
+            </section>
+        </div>
+</main>
+{% endblock %}

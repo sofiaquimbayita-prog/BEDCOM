@@ -1,1 +1,0 @@
-# Task: Ajustar header para mostrar nombre del usuario&#10;&#10;## Steps:&#10;1. [x] Understand files (header.html, context_processors.py, models.py) - DONE&#10;2. [x] Confirm plan with user - DONE&#10;3. [x] Update header.html template to use proper username display - DONE&#10;4. [ ] Test functionality (login and check header)&#10;5. [ ] Complete task&#10;

@@ -1,0 +1,62 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Inventario{% endblock %}
+
+{% block header_title %}INVENTARIO{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="container menu">
+    <div class="menu-layout">
+        <section class="grid menu-grid">
+            <a href="{% url 'salida_producto' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/salida.jpg' %}" alt="Módulo Salida de Productos">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-file-export"></i></div>
+                    <div class="menu-card-content">
+                        <h3>SALIDA DE PRODUCTOS</h3>
+                        <p class="muted">Movimientos</p>
+                    </div>
+                </article>
+            </a>
+
+            <a href="{% url 'entrada_producto' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/entrada_p.png' %}" alt="Módulo Entrada de Productos">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-file-import"></i></div>
+                    <div class="menu-card-content">
+                        <h3>ENTRADA DE PRODUCTOS</h3>
+                        <p class="muted">Movimientos</p>
+                    </div>
+                </article>
+            </a>
+            <a href="{% url 'calendario' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/calendario.png' %}" alt="Módulo Calendario">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="menu-card-content">
+                        <h3>CALENDARIO</h3>
+                        <p class="muted">Fechas y reservas</p>
+                    </div>
+                </article>
+            </a>
+
+        </section>
+    </div>
+</main>
+{% endblock %}
