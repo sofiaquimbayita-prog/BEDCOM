@@ -60,22 +60,29 @@
                     {% endif %}
                 </td>
                 <td class="actions-cell">
-                    {% if salida.estado %}
-                    <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
-                        <i class="fas fa-ban"></i>
-                    </button>
-                    {% endif %}
-                    
+
                     <!-- Botón Ver Detalles -->
-                    <button type="button" class="btn-action btn-view" onclick="abrirModalDetalle({{ salida.id }})" title="Ver detalles">
+                    <button type="button" class="btn-action btn-view"
+                        onclick="abrirModalDetalle({{ salida.id }})"
+                        title="Ver detalles">
                         <i class="fas fa-eye"></i>
                     </button>
-                    
-                    {% if not salida.estado %}
-                    <button type="button" class="btn-action btn-disabled" disabled title="Ya anulado">
+
+                    {% if salida.estado %}
+                    <button type="button" class="btn-action btn-anular"
+                        onclick="anularSalida({{ salida.id }})"
+                        title="Anular salida">
                         <i class="fas fa-ban"></i>
                     </button>
                     {% endif %}
+
+                    {% if not salida.estado %}
+                    <button type="button" class="btn-action btn-disabled"
+                        disabled title="Ya anulado">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    {% endif %}
+
                 </td>
             </tr>
             {% endfor %}
