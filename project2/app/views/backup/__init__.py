@@ -1,5 +1,4 @@
 
 
-from .views import RespaldosListView
+# backup views package emptied
 
-# backup views package

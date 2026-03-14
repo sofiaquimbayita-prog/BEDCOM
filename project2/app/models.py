@@ -322,6 +322,9 @@ class calendario(models.Model):
         db_table = "calendario"
 
 
+# --- MODELO RESPALDO ---
+
+
 # --- MODELO DE SALIDA DE PRODUCTOS ---
 class salida_producto(models.Model):
     id_producto = models.ForeignKey(producto, on_delete=models.CASCADE, related_name='salidas')

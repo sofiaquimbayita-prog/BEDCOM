@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, salida_p, bom
-from .views.backup import RespaldosListView
+
 
 urlpatterns = [
       # --- ENTRADA DE PRODUCTOS ---
@@ -75,8 +75,7 @@ urlpatterns = [
       path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
       path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
 
-      # --- RESPALDOS ---
-      path('respaldos/', RespaldosListView.as_view(), name='respaldos_list'),
+
       
 
       

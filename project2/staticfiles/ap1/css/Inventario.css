@@ -1,0 +1,399 @@
+/* ================================
+   ESTILOS INVENTARIO - VERSIÓN FINAL
+================================ */
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.main-content {
+    padding: 20px;
+    background: #1e293b;
+    min-height: 100vh;
+}
+
+/* Stats cards */
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 20px 30px;
+    flex: 1;
+    min-width: 200px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #475569;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card.blue {
+    border-left: 4px solid #3b82f6;
+}
+
+.stat-card.green {
+    border-left: 4px solid #22c55e;
+}
+
+.stat-card span {
+    display: block;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    color: #e5e7eb;
+}
+
+/* Section */
+.section {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #475569;
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    color: #e5e7eb;
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    font-family: Arial, sans-serif;
+}
+
+/* ================================
+   TABLE STYLES - ESTILOS DIRECTOS
+================================ */
+
+.inventario-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    background: #243447;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    font-family: Arial, sans-serif;
+}
+
+/* Encabezado de tabla */
+.inventario-table thead {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%) !important;
+}
+
+.inventario-table th {
+    padding: 16px 12px;
+    text-align: left;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    background: transparent;
+}
+
+.inventario-table th i {
+    margin-right: 8px;
+    opacity: 0.8;
+}
+
+/* Cuerpo de la tabla */
+.inventario-table tbody tr {
+    transition: all 0.3s ease;
+    background: #243447 !important;
+}
+
+/* Zebra striping */
+.inventario-table tbody tr:nth-child(even) {
+    background: #2d3e54 !important;
+}
+
+/* Hover effect */
+.inventario-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.25) !important;
+    transform: scale(1.01);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.inventario-table td {
+    padding: 15px 12px;
+    color: #cbd5e1 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    vertical-align: middle;
+    background: transparent;
+}
+
+/* ================================
+   IMAGEN DEL PRODUCTO
+================================ */
+
+.producto-imagen {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.producto-imagen:hover {
+    transform: scale(1.2);
+    border-color: #3b82f6;
+}
+
+.no-imagen {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 18px;
+}
+
+/* ================================
+   BADGES Y ETIQUETAS
+================================ */
+
+/* Badge para tipo de producto */
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.badge-tipo {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+/* Precio */
+.precio {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 15px;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+/* Stock badges */
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.stock-alto {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+.stock-medio {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+}
+
+.stock-bajo {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+    animation: pulse-stock 2s infinite;
+}
+
+@keyframes pulse-stock {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Estado badges */
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.estado-activo {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.estado-inactivo {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+}
+
+/* ================================
+   BOTONES DE ACCIÓN
+================================ */
+
+.acciones-tabla {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-accion {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-ver {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.btn-ver:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-editar {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.btn-editar:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* ================================
+   UTILIDADES
+================================ */
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+/* ================================
+   BOTÓN PRIMARIO
+================================ */
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: Arial, sans-serif;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary i {
+    font-size: 16px;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 1200px) {
+    .inventario-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+    }
+    
+    .stat-card {
+        min-width: auto;
+    }
+    
+    .section {
+        padding: 15px;
+    }
+    
+    .section h2 {
+        font-size: 20px;
+    }
+}
+
+/* ================================
+   ANIMACIONES
+================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.inventario-table tbody tr {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.inventario-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.inventario-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.inventario-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.inventario-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.inventario-table tbody tr:nth-child(5) { animation-delay: 0.25s; }

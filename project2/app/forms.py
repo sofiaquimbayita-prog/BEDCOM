@@ -1,5 +1,5 @@
 from django import forms
-import  re
+import re
 from datetime import date, datetime
 from .models import calendario, insumo, proveedor, entrada, producto, salida_producto
 
@@ -9,7 +9,6 @@ UNIDADES_VALIDAS = {
     'm', 'cm', 'mm', 'm2', 'm3',
     'und', 'par', 'docena', 'caja', 'paq', 'rollo', 'bolsa',
 }
-
 
 class insumosForm(forms.ModelForm):
     class Meta:
@@ -61,7 +60,6 @@ class insumosForm(forms.ModelForm):
                 f'Unidad de medida no válida. Opciones permitidas: {", ".join(sorted(UNIDADES_VALIDAS))}.'
             )
         return unidad
-
 
 class calendarioForm(forms.ModelForm):
     class Meta:
@@ -371,4 +369,6 @@ class SalidaProductoForm(forms.ModelForm):
                 self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
 
         return cleaned_data
+
+
 
