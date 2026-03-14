@@ -39,22 +39,7 @@ class proveedor(models.Model):
         verbose_name_plural = "Proveedores"
         db_table = "proveedor"
 
-class respaldo(models.Model):
-    fecha = models.DateTimeField(auto_now_add=True)
-    usuario = models.CharField(max_length=100)
-    tipo_respaldo = models.CharField(max_length=20)
-    descripcion = models.TextField(blank=True, null=True)
-    archivo = models.FileField(upload_to='respaldos_sql/') 
-    estado = models.BooleanField(default=True)
 
-    def __str__(self):
-        return f"Respaldo {self.fecha}"
-
-    class Meta:
-        verbose_name = "Respaldo"
-        verbose_name_plural = "Respaldos"
-        db_table = "respaldos"
-        ordering = ['-fecha']
 
 class cliente(models.Model):
     cedula = models.CharField(max_length=20, unique=True)

@@ -1,181 +1,110 @@
-{% extends "includes/base.html" %}
+{% extends 'includes/base.html' %}
 {% load static %}
-{% block header_title %}Respaldos{% endblock %}
-{% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% block title %}BEDCOM - Respaldos{% endblock %}
+
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
 
-<!-- Messages / Toast Notifications -->
-{% if messages %}
-<div class="messages-container" id="toast-container">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">
-        <div class="message-content">
-            {% if message.tags == 'success' %}
-                <i class="fas fa-check-circle"></i>
-            {% else %}
-                <i class="fas fa-exclamation-circle"></i>
-            {% endif %}
-            <span class="text">{{ message }}</span>
-        </div>
-        <button type="button" class="close-toast" onclick="cerrarToast(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+{% block content %}
+<div class="app-container">
+    <main class="content">
 
-<main class="content">
-    <div class="card main-card-dark">
-        <!-- Header Section -->
-        <div class="toolbar-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <h2 class="section-title" style="margin: 0;">
-                <i class="fas fa-database"></i> Gestión de Respaldos
-            </h2>
-            
-            <div class="header-actions">
-                <!-- Search Box -->
-                <label class="search" aria-label="Buscar" for="searchInput">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="search" id="searchInput" placeholder="Buscar en el historial...">
+        <!-- ── STATS ── -->
+        <section class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon cyan"><i class="fas fa-database"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Total respaldos</span>
+                    <strong class="stat-value" id="total-registros">1</strong>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon emerald"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Último tipo</span>
+                    <strong class="stat-value" id="ultimo-tipo">Completo</strong>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Fecha reciente</span>
+                    <strong class="stat-value" id="fecha-reciente">08/03/2026</strong>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fas fa-trash-alt"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Eliminados</span>
+                    <strong class="stat-value" id="total-eliminados">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── BARRA DE ACCIONES ── -->
+        <div class="actions-bar">
+            <div class="toggle-group">
+                <i class="fas fa-eye-slash toggle-icon" id="toggle-icon"></i>
+                <span id="toggle-label">Ver eliminados</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-inactivos">
+                    <span class="slider"></span>
                 </label>
-
-                <!-- Filter Switch -->
-                <div class="filter-switch">
-                    <span>Ver Inactivos</span>
-                    <label class="switch">
-                        <input type="checkbox" id="toggleInactivos">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
             </div>
-        </div>
-
-        <div class="decor-line"></div>
-
-        <!-- Stats Cards -->
-        <div class="stats-cards">
-            <div class="small-card total">
-                <div class="label">Total Registros</div>
-                <div class="value">{{ respaldos|length }}</div>
-            </div>
-            <div class="small-card last">
-                <div class="label">Último Tipo</div>
-                <div class="value">
-                    {% if respaldos %}
-                        {{ respaldos.0.tipo_respaldo|capfirst }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-            <div class="small-card recent">
-                <div class="label">Fecha Reciente</div>
-                <div class="value">
-                    {% if respaldos %}
-                        {{ respaldos.0.fecha|date:'d/m/Y' }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Bar -->
-        <div class="action-bar" style="margin: 25px 0; text-align: right;">
-            <button type="button" class="btn-generar primary" onclick="abrirModal('generarModal')">
-                <i class="fas fa-plus-circle"></i> NUEVO RESPALDO
+            <button class="btn-primary" id="btn-nuevo-respaldo">
+                <i class="fas fa-plus"></i> Nuevo Respaldo
             </button>
         </div>
 
-        <!-- Table -->
-        <div class="table-container">
-            <table class="respaldos-table" id="respaldosTable">
+        <!-- ── HISTORIAL ── -->
+        <section class="history-section">
+            <div class="table-header">
+                <h2 id="table-title">Historial de Respaldos</h2>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Buscar...">
+                </div>
+            </div>
+            <table class="custom-table">
                 <thead>
                     <tr>
                         <th>Fecha y Hora</th>
                         <th>Usuario</th>
                         <th>Tipo</th>
+                        <th>Módulos</th>
                         <th>Descripción</th>
-                        <th style="text-align: center;">Acciones</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for r in respaldos %}
-                    <tr class="respaldo-row {% if not r.estado %}inactive-row{% endif %}">
-                        <td>{{ r.fecha|date:'d/m/Y H:i' }}</td>
-                        <td><i class="fas fa-user-shield" style="font-size: 0.8rem; color: #94a3b8;"></i> {{ r.usuario }}</td>
-                        <td>
-                            <span class="badge-movimiento badge-{{ r.tipo_respaldo|lower }}">
-                                {{ r.tipo_respaldo|upper }}
-                            </span>
-                        </td>
-                        <td>{{ r.descripcion|truncatechars:40|default:"-" }}</td>
-                        <td style="text-align: center;">
-                            <div class="table-actions" style="display: flex; justify-content: center; gap: 15px;">
-                                <!-- Ver detalles -->
-                                <i class="fa-regular fa-eye" 
-                                   onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"
-                                   title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
-                               
-                                {% if r.estado %}
-                                    <!-- Descargar -->
-                                    <a href="{% url 'descargar_respaldo' r.id %}" title="Descargar SQL" style="text-decoration: none;">
-                                        <i class="fas fa-file-download" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
-                                    </a>
-
-                                    <!-- Inactivar -->
-                                    <i class="fa-regular fa-trash-can" 
-                                       onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"
-                                       title="Inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
-                                {% else %}
-                                    <!-- Reactivar -->
-                                    <i class="fas fa-undo-alt" 
-                                       onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"
-                                       title="Reactivar" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
-                                {% endif %}
-                            </div>
+                <tbody id="history-tbody">
+                    <tr data-estado="activo">
+                        <td>08/03/2026 02:05</td>
+                        <td><i class="fas fa-user" style="margin-right:6px;font-size:0.75rem;"></i> luis</td>
+                        <td><span class="badge complete">Completo</span></td>
+                        <td><span class="badge-mod-tag">Todos</span></td>
+                        <td>Respaldo inicial</td>
+                        <td class="actions">
+                            <i class="fas fa-eye" title="Ver"></i>
+                            <i class="fas fa-download" title="Descargar"></i>
+                            <i class="fas fa-trash" title="Eliminar"></i>
                         </td>
                     </tr>
-                    {% empty %}
-                    <tr class="empty-row">
-                        <td colspan="5" style="text-align: center; padding: 50px; color: #64748b;">
-                            <i class="fas fa-folder-open" style="display: block; font-size: 2.5rem; margin-bottom: 10px; opacity: 0.2;"></i>
-                            No hay respaldos registrados.
-                        </td>
-                    </tr>
-                    {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </div>
-</main>
+            <div class="empty-state" id="empty-state" style="display:none;">
+                <i class="fas fa-inbox"></i>
+                <p>No hay registros eliminados</p>
+            </div>
+        </section>
 
-<!-- MODAL: Generar Respaldo -->
-<div id="generarModal" class="modal">
-    <div class="modal-content">
-        {% include "respaldos/modal_generar.html" %}
-    </div>
+    </main>
 </div>
 
-<!-- MODAL: Ver Detalles -->
-<div id="viewModal" class="modal">
-    <div class="modal-content">
-        {% include "respaldos/modal_view.html" %}
-    </div>
-</div>
-
-<!-- MODAL: Eliminar / Reactivar -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content delete">
-        {% include "respaldos/modal_delete.html" %}
-    </div>
-</div>
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="{% static 'ap1/js/respaldos.js' %}?v={% now 'U' %}"></script>
-
+{% include 'respaldos/modal_nuevo_respaldo.html' %}
 {% endblock %}
 
+{% block scripts %}
+<script src="{% static 'ap1/js/respaldos.js' %}"></script>
+{% endblock %}

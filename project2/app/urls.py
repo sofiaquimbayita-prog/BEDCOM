@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, respaldos, salida_p, bom
+from .views import calendario, insumos, menu, proveedores, productos,reportes, categorias,entrada_p, salida_p, bom
+from .views.backup import RespaldosListView
 
 urlpatterns = [
       # --- ENTRADA DE PRODUCTOS ---
@@ -66,20 +67,20 @@ urlpatterns = [
       path('calendario/completar/<int:pk>/', calendario.EventoCompletarView.as_view(), name='completar_evento'),
       path('calendario/eliminar/<int:pk>/', calendario.EventoEliminarView.as_view(), name='eliminar_evento'),
 
-   # --- PROVEEDORES ---
+# --- PROVEEDORES ---
       path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),
       path('proveedores/data/', proveedores.ProveedorDataView.as_view(), name='proveedores_data'),
       path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedores_create'),
       path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedores_update'),
       path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
       path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
-      
+
       # --- RESPALDOS ---
-      path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
-      path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),
-      path('respaldos/eliminar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
-      path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
-      path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
+      path('respaldos/', RespaldosListView.as_view(), name='respaldos_list'),
+      
+
+      
+
       
    # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),

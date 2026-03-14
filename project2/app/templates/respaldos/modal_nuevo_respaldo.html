@@ -1,0 +1,103 @@
+{% load static %}
+<!-- Modal Nuevo Respaldo -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal-respaldo">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-shield-alt"></i>
+                <span>Nuevo Respaldo</span>
+            </div>
+            <button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section">
+                <p class="modal-label"><i class="fas fa-layer-group"></i> Tipo de respaldo</p>
+                <div class="modal-type-grid">
+                    <div class="modal-type-card active" data-type="completo">
+                        <div class="modal-type-icon cyan"><i class="fas fa-database"></i></div>
+                        <div class="modal-type-info">
+                            <strong>Respaldo Completo</strong>
+                            <span>Todo el sistema: productos, insumos, proveedores y configuración general.</span>
+                        </div>
+                        <div class="modal-type-radio"></div>
+                    </div>
+                    <div class="modal-type-card" data-type="parcial">
+                        <div class="modal-type-icon amber"><i class="fas fa-cubes"></i></div>
+                        <div class="modal-type-info">
+                            <strong>Respaldo Parcial</strong>
+                            <span>Elige uno o varios módulos específicos del sistema.</span>
+                        </div>
+                        <div class="modal-type-radio"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section" id="modulos-section">
+                <p class="modal-label"><i class="fas fa-th-large"></i> Módulos a respaldar</p>
+                <div class="modal-modules-grid">
+                    <label class="modal-mod-card">
+                        <input type="checkbox" name="modulo" value="productos">
+                        <div class="modal-mod-content">
+                            <div class="modal-mod-icon" style="background:rgba(99,179,237,0.12);">
+                                <i class="fas fa-box" style="color:var(--cyan);"></i>
+                            </div>
+                            <div class="modal-mod-text">
+                                <strong>Productos</strong>
+                                <span>Catálogo completo de productos</span>
+                            </div>
+                            <span class="modal-mod-check"><i class="fas fa-check"></i></span>
+                        </div>
+                    </label>
+                    <label class="modal-mod-card">
+                        <input type="checkbox" name="modulo" value="insumos">
+                        <div class="modal-mod-content">
+                            <div class="modal-mod-icon" style="background:rgba(251,191,36,0.12);">
+                                <i class="fas fa-flask" style="color:var(--amber);"></i>
+                            </div>
+                            <div class="modal-mod-text">
+                                <strong>Insumos</strong>
+                                <span>Materiales e insumos registrados</span>
+                            </div>
+                            <span class="modal-mod-check"><i class="fas fa-check"></i></span>
+                        </div>
+                    </label>
+                    <label class="modal-mod-card">
+                        <input type="checkbox" name="modulo" value="proveedores">
+                        <div class="modal-mod-content">
+                            <div class="modal-mod-icon" style="background:rgba(52,211,153,0.12);">
+                                <i class="fas fa-truck" style="color:var(--emerald);"></i>
+                            </div>
+                            <div class="modal-mod-text">
+                                <strong>Proveedores</strong>
+                                <span>Registro de proveedores y contactos</span>
+                            </div>
+                            <span class="modal-mod-check"><i class="fas fa-check"></i></span>
+                        </div>
+                    </label>
+                </div>
+                <p class="modal-warn" id="warn-modulos">
+                    <i class="fas fa-exclamation-triangle"></i> Selecciona al menos un módulo para continuar.
+                </p>
+            </div>
+
+            <div class="modal-section">
+                <p class="modal-label"><i class="fas fa-pen"></i> Descripción <span class="modal-optional">(opcional)</span></p>
+                <textarea class="modal-textarea" id="backup-desc" placeholder="Ej: Respaldo previo a actualización del sistema..."></textarea>
+            </div>
+
+            <div class="modal-summary" id="modal-summary">
+                <i class="fas fa-info-circle"></i>
+                <span id="summary-text">Se realizará un <strong>respaldo completo</strong> de todo el sistema.</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="btn-cancelar">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="btn-primary" id="btn-confirmar">
+                <i class="fas fa-save"></i> Generar Respaldo
+            </button>
+        </div>
+    </div>
+</div>
+

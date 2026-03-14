@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto
+from .models import calendario, insumo, proveedor, entrada, producto, salida_producto
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -178,72 +178,7 @@ class ProveedorForm(forms.ModelForm):
 
         return cleaned_data
 
-class RespaldoForm(forms.ModelForm):
-    TIPO_RESPALDO_CHOICES = [
-        ('', 'Seleccionar tipo...'),
-        ('completo', 'Respaldo Completo'),
-        ('parcial', 'Respaldo Parcial'),
-    ]
-    
-    tipo_respaldo = forms.ChoiceField(
-        choices=TIPO_RESPALDO_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'id': 'add_tipo'
-        })
-    )
-    
-    class Meta:
-        model = respaldo
-        fields = ['tipo_respaldo', 'descripcion']
-        widgets = {
-            'descripcion': forms.Textarea(attrs={
-                'rows': 3, 
-                'class': 'form-control',
-                'id': 'add_descripcion',
-                'placeholder': 'Notas sobre este respaldo...',
-                'maxlength': '255'
-            }),
-        }
 
-    def clean_tipo_respaldo(self):
-        tipo = self.cleaned_data.get('tipo_respaldo')
-        if not tipo:
-            raise forms.ValidationError('Debe seleccionar un tipo de respaldo.')
-        return tipo
-
-    def clean_descripcion(self):
-        descripcion = self.cleaned_data.get('descripcion') or ''
-        
-        # Eliminar espacios al inicio y final
-        descripcion = descripcion.strip()
-        
-        # Campo obligatorio
-        if not descripcion:
-            raise forms.ValidationError('La descripción es obligatoria.')
-        
-        # Longitud mínima: 5 caracteres
-        if len(descripcion) < 5:
-            raise forms.ValidationError('La descripción debe tener al menos 5 caracteres.')
-        
-        # Longitud máxima: 255 caracteres
-        if len(descripcion) > 255:
-            raise forms.ValidationError('La descripción no puede superar los 255 caracteres.')
-        
-        # No permitir solo espacios en blanco
-        if descripcion.isspace():
-            raise forms.ValidationError('La descripción no puede contener solo espacios.')
-        
-        # Validar que contenga al menos una letra (no solo números)
-        import re
-        if not re.search(r'[a-zA-ZÁÉÍÓÚáéíóúÑñ]', descripcion):
-            raise forms.ValidationError('La descripción debe contener al menos una letra.')
-        
-        # Solo letras números y espacios (sin caracteres especiales)
-        if not re.match(r'^[a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ]+$', descripcion):
-            raise forms.ValidationError('La descripción solo puede contener letras, números y espacios.')
-        
-        return descripcion
 
 
 # --- FORMULARIOS DE ENTRADA DE PRODUCTOS ---
