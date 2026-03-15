@@ -8,6 +8,7 @@
     <title>{% block title %}BEDCOM{% endblock %}</title> 
 
     <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
+    <link rel="stylesheet" href="{% static 'ap1/css/header-nav.css' %}" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
@@ -15,10 +16,9 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/x-icon">
 
-    <!-- jQuery must be loaded in head to be available for all page scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
     
-    {% block head %}{% endblock %}
+    {% block head %}{% endblock %} 
 </head>
 <body>
     <div class="bg"></div>
@@ -29,11 +29,233 @@
         {% include 'includes/header.html' %} 
     {% endblock %}
 
+    <!-- Module Navigation Sidebar -->
+    <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-list"></i> Módulos</h3>
+            <button onclick="toggleModuleSidebar()" class="sidebar-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-divider"></div>
+        <nav class="sidebar-modules">
+            <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
+                <i class="fa-solid fa-bed"></i>
+                <span>PRODUCTOS</span>
+            </a>
+            <a href="{% url 'categorias' %}" class="sidebar-module-item" title="Gestión de categorías">
+                <i class="fa-solid fa-tags"></i>
+                <span>CATEGORÍAS</span>
+            </a>
+            <a href="{% url 'insumos' %}" class="sidebar-module-item" title="Entradas y stock">
+                <i class="fa-solid fa-box-open"></i>
+                <span>INSUMOS</span>
+            </a>
+            <a href="{% url 'calendario' %}" class="sidebar-module-item" title="Fechas y reservas">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>CALENDARIO</span>
+            </a>
+            <a href="{% url 'inventario' %}" class="sidebar-module-item" title="Existencias">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>INVENTARIO</span>
+            </a>
+            <a href="{% url 'reportes' %}" class="sidebar-module-item" title="Gráficos y KPIs">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>REPORTES</span>
+            </a>
+        <a href="{% url 'proveedores_list' %}" class="sidebar-module-item" title="Contactos & pagos">
+                <i class="fa-solid fa-truck-field"></i>
+                <span>PROVEEDORES</span>
+            </a>
+            <a href="{% url 'respaldos_list' %}" class="sidebar-module-item" title="Copias en la nube">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>RESPALDOS</span>
+            </a>
+            <a href="{% url 'salida_producto' %}" class="sidebar-module-item" title="Movimientos">
+                <i class="fa-solid fa-file-export"></i>
+                <span>SALIDA DE PRODUCTOS</span>
+            </a>
+            
+            <!-- Nuevos módulos agregados -->
+            <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span>ENTRADA PRODUCTOS</span>
+            </a>
+            <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
+                <i class="fa-solid fa-sitemap"></i>
+                <span>BOM/RECETAS</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay oculto" onclick="toggleModuleSidebar()"></div>
+
     {# Mensajes Toast - Se override en los templates que lo necesiten #}
     {% block messages %}
     {% endblock %}
 
     {% block content %}{% endblock %}
+
+    <!-- Modal container for dynamic content -->
+    <div id="modalContainer"></div>
+
+    <!-- Modal styles -->
+    <style>
+    .modal-perfil {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .modal-perfil.show {
+        display: flex;
+    }
+    
+    .modal-perfil .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-perfil .modal-content {
+        position: relative;
+        background: #0f172a !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 24px !important;
+        max-width: 500px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border: 1px solid #334155;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-perfil .modal-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .modal-perfil .modal-content::-webkit-scrollbar-track {
+        background: #1e293b;
+        border-radius: 3px;
+    }
+    
+    .modal-perfil .modal-content::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 3px;
+    }
+    
+    .modal-perfil .modal-content::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+    
+    .modal-perfil .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #334155;
+    }
+    
+    .modal-perfil .modal-header h2 {
+        margin: 0;
+        color: #38bdf8 !important;
+        font-size: 1.3rem;
+    }
+    
+    .modal-perfil .close-modal {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .modal-perfil .close-modal:hover {
+        color: #ef4444;
+    }
+    
+    .modal-perfil .modal-footer {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #334155;
+    }
+    
+    .modal-perfil .btn-cancel {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        background: #334155;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-perfil .btn-cancel:hover {
+        background: #475569;
+    }
+    
+    .modal-perfil .btn-save {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-perfil .btn-save:hover {
+        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+    }
+    
+    .modal-perfil .btn-save:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    </style>
+
+    <script>
+    // Module Sidebar Toggle
+    window.toggleModuleSidebar = function() {
+        const sidebar = document.getElementById('moduleSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('oculto');
+        overlay.classList.toggle('oculto');
+    };
+
+    // Close sidebar on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const sidebar = document.getElementById('moduleSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar.classList.contains('oculto')) {
+                sidebar.classList.add('oculto');
+                overlay.classList.add('oculto');
+            }
+        }
+    });
+    </script>
 
     <script src="{% static 'ap1/js/menu.js' %}"></script>
     <!-- Select2 JS -->

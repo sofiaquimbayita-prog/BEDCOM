@@ -21,12 +21,12 @@ class MenuView(TemplateView):
 def get_perfil(request):
     """API para obtener los datos del perfil del usuario"""
     try:
-        usuario_obj = usuario.objects.get(nombre_usuario=request.user.username)
+        usuario_obj = usuario.objects.get(username=request.user.username)
         return JsonResponse({
             'success': True,
             'data': {
                 'cedula': usuario_obj.cedula,
-                'nombre_usuario': usuario_obj.nombre_usuario,
+                'username': usuario_obj.username,
                 'email': usuario_obj.email or '',
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
@@ -41,24 +41,47 @@ def get_perfil(request):
 
 @login_required
 @csrf_exempt
-@require_http_methods(["POST"])
 def update_perfil(request):
     """API para actualizar los datos del perfil del usuario"""
     try:
-        usuario_obj = usuario.objects.get(nombre_usuario=request.user.username)
+        usuario_obj = usuario.objects.get(username=request.user.username)
         
-        data = json.loads(request.body)
+        # Manejar FormData (multipart)
+        cedula = request.POST.get('cedula')
+        nombre_usuario = request.POST.get('nombre_usuario')
+        email = request.POST.get('email')
         
-        # Actualizar campos
-        if 'nombre_usuario' in data:
-            usuario_obj.nombre_usuario = data['nombre_usuario']
-        if 'email' in data:
-            usuario_obj.email = data['email']
+        if cedula:
+            # Check if cedula already exists for other user
+            if usuario.objects.filter(cedula=cedula).exclude(username=request.user.username).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Cédula ya existe para otro usuario'
+                })
+            usuario_obj.cedula = cedula
+        
+        if nombre_usuario:
+            usuario_obj.username = nombre_usuario
+            
+        if email:
+            usuario_obj.email = email
+            
+        # Foto perfil
+        if 'foto_perfil' in request.FILES:
+            usuario_obj.foto_perfil = request.FILES['foto_perfil']
             
         usuario_obj.save()
         
         return JsonResponse({
             'success': True,
+            'data': {
+                'cedula': usuario_obj.cedula,
+                'username': usuario_obj.username,
+                'email': usuario_obj.email,
+                'rol': usuario_obj.rol,
+                'estado': usuario_obj.estado,
+                'foto_perfil': usuario_obj.foto_perfil.url if usuario_obj.foto_perfil else None
+            },
             'message': 'Perfil actualizado correctamente'
         })
     except usuario.DoesNotExist:

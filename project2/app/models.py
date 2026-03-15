@@ -71,21 +71,59 @@ class cliente(models.Model):
         verbose_name_plural = "Clientes"
         db_table = "clientes"
 
-class usuario(models.Model): 
-    cedula = models.CharField(max_length=20, unique=True)
-    nombre_usuario = models.CharField(max_length=50)
-    email = models.EmailField(max_length=100, null=True, blank=True)
-    rol = models.CharField(max_length=20)
-    estado = models.CharField(max_length=20)
-    foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
+from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-    def __str__(self):
-        return self.nombre_usuario
+class UsuarioManager(BaseUserManager):
+    def create_user(self, email, username, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El usuario debe tener un correo electrónico')
+        email = self.normalize_email(email)
+        user = self.model(email=email, username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('rol', 'Administrador')
+        extra_fields.setdefault('estado', 'Activo')
+        
+        if 'cedula' not in extra_fields:
+            extra_fields.setdefault('cedula', '00000000')
+
+        return self.create_user(email, username, password, **extra_fields)
+
+class usuario(AbstractUser):
+    # Campos personalizados
+    cedula = models.CharField(max_length=20, unique=True)
+    rol = models.CharField(max_length=20)
+    estado = models.CharField(max_length=20, default='Activo')
+    foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
+    email = models.EmailField(max_length=100, unique=True)
+
+    objects = UsuarioManager()
+
+    # Esto soluciona choques con los modelos internos de Django
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='usuario_set',
+        blank=True,
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='usuario_permissions_set',
+        blank=True,
+    )
+
+    REQUIRED_FIELDS = ['email', 'cedula', 'rol'] 
 
     class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
         db_table = "usuarios"
+
+    def __str__(self):
+        return self.username
 
 # --- MODELOS DE PRODUCTOS Y REPORTES ---
 
@@ -255,7 +293,7 @@ class supervision(models.Model):
     usuario = models.ForeignKey(usuario, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"supervisión del {self.fecha} por {self.usuario.nombre_usuario}"
+        return f"supervisión del {self.fecha} por {self.usuario.username}"
 
     class Meta:
         verbose_name = "Supervisión"
@@ -279,7 +317,7 @@ class despacho(models.Model):
 
 class CategoriaEvento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
-    color = models.CharField(max_length=7, default='#3498db')  # código hex
+    color = models.CharField(max_length=7, default='#3498db')
     descripcion = models.TextField(blank=True)
     estado = models.BooleanField(default=True)
 

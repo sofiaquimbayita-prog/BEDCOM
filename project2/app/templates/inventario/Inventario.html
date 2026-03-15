@@ -1,112 +1,76 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block header_title %}Inventario{% endblock %}
+{% block title %}Inventario{% endblock %}
+
+{% block header_title %}INVENTARIO{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="{% static 'ap1/css/Inventario.css' %}?v=2">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
-
 {% endblock %}
 
 {% block content %}
+<main class="container menu">
+    <div class="menu-layout">
+        <section class="grid menu-grid">
 
-<main class="main-content">
+            <a href="{% url 'productos' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/productos.png' %}" alt="Módulo Productos">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-bed"></i></div>
+                    <div class="menu-card-content">
+                        <h3>PRODUCTOS</h3>
+                        <p class="muted">Catálogo y precios</p>
+                    </div>
+                </article>
+            </a>
+                        <a href="{% url 'bom_list' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/BOM.png' %}" alt="Módulo BOM">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="menu-card-content">
+                        <h3>BOLETA DE MATERIAL</h3>
+                        <p class="muted">Recetas y fórmulas</p>
+                    </div>
+                </article>
+            </a>
+            <a href="{% url 'insumos' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Insumos">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-box-open"></i></div>
+                    <div class="menu-card-content">
+                        <h3>INSUMOS</h3>
+                        <p class="muted">Entradas y stock</p>
+                    </div>
+                </article>
+            </a>
 
-<section class="stats">
-  <div class="stat-card blue">
-    <span>Productos registrados</span>
-    <strong>{{ total_productos }}</strong>
-  </div>
+            <a href="{% url 'categorias' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/categorias.png' %}" alt="Módulo Categorías">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-tags"></i></div>
+                    <div class="menu-card-content">
+                        <h3>CATEGORÍAS</h3>
+                        <p class="muted">Gestión de categorías</p>
+                    </div>
+                </article>
+            </a>
 
-  <div class="stat-card green">
-    <span>Stock total productos</span>
-    <strong>{{ total_stock }}</strong>
-  </div>
-
-  <div class="stat-card orange">
-    <span>Insumos registrados</span>
-    <strong>{{ total_insumos }}</strong>
-  </div>
-
-  <div class="stat-card purple">
-    <span>Stock total insumos</span>
-    <strong>{{ total_stock_insumos }}</strong>
-  </div>
-</section>
-
-<section class="section">
-  <h2>Productos</h2>
-
-  <table class="inventario-table">
-      <thead>
-          <tr>
-              <th><i class="fas fa-image"></i> Imagen</th>
-              <th><i class="fas fa-box"></i> Nombre</th>
-              <th><i class="fas fa-cubes"></i> Stock</th>
-          </tr>
-      </thead>
-      <tbody>
-          {% for p in productos %}
-          <tr>
-              <td class="text-center">
-                  {% if p.imagen %}
-                  <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="producto-imagen">
-                  {% else %}
-                  <div class="no-imagen"><i class="fas fa-image"></i></div>
-                  {% endif %}
-              </td>
-              <td><strong>{{ p.nombre }}</strong></td>
-              <td>
-                  <span class="stock-badge stock-{% if p.stock <= 5 %}bajo{% elif p.stock <= 20 %}medio{% else %}alto{% endif %}">
-                      {{ p.stock }}
-                  </span>
-              </td>
-          </tr>
-          {% empty %}
-          <tr>
-              <td colspan="3" class="text-center">No hay productos registrados</td>
-          </tr>
-          {% endfor %}
-      </tbody>
-  </table>
-
-</section>
-
-<section class="section">
-  <h2>Insumos</h2>
-
-  <table class="inventario-table">
-      <thead>
-          <tr>
-              <th><i class="fas fa-box"></i> Nombre</th>
-              <th><i class="fas fa-cubes"></i> Stock</th>
-          </tr>
-      </thead>
-      <tbody>
-          {% for i in insumos %}
-          <tr>
-              <td><strong>{{ i.nombre }}</strong></td>
-              <td>
-                  <span class="stock-badge stock-{% if i.cantidad <= 5 %}bajo{% elif i.cantidad <= 20 %}medio{% else %}alto{% endif %}">
-                      {{ i.cantidad }} {{ i.unidad_medida }}
-                  </span>
-              </td>
-          </tr>
-          {% empty %}
-          <tr>
-              <td colspan="2" class="text-center">No hay insumos registrados</td>
-          </tr>
-          {% endfor %}
-      </tbody>
-  </table>
-
-</section>
-
+        </section>
+    </div>
 </main>
-
-{% endblock %}
-
-{% block scripts %}
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 {% endblock %}

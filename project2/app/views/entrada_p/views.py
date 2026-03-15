@@ -118,7 +118,7 @@ class EntradaDetailView(View):
                 'cantidad': entrada_obj.cantidad,
                 'precio_unitario': float(entrada_obj.precio_unitario),
                 'total': float(entrada_obj.total),
-                'usuario': entrada_obj.usuario.nombre_usuario if entrada_obj.usuario else 'Sistema',
+                'usuario': entrada_obj.usuario.username if entrada_obj.usuario else 'Sistema',
                 'observaciones': entrada_obj.observaciones or '',
                 'estado': entrada_obj.estado,
                 'anulado': entrada_obj.anulado,
@@ -171,7 +171,7 @@ class EntradaCreateView(View):
             if request.user.is_authenticated:
                 from app.models import usuario
                 try:
-                    usuario_obj = usuario.objects.filter(nombre_usuario=request.user.username).first()
+                    usuario_obj = usuario.objects.filter(username=request.user.username).first()
                 except:
                     pass
             

@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 # 3. DEFINICIÓN DE APLICACIONES
 # --------------------------------------------------------------------------
 INSTALLED_APPS = [
+    'login',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -30,11 +31,14 @@ INSTALLED_APPS = [
     
     # Tus aplicaciones
     'app',
-    'login',
     
     # Seguridad externa
     'axes',
+    
+    # Custom user model setting (must be string, after 'app')
+    
 ]
+AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
 
 # --------------------------------------------------------------------------
 # 4. MIDDLEWARE (EL ORDEN ES CRÍTICO AQUÍ)
@@ -100,8 +104,6 @@ AUTHENTICATION_BACKENDS = [
 AXES_FAILURE_LIMIT = 3               # Intentos permitidos
 AXES_COOLOFF_TIME = 0.5             # Horas que dura el bloqueo
 AXES_RESET_ON_SUCCESS = True         # Limpia fallos si el usuario entra bien
-AXES_ONLY_USER_FAILURES = False      # Bloqueo estricto por IP/Usuario
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 
 # --------------------------------------------------------------------------
 # 8. ARCHIVOS ESTÁTICOS (CSS, JS, IMÁGENES)
@@ -131,13 +133,20 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# En desarrollo, los correos salen por la terminal
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Configuración para enviar correos reales
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'porprobar221@gmail.com'
+EMAIL_HOST_PASSWORD = 'fitnkymdfulxiceg'  
+DEFAULT_FROM_EMAIL = 'Sistema BEDCOM <porprobar221@gmail.com>'
 
 # Redirecciones
 LOGIN_REDIRECT_URL = 'menu'  
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login:login'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -148,3 +157,4 @@ LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
