@@ -5,6 +5,22 @@
 
 // Script para la gestión de BOM (Bill of Materials)
 
+// Función para obtener CSRF token de cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // Variable para almacenar los insumos de la receta
 let recetaInsumos = [];
 // Variable para almacenar los insumos de la edición
@@ -90,21 +106,27 @@ $(document).ready(function() {
     // Manejar formulario de RECETA (crear)
     $('#formReceta').on('submit', function(e) {
         e.preventDefault();
+        console.log('=== FORM RECETA SUBMIT TRIGGERED ===');
         
         const productoId = $('#recetaProducto').val();
+        console.log('Producto ID:', productoId);
         
         if (!productoId) {
+            console.error('No producto selected');
             mostrarMensaje('error', 'Debe seleccionar un producto');
             return;
         }
         
         // Validar que el producto no tenga receta (doble verificación)
-        if (productosConReceta.includes(parseInt(productoId))) {
+        if (productosConReceta.includes(parseInt(productoId)) ) {
+            console.error('Producto already has recipe');
             mostrarMensaje('error', 'Este producto ya tiene una receta asociada. Use la función de edición para modificarla.');
             return;
         }
         
+        console.log('Receta insumos:', recetaInsumos);
         if (recetaInsumos.length === 0) {
+            console.error('No insumos');
             mostrarMensaje('error', 'Debe agregar al menos un insumo a la receta');
             return;
         }
@@ -113,13 +135,19 @@ $(document).ready(function() {
             producto_id: productoId,
             insumos: recetaInsumos
         };
+        console.log('AJAX data:', data);
+        console.log('CSRF token:', getCookie('csrftoken'));
         
         $.ajax({
             url: '/vistas/bom/crear-receta/',
             type: 'POST',
             contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
             data: JSON.stringify(data),
             success: function(response) {
+                console.log('Crear receta success:', response);
                 if (response.success) {
                     cerrarModal('modalReceta');
                     mostrarMensaje('success', response.message);
@@ -135,12 +163,16 @@ $(document).ready(function() {
                         location.reload();
                     }, 1500);
                 } else {
+                    console.error('Backend error:', response);
                     mostrarMensaje('error', response.error || 'Error al crear la receta');
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.error('AJAX FAILED - Status:', xhr.status);
+                console.error('Response:', xhr.responseText);
+                console.error('Status:', status, 'Error:', error);
                 const response = xhr.responseJSON;
-                let errorMsg = 'Error al crear la receta';
+                let errorMsg = 'Error al crear la receta: ' + (xhr.status || 'Unknown');
                 if (response && response.error) {
                     errorMsg = response.error;
                 }
@@ -149,18 +181,24 @@ $(document).ready(function() {
         });
     });
 
+
     // Manejar formulario de edición de RECETA
     $('#formEditBom').on('submit', function(e) {
         e.preventDefault();
+        console.log('=== FORM EDIT BOM SUBMIT TRIGGERED ===');
         
         const productoId = $('#editProductoId').val();
+        console.log('Edit Producto ID:', productoId);
         
         if (!productoId) {
+            console.error('No producto ID');
             mostrarMensaje('error', 'Producto no especificado');
             return;
         }
         
+        console.log('Edit insumos:', editRecetaInsumos);
         if (editRecetaInsumos.length === 0) {
+            console.error('No insumos in edit');
             mostrarMensaje('error', 'Debe agregar al menos un insumo a la receta');
             return;
         }
@@ -169,13 +207,19 @@ $(document).ready(function() {
             producto_id: productoId,
             insumos: editRecetaInsumos
         };
+        console.log('AJAX edit data:', data);
+        console.log('CSRF token:', getCookie('csrftoken'));
         
         $.ajax({
             url: '/vistas/bom/editar-receta/',
             type: 'POST',
             contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
             data: JSON.stringify(data),
             success: function(response) {
+                console.log('Edit receta success:', response);
                 if (response.success) {
                     cerrarModal('modalEditBom');
                     mostrarMensaje('success', response.message);
@@ -186,12 +230,16 @@ $(document).ready(function() {
                         location.reload();
                     }, 1500);
                 } else {
+                    console.error('Backend edit error:', response);
                     mostrarMensaje('error', response.error || 'Error al actualizar la receta');
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.error('AJAX EDIT FAILED - Status:', xhr.status);
+                console.error('Response:', xhr.responseText);
+                console.error('Status:', status, 'Error:', error);
                 const response = xhr.responseJSON;
-                let errorMsg = 'Error al actualizar la receta';
+                let errorMsg = 'Error al actualizar la receta: ' + (xhr.status || 'Unknown');
                 if (response && response.error) {
                     errorMsg = response.error;
                 }
@@ -199,6 +247,7 @@ $(document).ready(function() {
             }
         });
     });
+
 
     // Manejar formulario de eliminación
     $('#formDeleteBom').on('submit', function(e) {

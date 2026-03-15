@@ -64,6 +64,19 @@ ul { list-style: none; margin: 0; padding: 0; }
   padding: 8px 12px;
   min-width: 220px;
 }
+.home-btn {
+  width: 34px; 
+  height: 34px;
+  border-radius: 10px;
+  display: grid; 
+  place-items: center;
+  background: #0ea5e9;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  /* Añade esta línea y ajusta el número según necesites */
+  margin-top: 10px; 
+}
+
 .search:focus-within { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.16); }
 .search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); }
 
@@ -518,6 +531,129 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 .btn-volver-menu:active {
   transform: translateY(0);
+}
+
+/* Module Sidebar Specific Styles */
+.module-sidebar {
+  left: 0 !important;
+  right: auto !important;
+  width: 300px;
+  background: linear-gradient(180deg, rgba(15,23,42,.98), rgba(10,15,28,.99));
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+
+.module-sidebar .sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.module-sidebar .sidebar-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all .2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+}
+
+.sidebar-modules {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebar-module-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  transition: all .2s ease;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-module-item:hover {
+  background: rgba(255,255,255,.08);
+  transform: translateX(4px);
+}
+
+.sidebar-module-item i {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.sidebar-module-item:hover i {
+  color: var(--text);
+}
+
+.sidebar-module-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .module-sidebar {
+    width: 280px;
+  }
+  
+  .sidebar-module-item {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+}
+
+/* Hover animation line */
+.sidebar-module-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.1));
+  transition: width .3s ease;
+}
+
+.sidebar-module-item:hover::before {
+  width: 100%;
 }
 /* Estilos para transformar las cards en un Menú Interactivo */
     .menu-grid {

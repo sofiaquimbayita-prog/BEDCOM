@@ -566,6 +566,39 @@ body {
   color: var(--color-botones);
   transform: translateY(-50%) scale(1.1);
 }
+/* 1. Hacer que el texto de instrucción sea blanco/gris claro */
+.instruccion-clara {
+  color: var(--text); /* Usa el color e9eef7 de tus variables */
+  font-size: 1rem;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* 2. Evitar que el botón se salga (hacerlo bloque) */
+.botonr {
+  display: inline-block;
+  width: 100%; /* Ocupa el ancho del formulario */
+  text-decoration: none;
+}
+
+/* 3. Estilizar el link de 'Volver' para que no sea morado */
+.pregunta a {
+  color: var(--brand) !important; /* Usa el azul claro 5cc8ff */
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.pregunta a:hover {
+  text-decoration: underline;
+}
+
+/* 4. Asegurar que el input de correo se vea como los de login */
+.formulario input {
+  width: 100% !important;
+  background: var(--color-input) !important;
+  color: var(--color-input-text) !important;
+  border: 1px solid var(--color-input-border) !important;
+}
 
 .password-container button:focus {
   outline: none;

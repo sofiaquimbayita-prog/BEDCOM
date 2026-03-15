@@ -84,6 +84,200 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+// =====================
+  // MODAL DE PERFIL
+  // =====================
+  const btnMiPerfil = document.getElementById('btnMiPerfil');
+  const perfilFoto = document.getElementById('perfilFoto');
+  const fotoPreview = document.getElementById('fotoPreview');
+  const fotoIcon = document.getElementById('fotoIcon');
+
+  if (perfilFoto) {
+    perfilFoto.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fotoPreview.src = e.target.result;
+          fotoPreview.style.display = 'block';
+          fotoIcon.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+  const modalPerfil = document.getElementById('modalPerfil');
+  const cerrarModalPerfil = document.getElementById('cerrarModalPerfil');
+  const cancelarPerfil = document.getElementById('cancelarPerfil');
+  const formPerfil = document.getElementById('formPerfil');
+  
+  // Función para abrir modal de perfil
+  if (btnMiPerfil && modalPerfil) {
+    btnMiPerfil.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Cerrar dropdown primero
+      if (dropdownMenu) {
+        dropdownMenu.classList.add('oculto');
+      }
+      
+      // Obtener datos del perfil
+      fetch('/vistas/menu/perfil/')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('perfilCedula').value = data.data.cedula;
+            document.getElementById('perfilNombre').value = data.data.username || '';
+            document.getElementById('perfilEmail').value = data.data.email;
+            document.getElementById('perfilRol').value = data.data.rol;
+            document.getElementById('perfilEstado').value = data.data.estado;
+            // Update foto preview
+            if (data.data.foto_perfil) {
+              document.getElementById('fotoPreview').src = data.data.foto_perfil;
+              document.getElementById('fotoPreview').style.display = 'block';
+              document.getElementById('fotoIcon').style.display = 'none';
+            }
+            modalPerfil.classList.remove('oculto');
+          } else {
+            alert('Error al cargar perfil: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al cargar el perfil');
+        });
+    });
+  }
+  
+  // Cerrar modal de perfil
+  function cerrarModalPerfilFunc() {
+    if (modalPerfil) {
+      modalPerfil.classList.add('oculto');
+    }
+  }
+  
+  if (cerrarModalPerfil) {
+    cerrarModalPerfil.addEventListener('click', cerrarModalPerfilFunc);
+  }
+  
+  if (cancelarPerfil) {
+    cancelarPerfil.addEventListener('click', cerrarModalPerfilFunc);
+  }
+  
+  // Cerrar al hacer clic fuera del modal
+  if (modalPerfil) {
+    modalPerfil.addEventListener('click', function(e) {
+      if (e.target === modalPerfil) {
+        cerrarModalPerfilFunc();
+      }
+    });
+  }
+  
+  // Cerrar con tecla Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modalPerfil && !modalPerfil.classList.contains('oculto')) {
+      cerrarModalPerfilFunc();
+    }
+  });
+  
+  // Enviar formulario de perfil
+  if (formPerfil) {
+    formPerfil.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('nombre_usuario', document.getElementById('perfilNombre').value);
+      formData.append('email', document.getElementById('perfilEmail').value);
+      formData.append('cedula', document.getElementById('perfilCedula').value);
+      const fotoFile = document.getElementById('perfilFoto').files[0];
+      if (fotoFile) {
+        formData.append('foto_perfil', fotoFile);
+      }
+      
+      fetch('/vistas/menu/perfil/actualizar/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Toast success como otros módulos
+          const toast = document.createElement('div');
+          toast.className = 'message success';
+          toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 350px;';
+          toast.innerHTML = `
+            <div class="message-content">
+              <i class="fas fa-check-circle"></i>
+              <span>Perfil actualizado correctamente</span>
+            </div>
+            <button onclick="cerrarToast(this)" class="close-toast">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          document.body.appendChild(toast);
+          
+          // Auto cerrar toast después de 5s
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.style.animation = 'slideOut 0.3s ease forwards';
+              setTimeout(() => toast.remove(), 300);
+            }
+          }, 5000);
+          
+          cerrarModalPerfilFunc();
+          setTimeout(() => location.reload(), 2000);
+        } else {
+          // Toast error
+          const toast = document.createElement('div');
+          toast.className = 'message error';
+          toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 350px;';
+          toast.innerHTML = `
+            <div class="message-content">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Error: ${data.error}</span>
+            </div>
+            <button onclick="cerrarToast(this)" class="close-toast">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          document.body.appendChild(toast);
+          
+          // Auto cerrar después de 6s
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.style.animation = 'slideOut 0.3s ease forwards';
+              setTimeout(() => toast.remove(), 300);
+            }
+          }, 6000);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el perfil');
+      });
+    });
+  }
+  
+  // Función para obtener CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
   // =====================
   // MODAL DE CONFIRMACIÓN - with null check
   // =====================
@@ -181,6 +375,82 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================
   
   console.log('Menú cargado correctamente');
-  
-}); // Fin DOMContentLoaded
+  // ============================================
+  // LÓGICA DEL MODAL DE PERFIL
+  // ============================================
 
+document.addEventListener("DOMContentLoaded", () => {
+    const modalPerfil = document.getElementById('modalPerfil');
+    const btnAbrirPerfil = document.getElementById('btnMiPerfil');
+    const btnCerrarPerfil = document.getElementById('cerrarModalPerfil');
+    const btnCancelarPerfil = document.getElementById('cancelarPerfil');
+    const formPerfil = document.getElementById('formPerfil');
+
+    // Función para abrir y cargar datos
+    if (btnAbrirPerfil) {
+        btnAbrirPerfil.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                // Endpoint que debería devolver los datos del usuario en JSON
+                const response = await fetch('/vistas/menu/perfil/');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('perfilCedula').value = data.cedula || '';
+                    document.getElementById('perfilRol').value = data.rol || '';
+                    document.getElementById('perfilNombre').value = data.data.username || '';
+                    document.getElementById('perfilEmail').value = data.email || '';
+                    document.getElementById('perfilEstado').value = data.estado || '';
+                    
+                    modalPerfil.classList.remove('oculto');
+                }
+            } catch (error) {
+                console.error("Error al cargar perfil:", error);
+            }
+        });
+    }
+
+    // Funciones para cerrar
+    const cerrarModal = () => modalPerfil.classList.add('oculto');
+
+    if (btnCerrarPerfil) btnCerrarPerfil.addEventListener('click', cerrarModal);
+    if (btnCancelarPerfil) btnCancelarPerfil.addEventListener('click', cerrarModal);
+
+    // Guardar cambios
+    if (formPerfil) {
+        formPerfil.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(formPerfil);
+            
+            try {
+                const response = await fetch('/vistas/menu/perfil/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        // El token CSRF lo toma automáticamente del input hidden en el HTML
+                    }
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Perfil actualizado correctamente");
+                    location.reload();
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (error) {
+                console.error("Error al guardar:", error);
+            }
+        });
+    }
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modalPerfil.classList.contains('oculto')) {
+            cerrarModal();
+        }
+    });
+});  
+}); // Fin DOMContentLoaded

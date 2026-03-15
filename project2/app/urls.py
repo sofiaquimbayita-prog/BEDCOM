@@ -85,9 +85,6 @@ urlpatterns = [
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
       
-   # --- ENTRADA DE PRODUCTOS ---
-      path('entrada/', entrada_p.EntradaListView.as_view(), name='entrada_producto'),
-      
       # --- INVENTARIO ---
       path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
       
