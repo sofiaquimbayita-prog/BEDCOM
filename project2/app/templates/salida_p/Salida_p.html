@@ -6,6 +6,7 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/SalidaP.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/modal_salida.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/modal_detalle_salida.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -34,12 +35,24 @@
     <table class="salidas-table">
         <thead>
             <tr>
-                <th><i class="fas fa-box"></i> Producto</th>
-                <th><i class="fas fa-sort-numeric-up"></i> Cantidad</th>
-                <th><i class="fas fa-calendar"></i> Fecha</th>
-                <th><i class="fas fa-align-left"></i> Motivo</th>
-                <th><i class="fas fa-user"></i> Responsable</th>
-                <th><i class="fas fa-cog"></i> Estado</th>
+                <th onclick="ordenarTabla(0)">
+                    <i class="fas fa-sort"></i> Producto
+                </th>
+                <th onclick="ordenarTabla(1)">
+                    <i class="fas fa-sort"></i> Cantidad
+                </th>
+                <th onclick="ordenarTabla(2)">
+                    <i class="fas fa-sort"></i> Fecha
+                </th>
+                <th onclick="ordenarTabla(3)">
+                    <i class="fas fa-sort"></i> Motivo
+                </th>
+                <th onclick="ordenarTabla(4)">
+                    <i class="fas fa-sort"></i> Responsable
+                </th>
+                <th onclick="ordenarTabla(5)">
+                    <i class="fas fa-sort"></i> Estado
+                </th>
                 <th><i class="fas fa-bolt"></i> Acciones</th>
             </tr>
         </thead>
@@ -49,7 +62,7 @@
                 <td>{{ salida.id_producto.nombre }}</td>
                 <td>{{ salida.cantidad }}</td>
                 <td>{{ salida.fecha|date:"d/m/Y" }}</td>
-                <td>{{ salida.motivo }}</td>
+                <td title="{{ salida.motivo }}">{{ salida.motivo|truncatewords:10 }}</td>
                 <td>{{ salida.responsable }}</td>
                 <td>
                     {% if salida.estado %}
@@ -58,19 +71,30 @@
                     <span class="badge badge-anulada"><i class="fas fa-times"></i> Anulada</span>
                     {% endif %}
                 </td>
-<td class="actions-cell">
-                    <button type="button" class="btn-action btn-ver" onclick="verSalida({{ salida.id }})" title="Ver detalle">
+                <td class="actions-cell">
+
+                    <!-- Botón Ver Detalles -->
+                    <button type="button" class="btn-action btn-view"
+                        onclick="abrirModalDetalle({{ salida.id }})"
+                        title="Ver detalles">
                         <i class="fas fa-eye"></i>
                     </button>
+
                     {% if salida.estado %}
-                    <button type="button" class="btn-action btn-anular" onclick="anularSalida({{ salida.id }})" title="Anular salida">
-                        <i class="fas fa-ban"></i>
-                    </button>
-                    {% else %}
-                    <button type="button" class="btn-action btn-disabled" disabled title="Ya anulado">
+                    <button type="button" class="btn-action btn-anular"
+                        onclick="anularSalida({{ salida.id }})"
+                        title="Anular salida">
                         <i class="fas fa-ban"></i>
                     </button>
                     {% endif %}
+
+                    {% if not salida.estado %}
+                    <button type="button" class="btn-action btn-disabled"
+                        disabled title="Ya anulado">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    {% endif %}
+
                 </td>
             </tr>
             {% endfor %}
@@ -88,14 +112,22 @@
 
 </main>
 
-{# Modal separado - se carga fuera del main para mejor posicionamiento #}
-{% include 'salida_p/modal_salida.html' %}
+<!-- Modales con z-index escalonado para apertura individual -->
+<div style="position: relative; z-index: 10005;">
 {% include 'salida_p/modal_anular_salida.html' %}
-{% include 'salida_p/modarl_ver_salida.html' %}
+</div>
+<div style="position: relative; z-index: 10010;">
+{% include 'salida_p/modal_nueva_salida.html' %}
+</div>
+<div style="position: relative; z-index: 10020;">
+{% include 'salida_p/modal_detalle_salida.html' %}
+</div>
 
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
+<script src="{% static 'ap1/js/modal_detalle_salida.js' %}"></script>
 <script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
 {% endblock %}

@@ -1,83 +1,6 @@
-<!-- Modal de Salida de Productos -->
-<!-- Contenedor de notificaciones toast -->
-<div id="toastContainer" class="toast-container"></div>
+// Funciones para el modal de Nueva Salida
+// Extraído de modal_salida.html
 
-<div id="modalSalida" class="modal-salida" style="display: none;">
-    <div class="modal-salida-content">
-        <div class="modal-salida-header">
-            <h2><i class="fas fa-shopping-cart"></i> Salida de productos</h2>
-        </div>
-        <div class="modal-salida-body">
-            <form id="formSalida" method="POST" action="{% url 'salida_producto_create' %}">
-{% csrf_token %}
-
-<div class="form-group">
-<label for="id_producto">Producto <span class="text-danger">*</span></label>
-<div class="input-group">
-    <select name="id_producto" id="id_producto" class="form-control" required>
-    <option value="">Selecciona un producto</option>
-    {% if productos %}
-    {% for p in productos %}
-    <option value="{{ p.id }}" data-stock="{{ p.stock }}">{{ p.nombre }}</option>
-    {% endfor %}
-    {% else %}
-    <option value="" disabled>No hay productos disponibles</option>
-    {% endif %}
-    </select>
-    <a href="{% url 'productos' %}" class="btn-add-product" title="Agregar producto" target="_blank">
-        <i class="fas fa-plus"></i>
-    </a>
-</div>
-<div class="helper-text">Seleccione el producto que desea dar de salida</div>
-<small class="error-msg" id="errorProducto"></small>
-</div>
-
-<div class="form-group">
-<label for="stockDisponible">Stock disponible</label>
-<input type="text" id="stockDisponible" class="form-control" readonly placeholder="Seleccione un producto para ver el stock">
-</div>
-
-<div class="form-group">
-<label for="cantidad">Cantidad <span class="text-danger">*</span></label>
-<input type="number" name="cantidad" id="cantidad" class="form-control" min="1" required placeholder="Ingrese la cantidad">
-<div class="helper-text">La cantidad debe ser mayor a 0 y no exceder el stock disponible</div>
-<small class="error-msg" id="errorCantidad"></small>
-</div>
-
-<div class="form-group">
-<label for="fecha">Fecha <span class="text-danger">*</span></label>
-<input type="date" name="fecha" id="fecha" class="form-control" required>
-<div class="helper-text">La fecha no puede ser futura</div>
-<small class="error-msg" id="errorFecha"></small>
-</div>
-
-<div class="form-group">
-<label for="motivo">Motivo <span class="text-danger">*</span></label>
-<textarea name="motivo" id="motivo" class="form-control" rows="3" required minlength="5" maxlength="200" placeholder="Ingrese el motivo de la salida"></textarea>
-<div class="helper-text">Minimo 5 caracteres, maximo 200</div>
-<small class="error-msg" id="errorMotivo"></small>
-</div>
-
-<div class="form-group">
-<label for="responsable">Responsable <span class="text-danger">*</span></label>
-<input type="text" name="responsable" id="responsable" class="form-control" required minlength="3" placeholder="Ingrese nombre del responsable" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$">
-<div class="helper-text">Minimo 3 caracteres (solo letras, números, espacios, guiones y puntos)</div>
-<small class="error-msg" id="errorResponsable"></small>
-</div>
-
-</form>
-        </div>
-        <div class="modal-salida-footer">
-            <button type="button" class="btn-cancel" onclick="cerrarModalSalida()">
-                <i class="fas fa-times-circle"></i> Cancelar
-            </button>
-            <button type="button" class="btn-save" onclick="enviarFormularioSalida()">
-                <i class="fas fa-save"></i> Registrar salida
-            </button>
-        </div>
-</div>
-
-<script>
 // Funciones para el modal
 function cerrarModalSalida() {
     var modal = document.getElementById('modalSalida');
@@ -97,10 +20,8 @@ function abrirModalSalida() {
     if (modal) {
         modal.style.display = 'flex';
         
-        // Usar evento nativo de change en lugar de Select2
         var productoSelect = document.getElementById('id_producto');
         if (productoSelect) {
-            // Remover eventos anteriores para evitar duplicados
             productoSelect.onchange = function() {
                 var stockInput = document.getElementById('stockDisponible');
                 var selectedOption = productoSelect.options[productoSelect.selectedIndex];
@@ -115,9 +36,8 @@ function abrirModalSalida() {
         }
         
         // Validación en tiempo real para el campo responsable
-        var responsableInput = document.getElementById('responsable');
+        var responsableInput = document.getElementById('id_responsable');
         if (responsableInput) {
-            // Remover eventos anteriores para evitar duplicados
             responsableInput.oninput = function() {
                 var errorResponsable = document.getElementById('errorResponsable');
                 var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
@@ -127,7 +47,7 @@ function abrirModalSalida() {
                         errorResponsable.textContent = 'No se permiten caracteres especiales';
                         errorResponsable.style.display = 'block';
                     }
-                    // Remover caracteres no permitidos
+
                     this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]/g, '');
                 } else {
                     if (errorResponsable) {
@@ -145,6 +65,7 @@ function abrirModalSalida() {
 // ===============================
 function showToast(message, type) {
     var toastContainer = document.getElementById('toastContainer');
+
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.id = 'toastContainer';
@@ -175,7 +96,6 @@ function showToast(message, type) {
     
     toastContainer.appendChild(toast);
     
-    // Auto remove after 5 seconds
     setTimeout(function() {
         if (toast.parentElement) {
             toast.style.animation = 'slideOut 0.3s ease forwards';
@@ -196,8 +116,11 @@ function showSuccessToast(message) {
     showToast(message, 'success');
 }
 
-// Funcion para enviar el formulario
+// ===============================
+// FUNCION PARA ENVIAR EL FORMULARIO
+// ===============================
 function enviarFormularioSalida() {
+
     var form = document.getElementById('formSalida');
     if (!form) return;
     
@@ -210,38 +133,61 @@ function enviarFormularioSalida() {
             'X-Requested-With': 'XMLHttpRequest',
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+
         if (data.success) {
+
             cerrarModalSalida();
             showSuccessToast(data.message);
+
             setTimeout(function() {
                 location.reload();
             }, 1500);
+
         } else {
+
             var errorMessage = data.message || "Error al registrar";
+
             if (data.errors) {
+
+                var nombresCampos = {
+                    id_producto: "Producto",
+                    cantidad: "Cantidad",
+                    fecha: "Fecha",
+                    motivo: "Motivo",
+                    responsable: "Responsable"
+                };
+
                 var errores = [];
+
                 for (var campo in data.errors) {
-                    errores.push(campo + ": " + data.errors[campo].join(', '));
+                    var nombreCampo = nombresCampos[campo] || campo;
+                    errores.push("Debe completar el campo <b>" + nombreCampo + "</b>");
                 }
-                errorMessage = errores.join('\n');
+
+                errorMessage = errores.join('<br>');
             }
+
             showErrorToast(errorMessage);
         }
+
     })
     .catch(function(error) {
         console.error('Error:', error);
-        showErrorToast("Ocurrio un error al procesar la solicitud");
+        showErrorToast("Ocurrió un error al procesar la solicitud");
     });
 }
 
-// Hacer las funciones globales
+// Hacer las funciones globales disponibles
 window.cerrarModalSalida = cerrarModalSalida;
 window.abrirModalSalida = abrirModalSalida;
 window.enviarFormularioSalida = enviarFormularioSalida;
 window.showToast = showToast;
 window.showErrorToast = showErrorToast;
 window.showSuccessToast = showSuccessToast;
-</script>
-
