@@ -8,10 +8,12 @@
 - Global `$(document).on('click', '#btnConfirmarAnular')`
 - Console logs 🔴/🟢/✅/❌ + CSRF handling
 
-✅ **Step 3**: Clean templates
+✅ **Step 3**: Clean templates + UI Polish
 - Removed inline `<script>` from modal_eliminar.html ✓
 - Removed inline `<script>` from modal_reactivar.html ✓
 - Buttons now `type="button"` + global handlers
+- ✅ Moved toggle switch to LEFT
+- ✅ Active state GREEN (#22c55e) instead of red
 
 **Step 4**: Verify entrada_p.html (script order OK: jQuery → dataTables → entrada_p.js)
 

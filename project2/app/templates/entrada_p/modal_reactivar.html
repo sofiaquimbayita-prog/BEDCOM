@@ -1,34 +1,38 @@
 {% load static %}
 <div class="modal-content modal-delete">
-    <div class="modal-header modal-header-delete">
-        <h2><i class="fas fa-redo"></i> Reactivar Entrada</h2>
-        <button type="button" class="modal-close" onclick="cerrarModal('modalReactivate')">
+    <div class="modal-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 1.25rem 1.5rem;">
+        <h2 style="margin: 0; color: white; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; font-weight: 600;">
+            <i class="fas fa-redo"></i> Reactivar Entrada
+        </h2>
+        <button type="button" class="close-modal" onclick="cerrarModal('modalReactivate')" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
             <i class="fas fa-times"></i>
         </button>
     </div>
     
-    <div class="modal-body-delete">
-        <div class="delete-icon" style="background-color: #22c55e;">
-            <i class="fas fa-redo"></i>
+    <div class="modal-body" style="text-align: center; padding: 2.5rem 2rem; background: #1e293b;">
+        <div style="margin-bottom: 25px;">
+            <div style="width: 80px; height: 80px; background: rgba(34, 197, 94, 0.1); border: 2px solid rgba(34, 197, 94, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <i class="fas fa-redo" style="font-size: 40px; color: #22c55e;"></i>
+            </div>
+            <h3 style="color: white; font-size: 1.5rem; margin-bottom: 10px; font-weight: 600;">¿Está seguro de reactivar?</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem;">La entrada será visible nuevamente.</p>
         </div>
-        <h3>¿Está seguro de reactivar esta entrada?</h3>
-        <div class="entrada-nombre" id="reactivate_entrada_nombre">
-            Producto: --
+
+        <div class="view-info" style="text-align: left; max-width: 320px; margin: 0 auto; background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 8px; border-left: 4px solid #22c55e;">
+            <label style="display: block; color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Producto / Referencia</label>
+            <p id="reactivate_entrada_nombre" style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin: 0;">Producto: --</p>
         </div>
-        <p class="advertencia">
-            <i class="fas fa-info-circle"></i> La entrada volverá a estar activa y será visible en la tabla principal.
-        </p>
     </div>
     
     <form id="formReactivarEntrada">
         {% csrf_token %}
         <input type="hidden" id="reactivate_entrada_id" name="id">
         
-        <div class="modal-footer-delete">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalReactivate')">
+        <div class="modal-footer" style="display: flex; gap: 12px; padding: 1.5rem; background: #0f172a; border-top: 1px solid #334155;">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalReactivate')" style="flex: 1; height: 46px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-times"></i> Cancelar
             </button>
-            <button type="button" class="btn-delete" style="background-color: #22c55e;">
+            <button type="button" id="btnReactivar" style="flex: 1; height: 46px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-redo"></i> Reactivar
             </button>
         </div>
