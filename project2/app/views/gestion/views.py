@@ -1,6 +1,8 @@
 from django.views.generic import ListView
 from ...models import producto, insumo
-
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+@method_decorator(login_required, name='dispatch')
 class GestionListView(ListView):
     model = producto
     template_name = 'gestion/gestion.html'

@@ -5,6 +5,15 @@
 
 {% block header_title %}MENÚ PRINCIPAL{% endblock %}
 
+{% block extra_header %}
+  {% comment %}Hide home button on menu page{% endcomment %}
+  <style>
+    .perfil-container .home-btn { display: none !important; }
+  </style>
+{% endblock %}
+
+{% comment %} Header toggle ya incluido globalmente {% endcomment %}
+
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
@@ -12,16 +21,7 @@
 
 <main class="container menu">
     <div class="menu-layout">
-        <section class="grid menu-grid">
-            
-
-
-
-
-
-
-
-
+        
             <a href="{% url 'suministros' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
@@ -61,8 +61,6 @@
                     </div> 
                 </article>
 
-
-        </section>
     </div>
 </main>
 {% endblock %}

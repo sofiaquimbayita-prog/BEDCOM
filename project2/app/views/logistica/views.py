@@ -1,5 +1,8 @@
 from django.views.generic import ListView
 from ...models import producto
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+@method_decorator(login_required, name='dispatch')
 class LogisticaListView(ListView):
     model = producto
     template_name = 'logistica/logistica.html'

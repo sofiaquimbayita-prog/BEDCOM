@@ -31,12 +31,7 @@
 
     <!-- Module Navigation Sidebar -->
     <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
-        <div class="sidebar-header">
-            <h3><i class="fas fa-list"></i> Módulos</h3>
-            <button onclick="toggleModuleSidebar()" class="sidebar-close-btn">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+        
         <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
             <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
@@ -88,6 +83,43 @@
         </nav>
     </div>
 
+    <!-- Profile Sidebar -->
+    <div id="profileSidebar" class="dropdown-sidebar oculto profile-sidebar">
+        <div class="sidebar-user-info">
+            <div class="sidebar-avatar">
+                {% if usuario_perfil.foto_perfil %}
+                <img src="{{ usuario_perfil.foto_perfil.url }}" alt="Foto de perfil" class="foto-perfil-img">
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="sidebar-text">
+                <span class="sidebar-name">{{ user.get_full_name|default:user.username }}</span>
+                <span class="sidebar-role">{{ user.groups.all.0.name|default:"Usuario" }}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+        <a href="#" class="sidebar-menu-item" id="btnMiPerfil">
+                <i class="fas fa-user-circle"></i>
+                <span>Mi Perfil</span>
+            </a>
+            <a href="#" class="sidebar-menu-item" id="btnCambiarPass">
+                <i class="fas fa-key"></i>
+                <span>Seguridad</span>
+            </a>
+        </nav>
+        <div class="sidebar-menu-item logout-item" style="margin-top: auto;">
+            <a href="javascript:void(0)" onclick="abrirModalLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Profile Overlay -->
+    <div id="profileOverlay" class="sidebar-overlay oculto" onclick="toggleProfileSidebar()"></div>
+
     <!-- Sidebar Overlay -->
     <div id="sidebarOverlay" class="sidebar-overlay oculto" onclick="toggleModuleSidebar()"></div>
 
@@ -100,15 +132,32 @@
     <!-- Modal container for dynamic content -->
     <div id="modalContainer"></div>
 
+    <!-- Logout Confirmation Modal -->
+    <div id="modalLogout" class="modal-perfil oculto">
+<div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-out-alt" style="color: #dc2626;"></i> Confirmar Cierre de Sesión</h2>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro? Se cerrará tu sesión actual.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="cerrarModalLogout()">Cancelar</button>
+<button type="button" id="btnConfirmLogout" class="btn-confirmar-logout" onclick="confirmarLogout()">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal styles -->
     <style>
-    .modal-perfil {
+.modal-perfil {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 9999;
+        z-index: 10003 !important;
         display: none;
         align-items: center;
         justify-content: center;
@@ -119,18 +168,20 @@
         display: flex;
     }
     
-    .modal-perfil .modal-overlay {
+.modal-perfil .modal-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        z-index: 1;
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(4px);
     }
     
-    .modal-perfil .modal-content {
+.modal-perfil .modal-content {
         position: relative;
+        z-index: 2;
         background: #0f172a !important;
         color: #fff !important;
         border-radius: 12px !important;
@@ -233,6 +284,63 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+
+    /* Logout modal specific styles - dark theme matching modules */
+    #modalLogout .modal-content {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        border-radius: 15px !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+        max-width: 420px;
+        animation: modalFadeIn 0.3s ease-out;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    #modalLogout .modal-header {
+        border-bottom: 1px solid #334155;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    #modalLogout .modal-header h2 {
+        color: #ef4444 !important;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    #modalLogout .modal-body {
+        text-align: center;
+        font-size: 1.1rem;
+        margin: 20px 0;
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+    .btn-confirmar-logout {
+        background: #ef4444 !important;
+        color: white !important;
+        border: none !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+        flex: 1;
+    }
+    .btn-confirmar-logout:hover {
+        background: #dc2626 !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+    }
+    .btn-cancel {
+        background: #1f6684 !important;
+        color: white !important;
+    }
+    .btn-cancel:hover {
+        background: #165e7a !important;
+    }
+.modal-perfil:not(.oculto) {
+        display: flex !important;
+        z-index: 10003 !important;}
+.sidebar-menu-item logout-item {
+        margin-bottom: 0px;
+    }
     </style>
 
     <script>
@@ -244,17 +352,62 @@
         overlay.classList.toggle('oculto');
     };
 
-    // Close sidebar on Escape
+    // Profile Sidebar Toggle
+    window.toggleProfileSidebar = function() {
+        const sidebar = document.getElementById('profileSidebar');
+        const overlay = document.getElementById('profileOverlay');
+        sidebar.classList.toggle('oculto');
+        overlay.classList.toggle('oculto');
+    };
+
+    // Close sidebars on Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            const sidebar = document.getElementById('moduleSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (!sidebar.classList.contains('oculto')) {
-                sidebar.classList.add('oculto');
-                overlay.classList.add('oculto');
+            // Module sidebar
+            const moduleSidebar = document.getElementById('moduleSidebar');
+            const moduleOverlay = document.getElementById('sidebarOverlay');
+            if (moduleSidebar && !moduleSidebar.classList.contains('oculto')) {
+                moduleSidebar.classList.add('oculto');
+                moduleOverlay.classList.add('oculto');
+            }
+            // Profile sidebar
+            const profileSidebar = document.getElementById('profileSidebar');
+            const profileOverlay = document.getElementById('profileOverlay');
+            if (profileSidebar && !profileSidebar.classList.contains('oculto')) {
+                profileSidebar.classList.add('oculto');
+                profileOverlay.classList.add('oculto');
+            }
+            // Close logout modal on Escape
+            const modalLogout = document.getElementById('modalLogout');
+            if (modalLogout && !modalLogout.classList.contains('oculto')) {
+                modalLogout.classList.add('oculto');
             }
         }
     });
+
+    // Logout modal functions (global)
+    window.abrirModalLogout = function() {
+        const modal = document.getElementById('modalLogout');
+        if (modal) {
+            modal.classList.remove('oculto');
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.cerrarModalLogout = function() {
+        const modal = document.getElementById('modalLogout');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.classList.add('oculto');
+            modal.style.display = 'none';
+        }
+    };
+
+window.confirmarLogout = function() {
+        console.log('Logout confirmed, redirecting to /logout/');
+        window.location.href = '/logout/';
+    };
     </script>
 
     <script src="{% static 'ap1/js/menu.js' %}"></script>

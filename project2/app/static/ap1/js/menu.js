@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Hacer las funciones accesibles globalmente
   window.abrirModalLogout = function() {
-    const modal = document.getElementById('logoutModal');
+    const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.remove('oculto');
       console.log('Modal abierto');
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   
   window.cerrarModalLogout = function() {
-    const modal = document.getElementById('logoutModal');
+    const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.add('oculto');
       console.log('Modal cerrado');
@@ -278,179 +278,5 @@ document.addEventListener("DOMContentLoaded", () => {
     return cookieValue;
   }
 
-  // =====================
-  // MODAL DE CONFIRMACIÓN - with null check
-  // =====================
-  const btnCerrarSesion = document.getElementById('btnCerrarSesion');
-  
-  if (btnCerrarSesion) {
-    btnCerrarSesion.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Verificar si ya existe un modal
-      const modalExistente = document.querySelector('.modal-confirmacion');
-      if (modalExistente) {
-        return;
-      }
-      
-      // Crear el modal
-      const modal = document.createElement('div');
-      modal.className = 'modal-confirmacion';
-      modal.innerHTML = `
-        <div class="modal-confirmacion-overlay"></div>
-        <div class="modal-confirmacion-content">
-          <div class="modal-confirmacion-header">
-            <i class="fas fa-sign-out-alt"></i>
-            <h2>Cerrar Sesión</h2>
-          </div>
-          <p class="modal-confirmacion-mensaje">¿Está seguro que desea cerrar sesión?</p>
-          <div class="modal-confirmacion-botones">
-            <button type="button" class="btn-cancelar" id="btnCancelarLogout">Cancelar</button>
-            <button type="button" class="btn-confirmar" id="btnConfirmarLogout">Sí, cerrar sesión</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
-      // Agregar estilos
-      if (!document.getElementById('modal-confirmacion-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'modal-confirmacion-styles';
-        styles.textContent = `
-          .modal-confirmacion { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px 10px; }
-          .modal-confirmacion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); }
-          .modal-confirmacion-content { position: relative; background: #0f172a !important; color: #ffffff !important; border-radius: 15px !important; padding: 30px !important; max-width: 400px !important; width: 90% !important; border: 1px solid #334155 !important; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important; animation: modalFadeIn 0.3s ease-out; text-align: center; }
-          @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-          .modal-confirmacion-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
-          .modal-confirmacion-header i { font-size: 3rem; color: #ef4444; margin-bottom: 12px; }
-          .modal-confirmacion-header h2 { margin: 0; font-size: 1.5rem; color: #ef4444; font-weight: 600; }
-          .modal-confirmacion-mensaje { margin: 0 0 25px; font-size: 15px; color: #94a3b8; line-height: 1.6; }
-          .modal-confirmacion-botones { display: flex; gap: 10px; justify-content: center; }
-          .modal-confirmacion-botones button { padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; flex: 1; }
-          .btn-cancelar { background: #1f6684 !important; color: white; }
-          .btn-cancelar:hover { background: #165e7a !important; }
-          .btn-confirmar { background: #ef4444; color: white; }
-          .btn-confirmar:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
-        `;
-        document.head.appendChild(styles);
-      }
-      
-      // Botón cancelar
-      const btnCancelar = document.getElementById('btnCancelarLogout');
-      if (btnCancelar) {
-        btnCancelar.addEventListener('click', function() {
-          modal.remove();
-        });
-      }
-      
-      // Botón confirmar
-      const btnConfirmar = document.getElementById('btnConfirmarLogout');
-      if (btnConfirmar) {
-        btnConfirmar.addEventListener('click', function() {
-          window.location.href = '/logout/';
-        });
-      }
-      
-      // Cerrar al hacer clic en el overlay
-      const overlay = modal.querySelector('.modal-confirmacion-overlay');
-      if (overlay) {
-        overlay.addEventListener('click', function() {
-          modal.remove();
-        });
-      }
-      
-      // Cerrar con tecla Escape
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && document.querySelector('.modal-confirmacion')) {
-          modal.remove();
-        }
-      });
-    });
-  }
-
-  // ============================
-  // INICIALIZACIÓN ADICIONAL
-  // ============================
-  
   console.log('Menú cargado correctamente');
-  // ============================================
-  // LÓGICA DEL MODAL DE PERFIL
-  // ============================================
-
-document.addEventListener("DOMContentLoaded", () => {
-    const modalPerfil = document.getElementById('modalPerfil');
-    const btnAbrirPerfil = document.getElementById('btnMiPerfil');
-    const btnCerrarPerfil = document.getElementById('cerrarModalPerfil');
-    const btnCancelarPerfil = document.getElementById('cancelarPerfil');
-    const formPerfil = document.getElementById('formPerfil');
-
-    // Función para abrir y cargar datos
-    if (btnAbrirPerfil) {
-        btnAbrirPerfil.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            try {
-                // Endpoint que debería devolver los datos del usuario en JSON
-                const response = await fetch('/vistas/menu/perfil/');
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('perfilCedula').value = data.cedula || '';
-                    document.getElementById('perfilRol').value = data.rol || '';
-                    document.getElementById('perfilNombre').value = data.data.username || '';
-                    document.getElementById('perfilEmail').value = data.email || '';
-                    document.getElementById('perfilEstado').value = data.estado || '';
-                    
-                    modalPerfil.classList.remove('oculto');
-                }
-            } catch (error) {
-                console.error("Error al cargar perfil:", error);
-            }
-        });
-    }
-
-    // Funciones para cerrar
-    const cerrarModal = () => modalPerfil.classList.add('oculto');
-
-    if (btnCerrarPerfil) btnCerrarPerfil.addEventListener('click', cerrarModal);
-    if (btnCancelarPerfil) btnCancelarPerfil.addEventListener('click', cerrarModal);
-
-    // Guardar cambios
-    if (formPerfil) {
-        formPerfil.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(formPerfil);
-            
-            try {
-                const response = await fetch('/vistas/menu/perfil/', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        // El token CSRF lo toma automáticamente del input hidden en el HTML
-                    }
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert("Perfil actualizado correctamente");
-                    location.reload();
-                } else {
-                    alert("Error: " + result.error);
-                }
-            } catch (error) {
-                console.error("Error al guardar:", error);
-            }
-        });
-    }
-
-    // Cerrar con Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modalPerfil.classList.contains('oculto')) {
-            cerrarModal();
-        }
-    });
-});  
 }); // Fin DOMContentLoaded

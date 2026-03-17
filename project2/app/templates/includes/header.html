@@ -3,57 +3,16 @@
         
         <div class="perfil-section">
             <div class="perfil-container">
-                {% if titulo_pagina == 'MENÚ PRINCIPAL' %}
-                {# Vista del Menú Principal: Mostrar botón de perfil #}
-                <button id="perfilBtn" class="avatar-btn" aria-controls="dropdownMenu" aria-expanded="false" aria-label="Menú de usuario">
-                    <div class="user-photo">
-                        {% if usuario_perfil.foto_perfil %}
-                        <img src="{{ usuario_perfil.foto_perfil.url }}" alt="Foto de perfil" class="foto-perfil-img">
-                        {% else %}
-                        <i class="fas fa-user"></i>
-                        {% endif %}
-                    </div>
-                    <span class="user-label">
-                        {{ usuario_perfil.get_full_name|default:usuario_perfil.username|default:user.username|default:"Usuario" }}
-                    </span>
+                <!-- Siempre mostrar perfil + toggle en menú principal, y toggle + home en otros módulos -->
+                <button id="perfilBtn" class="icon-btn-glass" onclick="toggleProfileSidebar();" aria-label="Menú de perfil" title="Perfil">
+                    <i class="fas fa-user-circle"></i>
                 </button>
 
-                <div id="dropdownMenu" class="dropdown-sidebar oculto">
-                    <div class="sidebar-user-info">
-                        <div class="sidebar-avatar">
-                            {% if usuario_perfil.foto_perfil %}
-                            <img src="{{ usuario_perfil.foto_perfil.url }}" alt="Foto de perfil" class="foto-perfil-img">
-                            {% else %}
-                            <i class="fas fa-user"></i>
-                            {% endif %}
-                        </div>
-                        <div class="sidebar-text">
-                            <span class="sidebar-name">{{ user.get_full_name|default:user.username }}</span>
-                            <span class="sidebar-role">{{ user.groups.all.0.name|default:"Usuario" }}</span>
-                        </div>
-                    </div>
-                    
-                    <nav class="sidebar-nav">
-                        <a href="#" class="sidebar-menu-item" id="btnMiPerfil">
-                            <i class="fas fa-user-circle"></i>
-                            <span>Mi Perfil</span>
-                        </a>
-                        <a href="#" class="sidebar-menu-item" id="btnCambiarPass">
-                            <i class="fas fa-key"></i>
-                            <span>Seguridad</span>
-                        </a>
-                        <div class="sidebar-divider"></div>
-                        <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Cerrar Sesión</span>
-                        </a>
-                    </nav>
-                </div>
-                {% else %}
-                {# Cualquier otro módulo: Dropdown e Icono de Home #}
                 <button id="moduleToggle" class="icon-btn-glass" onclick="toggleModuleSidebar();" aria-label="Menú de Módulos" title="Navegar módulos">
                     <i class="fas fa-bars"></i>
                 </button>
+
+                {% if titulo_pagina != 'MENÚ PRINCIPAL' %}
                 <a href="{% url 'menu' %}" class="icon-btn-glass home-btn" aria-label="Menú Principal" title="Ir al menú principal">
                     <i class="fas fa-home"></i>
                 </a>
@@ -78,9 +37,9 @@
                 </div>
             </div>
 
-            <a href="#" class="icon-btn-glass" title="Ajustes">
+            <button id="configBtn" class="icon-btn-glass" title="Ajustes">
                 <i class="fas fa-cog"></i>
-            </a>
+            </button>
         </div>
     </div>
 </header>

@@ -5,16 +5,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================
   
   // Hacer las funciones accesibles globalmente
-  window.abrirModalLogout = function() {
-    const modal = document.getElementById('logoutModal');
+window.abrirModalLogout = function() {
+    const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.remove('oculto');
       console.log('Modal abierto');
     }
   };
   
-  window.cerrarModalLogout = function() {
-    const modal = document.getElementById('logoutModal');
+window.cerrarModalLogout = function() {
+    const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.add('oculto');
       console.log('Modal cerrado');
@@ -294,23 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       
-      // Crear el modal
-      const modal = document.createElement('div');
-      modal.className = 'modal-confirmacion';
-      modal.innerHTML = `
-        <div class="modal-confirmacion-overlay"></div>
-        <div class="modal-confirmacion-content">
-          <div class="modal-confirmacion-header">
-            <i class="fas fa-sign-out-alt"></i>
-            <h2>Cerrar Sesión</h2>
-          </div>
-          <p class="modal-confirmacion-mensaje">¿Está seguro que desea cerrar sesión?</p>
-          <div class="modal-confirmacion-botones">
-            <button type="button" class="btn-cancelar" id="btnCancelarLogout">Cancelar</button>
-            <button type="button" class="btn-confirmar" id="btnConfirmarLogout">Sí, cerrar sesión</button>
-          </div>
-        </div>
-      `;
+
       
       document.body.appendChild(modal);
       
@@ -349,7 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const btnConfirmar = document.getElementById('btnConfirmarLogout');
       if (btnConfirmar) {
         btnConfirmar.addEventListener('click', function() {
-          window.location.href = '/logout/';
+          console.log('Confirm logout clicked');
+          window.location.href = 'logout/';
         });
       }
       
