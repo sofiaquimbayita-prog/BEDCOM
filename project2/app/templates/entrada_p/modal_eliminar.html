@@ -32,72 +32,11 @@
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalDelete')" style="flex: 1; height: 46px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-times"></i> Cancelar
             </button>
-            <button type="submit" id="btnConfirmarAnular" style="flex: 1; height: 46px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <button type="button" id="btnConfirmarAnular" style="flex: 1; height: 46px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-ban"></i> Anular
             </button>
         </div>
     </form>
 </div>
 
-<script>
-// Función para obtener el CSRF Token de las cookies (Método infalible)
-function getCSRFToken() {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, 10) === ('csrftoken' + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(10));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-$(document).ready(function() {
-    // Escuchar el submit del formulario
-    $(document).off('submit', '#formEliminarEntrada').on('submit', '#formEliminarEntrada', function(e) {
-        e.preventDefault();
-        
-        const entradaId = $('#delete_entrada_id').val();
-        const submitBtn = $('#btnConfirmarAnular');
-        const originalBtnText = submitBtn.html();
-        
-        // Obtenemos el token de la cookie
-        const csrftoken = getCSRFToken();
-
-        if (!entradaId) return false;
-
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
-
-        $.ajax({
-            url: '/vistas/entrada_p/eliminar/' + entradaId + '/',
-            type: 'POST',
-            data: $(this).serialize(),
-            // Enviamos el token en los headers para que Django lo acepte
-            headers: {
-                "X-CSRFToken": csrftoken
-            },
-            success: function(response) {
-                if (response.success) {
-                    if (window.mostrarMensaje) mostrarMensaje('success', response.message);
-                    cerrarModal('modalDelete');
-                    setTimeout(function() { location.reload(); }, 1000);
-                } else {
-                    alert("Error: " + response.message);
-                    submitBtn.prop('disabled', false).html(originalBtnText);
-                }
-            },
-            error: function(xhr) {
-                // Si sale error 403, intentamos leer la respuesta del servidor
-                console.error("Error " + xhr.status + ": " + xhr.responseText);
-                alert("Error de seguridad (CSRF). Por favor, refresque la página e intente de nuevo.");
-                submitBtn.prop('disabled', false).html(originalBtnText);
-            }
-        });
-        return false;
-    });
-});
-</script>
+<!-- Script removed: Using global handlers from entrada_p.js -->

@@ -20,7 +20,7 @@
         </p>
     </div>
     
-    <form id="formReactivarEntrada" method="POST" action="/vistas/entrada_p/reactivar/0/" onsubmit="return false;">
+    <form id="formReactivarEntrada">
         {% csrf_token %}
         <input type="hidden" id="reactivate_entrada_id" name="id">
         
@@ -28,52 +28,12 @@
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalReactivate')">
                 <i class="fas fa-times"></i> Cancelar
             </button>
-            <button type="submit" class="btn-delete" style="background-color: #22c55e;">
+            <button type="button" class="btn-delete" style="background-color: #22c55e;">
                 <i class="fas fa-redo"></i> Reactivar
             </button>
         </div>
     </form>
 </div>
 
-<script>
-$('#formReactivarEntrada').on('submit', function(e) {
-    e.preventDefault();
-    
-    const form = $(this);
-    const entradaId = $('#reactivate_entrada_id').val();
-    const submitBtn = form.find('button[type="submit"]');
-    const originalBtnText = submitBtn.html();
-    
-    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Reactivando...');
-    
-    $.ajax({
-        url: '/vistas/entrada_p/reactivar/' + entradaId + '/',
-        type: 'POST',
-        data: form.serialize(),
-        success: function(response) {
-            if (response.success) {
-                mostrarMensaje('success', response.message);
-                cerrarModal('modalReactivate');
-                // Recargar la página para actualizar la tabla
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
-            } else {
-                mostrarMensaje('error', response.message);
-            }
-        },
-        error: function(xhr) {
-            let errorMsg = 'Error al procesar la solicitud';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                errorMsg = response.message || errorMsg;
-            } catch(e) {}
-            mostrarMensaje('error', errorMsg);
-        },
-        complete: function() {
-            submitBtn.prop('disabled', false).html(originalBtnText);
-        }
-    });
-});
-</script>
+<!-- Script removed: Using global handlers from entrada_p.js -->
 
