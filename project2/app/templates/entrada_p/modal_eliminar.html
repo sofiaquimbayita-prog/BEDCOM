@@ -1,35 +1,38 @@
 {% load static %}
 <div class="modal-content modal-delete">
-    <div class="modal-header modal-header-delete">
-        <h2><i class="fas fa-ban"></i> Anular Entrada</h2>
-        <button type="button" class="modal-close" onclick="cerrarModal('modalDelete')">
+    <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 1.25rem 1.5rem;">
+        <h2 style="margin: 0; color: white; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; font-weight: 600;">
+            <i class="fas fa-ban"></i> Anular Entrada
+        </h2>
+        <button type="button" class="close-modal" onclick="cerrarModal('modalDelete')" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
             <i class="fas fa-times"></i>
         </button>
     </div>
     
-    <div class="modal-body-delete">
-        <div class="delete-icon">
-            <i class="fas fa-ban"></i>
+    <div class="modal-body" style="text-align: center; padding: 2.5rem 2rem; background: #1e293b;">
+        <div style="margin-bottom: 25px;">
+            <div style="width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <i class="fas fa-ban" style="font-size: 40px; color: #ef4444;"></i>
+            </div>
+            <h3 style="color: white; font-size: 1.5rem; margin-bottom: 10px; font-weight: 600;">¿Está seguro de anular?</h3>
+            <p style="color: #94a3b8; font-size: 0.95rem;">Esta acción ajustará el stock automáticamente.</p>
         </div>
-        <h3>¿Está seguro de anular esta entrada?</h3>
-        <div class="entrada-nombre" id="delete_entrada_nombre">
-            Producto: --
+
+        <div class="view-info" style="text-align: left; max-width: 320px; margin: 0 auto; background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+            <label style="display: block; color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 5px;">Producto / Referencia</label>
+            <p id="delete_entrada_nombre" style="color: #38bdf8; font-weight: 600; font-size: 1.1rem; margin: 0;">Producto: --</p>
         </div>
-        <p class="advertencia">
-            <i class="fas fa-exclamation-circle"></i>
-            Esta acción no se puede deshacer. La entrada será anulada y mantendrá su trazabilidad en el sistema, pero no se mostrará en la lista de entradas activas.
-        </p>
     </div>
     
-<form id="formEliminarEntrada" method="POST" action="/vistas/entrada_p/eliminar/0/" onsubmit="return false;">
+    <form id="formEliminarEntrada">
         {% csrf_token %}
         <input type="hidden" id="delete_entrada_id" name="id">
         
-        <div class="modal-footer-delete">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalDelete')">
+        <div class="modal-footer" style="display: flex; gap: 12px; padding: 1.5rem; background: #0f172a; border-top: 1px solid #334155;">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalDelete')" style="flex: 1; height: 46px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-times"></i> Cancelar
             </button>
-            <button type="submit" class="btn-delete">
+            <button type="submit" id="btnConfirmarAnular" style="flex: 1; height: 46px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-ban"></i> Anular
             </button>
         </div>
@@ -37,44 +40,64 @@
 </div>
 
 <script>
-$('#formEliminarEntrada').on('submit', function(e) {
-    e.preventDefault();
-    
-    const form = $(this);
-    const entradaId = $('#delete_entrada_id').val();
-    const submitBtn = form.find('button[type="submit"]');
-    const originalBtnText = submitBtn.html();
-    
-    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Anulando...');
-    
-    $.ajax({
-        url: '/vistas/entrada_p/eliminar/' + entradaId + '/',
-        type: 'POST',
-        data: form.serialize(),
-        success: function(response) {
-            if (response.success) {
-                mostrarMensaje('success', response.message);
-                cerrarModal('modalDelete');
-                // Recargar la página para actualizar la tabla
-                setTimeout(function() {
-                    location.reload();
-                }, 1000);
-            } else {
-                mostrarMensaje('error', response.message);
+// Función para obtener el CSRF Token de las cookies (Método infalible)
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, 10) === ('csrftoken' + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
             }
-        },
-        error: function(xhr) {
-            let errorMsg = 'Error al procesar la solicitud';
-            try {
-                const response = JSON.parse(xhr.responseText);
-                errorMsg = response.message || errorMsg;
-            } catch(e) {}
-            mostrarMensaje('error', errorMsg);
-        },
-        complete: function() {
-            submitBtn.prop('disabled', false).html(originalBtnText);
         }
+    }
+    return cookieValue;
+}
+
+$(document).ready(function() {
+    // Escuchar el submit del formulario
+    $(document).off('submit', '#formEliminarEntrada').on('submit', '#formEliminarEntrada', function(e) {
+        e.preventDefault();
+        
+        const entradaId = $('#delete_entrada_id').val();
+        const submitBtn = $('#btnConfirmarAnular');
+        const originalBtnText = submitBtn.html();
+        
+        // Obtenemos el token de la cookie
+        const csrftoken = getCSRFToken();
+
+        if (!entradaId) return false;
+
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+
+        $.ajax({
+            url: '/vistas/entrada_p/eliminar/' + entradaId + '/',
+            type: 'POST',
+            data: $(this).serialize(),
+            // Enviamos el token en los headers para que Django lo acepte
+            headers: {
+                "X-CSRFToken": csrftoken
+            },
+            success: function(response) {
+                if (response.success) {
+                    if (window.mostrarMensaje) mostrarMensaje('success', response.message);
+                    cerrarModal('modalDelete');
+                    setTimeout(function() { location.reload(); }, 1000);
+                } else {
+                    alert("Error: " + response.message);
+                    submitBtn.prop('disabled', false).html(originalBtnText);
+                }
+            },
+            error: function(xhr) {
+                // Si sale error 403, intentamos leer la respuesta del servidor
+                console.error("Error " + xhr.status + ": " + xhr.responseText);
+                alert("Error de seguridad (CSRF). Por favor, refresque la página e intente de nuevo.");
+                submitBtn.prop('disabled', false).html(originalBtnText);
+            }
+        });
+        return false;
     });
 });
 </script>
-
