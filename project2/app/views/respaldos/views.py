@@ -1,19 +1,188 @@
+
+import os
+import subprocess
+from datetime import datetime
+from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse
-import os
 import shutil
 from django.utils import timezone
-import subprocess
 from django.http import FileResponse, Http404
 from ...models import respaldo
-from ...forms import RespaldoForm
-from django.conf import settings
+from ...forms import RespaldoForm   
+
+class RespaldoListView(ListView):
+    """Vista principal de la lista de respaldos"""
+    model = respaldo
+    template_name = 'respaldos/respaldos.html'
+    context_object_name = 'respaldos'
+
+    def get_queryset(self):
+        # Cargar todos los respaldos (activos e inactivos)
+        return respaldo.objects.all().order_by('-fecha')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = "Gestión de Respaldos"
+        context['icono_modulo'] = "fas fa-database"
+        return context
+    
+def obtener_credenciales_mysql():
+    db_config = settings.DATABASES['default']
+    return {
+        'host': db_config.get('HOST', 'localhost'),
+        'user': db_config.get('USER', 'root'),
+        'password': db_config.get('PASSWORD', ''),
+        'database': db_config.get('NAME', 'sena_db'),
+        'port': db_config.get('PORT', 3306),
+        'mysql_path': r'C:\Program Files\MySQL\MySQL Server 8.0\bin',
+    }
 
 
+def probar_conexion_mysql():
+    creds = obtener_credenciales_mysql()
+    try:
+        cmd = [
+            os.path.join(creds["mysql_path"], 'mysql.exe'),
+            '-h', creds["host"],
+            '-u', creds["user"],
+            '-P', str(creds["port"]),
+            '--password=' + creds["password"],
+            '-e', 'SELECT 1;',
+            creds["database"]
+        ]
+
+        resultado = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        return resultado.returncode == 0
+    except:
+        return False
+
+# ========== VISTA PARA MOSTRAR OPCIONES DE RESPALDO ==========
+@require_http_methods(["GET", "POST"])
+def backup(request):
+    if request.method == "POST":
+        accion = request.POST.get('accion')
+
+        try:
+            if accion == 'backup_completo':
+                if not probar_conexion_mysql():
+                    return JsonResponse({
+                        'error': 'No se puede conectar a MySQL.'
+                    }, status=400)
+
+                return realizar_respaldo_completo()
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    # GET
+    mysql_ok = probar_conexion_mysql()
+
+    context = {
+        'titulo': 'Respaldo y Restauracion de Base de Datos',
+        'mysql_conectado': mysql_ok,
+    }
+
+    return render(request, 'respaldos/menu.html', context)
+
+def realizar_respaldo_completo():
+    """Realiza un respaldo completo (estructura + datos)"""
+    creds = obtener_credenciales_mysql()
+
+    try:
+        # Construir comando mysqldump
+        cmd = [
+            os.path.join(creds["mysql_path"], 'mysqldump.exe'),
+            '-h', creds["host"],
+            '-u', creds["user"],
+            '-P', str(creds["port"]),
+            '--password=' + creds["password"],
+            creds["database"]
+        ]
+
+
+        # Ejecutar mysqldump y capturar output
+        resultado = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60  
+        )
+
+
+        if resultado.returncode != 0:
+            raise Exception(f"Error mysqldump: {resultado.stderr}")
+
+        sql_content = resultado.stdout
+
+        if not sql_content.strip():
+            raise Exception("El respaldo esta vacio")
+
+        # Agregar comentario con fecha
+        sql_content = f"-- Respaldo Completo de {creds['database']}\n" \
+                      f"-- Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n" \
+                      f"-- Tipo: Completo (Estructura + Datos)\n\n" + sql_content
+
+        return generar_archivo_descarga(sql_content, 'backup_completo')
+
+    except subprocess.TimeoutExpired:
+        raise Exception("Timeout al ejecutar mysqldump")
+    except Exception as e:
+        print(f"Error en respaldo completo: {str(e)}")
+        raise Exception(f"Error en respaldo completo: {str(e)}")
+
+def generar_archivo_descarga(contenido_sql, nombre_archivo):
+    """Genera un archivo SQL para descargar"""
+    response = HttpResponse(contenido_sql.encode('utf-8'), content_type='application/sql')
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}_{timestamp}.sql"'
+
+    return response
+
+def restaurar_bd_desde_sql(contenido_sql):
+    creds = obtener_credenciales_mysql()
+
+    try:
+        cmd = [
+            os.path.join(creds["mysql_path"], 'mysql.exe'),
+            '-h', creds["host"],
+            '-u', creds["user"],
+            '-P', str(creds["port"]),
+            '--password=' + creds["password"],
+            creds["database"]
+        ]
+
+        proceso = subprocess.Popen(
+            cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = proceso.communicate(input=contenido_sql, timeout=120)
+
+        if proceso.returncode != 0:
+            raise Exception(f"Error MySQL: {stderr}")
+
+        return True
+
+    except subprocess.TimeoutExpired:
+        raise Exception("Timeout al restaurar la base de datos")
+    except Exception as e:
+        raise Exception(f"Error al restaurar: {str(e)}")
 class RespaldoDataView(View):
     """API para obtener los datos de los respaldos (para DataTables u otras funciones)"""
     def get(self, request, *args, **kwargs):
@@ -38,21 +207,6 @@ class RespaldoDataView(View):
         return JsonResponse({'data': data}, safe=False)
 
 
-class RespaldoListView(ListView):
-    """Vista principal de la lista de respaldos"""
-    model = respaldo
-    template_name = 'respaldos/respaldos.html'
-    context_object_name = 'respaldos'
-
-    def get_queryset(self):
-        # Cargar todos los respaldos (activos e inactivos)
-        return respaldo.objects.all().order_by('-fecha')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = "Gestión de Respaldos"
-        context['icono_modulo'] = "fas fa-database"
-        return context
 
 
 class RespaldoCreateView(LoginRequiredMixin, CreateView):
@@ -168,3 +322,32 @@ class DescargarRespaldoView(LoginRequiredMixin, View):
             # El archivo podría no estar disponible
             raise Http404("No se puede acceder al archivo.")
 
+# VISTA PARA RESTAURAR DATOS  
+class RestaurarDatosView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if 'archivo' not in request.FILES:
+            messages.error(request, "No se proporcionó archivo.")
+            return redirect('respaldos_list')
+
+        archivo = request.FILES['archivo']
+
+        try:
+            # Validar extensión
+            if not archivo.name.endswith('.sql'):
+                messages.error(request, "El archivo debe ser .sql")
+                return redirect('respaldos_list')
+
+            # Leer contenido
+            contenido_sql = archivo.read().decode('utf-8')
+
+            # Restaurar BD
+            restaurar_bd_desde_sql(contenido_sql)
+
+            return JsonResponse({
+                'exito': True,
+                'mensaje': 'Base de datos restaurada correctamente'
+            })
+
+        except Exception as e:
+            messages.error(request, f"Error al restaurar: {str(e)}")
+            return redirect('respaldos_list')

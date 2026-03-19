@@ -22,12 +22,95 @@
             <label for="add_tipo" style="display: block; color: #94a3b8; margin-bottom: 8px;">
                 Tipo de Respaldo: <span style="color: #ef4444;">*</span>
             </label>
-            <select id="add_tipo" name="tipo_respaldo" 
-                style="width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 8px;">
-                <option value="" disabled selected>Seleccionar tipo...</option>
-                <option value="completo">Respaldo Completo</option>
-                <option value="parcial">Respaldo Parcial</option>
-            </select>
+            
+            <!-- TARJETAS SELECIONABLES -->
+            <input type="hidden" id="add_tipo" name="tipo_respaldo">
+
+            <div class="tipo-respaldo-container">
+
+                <div class="tipo-card" data-value="completo">
+                    <div class="tipo-icon blue">
+                        <i class="fas fa-database"></i>
+                    </div>
+
+                    <div class="tipo-info">
+                        <strong>Respaldo Completo</strong>
+                        <p>Todo el sistema: productos, insumos, proveedores y configuración general.</p>
+                    </div>
+
+                    <div class="tipo-radio"></div>
+                </div>
+
+                <div class="tipo-card" data-value="parcial">
+                    <div class="tipo-icon yellow">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+
+                    <div class="tipo-info">
+                        <strong>Respaldo Parcial</strong>
+                        <p>Elige uno o varios módulos específicos del sistema.</p>
+                    </div>
+
+                    <div class="tipo-radio"></div>
+                </div>
+
+            </div>
+
+
+            <!-- MODULOS A RESPALDAR -->
+            <div id="modulosContainer" style="display:none; margin-bottom:20px;">
+
+                <label style="display:block; color:#94a3b8; margin-bottom:10px;">
+                    <i class="fas fa-th-large"></i> MÓDULOS A RESPALDAR
+                </label>
+
+                <div class="modulo-card">
+                    
+                    <div class="modulo-icon blue">
+                        <i class="fas fa-box"></i>
+                    </div>
+
+                    <div class="modulo-info">
+                        <strong>Productos</strong>
+                        <p>Catálogo completo de productos</p>
+                    </div>
+
+                    <input type="checkbox" name="modulos[]" value="productos">
+
+                </div>
+
+                <div class="modulo-card">
+
+                    <div class="modulo-icon yellow">
+                        <i class="fas fa-flask"></i>
+                    </div>
+
+                    <div class="modulo-info">
+                        <strong>Insumos</strong>
+                        <p>Materiales e insumos registrados</p>
+                    </div>
+
+                    <input type="checkbox" name="modulos[]" value="insumos">
+
+                </div>
+
+                <div class="modulo-card">
+
+                    <div class="modulo-icon green">
+                        <i class="fas fa-truck"></i>
+                    </div>
+
+                    <div class="modulo-info">
+                        <strong>Proveedores</strong>
+                        <p>Registro de proveedores y contactos</p>
+                    </div>
+
+                    <input type="checkbox" name="modulos[]" value="proveedores">
+
+                </div>
+
+            </div>
+            
             {% if form.tipo_respaldo.errors %}
             <div class="error-message" style="color: #ef4444; font-size: 0.85rem; margin-top: 5px;">
                 {% for error in form.tipo_respaldo.errors %}
