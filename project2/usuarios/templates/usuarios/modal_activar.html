@@ -1,0 +1,19 @@
+<div class="modal-content">
+    <div class="modal-header" style="background: linear-gradient(135deg, var(--ok), #27ae60); color: white;">
+        <h2><i class="fas fa-user-check"></i> Activar Usuario</h2>
+        <button class="close-modal" onclick="cerrarModal('modalActivar')">&times;</button>
+    </div>
+    <div class="modal-body text-center">
+        <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--ok); margin-bottom: 20px;"></i>
+        <h4>¿Activar al usuario "<span id="nombreActivar"></span>"?</h4>
+        <p class="text-muted">El usuario podrá iniciar sesión nuevamente en BedCom.</p>
+    </div>
+    <form id="formActivar" method="post">
+        {% csrf_token %}
+    </form>
+    <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="cerrarModal('modalActivar')">Cancelar</button>
+        <button type="submit" form="formActivar" class="btn-save">Confirmar Activación</button>
+    </div>
+</div>
+

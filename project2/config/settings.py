@@ -29,14 +29,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Tus aplicaciones
     'app',
     
-    # Seguridad externa
     'axes',
     
-    # Custom user model setting (must be string, after 'app')
-    
+    'usuarios',
+    'widget_tweaks',
 ]
 AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
 

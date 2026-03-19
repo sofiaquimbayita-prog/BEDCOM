@@ -173,8 +173,99 @@ function abrirModalReactivar(id, nombre) {
     $('body').css('overflow', 'hidden');
 }
 
+/**
+ * AJAX Global para Anular Entrada
+ */
+function ejecutarAnular(entradaId) {
+    console.log('🔴 Anular entrada ID:', entradaId);
+    const csrftoken = getCSRFToken();
+    const $btn = $('#btnConfirmarAnular');
+    const originalText = $btn.html();
+    
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Anulando...');
+    
+    $.ajax({
+        url: `/vistas/entrada_p/eliminar/${entradaId}/`,
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: { id: entradaId },
+        success: (response) => {
+            console.log('✅ Anular success:', response);
+            if (response.success) {
+                mostrarMensaje('success', response.message || 'Entrada anulada');
+                cerrarModal('modalDelete');
+                if (window.recargarTabla) recargarTabla();
+                else location.reload();
+            } else {
+                mostrarMensaje('error', response.message || 'Error desconocido');
+            }
+        },
+        error: (xhr) => {
+            console.error('❌ Anular error:', xhr.status, xhr.responseText);
+            const msg = xhr.status === 403 ? 'Error CSRF - Recarga página' : 'Error servidor';
+            mostrarMensaje('error', msg);
+        },
+        complete: () => {
+            $btn.prop('disabled', false).html(originalText);
+        }
+    });
+}
+
+/**
+ * AJAX Global para Reactivar Entrada
+ */
+function ejecutarReactivar(entradaId) {
+    console.log('🟢 Reactivar entrada ID:', entradaId);
+    const csrftoken = getCSRFToken();
+    const $btn = $('.btn-delete[style*="22c55e"]'); // Reactivar button
+    const originalText = $btn.html();
+    
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Reactivando...');
+    
+    $.ajax({
+        url: `/vistas/entrada_p/reactivar/${entradaId}/`,
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: { id: entradaId },
+        success: (response) => {
+            console.log('✅ Reactivar success:', response);
+            if (response.success) {
+                mostrarMensaje('success', response.message || 'Entrada reactivada');
+                cerrarModal('modalReactivate');
+                if (window.recargarTabla) recargarTabla();
+                else location.reload();
+            } else {
+                mostrarMensaje('error', response.message || 'Error desconocido');
+            }
+        },
+        error: (xhr) => {
+            console.error('❌ Reactivar error:', xhr.status, xhr.responseText);
+            const msg = xhr.status === 403 ? 'Error CSRF - Recarga página' : 'Error servidor';
+            mostrarMensaje('error', msg);
+        },
+        complete: () => {
+            $btn.prop('disabled', false).html(originalText);
+        }
+    });
+}
+
+/**
+ * Obtener CSRF Token from cookie (global)
+ */
+function getCSRFToken() {
+    let token = null;
+    if (document.cookie) {
+        document.cookie.split(';').forEach(cookie => {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') token = decodeURIComponent(value);
+        });
+    }
+    console.log('🔑 CSRF Token:', token ? 'Found' : 'Missing');
+    return token;
+}
+
 // =====================================================
-// INICIALIZACIÓN ADICIONAL - Logout y notificaciones
+// INICIALIZACIÓN ADICIONAL - Logout y notificaciones + MODAL HANDLERS
 // =====================================================
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -359,7 +450,19 @@ document.addEventListener("DOMContentLoaded", function() {
   // INICIALIZACIÓN ADICIONAL
   // ============================
   
-  console.log('DOM completamente cargado');
-  
-}); // Fin DOMContentLoaded
+    // 🔧 FIXED: Global handlers for modals (reliable binding)
+    $(document).on('click', '#btnConfirmarAnular', function(e) {
+        e.preventDefault();
+        const id = $('#delete_entrada_id').val();
+        if (id) ejecutarAnular(id);
+    });
+    
+    $(document).on('click', '.btn-delete[style*="22c55e"], #btnReactivar', function(e) {
+        e.preventDefault();
+        const id = $('#reactivate_entrada_id').val();
+        if (id) ejecutarReactivar(id);
+    });
+    
+    console.log('✅ Entrada_p.js loaded: Anular/Reactivar handlers active');
+  }); // Fin DOMContentLoaded
 

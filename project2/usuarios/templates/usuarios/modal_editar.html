@@ -1,0 +1,91 @@
+{% load widget_tweaks %}
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h2>
+            <i class="fas fa-user-edit"></i> 
+            Editar Usuario: <span id="editUsuarioNombre"></span>
+        </h2>
+    </div>
+
+    <form method="post" action="" id="formEditarUsuario">
+        {% csrf_token %}
+        <div class="modal-body">
+            
+            <div id="error-container-edit" style="display: none;" class="alert alert-danger">
+                <h6><i class="fas fa-ban"></i> Errores en el formulario:</h6>
+                <ul id="error-list-edit"></ul>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="section-title"><i class="fas fa-user-cog"></i> Cuenta de Usuario</h5>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nombre de Usuario *</label>
+                        <input type="text" name="username" class="form-control" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="email" name="email" class="form-control" autocomplete="off">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <input type="password" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
+                        <small class="text-muted">Solo si desea actualizarla.</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="section-title"><i class="fas fa-address-card"></i> Información Personal</h5>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Nombres</label>
+                                <input type="text" name="first_name" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Apellidos</label>
+                                <input type="text" name="last_name" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Cédula</label>
+                                <input type="text" name="cedula" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" name="telefono" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Rol del Sistema *</label>
+                        <select name="rol" class="form-control" required>
+                            <option value="administrador">Administrador</option>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="cliente">Cliente</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            <button type="submit" class="btn-save">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
