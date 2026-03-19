@@ -11,7 +11,7 @@ class InventarioListView(ListView):
         context = super().get_context_data(**kwargs)
         
         # Título para el header
-        context['titulo_pagina'] = 'GESTIÓN DE INVENTARIO - BEDCOM'
+        context['titulo_pagina'] = 'EXISTENCIAS - BEDCOM'
         context['icono_modulo'] = 'fas fa-boxes'
 
         return context

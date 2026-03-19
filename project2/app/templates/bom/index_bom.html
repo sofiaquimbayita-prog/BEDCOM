@@ -35,16 +35,12 @@
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
 
 <main class="bom-gestion">
-    <div class="toolbar">
-        <div class="toolbar-left">
-            <h1> Estructura de Productos (BOM)</h1>
-        </div>
-        <div class="toolbar-right">
+    
+        <div class="crear-receta">
             <button class="button-2" onclick="event.preventDefault(); abrirModal('modalReceta');">
                 <i class="fas fa-book-open"></i> <span class="btn-text">Crear Receta</span>
             </button>
         </div>
-    </div>
     <div class="container-tabla">
         <table id="tablaBom" class="display responsive nowrap" style="width:100%">
             <thead>

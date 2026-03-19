@@ -10,7 +10,9 @@ from app.forms import SalidaProductoForm
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SalidaProductoCreateView(View):
+    
     def post(self, request):
+        
         form = SalidaProductoForm(request.POST)
 
         if form.is_valid():
@@ -129,6 +131,7 @@ class SalidaProductoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = "Salida de Productos - BEDCOM"
         context['productos'] = producto.objects.filter(estado=True)
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()

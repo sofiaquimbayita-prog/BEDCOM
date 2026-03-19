@@ -29,7 +29,7 @@ class EntradaListView(LoginRequiredMixin, View):
         context = {
             'entradas': entradas,
             'productos': productos,
-            'titulo_pagina': 'ENTRADA DE PRODUCTOS',
+            'titulo_pagina': 'ENTRADA DE PRODUCTOS - BEDCOM',
         }
         return render(request, self.template_name, context)
 

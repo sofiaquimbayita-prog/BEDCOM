@@ -4,19 +4,33 @@
         <div class="perfil-section">
             <div class="perfil-container">
                 <!-- Siempre mostrar perfil + toggle en menú principal, y toggle + home en otros módulos -->
-                <button id="perfilBtn" class="icon-btn-glass" onclick="toggleProfileSidebar();" aria-label="Menú de perfil" title="Perfil">
-                    <i class="fas fa-user-circle"></i>
-                </button>
-
                 <button id="moduleToggle" class="icon-btn-glass" onclick="toggleModuleSidebar();" aria-label="Menú de Módulos" title="Navegar módulos">
                     <i class="fas fa-bars"></i>
                 </button>
-
+                
                 {% if titulo_pagina != 'MENÚ PRINCIPAL' %}
                 <a href="{% url 'menu' %}" class="icon-btn-glass home-btn" aria-label="Menú Principal" title="Ir al menú principal">
                     <i class="fas fa-home"></i>
                 </a>
                 {% endif %}
+                
+                <!-- Navegación atrás/adelante -->
+                <button onclick="history.back()" class="icon-btn-glass nav-btn" aria-label="Atrás" title="Atrás">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <button onclick="history.forward()" class="icon-btn-glass nav-btn" aria-label="Adelante" title="Adelante">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                
+                <style>
+                .nav-btn {
+                    opacity: 0.7;
+                }
+                .nav-btn:hover {
+                    opacity: 1;
+                    transform: scale(1.05);
+                }
+                </style>
             </div>
         </div>
 
@@ -37,8 +51,8 @@
                 </div>
             </div>
 
-            <button id="configBtn" class="icon-btn-glass" title="Ajustes">
-                <i class="fas fa-cog"></i>
+            <button id="perfilBtn" class="icon-btn-glass" onclick="toggleProfileSidebar();" aria-label="Menú de perfil" title="Perfil">
+                <i class="fas fa-user-circle"></i>
             </button>
         </div>
     </div>

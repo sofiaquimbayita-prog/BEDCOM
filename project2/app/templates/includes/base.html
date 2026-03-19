@@ -34,33 +34,41 @@
         
         <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
-            <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
-                <i class="fa-solid fa-bed"></i>
-                <span>PRODUCTOS</span>
-            </a>
-            <a href="{% url 'categorias' %}" class="sidebar-module-item" title="Gestión de categorías">
-                <i class="fa-solid fa-tags"></i>
-                <span>CATEGORÍAS</span>
-            </a>
-            <a href="{% url 'insumos' %}" class="sidebar-module-item" title="Entradas y stock">
-                <i class="fa-solid fa-box-open"></i>
-                <span>INSUMOS</span>
+            <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
+                <i class="fa-solid fa-sitemap"></i>
+                <span>BOM/RECETAS</span>
             </a>
             <a href="{% url 'calendario' %}" class="sidebar-module-item" title="Fechas y reservas">
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>CALENDARIO</span>
             </a>
+            <a href="{% url 'categorias' %}" class="sidebar-module-item" title="Gestión de categorías">
+                <i class="fa-solid fa-tags"></i>
+                <span>CATEGORÍAS</span>
+            </a>
+            <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span>ENTRADA PRODUCTOS</span>
+            </a>
             <a href="{% url 'inventario' %}" class="sidebar-module-item" title="Existencias">
                 <i class="fa-solid fa-warehouse"></i>
-                <span>INVENTARIO</span>
+                <span>EXISTENCIAS</span>
+            </a>
+            <a href="{% url 'insumos' %}" class="sidebar-module-item" title="Entradas y stock">
+                <i class="fa-solid fa-box-open"></i>
+                <span>INSUMOS</span>
+            </a>
+            <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
+                <i class="fa-solid fa-bed"></i>
+                <span>PRODUCTOS</span>
+            </a>
+            <a href="{% url 'proveedores_list' %}" class="sidebar-module-item" title="Contactos & pagos">
+                <i class="fa-solid fa-truck-field"></i>
+                <span>PROVEEDORES</span>
             </a>
             <a href="{% url 'reportes' %}" class="sidebar-module-item" title="Gráficos y KPIs">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>REPORTES</span>
-            </a>
-        <a href="{% url 'proveedores_list' %}" class="sidebar-module-item" title="Contactos & pagos">
-                <i class="fa-solid fa-truck-field"></i>
-                <span>PROVEEDORES</span>
             </a>
             <a href="{% url 'respaldos_list' %}" class="sidebar-module-item" title="Copias en la nube">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -72,14 +80,8 @@
             </a>
             
             <!-- Nuevos módulos agregados -->
-            <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span>ENTRADA PRODUCTOS</span>
-            </a>
-            <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
-                <i class="fa-solid fa-sitemap"></i>
-                <span>BOM/RECETAS</span>
-            </a>
+            
+
         </nav>
     </div>
 

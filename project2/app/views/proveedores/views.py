@@ -16,7 +16,7 @@ class ProveedorListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = "Gestión de Proveedores"
+        context['titulo_pagina'] = "GESTION DE PROVEEDORES - BEDCOM"
         context['icono_modulo'] = "fas fa-user-tie"
         return context
 
