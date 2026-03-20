@@ -2,374 +2,201 @@
    script_usuarios.js - Gestión de Usuarios BedCom
    ================================================== */
 
-let validationErrorsAdd = {};
-let validationErrorsEdit = {}; 
-
-// VALIDACIÓN CLIENT-SIDE
+// 1. CONFIGURACIÓN DE REGEX (Validaciones)
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 const numeric10Regex = /^\d{10}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
 
-// FUNCIONES DE VALIDACIÓN
-function validateField(value, validator, message, isRequired = true) {
-    value = value.trim();
-    if (!value && isRequired) return {valid: false, msg: 'Campo requerido'};
-    if (!value) return {valid: true};
-    if (!validator.test(value)) return {valid: false, msg: message};
-    return {valid: true};
-}
-
-function getFieldValueAdd(fieldName) {
-    return $(`#formAddUsuario [name="${fieldName}"]`).val().trim();
-}
-
-function getFieldValueEdit(fieldName) {
-    return $(`#formEditarUsuario [name="${fieldName}"]`).val().trim();
-}
-
-function validateFormAdd() {
-    // Check all required
-    const required = ['username', 'password', 'first_name', 'last_name'];
-    for (let field of required) {
-        if (!getFieldValueAdd(field)) return false;
+// 2. SISTEMA DE NOTIFICACIONES (TOAST)
+function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed; top:25px; right:25px; z-index:999999; display:flex; flex-direction:column; gap:12px; pointer-events:none;';
+        document.body.appendChild(container);
     }
     
-    return true; // Live validation ya maneja detalles
-}
+    const toast = document.createElement('div');
+    const colorBorde = tipo === 'error' ? '#ef4444' : '#10b981';
+    const icono = tipo === 'error' ? 'fa-times-circle' : 'fa-check-circle';
 
-function validateFormEdit() {
-    // Check required (except password optional)
-    const required = ['username', 'first_name', 'last_name'];
-    for (let field of required) {
-        if (!getFieldValueEdit(field)) return false;
-    }
+    toast.style.cssText = `
+        background: #1a202c; color: white; min-width: 320px; max-width: 400px;
+        border-left: 6px solid ${colorBorde}; padding: 18px; border-radius: 6px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.7); display: flex; flex-direction: column;
+        pointer-events: auto; opacity: 0; transform: translateX(50px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    `;
     
-    return true; // Live ya valida
-}
-
-// MOSTRAR/LIMPIAR ERRORES
-function showErrorsAdd() {
-    // Toast con errores específicos
-    const errorsList = Object.keys(validationErrorsAdd).map(field => {
-        return validationErrorsAdd[field] + ' (' + field.replace('_', ' ').toUpperCase() + ')';
-    }).join(', ');
-    mostrarNotificacion('Errores de validación', errorsList, 'error');
+    toast.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <i class="fas ${icono}" style="color:${colorBorde}; font-size:1.3rem;"></i>
+            <strong style="font-size:0.95rem; text-transform:uppercase;">${titulo}</strong>
+        </div>
+        <div style="font-size:0.88rem; color:#d1d5db; padding-left:32px;">${mensaje}</div>
+    `;
     
-    // Errores locales también
-    $('#formAddUsuario .error-message').remove();
-    $('#formAddUsuario .form-control').removeClass('input-error');
-    
-    Object.keys(validationErrorsAdd).forEach(field => {
-        const input = $(`#formAddUsuario [name="${field}"]`);
-        input.addClass('input-error');
-        input.after(`<div id="error${field.charAt(0).toUpperCase() + field.slice(1)}" class="error-message">${validationErrorsAdd[field]}</div>`);
-    });
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(0)'; }, 10);
+    setTimeout(() => {
+        toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 600);
+    }, 5500);
 }
 
-function showErrorsEdit() {
-    // Toast con errores específicos
-    const errorsList = Object.keys(validationErrorsEdit).map(field => {
-        return validationErrorsEdit[field] + ' (' + field.replace('_', ' ').toUpperCase() + ')';
-    }).join(', ');
-    mostrarNotificacion('Errores de validación', errorsList, 'error');
-    
-    $('#error-container-edit').show();
-    $('#error-list-edit').empty();
-    
-    Object.keys(validationErrorsEdit).forEach(field => {
-        $(`#formEditarUsuario [name="${field}"]`).addClass('input-error');
-        $('#error-list-edit').append(`<li>${validationErrorsEdit[field]}: ${field.replace('_', ' ').toUpperCase()}</li>`);
-    });
-}
-
-function clearErrorsAdd() {
-    validationErrorsAdd = {};
-    $('#formAddUsuario .error-message').remove();
-    $('#formAddUsuario .form-control').removeClass('is-invalid');
-}
-
-function clearErrorsEdit() {
-    validationErrorsEdit = {};
-    $('#formEditarUsuario .is-invalid').removeClass('is-invalid');
-    $('#error-container-edit').hide();
-}
-
-// VALIDACIÓN REAL-TIME
-function validateFieldLive(input, validator, message, fieldName, isRequired = true) {
+// 3. VALIDACIÓN EN TIEMPO REAL
+function validateFieldLive(input, validator, message, isRequired = true) {
     const value = input.val().trim();
-    const errorId = 'error' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
-    const errorEl = document.getElementById(errorId);
-    if (errorEl) errorEl.remove();
+    const inputId = input.attr('id');
+    const errorEl = $(`#error_${inputId}`);
     input.removeClass('input-error');
+    if(errorEl.length) errorEl.removeClass('show').text('');
     
-    const result = validateField(value, validator, message, isRequired);
-    if (!result.valid) {
+    if (!value && isRequired) {
         input.addClass('input-error');
-        input.after(`<div id="${errorId}" class="error-message">${result.msg}</div>`);
+        if(errorEl.length) errorEl.text('Campo requerido').addClass('show');
+        return false;
+    }
+    if (value && validator && !validator.test(value)) {
+        input.addClass('input-error');
+        if(errorEl.length) errorEl.text(message).addClass('show');
         return false;
     }
     return true;
 }
 
-// Real-time para cada campo
-$(document).on('input', '#formAddUsuario .form-control, #formEditarUsuario .form-control', function() {
+$(document).on('input', '.form-control', function() {
     const name = $(this).attr('name');
-    const modalId = $(this).closest('.modal').attr('id');
-    const isAdd = modalId === 'modalAdd';
-    
-    if (isAdd) {
-        switch(name) {
-            case 'username':
-                validateFieldLive($(this), /.+/, 'Requerido', 'username', true);
-                break;
-            case 'email':
-                validateFieldLive($(this), emailRegex, 'Email inválido', 'email', false);
-                break;
-            case 'password':
-                validateFieldLive($(this), passwordRegex, 'Mín 8: mayús, número, especial', 'password', true);
-                break;
-            case 'first_name':
-                validateFieldLive($(this), nameRegex, 'Solo letras', 'first_name', true);
-                break;
-            case 'last_name':
-                validateFieldLive($(this), nameRegex, 'Solo letras', 'last_name', true);
-                break;
-            case 'cedula':
-            case 'telefono':
-                validateFieldLive($(this), numeric10Regex, '10 dígitos', name, false);
-                break;
-        }
-    } else {
-        // Edit modal
-        switch(name) {
-            case 'username':
-                validateFieldLive($(this), /.+/, 'Requerido', 'username', true);
-                break;
-            case 'email':
-                validateFieldLive($(this), emailRegex, 'Email inválido', 'email', false);
-                break;
-            case 'password':
-                validateFieldLive($(this), passwordRegex, 'Mín 8: mayús, número, especial', 'password', false);
-                break;
-            case 'first_name':
-                validateFieldLive($(this), nameRegex, 'Solo letras', 'first_name', true);
-                break;
-            case 'last_name':
-                validateFieldLive($(this), nameRegex, 'Solo letras', 'last_name', true);
-                break;
-            case 'cedula':
-            case 'telefono':
-                validateFieldLive($(this), numeric10Regex, '10 dígitos', name, false);
-                break;
-        }
+    const formId = $(this).closest('form').attr('id');
+    const isAdd = formId === 'formAddUsuario';
+
+    switch(name) {
+        case 'username': validateFieldLive($(this), /.{3,}/, 'Mínimo 3 caracteres'); break;
+        case 'email': validateFieldLive($(this), emailRegex, 'Email inválido', false); break;
+        case 'password': validateFieldLive($(this), passwordRegex, 'Mín 8: Mayús, Núm, Especial', isAdd); break;
+        case 'first_name': case 'last_name': validateFieldLive($(this), nameRegex, 'Solo letras'); break;
+        case 'cedula': case 'telefono': 
+            $(this).val($(this).val().replace(/\D/g, ''));
+            validateFieldLive($(this), numeric10Regex, 'Deben ser 10 dígitos', false); 
+            break;
     }
 });
 
-/**
- * 1. FILTRO POR ESTADO (Columna 6)
- * Switch OFF -> Muestra solo Activos
- * Switch ON  -> Muestra solo Inactivos
- */
-$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    if (settings.nTable.id !== 'tablaUsuarios') return true;
-
-    var mostrarInactivos = $('#toggleInactivos').is(':checked');
-    
-    // Obtenemos el texto de la columna 6 ("Activo" o "Inactivo")
-    var valorEstado = data[6].trim(); 
-
-    if (!mostrarInactivos) {
-        // MODO NORMAL: Solo Activos
-        return valorEstado === 'Activo' || valorEstado === '1' || valorEstado === 'True';
-    } else {
-        // MODO INACTIVOS: Solo Inactivos
-        return valorEstado === 'Inactivo' || valorEstado === '0' || valorEstado === 'False';
-    }
-});
-
+// 4. LÓGICA DE DATATABLES Y FORMULARIOS
 $(document).ready(function() {
-    /**
-     * 2. CONFIGURACIÓN DE DATATABLES
-     */
-    const lenguajeEspanol = {
-        "sProcessing": "Procesando...",
-        "sLengthMenu": "Mostrar _MENU_ registros",
-        "sZeroRecords": "No se encontraron resultados",
-        "sEmptyTable": "Ningún dato disponible en esta tabla",
-        "sInfo": "Mostrando _START_ a _END_ de _TOTAL_ usuarios",
-        "sSearch": "Buscar:",
-        "oPaginate": {
-            "sFirst": "Primero", "sLast": "Último", "sNext": "Siguiente", "sPrevious": "Anterior"
-        }
-    };
-
-    // Inicializamos la tabla
     const table = $('#tablaUsuarios').DataTable({
         responsive: true,
         autoWidth: false,
-        pageLength: 10,
-        language: lenguajeEspanol,
+        language: { "sSearch": "Buscar:", "sZeroRecords": "No se encontraron resultados" },
         order: [[1, "asc"]],
         columnDefs: [{ orderable: false, targets: [7] }]
     });
 
-    // Evento para que el switch refresque la tabla
-    $('#toggleInactivos').on('change', function() {
-        table.draw();
+    // FILTRO BLINDADO (Columna 6: Estado)
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const showAll = $('#toggleInactivos').is(':checked');
+        if (showAll) return true;
+
+        // Limpiamos el texto que hay en la celda de la columna 6
+        const textoEstado = (data[6] || "").trim().toLowerCase();
+
+        // Si la celda dice "activo", "1" o "true", se muestra. Si no, se oculta.
+        return textoEstado === "activo" || textoEstado === "1" || textoEstado === "true";
     });
 
-    /**
-     * 3. LÓGICA DE CREACIÓN (AJAX)
-     */
-$(document).on('submit', '#formAddUsuario', function(e) {
+    $('#toggleInactivos').on('change', function() { table.draw(); });
+
+    // Submit AJAX para Crear/Editar
+    $(document).on('submit', '#formAddUsuario, #formEditarUsuario', function(e) {
         e.preventDefault();
-        
-        // VALIDAR ANTES DE ENVÍO
-        if (!validateFormAdd()) {
-            showErrorsAdd();
+        let errores = [];
+        const form = $(this);
+        form.find('.form-control').removeClass('input-error');
+
+        form.find('input[required]').each(function() {
+            if (!$(this).val().trim()) {
+                errores.push($(this).closest('.form-group').find('label').text().replace('*','').trim());
+                $(this).addClass('input-error');
+            }
+        });
+
+        if (errores.length > 0) {
+            mostrarNotificacion('Atención', 'Faltan campos: ' + errores.join(', '), 'error');
             return;
         }
-        
-        var form = $(this);
-        var formData = new FormData(this);
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        fetch(form.attr('action'), {
+        fetch(this.action, {
             method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrftoken
-            }
+            body: new FormData(this),
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                cerrarModal('modalAdd');
-                window.location.reload();
+                mostrarNotificacion('Éxito', 'Guardado correctamente', 'success');
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                alert("Error servidor: " + (data.message || "Datos inválidos"));
+                throw data;
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(err => {
+            let msg = err.errors ? Object.values(err.errors).flat().join(' | ') : "Error al procesar";
+            mostrarNotificacion('Error', msg, 'error');
+        });
     });
-
-// AGREGAR HANDLER PARA EDIT MODAL
-$(document).on('submit', '#formEditarUsuario', function(e) {
-    e.preventDefault();
-    
-    if (!validateFormEdit()) {
-        showErrorsEdit();
-        return;
-    }
-    
-    const formData = new FormData(this);
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            cerrarModal('modalEditar');
-            window.location.reload();
-        } else {
-            alert("Error servidor: " + (data.message || "Datos inválidos"));
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
 });
 
-/**
- * 4. FUNCIONES GLOBALES (MODALES)
- */
+// 5. FUNCIONES DE MODALES
 window.abrirModal = function(id) {
     const m = document.getElementById(id);
     if(m) { 
         m.style.display = 'flex'; 
         document.body.style.overflow = 'hidden';
-        
-        // LIMPIAR ERRORES AL ABRIR
-        if (id === 'modalAdd') {
-            clearErrorsAdd();
-        } else if (id === 'modalEditar') {
-            clearErrorsEdit();
-        }
     }
 };
-
-function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
-    const container = document.getElementById('toast-container') || createToastContainer();
-    
-    const tipoClase = tipo === 'success' ? 'success' : tipo === 'error' ? 'error' : 'info';
-    const iconClass = tipo === 'success' ? 'fas fa-check-circle' : tipo === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
-    
-    const toast = document.createElement('div');
-    toast.className = `message ${tipoClase}`;
-    toast.innerHTML = `
-        <div class="message-content">
-            <i class="${iconClass}"></i>
-            <span>${mensaje}</span>
-        </div>
-        <button class="close-toast" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
-}
-
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;';
-    document.body.appendChild(container);
-    return container;
-}
 
 window.cerrarModal = function(id) {
     const m = document.getElementById(id);
     if(m) { m.style.display = 'none'; document.body.style.overflow = 'auto'; }
 };
 
-/**
- * 5. ACCIONES DE FILA
- */
-function abrirModalEditar(id) {
+window.abrirModalEditar = function(id) {
     fetch(`/usuarios/detalle_json/${id}/`)
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            const form = document.getElementById('formEditarUsuario');
-            form.action = `/usuarios/editar/${id}/`;
-            form.querySelector('[name="username"]').value = data.username;
-            form.querySelector('[name="email"]').value = data.email;
-            form.querySelector('[name="first_name"]').value = data.first_name;
-            form.querySelector('[name="last_name"]').value = data.last_name;
-            form.querySelector('[name="cedula"]').value = data.cedula;
-            form.querySelector('[name="rol"]').value = data.rol;
+            const f = document.getElementById('formEditarUsuario');
+            f.action = `/usuarios/editar/${id}/`;
+            // Sincronizado con los campos de tu DB
+            $('[name="username"]', f).val(data.username);
+            $('[name="email"]', f).val(data.email);
+            $('[name="first_name"]', f).val(data.first_name);
+            $('[name="last_name"]', f).val(data.last_name);
+            $('[name="cedula"]', f).val(data.cedula);
+            $('[name="telefono"]', f).val(data.telefono);
+            $('[name="rol"]', f).val(data.rol);
             abrirModal('modalEditar');
-        });
-}
+        })
+        .catch(() => mostrarNotificacion('Error', 'No se pudo cargar el usuario', 'error'));
+};
 
-function abrirModalEliminar(id, nombre) {
-    const form = document.getElementById('formEliminar');
-    if(document.getElementById('nombreEliminar')) document.getElementById('nombreEliminar').textContent = nombre;
-    form.action = `/usuarios/cambiar_estado/${id}/`;
-    abrirModal('modalDelete');
-}
+window.abrirModalEliminar = function(id, nombre) {
+    const modal = document.getElementById('modalDelete');
+    if (modal) {
+        modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
+        const txt = document.getElementById('nombreUsuarioEliminar');
+        if (txt) txt.textContent = nombre;
+        abrirModal('modalDelete');
+    }
+};
 
-function abrirModalActivar(id, nombre) {
-    const form = document.getElementById('formActivar');
-    if(document.getElementById('nombreActivar')) document.getElementById('nombreActivar').textContent = nombre;
-    form.action = `/usuarios/cambiar_estado/${id}/`;
-    abrirModal('modalActivar');
-}
+window.abrirModalActivar = function(id, nombre) {
+    const modal = document.getElementById('modalActivar');
+    if (modal) {
+        modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
+        const txt = document.getElementById('nombreUsuarioActivar');
+        if (txt) txt.textContent = nombre;
+        abrirModal('modalActivar');
+    }
+};

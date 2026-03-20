@@ -13,7 +13,6 @@
             <div class="switch-container">
                 <span class="switch-text">Mostrar inactivos</span>
                 <label class="switch-control">
-                    {# Este ID es el que escucha el JS para el .on('change') #}
                     <input type="checkbox" id="toggleInactivos">
                     <span class="slider"></span>
                 </label>
@@ -28,44 +27,34 @@
     </div>
 
     <div class="container-tabla">
-        {# El ID tablaUsuarios debe ser el mismo que inicializas en el JS #}
         <table id="tablaUsuarios" class="display responsive nowrap" style="width:100%">
             <thead>
                 <tr>
-                    <th>ID</th>           <th>Usuario</th>      <th>Nombre Completo</th> <th>Rol</th>          <th>Cédula</th>       <th>Teléfono</th>     <th>Estado</th>       <th>Acciones</th>     </tr>
+                    <th>ID</th> <th>Usuario</th> <th>Nombre Completo</th> <th>Rol</th> <th>Cédula</th> <th>Teléfono</th> <th>Estado</th> <th>Acciones</th>
+                </tr>
             </thead>
             <tbody>
                 {% for u in usuarios %}
-                {# Fila con clase condicional para usuarios inactivos #}
                 <tr class="{% if not u.is_active %}fila-inactiva{% endif %}" 
                     {% if not u.is_active %}style="display:none;"{% endif %}>
-                    
                     <td>{{ u.id }}</td>
                     <td style="font-weight: bold;">{{ u.username }}</td>
                     <td>{{ u.first_name }} {{ u.last_name|default:"" }}</td>
                     <td>{{ u.rol|default:"Empleado" }}</td>
-                    <td>{{ u.cedula|default:"-" }}</td>
-                    <td>{{ u.perfil.telefono|default:"-" }}</td>
-                    
-                    {# COLUMNA 6: ESTADO #}
-                    {# IMPORTANTE: Dejamos el texto limpio 'Activo' o 'Inactivo' para JS filter #}
+                    <td>{{ u.cedula|default:"N/A" }}</td>
+                    <td>{{ u.perfil.telefono|default:"N/A" }}</td>
                     <td>{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td>
-
-                    {# COLUMNA 7: ACCIONES #}
                     <td>
                         <div class="acciones">
                             <button class="edit-btn" title="Editar" onclick="abrirModalEditar('{{ u.id }}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            
                             {% if u.is_active %}
-                                <button class="delete-btn" title="Desactivar" 
-                                        onclick="abrirModalEliminar('{{ u.id }}', '{{ u.username }}')">
+                                <button class="delete-btn" title="Desactivar" onclick="abrirModalEliminar('{{ u.id }}', '{{ u.username }}')">
                                     <i class="fas fa-ban"></i>
                                 </button>
                             {% else %}
-                                <button class="activate-btn" title="Activar" 
-                                        onclick="abrirModalActivar('{{ u.id }}', '{{ u.username }}')">
+                                <button class="activate-btn" title="Activar" onclick="abrirModalActivar('{{ u.id }}', '{{ u.username }}')">
                                     <i class="fas fa-redo"></i>
                                 </button>
                             {% endif %}
@@ -73,7 +62,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="text-center py-4">No hay usuarios registrados. Usa "Nuevo Usuario" para crear el primero.</td></tr>
+                <tr><td colspan="8" class="text-center py-4">No hay usuarios registrados (excluyendo superuser). Usa "Nuevo Usuario" para crear.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -83,15 +72,12 @@
 <div id="modalAdd" class="modal" style="display: none;">
     {% include "usuarios/modal_add.html" %}
 </div>
-
 <div id="modalEditar" class="modal" style="display: none;">
     {% include "usuarios/modal_editar.html" %}
 </div>
-
 <div id="modalDelete" class="modal" style="display: none;">
     {% include "usuarios/modal_eliminar.html" %}
 </div>
-
 <div id="modalActivar" class="modal" style="display: none;">
     {% include "usuarios/modal_activar.html" %}
 </div>
@@ -99,5 +85,4 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="{% static 'ap1/js/script_usuarios.js' %}"></script>
-
 {% endblock %}

@@ -229,26 +229,28 @@ header {
   border-color: #38bdf8 !important;
 }
 
-.img-producto {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    object-position: center;
+.helper-text {
+  color: #64748b !important;
+  font-size: 0.75rem !important;
+  margin-top: 6px !important;
+  font-style: italic;
 }
-/* Asegúrate de que esto exista en tu CSS */
-.error-msg {
-    display: none;
-    transition: all 0.3s ease;
+.error-message {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+  display: none;
+  font-weight: 500;
+  animation: fadeInError 0.3s ease;
 }
 
-.error-msg.show {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    min-height: 20px;
-    z-index: 999;
+.error-message.show { 
+  display: block; 
 }
-
 
 /* ==================================================
    MODAL VIEW (VISTA DE PRODUCTO)
@@ -275,6 +277,42 @@ header {
 
 .modal-body-view .badge.inactive {
     color: #ef4444;
+}
+/* ==================================================
+   CENTRADO DE CONTENIDO EN MODALES (Inactivar/Activar)
+   ================================================== */
+
+/* 1. Contenedor principal del cuerpo */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente si hay espacio */
+    text-align: center;      /* Centra las líneas de texto */
+    padding: 30px 20px;
+}
+
+/* 2. El icono de advertencia o éxito */
+.modal-body i.fas {
+    display: block;
+    margin: 0 auto 20px auto; /* Margen automático a los lados y 20px abajo */
+    text-align: center;
+    width: 100%;             /* Asegura que ocupe el ancho para centrar el glifo */
+}
+
+/* 3. Ajuste para los textos dentro del body */
+.modal-body h4, 
+.modal-body p {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 4. Asegurar que el modal-content no tenga paddings que desvíen el centro */
+.modal-content {
+    padding: 0 !important; /* El padding lo manejamos internamente en header, body y footer */
+    overflow: hidden;
+    border-radius: 8px;
 }
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
@@ -675,6 +713,14 @@ input:-webkit-autofill {
 .btn-delete:active {
     transform: translateY(0);
 }
+.modal-header {
+background: linear-gradient(135deg, var(--color-superficie));
+color: var(--color-texto);  
+border-radius: 8px 8px 0 0;
+margin: 0;
+width: 100%;
+
+}
 
 /* ==================================================
    TOOLBAR Y SWITCH
@@ -841,7 +887,10 @@ input:checked + .slider:before {
 .modal-content .input-error {
     border-color: #e74c3c !important;
 }
-
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
 @keyframes slideInError {
   from {
     opacity: 0;
@@ -860,13 +909,28 @@ input:checked + .slider:before {
   position: fixed; top: 85px; right: 25px; z-index: 10000;
   display: flex; flex-direction: column; gap: 12px;
 }
-
-.message {
-  min-width: 320px; padding: 16px 20px; border-radius: 14px;
-  background: #1e293b; color: white; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05);
-  animation: slideInToast 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+#toast-container {
+    position: fixed !important;
+    top: 20px;
+    right: 20px;
+    z-index: 99999 !important; /* Valor extremo para superar cualquier modal */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Permite clicks debajo si no es el toast */
 }
+.message {
+    pointer-events: auto; /* Reactiva clicks para el botón cerrar del toast */
+    min-width: 300px;
+    background: var(--color-borde); /* Color oscuro acorde a BedCom */
+    border-left: 5px solid #ef4444;
+    box-shadow: 0 10px 30px var(--color-borde);
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
 
 .message-content { display: flex; align-items: center; gap: 12px; }
 .message-content i { font-size: 20px; }
@@ -879,6 +943,16 @@ input:checked + .slider:before {
 .message.warning .message-content i { color: #f59e0b; }
 .message.info { border-left: 5px solid #38bdf8; }
 .message.info .message-content i { color: #38bdf8; }
+.message.error {
+    background: #ffffff;
+    border-left: 5px solid #ef4444;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: #333;
+    padding: 15px 20px;
+    border-radius: 4px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease-out;
+}
 
 .close-toast {
   background: rgba(255, 255, 255, 0.1); border: none; color: rgba(255, 255, 255, 0.6);
@@ -893,6 +967,7 @@ input:checked + .slider:before {
   .messages-container { right: 12px; left: 12px; max-width: calc(100% - 24px); top: 70px; }
   .message { min-width: auto; }
 }
+
 
 /* ==================================================
    RESPONSIVE - TABLET (768px y menos)
@@ -1125,4 +1200,35 @@ input:checked + .slider:before {
     padding: 3px 5px;
     font-size: 9px;
   }
+}
+
+/* ==================================================
+   FIX Modal Crear Usuario - Full Width Fields (No centered, full ancho)
+   ================================================== */
+#modalAdd .modal-body {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 30px 25px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+}
+
+#modalAdd .modal-content {
+    width: 95vw !important;
+    max-width: 700px !important;
+    margin: auto !important;
+}
+
+#modalAdd .form-group {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+#modalAdd .modal-body > div[style*="display: flex"] {
+    width: 100% !important;
+    justify-content: space-between !important;
 }

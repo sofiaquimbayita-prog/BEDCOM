@@ -16,6 +16,20 @@ class UserForm(forms.ModelForm):
         'invalid_name'
     )
     
+    # Teléfono: 10 dígitos (compatible con validator existente)
+    numeric10_validator = RegexValidator(
+        r'^\\d{10}$',
+        'Debe ser exactamente 10 dígitos numéricos.',
+        'invalid_numeric'
+    )
+
+    telefono = forms.CharField(
+        validators=[numeric10_validator],
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '310...'}),
+        label='Teléfono'
+    )
+    
     password = forms.CharField(
         min_length=8,
         widget=forms.PasswordInput(attrs={
@@ -45,13 +59,14 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'telefono', 'password']
         # cedula y rol vienen de PerfilForm
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'cedula': forms.TextInput(attrs={'class': 'form-control'}),
             'rol': forms.TextInput(attrs={'class': 'form-control'}), # O Select si prefieres
         }
@@ -60,6 +75,7 @@ class UserForm(forms.ModelForm):
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
+            'telefono': 'Teléfono',
         }
 
 class PerfilForm(forms.ModelForm):
@@ -103,7 +119,7 @@ class UserEditForm(UserForm):  # Hereda name_validator y password logic
     )
 
     class Meta(UserForm.Meta):
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'telefono', 'password']
 
     class Meta:
         model = User

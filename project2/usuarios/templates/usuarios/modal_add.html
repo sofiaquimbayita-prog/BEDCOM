@@ -4,7 +4,6 @@
 <div class="modal-content">
     <div class="modal-header">
         <h2><i class="fas fa-user-plus"></i> REGISTRAR USUARIO</h2>
-
     </div>
     
     <form id="formAddUsuario" method="POST" action="{% url 'usuarios:crear' %}" enctype="multipart/form-data">
@@ -15,19 +14,25 @@
                 <div class="form-group" style="flex: 1;">
                     <label>NOMBRE DE USUARIO *</label>
                     {{ user_form.username|add_class:"form-control"|attr:"placeholder:Ej: emendivelso" }}
+                    <span id="error_username" class="error-message"></span>
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label>CORREO ELECTRÓNICO</label>
                     {{ user_form.email|add_class:"form-control"|attr:"placeholder:correo@ejemplo.com" }}
+                    <span id="error_email" class="error-message"></span>
                 </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
                 <label>CONTRASEÑA *</label>
                 {{ user_form.password|add_class:"form-control"|attr:"type:password"|attr:"placeholder:••••••••" }}
+                <p class="helper-text" style="font-size: 0.7rem; color: #888; margin-top: 4px;">
+                    Mín. 8 caracteres: 1 mayúscula, 1 número y 1 símbolo.
+                </p>
+                <span id="error_password" class="error-message"></span>
             </div>
 
-            <h5 style="color: var(--brand); font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 15px;">
+            <h5 style="color: var(--color-principal); font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 15px;">
                 INFORMACIÓN PERSONAL
             </h5>
 
@@ -35,27 +40,34 @@
                 <div class="form-group" style="flex: 1;">
                     <label>NOMBRES</label>
                     {{ user_form.first_name|add_class:"form-control"|attr:"placeholder:Nombres" }}
+                    <span id="error_first_name" class="error-message"></span>
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label>APELLIDOS</label>
                     {{ user_form.last_name|add_class:"form-control"|attr:"placeholder:Apellidos" }}
+                    <span id="error_last_name" class="error-message"></span>
                 </div>
             </div>
 
             <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                 <div class="form-group" style="flex: 1;">
-                    <label>CÉDULA</label>
-                    {{ perfil_form.cedula|add_class:"form-control"|attr:"placeholder:CC/TI" }}
+                    <label>CÉDULA (10 DÍGITOS) *</label>
+                    {# Cambiado a user_form porque ahí vive la cédula en tu AbstractUser #}
+                    {{ user_form.cedula|add_class:"form-control"|attr:"placeholder:Ej: 1000..."|attr:"maxlength:10" }}
+                    <span id="error_cedula" class="error-message"></span>
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label>TELÉFONO</label>
-                    {{ perfil_form.telefono|add_class:"form-control"|attr:"placeholder:310..." }}
+                    {{ user_form.telefono|add_class:"form-control"|attr:"placeholder:310..." }}
+                    <span id="error_telefono" class="error-message"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>ROL DEL SISTEMA</label>
-                {{ perfil_form.rol|add_class:"form-control" }}
+                {# Cambiado a user_form porque ahí vive el rol en tu AbstractUser #}
+                {{ user_form.rol|add_class:"form-control" }}
+                <span id="error_rol" class="error-message"></span>
             </div>
         </div>
 
