@@ -8,8 +8,8 @@ from django.http import JsonResponse
 from .models import PerfilUsuario  
 from .forms import UserForm, UserEditForm
 
-# Obtenemos el modelo de la 'app' que definiste como AbstractUser
-User = get_user_model()
+# Obtenemos el modelo de usuario personalizado
+User = get_object_or_404(get_user_model()) if False else get_user_model()
 logger = logging.getLogger(__name__)
 
 # ==================================================
@@ -21,15 +21,12 @@ class ListarUsuariosView(ListView):
     context_object_name = 'usuarios'
 
     def get_queryset(self):
-        # Traemos todos los usuarios (excepto superusers) 
-        # y unimos el perfil para obtener el teléfono sin errores
-        logger.debug(f"[{timezone.now()}] Query get_queryset ejecutada - excluyendo superusers (sin perfil JOIN por migration issue)")
+        # Excluimos superusuarios para la gestión administrativa común
         return User.objects.filter(is_superuser=False).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_form'] = UserForm()
-        logger.info(f"[{timezone.now()}] Cargando {self.object_list.count()} usuarios - context keys: {list(context.keys())}")
         return context
 
 # ==================================================
@@ -37,7 +34,6 @@ class ListarUsuariosView(ListView):
 # ==================================================
 def obtener_detalle_usuario(request, pk):
     usuario = get_object_or_404(User, pk=pk)
-    
     data = {
         'username': usuario.username,
         'email': usuario.email,
@@ -51,24 +47,47 @@ def obtener_detalle_usuario(request, pk):
     return JsonResponse(data)
 
 # ==================================================
-#  3. CREAR USUARIO
+#  3. CREAR USUARIO (ELIMINA EL INTEGRITY ERROR)
 # ==================================================
 class CrearUsuarioView(View):
     def post(self, request):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            user_form = UserForm(request.POST)
-
-            if user_form.is_valid():
-                # Guardamos el usuario (incluye teléfono)
-                user = user_form.save(commit=False)
-                user.set_password(user_form.cleaned_data['password'])
-                user.is_active = True
-                user.estado = 'Activo'
-                user.save()
+            form = UserForm(request.POST)
+            
+            if form.is_valid():
+                try:
+                    # 1. Creamos el objeto pero no lo guardamos en DB todavía
+                    user = form.save(commit=False)
+                    
+                    # 2. SEGURO ANTI-NULOS: Forzamos strings vacíos si vienen None
+                    # Esto evita el "IntegrityError: NOT NULL constraint failed"
+                    user.first_name = form.cleaned_data.get('first_name') or ""
+                    user.last_name = form.cleaned_data.get('last_name') or ""
+                    user.email = form.cleaned_data.get('email') or ""
+                    user.telefono = form.cleaned_data.get('telefono') or ""
+                    
+                    # 3. Encriptar contraseña
+                    password = form.cleaned_data.get('password')
+                    if password:
+                        user.set_password(password)
+                    
+                    # 4. Campos de estado por defecto
+                    user.is_active = True
+                    user.estado = 'Activo'
+                    
+                    # 5. Guardado final
+                    user.save()
+                    
+                    logger.info(f"Usuario creado con éxito: {user.username}")
+                    return JsonResponse({'success': True, 'message': 'Usuario creado correctamente'})
                 
-                return JsonResponse({'success': True, 'message': 'Usuario creado correctamente'})
+                except Exception as e:
+                    logger.error(f"Error inesperado al guardar: {str(e)}")
+                    return JsonResponse({'success': False, 'errors': {'database': [str(e)]}}, status=500)
 
-            return JsonResponse({'success': False, 'errors': user_form.errors}, status=400)
+            # Si el formulario no es válido (ej. Rol no válido)
+            logger.warning(f"Errores de validación: {form.errors}")
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         
         return redirect('usuarios:listar')
 
@@ -80,22 +99,25 @@ class EditarUsuarioView(View):
         usuario = get_object_or_404(User, pk=pk)
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            user_form = UserEditForm(request.POST, instance=usuario)
+            form = UserEditForm(request.POST, instance=usuario)
 
-            if user_form.is_valid():
-                user = user_form.save(commit=False)
-                nueva_pass = user_form.cleaned_data.get('password')
+            if form.is_valid():
+                user = form.save(commit=False)
+                
+                # Solo actualizamos contraseña si se escribió algo nuevo
+                nueva_pass = form.cleaned_data.get('password')
                 if nueva_pass:
                     user.set_password(nueva_pass)
+                
                 user.save()
-                return JsonResponse({'success': True, 'message': 'Usuario actualizado'})
+                return JsonResponse({'success': True, 'message': 'Usuario actualizado correctamente'})
 
-            return JsonResponse({'success': False, 'errors': user_form.errors}, status=400)
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         
         return redirect('usuarios:listar')
 
 # ==================================================
-#  5. CAMBIAR ESTADO (Activar/Desactivar)
+#  5. CAMBIAR ESTADO
 # ==================================================
 class CambiarEstadoUsuarioView(View):
     def post(self, request, pk):

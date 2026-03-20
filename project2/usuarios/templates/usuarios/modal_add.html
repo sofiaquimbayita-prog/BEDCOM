@@ -1,79 +1,83 @@
 {% load static %}
-{% load widget_tweaks %}
 
 <div class="modal-content">
     <div class="modal-header">
-        <h2><i class="fas fa-user-plus"></i> REGISTRAR USUARIO</h2>
+        <h2><i class="fas fa-user-plus"></i> NUEVO USUARIO</h2>
+        <button class="close-btn" onclick="cerrarModal('modalAdd')">&times;</button>
     </div>
-    
-    <form id="formAddUsuario" method="POST" action="{% url 'usuarios:crear' %}" enctype="multipart/form-data">
+
+    <form id="formAddUsuario" action="{% url 'usuarios:crear' %}" method="POST" style="padding: 20px;">
         {% csrf_token %}
         
-        <div class="modal-body">
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>NOMBRE DE USUARIO *</label>
-                    {{ user_form.username|add_class:"form-control"|attr:"placeholder:Ej: emendivelso" }}
-                    <span id="error_username" class="error-message"></span>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>CORREO ELECTRÓNICO</label>
-                    {{ user_form.email|add_class:"form-control"|attr:"placeholder:correo@ejemplo.com" }}
-                    <span id="error_email" class="error-message"></span>
-                </div>
+        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="username">NOMBRE DE USUARIO *</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Ej: emendivelso" required>
+                <span id="error_username" class="error-message"></span>
             </div>
-
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label>CONTRASEÑA *</label>
-                {{ user_form.password|add_class:"form-control"|attr:"type:password"|attr:"placeholder:••••••••" }}
-                <p class="helper-text" style="font-size: 0.7rem; color: #888; margin-top: 4px;">
-                    Mín. 8 caracteres: 1 mayúscula, 1 número y 1 símbolo.
-                </p>
-                <span id="error_password" class="error-message"></span>
-            </div>
-
-            <h5 style="color: var(--color-principal); font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 15px;">
-                INFORMACIÓN PERSONAL
-            </h5>
-
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>NOMBRES</label>
-                    {{ user_form.first_name|add_class:"form-control"|attr:"placeholder:Nombres" }}
-                    <span id="error_first_name" class="error-message"></span>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>APELLIDOS</label>
-                    {{ user_form.last_name|add_class:"form-control"|attr:"placeholder:Apellidos" }}
-                    <span id="error_last_name" class="error-message"></span>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>CÉDULA (10 DÍGITOS) *</label>
-                    {# Cambiado a user_form porque ahí vive la cédula en tu AbstractUser #}
-                    {{ user_form.cedula|add_class:"form-control"|attr:"placeholder:Ej: 1000..."|attr:"maxlength:10" }}
-                    <span id="error_cedula" class="error-message"></span>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>TELÉFONO</label>
-                    {{ user_form.telefono|add_class:"form-control"|attr:"placeholder:310..." }}
-                    <span id="error_telefono" class="error-message"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>ROL DEL SISTEMA</label>
-                {# Cambiado a user_form porque ahí vive el rol en tu AbstractUser #}
-                {{ user_form.rol|add_class:"form-control" }}
-                <span id="error_rol" class="error-message"></span>
+            <div class="form-group" style="flex: 1;">
+                <label for="email">CORREO ELECTRÓNICO</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="correo@ejemplo.com">
+                <span id="error_email" class="error-message"></span>
             </div>
         </div>
 
-        <div class="modal-footer" style="margin-top: 20px;">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')">CANCELAR</button>
-            <button type="submit" class="btn-save">GUARDAR</button>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="password">CONTRASEÑA *</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="........" required>
+            <small class="help-text" style="color: #888; font-size: 0.8rem; display: block; margin-top: 5px;">
+                Mín. 8 caracteres: 1 mayúscula, 1 número y 1 símbolo.
+            </small>
+            <span id="error_password" class="error-message"></span>
+        </div>
+
+        <h3 class="section-title" style="color: #3b82f6; font-size: 1rem; margin-bottom: 5px; text-transform: uppercase;">Información Personal</h3>
+        <hr style="border: 0; border-top: 1px solid #334155; margin-bottom: 15px;">
+
+        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="first_name">NOMBRES *</label>
+                <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Nombres" required>
+                <span id="error_first_name" class="error-message"></span>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="last_name">APELLIDOS</label>
+                <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Apellidos">
+                <span id="error_last_name" class="error-message"></span>
+            </div>
+        </div>
+
+        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="cedula">CÉDULA (10 DÍGITOS) *</label>
+                <input type="text" id="cedula" name="cedula" class="form-control" placeholder="1057..." required maxlength="10">
+                <span id="error_cedula" class="error-message"></span>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="telefono">TELÉFONO</label>
+                <input type="text" id="telefono" name="telefono" class="form-control" placeholder="310..." maxlength="10">
+                <span id="error_telefono" class="error-message"></span>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="rol">ROL DEL SISTEMA *</label>
+            <select id="rol" name="rol" class="form-control" required style="width: 100%; padding: 10px; border-radius: 4px; background-color: #1e293b; color: white; border: 1px solid #334155;">
+                <option value="" disabled selected>Seleccione un rol...</option>
+                <option value="administrador">Administrador</option>
+                <option value="empleado">Empleado</option>
+                <option value="vendedor">Vendedor</option>
+            </select>
+            <span id="error_rol" class="error-message"></span>
+        </div>
+
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalAdd')" style="background-color: #334155; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                CANCELAR
+            </button>
+            <button type="submit" class="btn-save" style="background-color: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                GUARDAR
+            </button>
         </div>
     </form>
 </div>
