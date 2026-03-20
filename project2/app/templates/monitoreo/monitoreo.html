@@ -1,0 +1,133 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block title %}Monitoreo{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/monitoreo.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- HEADER ESPECIFICO DE MONITOREO -->
+
+
+<main class="monitoreo-main">
+    <!-- KPI CARDS -->
+    <section class="kpi-section">
+        <div class="kpi-grid">
+            <div class="kpi-card" data-color="blue">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-boxes"></i></div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                </div>
+                <div class="kpi-value" data-target="120">0</div>
+                <div class="kpi-label">Stock Total</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="75"></div>
+                </div>
+                <div class="kpi-sub">Capacidad: 160 unidades</div>
+            </div>
+
+            <div class="kpi-card" data-color="amber">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Revisar</span>
+                </div>
+                <div class="kpi-value" data-target="3">0</div>
+                <div class="kpi-label">Insumos Bajos</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="30"></div>
+                </div>
+                <div class="kpi-sub">Umbral crítico: 5 insumos</div>
+            </div>
+
+            <div class="kpi-card" data-color="red">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-bell"></i></div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Urgente</span>
+                </div>
+                <div class="kpi-value" data-target="2">0</div>
+                <div class="kpi-label">Alertas Activas</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="20"></div>
+                </div>
+                <div class="kpi-sub">2 sin resolver hoy</div>
+            </div>
+
+            <div class="kpi-card" data-color="green">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-industry"></i></div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                </div>
+                <div class="kpi-value" data-target="25">0</div>
+                <div class="kpi-label">Producción Hoy</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="62"></div>
+                </div>
+                <div class="kpi-sub">Meta diaria: 40 unidades</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FILA INFERIOR: alertas + tabla -->
+    <section class="bottom-grid">
+        <!-- ALERTAS -->
+        <div class="panel alertas-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-shield-alt"></i> Alertas del Sistema</span>
+                <span class="badge-count">2</span>
+            </div>
+            <div class="alertas-list">
+                <div class="alerta danger">
+                    <div class="alerta-left">
+                        <div class="alerta-icon-wrap danger"><i class="fas fa-times"></i></div>
+                        <div class="alerta-info">
+                            <span class="alerta-title">Falta espuma en inventario</span>
+                            <span class="alerta-time"><i class="far fa-clock"></i> Hace 15 min</span>
+                        </div>
+                    </div>
+                    <button class="alerta-btn danger" onclick="irModulo('insumos')">Resolver</button>
+                </div>
+                <div class="alerta warning">
+                    <div class="alerta-left">
+                        <div class="alerta-icon-wrap warning"><i class="fas fa-exclamation"></i></div>
+                        <div class="alerta-info">
+                            <span class="alerta-title">Pedido retrasado - Logística</span>
+                            <span class="alerta-time"><i class="far fa-clock"></i> Hace 42 min</span>
+                        </div>
+                    </div>
+                    <button class="alerta-btn warning" onclick="irModulo('logistica')">Ver</button>
+                </div>
+                <div class="alerta-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <span>No hay más alertas pendientes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="panel tabla-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
+                <span class="panel-refresh"><i class="fas fa-sync-alt"></i> Auto</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>modulo</th>
+                            <th>accion</th>
+                            <th>fecha</th>
+                            <th>responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="{% static 'ap1/js/monitoreo.js' %}"></script>
+{% endblock %}
