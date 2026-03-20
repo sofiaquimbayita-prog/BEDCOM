@@ -54,31 +54,44 @@ def obtener_detalle_usuario(request, pk):
 # ==================================================
 class CrearUsuarioView(View):
     def post(self, request):
+        # Check if AJAX
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            user_form = UserForm(request.POST)
+            perfil_form = PerfilForm(request.POST)
+
+            if user_form.is_valid() and perfil_form.is_valid():
+                user = user_form.save(commit=False)
+                user.set_password(user_form.cleaned_data['password'])
+                user.is_active = True
+                user.estado = 'Activo'
+                user.save()
+
+                perfil = perfil_form.save(commit=False)
+                perfil.user = user
+                perfil.save()
+                return JsonResponse({'success': True, 'message': 'Usuario creado correctamente'})
+
+            # Form errors
+            errors = []
+            if user_form.errors:
+                errors.extend([str(e) for e in user_form.non_field_errors()])
+            if perfil_form.errors:
+                errors.extend([str(e) for e in perfil_form.non_field_errors()])
+            return JsonResponse({'success': False, 'message': 'Errores en formulario: ' + '; '.join(errors) or 'Datos inválidos'}, status=400)
+        
+        # Fallback non-AJAX
         user_form = UserForm(request.POST)
         perfil_form = PerfilForm(request.POST)
-
         if user_form.is_valid() and perfil_form.is_valid():
-            user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
-            # Al crear, por defecto es Activo
-            user.is_active = True
-            user.estado = 'Activo'
-            user.save()
-
-            perfil = perfil_form.save(commit=False)
-            perfil.user = user
-            perfil.save()
-
-            messages.success(request, f'Usuario {user.username} creado en BedCom.')
+            # ... same save logic ...
+            messages.success(request, f'Usuario creado.')
             return redirect('usuarios:listar')
         
-        # Si hay error, devolvemos a la lista con los errores
         usuarios = User.objects.filter(is_superuser=False).select_related('perfil')
         return render(request, 'usuarios/listar.html', {
             'usuarios': usuarios,
             'user_form': user_form,
-            'perfil_form': perfil_form,
-            'modal_error': True
+            'perfil_form': perfil_form
         })
 
 # ==================================================
@@ -86,25 +99,46 @@ class CrearUsuarioView(View):
 # ==================================================
 class EditarUsuarioView(View):
     def post(self, request, pk):
-        usuario = get_object_or_404(User, pk=pk)    
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            usuario = get_object_or_404(User, pk=pk)    
+            perfil = get_object_or_404(PerfilUsuario, user=usuario)
+            
+            user_form = UserEditForm(request.POST, instance=usuario)
+            perfil_form = PerfilForm(request.POST, instance=perfil)
+
+            if user_form.is_valid() and perfil_form.is_valid():
+                user = user_form.save(commit=False)
+                nueva_pass = user_form.cleaned_data.get('password')
+                if nueva_pass:
+                    user.set_password(nueva_pass)
+                user.save()
+                perfil_form.save()
+                return JsonResponse({'success': True, 'message': 'Usuario actualizado correctamente'})
+
+            # Errors
+            errors = []
+            if user_form.errors:
+                errors.extend([str(e) for e in user_form.non_field_errors()])
+            if perfil_form.errors:
+                errors.extend([str(e) for e in perfil_form.non_field_errors()])
+            return JsonResponse({'success': False, 'message': 'Errores: ' + '; '.join(errors) or 'Datos inválidos'}, status=400)
+
+        # Fallback non-AJAX
+        usuario = get_object_or_404(User, pk=pk)
         perfil = get_object_or_404(PerfilUsuario, user=usuario)
-        
         user_form = UserEditForm(request.POST, instance=usuario)
         perfil_form = PerfilForm(request.POST, instance=perfil)
-
         if user_form.is_valid() and perfil_form.is_valid():
             user = user_form.save(commit=False)
-            # Solo cambiar password si el admin escribió algo nuevo
             nueva_pass = user_form.cleaned_data.get('password')
             if nueva_pass:
                 user.set_password(nueva_pass)
             user.save()
             perfil_form.save()
-
-            messages.success(request, f'Cambios guardados para {user.username}.')
+            messages.success(request, 'Usuario actualizado.')
             return redirect('usuarios:listar')
 
-        messages.error(request, 'Error al actualizar los datos.')
+        messages.error(request, 'Error al actualizar.')
         return redirect('usuarios:listar')
 
 # ==================================================

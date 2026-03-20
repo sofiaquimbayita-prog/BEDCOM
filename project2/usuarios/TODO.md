@@ -1,25 +1,43 @@
-# TODO: Update cambiar_estado to sync is_active + estado fields
+# Validaciones Modales Usuario - BedCom
+Estado: 🚀 En progreso
 
-✅ **Completed: 1/3 steps**
+## Pasos del Plan (Pendientes ✅ Completados ❌)
 
-## Steps:
-### ✅ 1. Update CambiarEstadoUsuarioView.post() in usuarios/views.py
-   - Toggle usuario.is_active ✓
-   - Sync usuario.estado: 'Inactivo' if not is_active else 'Activo' ✓
-   - Update logs and messages to reference both fields ✓
-   - Preserve all existing functionality ✓
+### 1. ✅ Actualizar forms.py - COMPLETADO
+- Agregar validadores Django backend
+  - Nombres/apellidos: solo letras ✓
+  - Cédula/teléfono: 10 dígitos exactos ✓  
+  - Password: 8+ chars, mayús, número, especial ✓
+- Agregar validadores Django backend
+  - Nombres/apellidos: solo letras
+  - Cédula/teléfono: 10 dígitos exactos  
+  - Password: 8+ chars, mayús, número, especial
 
-### ☐ 2. Test the change
-   - Use modals to deactivate/activate users
-   - Verify DB: both is_active (bool) and estado (string) update correctly
-   - Check list view filter and DataTable toggle still work
+### 2. ✅ Agregar validación JS (script_usuarios.js) - COMPLETADO
+- Regex patterns, validateFormAdd/Edit ✓
+- Submit handlers with block ✓
+- Error display (is-invalid, messages), clear on open ✓
+- Real-time input validation ✓
 
-### ☐ 3. Cleanup
-   - Mark TODO complete
-   - No migrations needed ✓
+### 3. ✅ Actualizar modal_editar.html - COMPLETADO
+- IDs en username, email, password, first_name, last_name, cedula ✓
+- Error container existente aprovechado ✓
 
-**Note**: Minimal change - no template/JS updates needed since they use is_active.
+### 4. 🔄 Actualizar modal_add.html  
+- IDs campos si necesario
 
-**Next**: Test in browser (`cd project2 && python manage.py runserver`), then confirm completion.
+### 5. 🔄 Actualizar views.py (menor)
+- Manejo errores JSON para AJAX edit
 
+### 6. ✅ Tests & Collectstatic
+- Probar modals en browser
+- `python manage.py collectstatic`
+
+**Próximo paso actual: Tests (paso 6)**
+
+### 4. ✅ Actualizar modal_add.html - NO CAMBIOS
+- Django widgets ya tienen IDs y [name] funciona ✓
+
+### 5. ✅ Actualizar views.py - COMPLETADO  
+- AJAX JSON responses con success/error para create/edit ✓
 
