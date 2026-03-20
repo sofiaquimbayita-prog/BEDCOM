@@ -84,6 +84,8 @@ urlpatterns = [
    # --- SALIDA DE PRODUCTOS ---
       path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
       path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
+      path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_anular'),
+      path('salida/detalle/<int:pk>/', salida_p.DetalleSalidaView.as_view(), name='salida_detalle'),
       
       # --- INVENTARIO ---
       path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
