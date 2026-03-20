@@ -51,6 +51,7 @@ function validateFieldLive(input, validator, message, isRequired = true) {
     const value = input.val().trim();
     const inputId = input.attr('id');
     const errorEl = $(`#error_${inputId}`);
+    
     input.removeClass('input-error');
     if(errorEl.length) errorEl.removeClass('show').text('');
     
@@ -84,71 +85,91 @@ $(document).on('input', '.form-control', function() {
     }
 });
 
-// 4. LÓGICA DE DATATABLES Y FORMULARIOS
+// 4. LÓGICA DE DATATABLES Y FILTRADO EXCLUYENTE
 $(document).ready(function() {
     const table = $('#tablaUsuarios').DataTable({
         responsive: true,
         autoWidth: false,
-        language: { "sSearch": "Buscar:", "sZeroRecords": "No se encontraron resultados" },
-        order: [[1, "asc"]],
+        language: { 
+            "sSearch": "Buscar:", 
+            "sZeroRecords": "No se encontraron resultados",
+            "oPaginate": { "sNext": "Sig", "sPrevious": "Ant" }
+        },
+        order: [[0, "desc"]], 
         columnDefs: [{ orderable: false, targets: [7] }]
     });
 
-    // FILTRO BLINDADO (Columna 6: Estado)
+    // --- FILTRO LÓGICO (Columna 6: Estado) ---
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const showAll = $('#toggleInactivos').is(':checked');
-        if (showAll) return true;
+        const mostrarSoloInactivos = $('#toggleInactivos').is(':checked');
+        const textoEstado = (data[6] || "").trim();
 
-        // Limpiamos el texto que hay en la celda de la columna 6
-        const textoEstado = (data[6] || "").trim().toLowerCase();
-
-        // Si la celda dice "activo", "1" o "true", se muestra. Si no, se oculta.
-        return textoEstado === "activo" || textoEstado === "1" || textoEstado === "true";
+        if (mostrarSoloInactivos) {
+            return textoEstado === "Inactivo"; 
+        } else {
+            return textoEstado === "Activo";   
+        }
     });
 
-    $('#toggleInactivos').on('change', function() { table.draw(); });
+    // CORRECCIÓN: Forzar el dibujo inicial para aplicar el filtro de "Solo Activos"
+    table.draw();
 
-    // Submit AJAX para Crear/Editar
+    // Redibujar al cambiar el switch
+    $('#toggleInactivos').on('change', function() {
+        table.draw();
+    });
+
+    // 5. SUBMIT AJAX (Crear/Editar)
     $(document).on('submit', '#formAddUsuario, #formEditarUsuario', function(e) {
         e.preventDefault();
-        let errores = [];
         const form = $(this);
-        form.find('.form-control').removeClass('input-error');
+        let formValido = true;
 
-        form.find('input[required]').each(function() {
-            if (!$(this).val().trim()) {
-                errores.push($(this).closest('.form-group').find('label').text().replace('*','').trim());
+        form.find('input[required], select[required]').each(function() {
+            if (!$(this).val() || !$(this).val().trim()) {
                 $(this).addClass('input-error');
+                formValido = false;
             }
         });
 
-        if (errores.length > 0) {
-            mostrarNotificacion('Atención', 'Faltan campos: ' + errores.join(', '), 'error');
+        if (!formValido) {
+            mostrarNotificacion('Atención', 'Por favor completa los campos obligatorios (*)', 'error');
             return;
         }
 
         fetch(this.action, {
             method: 'POST',
             body: new FormData(this),
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() }
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest', 
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() 
+            }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) return response.json().then(err => { throw err; });
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                mostrarNotificacion('Éxito', 'Guardado correctamente', 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                throw data;
+                mostrarNotificacion('Éxito', data.message || 'Guardado correctamente', 'success');
+                setTimeout(() => window.location.reload(), 1200);
             }
         })
         .catch(err => {
-            let msg = err.errors ? Object.values(err.errors).flat().join(' | ') : "Error al procesar";
-            mostrarNotificacion('Error', msg, 'error');
+            console.error("Error en servidor:", err);
+            let msgFinal = "Error al procesar la solicitud";
+            
+            if (err.errors) {
+                msgFinal = Object.entries(err.errors)
+                    .map(([campo, mensajes]) => `${campo.toUpperCase()}: ${mensajes.join(' ')}`)
+                    .join('<br>');
+            }
+            mostrarNotificacion('Error', msgFinal, 'error');
         });
     });
 });
 
-// 5. FUNCIONES DE MODALES
+// 6. FUNCIONES DE MODALES
 window.abrirModal = function(id) {
     const m = document.getElementById(id);
     if(m) { 
@@ -166,27 +187,27 @@ window.abrirModalEditar = function(id) {
     fetch(`/usuarios/detalle_json/${id}/`)
         .then(r => r.json())
         .then(data => {
-            const f = document.getElementById('formEditarUsuario');
-            f.action = `/usuarios/editar/${id}/`;
-            // Sincronizado con los campos de tu DB
-            $('[name="username"]', f).val(data.username);
-            $('[name="email"]', f).val(data.email);
-            $('[name="first_name"]', f).val(data.first_name);
-            $('[name="last_name"]', f).val(data.last_name);
-            $('[name="cedula"]', f).val(data.cedula);
-            $('[name="telefono"]', f).val(data.telefono);
-            $('[name="rol"]', f).val(data.rol);
+            const f = $('#formEditarUsuario');
+            f.attr('action', `/usuarios/editar/${id}/`);
+            
+            f.find('[name="username"]').val(data.username);
+            f.find('[name="email"]').val(data.email);
+            f.find('[name="first_name"]').val(data.first_name);
+            f.find('[name="last_name"]').val(data.last_name);
+            f.find('[name="cedula"]').val(data.cedula);
+            f.find('[name="telefono"]').val(data.telefono);
+            f.find('[name="rol"]').val(data.rol);
+            
             abrirModal('modalEditar');
         })
-        .catch(() => mostrarNotificacion('Error', 'No se pudo cargar el usuario', 'error'));
+        .catch(() => mostrarNotificacion('Error', 'No se pudo cargar la información', 'error'));
 };
 
 window.abrirModalEliminar = function(id, nombre) {
     const modal = document.getElementById('modalDelete');
     if (modal) {
         modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
-        const txt = document.getElementById('nombreUsuarioEliminar');
-        if (txt) txt.textContent = nombre;
+        $('#nombreUsuarioEliminar').text(nombre);
         abrirModal('modalDelete');
     }
 };
@@ -195,8 +216,7 @@ window.abrirModalActivar = function(id, nombre) {
     const modal = document.getElementById('modalActivar');
     if (modal) {
         modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
-        const txt = document.getElementById('nombreUsuarioActivar');
-        if (txt) txt.textContent = nombre;
+        $('#nombreUsuarioActivar').text(nombre);
         abrirModal('modalActivar');
     }
 };

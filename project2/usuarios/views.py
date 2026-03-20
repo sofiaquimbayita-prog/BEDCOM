@@ -8,8 +8,8 @@ from django.http import JsonResponse
 from .models import PerfilUsuario  
 from .forms import UserForm, UserEditForm
 
-# Obtenemos el modelo de usuario personalizado
-User = get_object_or_404(get_user_model()) if False else get_user_model()
+# Obtenemos el modelo de usuario (Custom User o AbstractUser)
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 # ==================================================
@@ -21,7 +21,7 @@ class ListarUsuariosView(ListView):
     context_object_name = 'usuarios'
 
     def get_queryset(self):
-        # Excluimos superusuarios para la gestión administrativa común
+        # Excluimos superusuarios de la lista de gestión
         return User.objects.filter(is_superuser=False).order_by('-id')
 
     def get_context_data(self, **kwargs):
@@ -30,7 +30,7 @@ class ListarUsuariosView(ListView):
         return context
 
 # ==================================================
-#  2. OBTENER DETALLE (AJAX para el Modal de Edición)
+#  2. OBTENER DETALLE (AJAX)
 # ==================================================
 def obtener_detalle_usuario(request, pk):
     usuario = get_object_or_404(User, pk=pk)
@@ -47,7 +47,7 @@ def obtener_detalle_usuario(request, pk):
     return JsonResponse(data)
 
 # ==================================================
-#  3. CREAR USUARIO (ELIMINA EL INTEGRITY ERROR)
+#  3. CREAR USUARIO (CON VALIDACIÓN DE UNICIDAD)
 # ==================================================
 class CrearUsuarioView(View):
     def post(self, request):
@@ -55,44 +55,60 @@ class CrearUsuarioView(View):
             form = UserForm(request.POST)
             
             if form.is_valid():
+                # Extraemos datos limpios del formulario
+                cedula = form.cleaned_data.get('cedula')
+                email = form.cleaned_data.get('email')
+                telefono = form.cleaned_data.get('telefono')
+
+                errores_unicidad = {}
+
+                # --- VALIDACIÓN DE TELÉFONO ÚNICO ---
+                if telefono and User.objects.filter(telefono=telefono).exists():
+                    errores_unicidad['telefono'] = ['Este número de teléfono ya está registrado por otro usuario.']
+
+                # --- VALIDACIÓN DE CÉDULA ÚNICA ---
+                if User.objects.filter(cedula=cedula).exists():
+                    errores_unicidad['cedula'] = ['Esta cédula ya existe en el sistema.']
+
+                # --- VALIDACIÓN DE EMAIL ÚNICO ---
+                if email and User.objects.filter(email=email).exists():
+                    errores_unicidad['email'] = ['Este correo electrónico ya está en uso.']
+
+                # Si hay errores de duplicados, los enviamos de vuelta al modal
+                if errores_unicidad:
+                    return JsonResponse({'success': False, 'errors': errores_unicidad}, status=400)
+
                 try:
-                    # 1. Creamos el objeto pero no lo guardamos en DB todavía
                     user = form.save(commit=False)
                     
-                    # 2. SEGURO ANTI-NULOS: Forzamos strings vacíos si vienen None
-                    # Esto evita el "IntegrityError: NOT NULL constraint failed"
+                    # Prevenimos el error 'NOT NULL constraint failed' en SQLite
                     user.first_name = form.cleaned_data.get('first_name') or ""
                     user.last_name = form.cleaned_data.get('last_name') or ""
-                    user.email = form.cleaned_data.get('email') or ""
-                    user.telefono = form.cleaned_data.get('telefono') or ""
+                    user.email = email or ""
+                    user.telefono = telefono or ""
                     
-                    # 3. Encriptar contraseña
+                    # Encriptación de contraseña obligatoria al crear
                     password = form.cleaned_data.get('password')
                     if password:
                         user.set_password(password)
                     
-                    # 4. Campos de estado por defecto
                     user.is_active = True
                     user.estado = 'Activo'
-                    
-                    # 5. Guardado final
                     user.save()
                     
-                    logger.info(f"Usuario creado con éxito: {user.username}")
-                    return JsonResponse({'success': True, 'message': 'Usuario creado correctamente'})
+                    return JsonResponse({'success': True, 'message': 'Usuario creado con éxito'})
                 
                 except Exception as e:
-                    logger.error(f"Error inesperado al guardar: {str(e)}")
-                    return JsonResponse({'success': False, 'errors': {'database': [str(e)]}}, status=500)
+                    logger.error(f"Error al guardar en DB: {str(e)}")
+                    return JsonResponse({'success': False, 'errors': {'db': [str(e)]}}, status=500)
 
-            # Si el formulario no es válido (ej. Rol no válido)
-            logger.warning(f"Errores de validación: {form.errors}")
+            # Si el formulario falla por otros motivos (ej: rol inválido)
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         
         return redirect('usuarios:listar')
 
 # ==================================================
-#  4. EDITAR USUARIO
+#  4. EDITAR USUARIO (CON VALIDACIÓN EXCLUYENTE)
 # ==================================================
 class EditarUsuarioView(View):
     def post(self, request, pk):
@@ -102,22 +118,31 @@ class EditarUsuarioView(View):
             form = UserEditForm(request.POST, instance=usuario)
 
             if form.is_valid():
+                telefono = form.cleaned_data.get('telefono')
+                
+                # Validar que el nuevo teléfono no lo tenga OTRO usuario (excluyendo al actual)
+                if telefono and User.objects.filter(telefono=telefono).exclude(pk=pk).exists():
+                    return JsonResponse({
+                        'success': False, 
+                        'errors': {'telefono': ['Este teléfono ya pertenece a otra persona.']}
+                    }, status=400)
+
                 user = form.save(commit=False)
                 
-                # Solo actualizamos contraseña si se escribió algo nuevo
+                # Actualizar contraseña solo si se ingresó una nueva
                 nueva_pass = form.cleaned_data.get('password')
                 if nueva_pass:
                     user.set_password(nueva_pass)
                 
                 user.save()
-                return JsonResponse({'success': True, 'message': 'Usuario actualizado correctamente'})
+                return JsonResponse({'success': True, 'message': 'Información actualizada'})
 
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
         
         return redirect('usuarios:listar')
 
 # ==================================================
-#  5. CAMBIAR ESTADO
+#  5. CAMBIAR ESTADO (ACTIVAR/DESACTIVAR)
 # ==================================================
 class CambiarEstadoUsuarioView(View):
     def post(self, request, pk):
@@ -126,12 +151,10 @@ class CambiarEstadoUsuarioView(View):
         if usuario.is_active:
             usuario.is_active = False
             usuario.estado = 'Inactivo'
-            msg = f"Usuario {usuario.username} desactivado."
         else:
             usuario.is_active = True
             usuario.estado = 'Activo'
-            msg = f"Usuario {usuario.username} activado."
             
         usuario.save()
-        messages.success(request, msg)
+        messages.success(request, f"El estado de {usuario.username} ha sido actualizado.")
         return redirect('usuarios:listar')
