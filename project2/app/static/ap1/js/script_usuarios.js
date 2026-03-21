@@ -6,7 +6,7 @@
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 const numeric10Regex = /^\d{10}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
 
 // 2. SISTEMA DE NOTIFICACIONES (TOAST)
 function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
@@ -25,7 +25,7 @@ function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
     toast.style.cssText = `
         background: #1a202c; color: white; min-width: 320px; max-width: 400px;
         border-left: 6px solid ${colorBorde}; padding: 18px; border-radius: 6px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.7); display: flex; flex-direction: column;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4); display: flex; flex-direction: column;
         pointer-events: auto; opacity: 0; transform: translateX(50px);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     `;
@@ -46,46 +46,69 @@ function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
     }, 5500);
 }
 
-// 3. VALIDACIÓN EN TIEMPO REAL
+// 3. VALIDACIÓN EN TIEMPO REAL (CORREGIDA PARA EDITAR)
 function validateFieldLive(input, validator, message, isRequired = true) {
     const value = input.val().trim();
-    const inputId = input.attr('id');
-    const errorEl = $(`#error_${inputId}`);
+    const inputId = input.attr('id'); 
+    const errorEl = $(`#error_${inputId}`); // Busca error_edit_username, etc.
     
     input.removeClass('input-error');
-    if(errorEl.length) errorEl.removeClass('show').text('');
+    if(errorEl.length) {
+        errorEl.text('').hide(); 
+    }
     
+    // Si es opcional (como password en editar) y está vacío, no hay error
+    if (!value && !isRequired) return true;
+
     if (!value && isRequired) {
         input.addClass('input-error');
-        if(errorEl.length) errorEl.text('Campo requerido').addClass('show');
+        if(errorEl.length) errorEl.text('Este campo es obligatorio').show();
         return false;
     }
+    
     if (value && validator && !validator.test(value)) {
         input.addClass('input-error');
-        if(errorEl.length) errorEl.text(message).addClass('show');
+        if(errorEl.length) errorEl.text(message).show();
         return false;
     }
+    
     return true;
 }
 
+// Eventos de validación al escribir
 $(document).on('input', '.form-control', function() {
-    const name = $(this).attr('name');
-    const formId = $(this).closest('form').attr('id');
-    const isAdd = formId === 'formAddUsuario';
+    const input = $(this);
+    const name = input.attr('name');
+    const inputId = input.attr('id') || "";
+    const isEdit = inputId.includes('edit_');
+
+    if (!inputId) return;
 
     switch(name) {
-        case 'username': validateFieldLive($(this), /.{3,}/, 'Mínimo 3 caracteres'); break;
-        case 'email': validateFieldLive($(this), emailRegex, 'Email inválido', false); break;
-        case 'password': validateFieldLive($(this), passwordRegex, 'Mín 8: Mayús, Núm, Especial', isAdd); break;
-        case 'first_name': case 'last_name': validateFieldLive($(this), nameRegex, 'Solo letras'); break;
-        case 'cedula': case 'telefono': 
-            $(this).val($(this).val().replace(/\D/g, ''));
-            validateFieldLive($(this), numeric10Regex, 'Deben ser 10 dígitos', false); 
+        case 'username': 
+            validateFieldLive(input, /^[a-zA-Z0-9._]{3,20}$/, 'Mínimo 3 caracteres (letras, números o puntos)'); 
+            break;
+        case 'email': 
+            validateFieldLive(input, emailRegex, 'Correo electrónico no válido', false); 
+            break;
+        case 'first_name': 
+        case 'last_name': 
+            validateFieldLive(input, nameRegex, 'Solo se permiten letras'); 
+            break;
+        case 'cedula': 
+        case 'telefono': 
+            input.val(input.val().replace(/\D/g, '')); // Bloquea letras instantáneamente
+            validateFieldLive(input, numeric10Regex, 'Deben ser 10 dígitos numéricos', (name === 'cedula')); 
+            break;
+        case 'password':
+            // En editar, la contraseña es opcional si el campo está vacío
+            const req = !isEdit; 
+            validateFieldLive(input, passwordRegex, 'Mín 8 caracteres (debe incluir Mayúscula y Número)', req);
             break;
     }
 });
 
-// 4. LÓGICA DE DATATABLES Y FILTRADO EXCLUYENTE
+// 4. LÓGICA DE DATATABLES
 $(document).ready(function() {
     const table = $('#tablaUsuarios').DataTable({
         responsive: true,
@@ -99,28 +122,17 @@ $(document).ready(function() {
         columnDefs: [{ orderable: false, targets: [7] }]
     });
 
-    // --- FILTRO LÓGICO (Columna 6: Estado) ---
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const mostrarSoloInactivos = $('#toggleInactivos').is(':checked');
         const textoEstado = (data[6] || "").trim();
-
-        if (mostrarSoloInactivos) {
-            return textoEstado === "Inactivo"; 
-        } else {
-            return textoEstado === "Activo";   
-        }
+        return mostrarSoloInactivos ? textoEstado === "Inactivo" : textoEstado === "Activo";
     });
 
-    // CORRECCIÓN: Forzar el dibujo inicial para aplicar el filtro de "Solo Activos"
     table.draw();
+    $('#toggleInactivos').on('change', () => table.draw());
 
-    // Redibujar al cambiar el switch
-    $('#toggleInactivos').on('change', function() {
-        table.draw();
-    });
-
-    // 5. SUBMIT AJAX (Crear/Editar)
-    $(document).on('submit', '#formAddUsuario, #formEditarUsuario', function(e) {
+    // 5. ENVÍO DE FORMULARIOS POR AJAX
+    $(document).on('submit', '#formAddUsuario, #formEditUsuario', function(e) {
         e.preventDefault();
         const form = $(this);
         let formValido = true;
@@ -133,7 +145,7 @@ $(document).ready(function() {
         });
 
         if (!formValido) {
-            mostrarNotificacion('Atención', 'Por favor completa los campos obligatorios (*)', 'error');
+            mostrarNotificacion('Error', 'Por favor, revisa los campos obligatorios', 'error');
             return;
         }
 
@@ -145,78 +157,73 @@ $(document).ready(function() {
                 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() 
             }
         })
-        .then(response => {
-            if (!response.ok) return response.json().then(err => { throw err; });
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                mostrarNotificacion('Éxito', data.message || 'Guardado correctamente', 'success');
+                mostrarNotificacion('Éxito', data.message, 'success');
                 setTimeout(() => window.location.reload(), 1200);
+            } else {
+                mostrarNotificacion('Error', data.message || 'Error al procesar', 'error');
             }
         })
-        .catch(err => {
-            console.error("Error en servidor:", err);
-            let msgFinal = "Error al procesar la solicitud";
-            
-            if (err.errors) {
-                msgFinal = Object.entries(err.errors)
-                    .map(([campo, mensajes]) => `${campo.toUpperCase()}: ${mensajes.join(' ')}`)
-                    .join('<br>');
-            }
-            mostrarNotificacion('Error', msgFinal, 'error');
-        });
+        .catch(() => mostrarNotificacion('Error', 'Fallo de conexión con el servidor', 'error'));
     });
 });
 
 // 6. FUNCIONES DE MODALES
 window.abrirModal = function(id) {
-    const m = document.getElementById(id);
-    if(m) { 
-        m.style.display = 'flex'; 
+    const modal = $(`#${id}`);
+    if (modal.length) {
+        modal.css('display', 'flex').hide().fadeIn(250);
         document.body.style.overflow = 'hidden';
     }
 };
 
 window.cerrarModal = function(id) {
-    const m = document.getElementById(id);
-    if(m) { m.style.display = 'none'; document.body.style.overflow = 'auto'; }
+    const modal = $(`#${id}`);
+    if (modal.length) {
+        modal.fadeOut(200, function() {
+            $(this).css('display', 'none');
+            $(this).find('.error-message').hide().text('');
+            $(this).find('.form-control').removeClass('input-error');
+        });
+        document.body.style.overflow = 'auto';
+    }
 };
 
 window.abrirModalEditar = function(id) {
+    if (!id) return;
+    
     fetch(`/usuarios/detalle_json/${id}/`)
         .then(r => r.json())
         .then(data => {
-            const f = $('#formEditarUsuario');
+            const f = $('#formEditUsuario');
             f.attr('action', `/usuarios/editar/${id}/`);
             
-            f.find('[name="username"]').val(data.username);
-            f.find('[name="email"]').val(data.email);
-            f.find('[name="first_name"]').val(data.first_name);
-            f.find('[name="last_name"]').val(data.last_name);
-            f.find('[name="cedula"]').val(data.cedula);
-            f.find('[name="telefono"]').val(data.telefono);
-            f.find('[name="rol"]').val(data.rol);
+            // Llenado de campos con IDs de editar
+            $('#edit_username').val(data.username);
+            $('#edit_email').val(data.email);
+            $('#edit_first_name').val(data.first_name);
+            $('#edit_last_name').val(data.last_name);
+            $('#edit_cedula').val(data.cedula);
+            $('#edit_telefono').val(data.telefono);
+            $('#edit_rol').val(data.rol);
             
-            abrirModal('modalEditar');
+            $('#editUsuarioNombre').text(data.username);
+            
+            abrirModal('modalEdit');
         })
-        .catch(() => mostrarNotificacion('Error', 'No se pudo cargar la información', 'error'));
+        .catch(() => mostrarNotificacion('Error', 'No se pudieron cargar los datos del usuario', 'error'));
 };
 
 window.abrirModalEliminar = function(id, nombre) {
-    const modal = document.getElementById('modalDelete');
-    if (modal) {
-        modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
-        $('#nombreUsuarioEliminar').text(nombre);
-        abrirModal('modalDelete');
-    }
+    $('#modalDelete').find('form').attr('action', `/usuarios/cambiar_estado/${id}/`);
+    $('#nombreUsuarioEliminar').text(nombre);
+    abrirModal('modalDelete');
 };
 
 window.abrirModalActivar = function(id, nombre) {
-    const modal = document.getElementById('modalActivar');
-    if (modal) {
-        modal.querySelector('form').action = `/usuarios/cambiar_estado/${id}/`;
-        $('#nombreUsuarioActivar').text(nombre);
-        abrirModal('modalActivar');
-    }
+    $('#modalActivar').find('form').attr('action', `/usuarios/cambiar_estado/${id}/`);
+    $('#nombreUsuarioActivar').text(nombre);
+    abrirModal('modalActivar');
 };

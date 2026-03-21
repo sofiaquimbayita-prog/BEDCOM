@@ -55,7 +55,7 @@
                     <td class="col-estado">{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td>
                     <td>
                         <div class="acciones">
-                            <button class="edit-btn" title="Editar" onclick="abrirModalEditar('{{ u.id }}')">
+                            <button title="Editar" onclick="abrirModalEditar('{{ u.id }}')" class="edit-btn">
                                 <i class="fas fa-edit"></i>
                             </button>
                             
@@ -83,15 +83,18 @@
     </div>
 </main>
 
+<div id="modalEdit" class="modal" style="display: none;">
+    {% include "usuarios/modal_editar.html" %}
+</div>
+
 <div id="modalAdd" class="modal" style="display: none;">
     {% include "usuarios/modal_add.html" %}
 </div>
-<div id="modalEditar" class="modal" style="display: none;">
-    {% include "usuarios/modal_editar.html" %}
-</div>
+
 <div id="modalDelete" class="modal" style="display: none;">
     {% include "usuarios/modal_eliminar.html" %}
 </div>
+
 <div id="modalActivar" class="modal" style="display: none;">
     {% include "usuarios/modal_activar.html" %}
 </div>

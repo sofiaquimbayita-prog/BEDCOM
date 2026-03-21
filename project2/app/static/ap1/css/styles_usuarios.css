@@ -149,28 +149,26 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
   backdrop-filter: blur(8px);
   z-index: 10000;
   justify-content: center;
-  align-items: flex-start;
-  padding: 20px 10px;
+  align-items: flex-start; /* Esto permite que el modal baje con el margin */
+  padding-top: 50px; /* Espacio arriba */
   overflow-y: auto;
 }
 
 .modal-content {
-  background: #0f172a !important;
+  background: #0f172a !important; 
   color: #ffffff !important;
-  padding: 30px !important;
-  border-radius: 15px !important;
+  padding: 25px !important; /* <--- CAMBIA ESTO (tenías 0) */
+  border-radius: 12px !important;
   width: 90% !important;
-  max-width: 500px !important;
-  max-height: 90vh !important;
+  max-width: 550px !important;
+  margin: 0 auto 50px auto !important; /* Centrado horizontal */
   border: 1px solid #334155 !important;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
-  animation: modalFadeIn 0.3s ease-out;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  position: relative;
 }
 
 /* Scrollbar personalizada para modales */
@@ -235,21 +233,29 @@ header {
   margin-top: 6px !important;
   font-style: italic;
 }
+/* Localiza y actualiza estas clases en tu styles_usuarios.css */
 .error-message {
-  color: #ef4444;
-  font-size: 0.8rem;
-  margin-top: 6px;
-  padding: 8px 12px;
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 6px;
-  border-left: 3px solid #ef4444;
-  display: none;
-  font-weight: 500;
-  animation: fadeInError 0.3s ease;
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #ef4444;
+    display: none; /* Se activa con la clase .show */
+    font-weight: 500;
+    /* Usamos la animación que ya tienes definida al final de tu archivo */
+    animation: slideInError 0.3s ease-out; 
 }
 
-.error-message.show { 
-  display: block; 
+.error-message.show {
+    display: block !important;
+}
+
+/* Resalte visual para el input */
+.form-control.input-error {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
 }
 
 /* ==================================================
@@ -284,12 +290,9 @@ header {
 
 /* 1. Contenedor principal del cuerpo */
 .modal-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;    /* Centra horizontalmente */
-    justify-content: center; /* Centra verticalmente si hay espacio */
-    text-align: center;      /* Centra las líneas de texto */
-    padding: 30px 20px;
+    display: block; /* Volver al flujo normal de arriba hacia abajo */
+    padding: 20px 0;
+    text-align: left; /* Para que los labels se lean bien */
 }
 
 /* 2. El icono de advertencia o éxito */
@@ -361,12 +364,6 @@ input:-webkit-autofill {
 
 .button-3:hover::before {
   left: 100%;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 10px;
-  margin-top: 25px;
 }
 
 .btn-cancel {
@@ -1123,10 +1120,31 @@ input:checked + .slider:before {
     font-size: 14px;
   }
   
-  .modal-footer {
-    flex-direction: column;
-    gap: 8px;
-  }
+.modal-footer {
+    display: flex;
+    padding: 20px 25px !important; /* Aumenta el margen interno lateral */
+    gap: 15px; /* Espacio entre botones */
+    border-top: 1px solid #334155; /* Línea sutil de separación */
+    background: #1e293b; /* Color de fondo del modal */
+}
+
+.modal-footer button {
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    /* Evita que los botones toquen los bordes */
+    max-width: 200px; 
+    width: 100%;
+}
+
+/* Efecto hover para que se sientan interactivos */
+.modal-footer button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
   
   .btn-cancel,
   .btn-save {

@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator, MinLengthValidator
+from django.core.validators import RegexValidator
 import re
-from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
 class UserForm(forms.ModelForm):
+    # --- VALIDADORES REUTILIZABLES ---
     name_validator = RegexValidator(
         r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$',
         'Solo se permiten letras y espacios (acentos permitidos).',
@@ -19,17 +20,18 @@ class UserForm(forms.ModelForm):
         'invalid_numeric'
     )
 
+    # --- CAMPOS PERSONALIZADOS ---
     cedula = forms.CharField(
         validators=[numeric10_validator],
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 1057...'}),
         label='Cédula'
     )
     
     telefono = forms.CharField(
         validators=[numeric10_validator],
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '310...'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 310...'}),
         label='Teléfono'
     )
 
@@ -54,6 +56,8 @@ class UserForm(forms.ModelForm):
         label="Contraseña"
     )
 
+    # --- LÓGICA DE VALIDACIÓN (CLEAN) ---
+
     def clean_password(self):
         password = self.cleaned_data.get('password')
         if password:
@@ -66,31 +70,38 @@ class UserForm(forms.ModelForm):
         return password
 
     def clean_first_name(self):
-        return self.name_validator(self.cleaned_data['first_name'])
+        # CORRECCIÓN: Obtenemos el valor, validamos y RE-DEVOLVEMOS el valor
+        first_name = self.cleaned_data.get('first_name')
+        if first_name:
+            self.name_validator(first_name)
+        return first_name
 
     def clean_last_name(self):
-        return self.name_validator(self.cleaned_data['last_name'])
+        # CORRECCIÓN: Obtenemos el valor, validamos y RE-DEVOLVEMOS el valor
+        last_name = self.cleaned_data.get('last_name')
+        if last_name:
+            self.name_validator(last_name)
+        return last_name
 
     class Meta:
         model = User
+        # Definimos el orden exacto de los campos
         fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'rol', 'telefono', 'password']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'}),
         }
         labels = {
             'username': 'Nombre de Usuario',
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
-            'cedula': 'Cédula',
-            'rol': 'Rol del Sistema',
-            'telefono': 'Teléfono',
         }
 
 class UserEditForm(UserForm):
+    # En edición, la contraseña no es obligatoria
     password = forms.CharField(
         min_length=8,
         required=False,

@@ -8,90 +8,71 @@
         </h2>
     </div>
 
-    <form method="post" action="" id="formEditarUsuario">
+    <form method="post" action="" id="formEditUsuario" style="padding: 20px;">
         {% csrf_token %}
         <div class="modal-body">
-            
             <div id="error-container-edit" style="display: none;" class="alert alert-danger">
-                <h6><i class="fas fa-ban"></i> Errores en el formulario:</h6>
+                <h6><i class="fas fa-ban"></i> Errores:</h6>
                 <ul id="error-list-edit"></ul>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 class="section-title"><i class="fas fa-user-cog"></i> Cuenta de Usuario</h5>
-                    
-                    <div class="form-group mb-3">
-                        <label class="form-label">Nombre de Usuario *</label>
-<input type="text" id="id_username_edit" name="username" class="form-control" required autocomplete="off">
-
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label">Correo Electrónico</label>
-<input type="email" id="id_email_edit" name="email" class="form-control" autocomplete="off">
-
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label">Nueva Contraseña</label>
-<input type="password" id="id_password_edit" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
-
-                        <small class="text-muted">Solo si desea actualizarla.</small>
-                    </div>
+            <h5 class="section-title"><i class="fas fa-user-cog"></i> Cuenta</h5>
+            
+            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Nombre de Usuario *</label>
+                    <input type="text" id="edit_username" name="username" class="form-control" required>
                 </div>
-
-                <div class="col-md-6">
-                    <h5 class="section-title"><i class="fas fa-address-card"></i> Información Personal</h5>
-                    
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Nombres</label>
-<input type="text" id="id_first_name" name="first_name" class="form-control">
-
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Apellidos</label>
-<input type="text" id="id_last_name" name="last_name" class="form-control">
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Cédula</label>
-<input type="text" id="id_cedula_edit" name="cedula" class="form-control">
-
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Teléfono</label>
-<input type="text" id="id_telefono_edit" name="telefono" class="form-control">
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label">Rol del Sistema *</label>
-                        <select name="rol" class="form-control" required>
-                            <option value="administrador">Administrador</option>
-                            <option value="vendedor">Vendedor</option>
-                            <option value="cliente">Cliente</option>
-                        </select>
-                    </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="edit_email" name="email" class="form-control">
                 </div>
+            </div>
+
+            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>NOMBRES *</label>
+                    <input type="text" id="edit_first_name" name="first_name" class="form-control" required>
+                    <span id="error_first_name" class="error-message"></span>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>APELLIDOS</label>
+                    <input type="text" id="edit_last_name" name="last_name" class="form-control">
+                    <span id="error_last_name" class="error-message"></span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Nueva Contraseña</label>
+                <input type="password" name="password" class="form-control" placeholder="Dejar en blanco">
+            </div>
+
+            <h3 class="section-title" style="color: #3b82f6; font-size: 1rem; margin-bottom: 5px; text-transform: uppercase;">Información Personal</h3>
+            <hr style="border: 0; border-top: 1px solid #334155; margin-bottom: 15px;">
+
+            <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Cédula</label>
+                    <input type="text" id="edit_cedula" name="cedula" class="form-control">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Teléfono</label>
+                    <input type="text" id="edit_telefono" name="telefono" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label>Rol del Sistema *</label>
+                <select name="rol" id="edit_rol" class="form-control" required>
+                    <option value="administrador">Administrador</option>
+                    <option value="vendedor">Vendedor</option>
+                    <option value="cliente">Cliente</option>
+                </select>
             </div>
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalEdit')">Cancelar</button>
             <button type="submit" class="btn-save">Guardar Cambios</button>
         </div>
     </form>

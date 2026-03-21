@@ -1,19 +1,34 @@
-<div class="modal-content">
-    <div class="modal-header" style="background: linear-gradient(135deg, var(--ok), #27ae60); color: white;">
-        <h2><i class="fas fa-user-check"></i> Activar Usuario</h2>
-        <button class="close-modal" onclick="cerrarModal('modalActivar')">&times;</button>
+<div class="modal-content" style="background-color: #111827; border-radius: 12px; overflow: hidden;">
+    <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #374151; background: linear-gradient(135deg, var(--ok), #27ae60); color: white;">
+        <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-check"></i> Activar Usuario
+        </h2>
     </div>
-    <div class="modal-body text-center">
-        <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--ok); margin-bottom: 20px;"></i>
-        <h4>¿Activar al usuario "<span id="nombreActivar"></span>"?</h4>
-        <p class="text-muted">El usuario podrá iniciar sesión nuevamente en BedCom.</p>
+
+    <div class="modal-body" style="padding: 40px 30px; text-align: center;">
+        <div style="margin-bottom: 25px;">
+            <i class="fas fa-check-circle" style="font-size: 5rem; color: green; opacity: 0.9;"></i>
+        </div>
+        <h4 style="font-size: 1.25rem; margin-bottom: 15px; color: #f3f4f6;">
+            ¿Activar al usuario "<span id="nombreUsuarioActivar" style="color: #38bdf8;"></span>"?
+        </h4>
+        <p style="color: #9ca3af; line-height: 1.6; max-width: 90%; margin: 0 auto;">
+            El usuario recuperará el acceso total al sistema BedCom y podrá iniciar sesión normalmente.
+        </p>
     </div>
+
     <form id="formActivar" method="post">
         {% csrf_token %}
     </form>
-    <div class="modal-footer">
-        <button type="button" class="btn-cancel" onclick="cerrarModal('modalActivar')">Cancelar</button>
-        <button type="submit" form="formActivar" class="btn-save">Confirmar Activación</button>
+
+    <div class="modal-footer" style="padding: 20px 30px; background-color: #1f2937; display: flex; gap: 15px; justify-content: center;">
+        <button type="button" class="btn-cancel" onclick="cerrarModal('modalActivar')" 
+                style="flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; max-width: 160px;">
+            Cancelar
+        </button>
+        <button type="submit" form="formActivar" class="btn-save" 
+                style="flex: 1; padding: 12px; border-radius: 8px; font-weight: 600; background-color: var(--ok); color: white; border: none; max-width: 220px;">
+            Confirmar Activación
+        </button>
     </div>
 </div>
-
