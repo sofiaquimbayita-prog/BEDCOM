@@ -1,11 +1,8 @@
-{% extends "includes/base.html" %}
-
+{% extends 'includes/base.html' %}
 {% load static %}
-
 {% block title %}Monitoreo{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/monitoreo.css' %}">
 {% endblock %}
 
@@ -77,29 +74,9 @@
         <div class="panel alertas-panel">
             <div class="panel-header">
                 <span class="panel-title"><i class="fas fa-shield-alt"></i> Alertas del Sistema</span>
-                <span class="badge-count">2</span>
+                <span class="badge-count">0</span>
             </div>
             <div class="alertas-list">
-                <div class="alerta danger">
-                    <div class="alerta-left">
-                        <div class="alerta-icon-wrap danger"><i class="fas fa-times"></i></div>
-                        <div class="alerta-info">
-                            <span class="alerta-title">Falta espuma en inventario</span>
-                            <span class="alerta-time"><i class="far fa-clock"></i> Hace 15 min</span>
-                        </div>
-                    </div>
-                    <button class="alerta-btn danger" onclick="irModulo('insumos')">Resolver</button>
-                </div>
-                <div class="alerta warning">
-                    <div class="alerta-left">
-                        <div class="alerta-icon-wrap warning"><i class="fas fa-exclamation"></i></div>
-                        <div class="alerta-info">
-                            <span class="alerta-title">Pedido retrasado - Logística</span>
-                            <span class="alerta-time"><i class="far fa-clock"></i> Hace 42 min</span>
-                        </div>
-                    </div>
-                    <button class="alerta-btn warning" onclick="irModulo('logistica')">Ver</button>
-                </div>
                 <div class="alerta-empty">
                     <i class="fas fa-check-circle"></i>
                     <span>No hay más alertas pendientes</span>
