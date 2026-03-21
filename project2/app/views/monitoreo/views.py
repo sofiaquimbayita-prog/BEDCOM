@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models import Sum
+from django.db.utils import OperationalError
 from ...models import producto, insumo, entrada, historial_acciones
 
 
@@ -45,8 +46,9 @@ class MonitoreoView(TemplateView):
         context['entrada_p_url'] = '/vistas/entrada_p/'
         
         # 4. Historial de Acciones - Últimas 10 acciones del sistema
-        # La siguiente línea causa un error si la tabla 'historial_acciones' no existe en la BD.
-        # Para una solución temporal, se devuelve una lista vacía.
-        context['historial_acciones'] = [] # historial_acciones.objects.select_related('usuario').all()[:10]
+        try:
+            context['historial_acciones'] = list(historial_acciones.objects.select_related('usuario').order_by('-fecha')[:10])
+        except OperationalError:
+            context['historial_acciones'] = []
         
         return context

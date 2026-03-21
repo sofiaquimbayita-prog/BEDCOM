@@ -1,4 +1,3 @@
-import json
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -10,10 +9,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from django.db import models
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
-from app.models import bom, producto, insumo
+from app.models import bom, producto, insumo, historial_acciones
 
 
 @method_decorator(login_required, name='dispatch')
@@ -80,7 +80,20 @@ class BomCreateView(SuccessMessageMixin, CreateView):
             messages.error(self.request, "Ya existe una relación BOM para este producto e insumo.")
             return self.form_invalid(form)
         
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if self.request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='bom',
+                    tipo_accion='crear',
+                    descripcion=f'Agregó insumo "{self.object.insumo.nombre}" a "{self.object.producto.nombre}"',
+                    usuario=self.request.user
+                )
+            except Exception as e:
+                print(f"Error historial BOM: {e}")
+        return response
 
     def form_invalid(self, form):
         messages.error(self.request, "Error al crear la relación BOM.")
@@ -152,6 +165,18 @@ def bom_crear_receta(request):
         
         print(f"Total created: {created_count}, errors: {errors}")
         if created_count > 0:
+            # REGISTRAR ACCIÓN EN HISTORIAL
+            if request.user.is_authenticated:
+                try:
+                    historial_acciones.objects.create(
+                        modulo='bom',
+                        tipo_accion='crear',
+                        descripcion=f'Creó receta para "{producto_obj.nombre}"',
+                        usuario=request.user
+                    )
+                except Exception as e:
+                    print(f"Error historial BOM: {e}")
+
             return JsonResponse({
                 'success': True, 
                 'message': f'Receta creada correctamente con {created_count} insumo(s)'
@@ -221,6 +246,18 @@ def bom_editar_receta(request):
             created_count += 1
         
         if created_count > 0:
+            # REGISTRAR ACCIÓN EN HISTORIAL
+            if request.user.is_authenticated:
+                try:
+                    historial_acciones.objects.create(
+                        modulo='bom',
+                        tipo_accion='editar',
+                        descripcion=f'Editó receta de "{producto_obj.nombre}"',
+                        usuario=request.user
+                    )
+                except Exception as e:
+                    print(f"Error historial BOM: {e}")
+
             return JsonResponse({
                 'success': True, 
                 'message': f'Receta actualizada correctamente con {created_count} insumo(s)'
@@ -255,7 +292,20 @@ class BomUpdateView(SuccessMessageMixin, UpdateView):
             messages.error(self.request, "Ya existe una relación BOM para este producto e insumo.")
             return self.form_invalid(form)
         
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if self.request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='bom',
+                    tipo_accion='editar',
+                    descripcion=f'Editó insumo "{self.object.insumo.nombre}" en "{self.object.producto.nombre}"',
+                    usuario=self.request.user
+                )
+            except Exception as e:
+                print(f"Error historial BOM: {e}")
+        return response
 
 
 @method_decorator(login_required, name='dispatch')
@@ -267,8 +317,25 @@ class BomDeleteView(DeleteView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
+
+        # Guardar datos para el historial antes de eliminar
+        nombre_producto = self.object.producto.nombre
+        nombre_insumo = self.object.insumo.nombre
         
         self.object.delete()
+
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='bom',
+                    tipo_accion='eliminar',
+                    descripcion=f'Eliminó insumo "{nombre_insumo}" de "{nombre_producto}"',
+                    usuario=request.user
+                )
+            except Exception as e:
+                print(f"Error historial BOM: {e}")
+
         messages.success(request, f"Relación BOM eliminada correctamente.")
         
         from django.http import HttpResponseRedirect
@@ -319,10 +386,28 @@ def bom_eliminar_receta(request):
         return JsonResponse({'success': False, 'error': 'Producto no especificado'})
     
     try:
+        # Obtener nombre del producto para el historial antes de borrar
+        nombre_prod = "Producto desconocido"
+        try:
+            nombre_prod = producto.objects.get(id=producto_id).nombre
+        except:
+            pass
+
         # Eliminar todas las relaciones BOM para este producto
         deleted_count = bom.objects.filter(producto_id=producto_id).delete()[0]
         
         if deleted_count > 0:
+            if request.user.is_authenticated:
+                try:
+                    historial_acciones.objects.create(
+                        modulo='bom',
+                        tipo_accion='eliminar',
+                        descripcion=f'Eliminó receta de "{nombre_prod}"',
+                        usuario=request.user
+                    )
+                except Exception as e:
+                    print(f"Error historial BOM: {e}")
+
             return JsonResponse({
                 'success': True, 
                 'message': f'Receta eliminada correctamente ({deleted_count} insumo(s) eliminado(s))'
@@ -385,4 +470,3 @@ def bom_data(request):
         'recordsFiltered': total,
         'data': data
     })
-
