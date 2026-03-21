@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+{% extends "includes/base.html" %}
 {% load static %}
 
 {% block title %}Monitoreo{% endblock %}
@@ -129,5 +129,18 @@ from django.views.generic import TemplateView
     </section>
 </main>
 
+<script>
+    // Definir la variable 'procesos' con los datos reales de Django para que monitoreo.js pueda usarla
+    var procesos = [
+        {% for accion in historial_acciones %}
+        {
+            modulo: "{{ accion.modulo|default:'General' }}",
+            accion: "{{ accion.accion|default:'Registro' }}",
+            fecha: "{{ accion.fecha|date:'d/m/Y H:i' }}",
+            responsable: "{{ accion.usuario.username|default:'Sistema' }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
 <script src="{% static 'ap1/js/monitoreo.js' %}"></script>
 {% endblock %}
