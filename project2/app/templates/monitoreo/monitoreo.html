@@ -1,4 +1,4 @@
-{% extends "includes/base.html" %}
+from django.views.generic import TemplateView
 {% load static %}
 
 {% block title %}Monitoreo{% endblock %}
@@ -16,12 +16,12 @@
     <!-- KPI CARDS -->
     <section class="kpi-section">
         <div class="kpi-grid">
-            <div class="kpi-card" data-color="blue">
+            <div class="kpi-card" data-color="blue" style="cursor: pointer;" onclick="window.location.href='{{ productos_url }}'">
                 <div class="kpi-top">
                     <div class="kpi-icon"><i class="fas fa-boxes"></i></div>
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
                 </div>
-                <div class="kpi-value" data-target="120">0</div>
+                <div class="kpi-value" data-target="{{ stock_total|default:0 }}">{{ stock_total|default:0 }}</div>
                 <div class="kpi-label">Stock Total</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="75"></div>
@@ -29,12 +29,12 @@
                 <div class="kpi-sub">Capacidad: 160 unidades</div>
             </div>
 
-            <div class="kpi-card" data-color="amber">
+            <div class="kpi-card" data-color="amber" style="cursor: pointer;" onclick="window.location.href='{{ insumos_url }}'">
                 <div class="kpi-top">
                     <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Revisar</span>
                 </div>
-                <div class="kpi-value" data-target="3">0</div>
+                <div class="kpi-value" data-target="{{ insumos_bajos|default:0 }}">{{ insumos_bajos|default:0 }}</div>
                 <div class="kpi-label">Insumos Bajos</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="30"></div>
@@ -55,12 +55,12 @@
                 <div class="kpi-sub">2 sin resolver hoy</div>
             </div>
 
-            <div class="kpi-card" data-color="green">
+            <div class="kpi-card" data-color="green" style="cursor: pointer;" onclick="window.location.href='{{ entrada_p_url }}'">
                 <div class="kpi-top">
                     <div class="kpi-icon"><i class="fas fa-industry"></i></div>
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
                 </div>
-                <div class="kpi-value" data-target="25">0</div>
+                <div class="kpi-value" data-target="{{ produccion_hoy|default:0 }}">{{ produccion_hoy|default:0 }}</div>
                 <div class="kpi-label">Producción Hoy</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="62"></div>
@@ -69,7 +69,7 @@
             </div>
         </div>
     </section>
-
+ 
     <!-- FILA INFERIOR: alertas + tabla -->
     <section class="bottom-grid">
         <!-- ALERTAS -->
