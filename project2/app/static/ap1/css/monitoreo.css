@@ -1,5 +1,3 @@
-/* ── MONITOREO - Estilo Plano y Profesional ──────────────────────────── */
-
 :root {
     --mon-bg: #0f172a;       /* Slate 900 - Fondo principal sólido */
     --mon-surface: #1e293b;  /* Slate 800 - Tarjetas sólidas */
@@ -532,17 +530,15 @@
 
 /* Tabla Panel */
 .table-wrap {
-    padding: 20px;
+    padding: 0; /* Padding movido para mejor control del scroll */
     overflow-x: auto;
+    max-height: 400px; /* Altura máxima antes de hacer scroll */
+    overflow-y: auto;
 }
 
 .table-wrap table {
     width: 100%;
     border-collapse: collapse;
-}
-
-.table-wrap thead {
-    background: var(--mon-surface-hover);
 }
 
 .table-wrap th {
@@ -554,6 +550,11 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--mon-border);
+    position: sticky; /* Fija el encabezado arriba */
+    top: 0;
+    z-index: 10;
+    background: var(--mon-surface); /* Fondo del mismo color que la tarjeta */
+    box-shadow: 0 1px 0 var(--mon-border); /* Línea separadora inferior */
 }
 
 .table-wrap td {

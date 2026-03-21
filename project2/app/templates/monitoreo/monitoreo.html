@@ -24,7 +24,7 @@
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="75"></div>
                 </div>
-                <div class="kpi-sub">Capacidad: 160 unidades</div>
+                <div class="kpi-sub">Click para ir al modulo productos</div>
             </div>
 
             <div class="kpi-card" data-color="amber" style="cursor: pointer;" onclick="window.location.href='{{ insumos_url }}'">
@@ -37,7 +37,7 @@
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="30"></div>
                 </div>
-                <div class="kpi-sub">Umbral crítico: 5 insumos</div>
+                <div class="kpi-sub">insumos bajos en stock</div>
             </div>
 
             <div class="kpi-card" data-color="red">
@@ -45,12 +45,12 @@
                     <div class="kpi-icon"><i class="fas fa-bell"></i></div>
                     <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Urgente</span>
                 </div>
-                <div class="kpi-value" data-target="2">0</div>
+                <div class="kpi-value" data-target="0">0</div>
                 <div class="kpi-label">Alertas Activas</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="20"></div>
                 </div>
-                <div class="kpi-sub">2 sin resolver hoy</div>
+                <div class="kpi-sub">que juan lo arregle</div>
             </div>
 
             <div class="kpi-card" data-color="green" style="cursor: pointer;" onclick="window.location.href='{{ entrada_p_url }}'">
@@ -63,7 +63,7 @@
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="62"></div>
                 </div>
-                <div class="kpi-sub">Meta diaria: 40 unidades</div>
+                <div class="kpi-sub">click para ir al modulo de entrada de productos</div>
             </div>
         </div>
     </section>
@@ -88,23 +88,23 @@
         <div class="panel tabla-panel">
             <div class="panel-header">
                 <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
-                <span class="panel-refresh"><i class="fas fa-sync-alt"></i> Auto</span>
+                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (5s)</span></span>
             </div>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th>modulo</th>
-                            <th>accion</th>
-                            <th>fecha</th>
-                            <th>responsable</th>
+                            <th>Módulo</th>
+                            <th>Acción</th>
+                            <th>Fecha</th>
+                            <th>Responsable</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-body">
+                    <tbody id="historial-body">
                         {% for accion in historial_acciones %}
                         <tr>
-                            <td>{{ accion.get_modulo_display }}</td>
-                            <td>{{ accion.descripcion }}</td>
+                            <td>{{ accion.get_modulo_display|default:"General" }}</td>
+                            <td>{{ accion.descripcion|default:"-" }}</td>
                             <td>{{ accion.fecha|date:"d/m/Y H:i" }}</td>
                             <td>{{ accion.usuario.username|default:"Sistema" }}</td>
                         </tr>
@@ -116,6 +116,8 @@
                         </tr>
                         {% endfor %}
                     </tbody>
+                    <!-- Body oculto para compatibilidad con script JS que busca tabla-body -->
+                    <tbody id="tabla-body" style="display:none;"></tbody>
                 </table>
             </div>
         </div>
@@ -134,6 +136,56 @@
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
     ];
+
+    // Función para actualizar el historial vía AJAX
+    function actualizarHistorialAhora() {
+        const icon = document.getElementById('icon-refresh');
+        const text = document.getElementById('text-refresh');
+        
+        // Efecto visual de carga
+        icon.classList.add('fa-spin');
+        text.innerText = "Actualizando...";
+
+        fetch('/api/historial-tiempo-real/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tbody = document.getElementById('historial-body');
+                    let html = '';
+
+                    if (data.data.length === 0) {
+                        html = `<tr>
+                                    <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
+                                        No hay acciones recientes.
+                                    </td>
+                                </tr>`;
+                    } else {
+                        data.data.forEach(item => {
+                            html += `<tr>
+                                <td>${item.modulo}</td>
+                                <td>${item.descripcion}</td>
+                                <td>${item.fecha}</td>
+                                <td>${item.usuario}</td>
+                            </tr>`;
+                        });
+                    }
+                    
+                    // Actualizar el contenido de la tabla
+                    tbody.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error actualizando historial:', error))
+            .finally(() => {
+                // Quitar efecto de carga
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                    text.innerText = "Auto (5s)";
+                }, 500);
+            });
+    }
+
+    // Ejecutar automáticamente cada 5 segundos
+    setInterval(actualizarHistorialAhora, 5000);
 </script>
 <script src="{% static 'ap1/js/monitoreo.js' %}"></script>
 {% endblock %}

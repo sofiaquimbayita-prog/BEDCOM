@@ -1,54 +1,67 @@
 from django.views.generic import TemplateView
-from django.utils import timezone
-from datetime import datetime, timedelta
-from django.db.models import Sum
-from django.db.utils import OperationalError
-from ...models import producto, insumo, entrada, historial_acciones
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+from django.urls import reverse
+from django.shortcuts import render
 
+# Importamos los modelos necesarios
+# Asegúrate de que 'app' sea el nombre correcto de tu aplicación donde están los modelos
+from app.models import historial_acciones, producto, insumo
 
+@method_decorator(login_required, name='dispatch')
 class MonitoreoView(TemplateView):
     template_name = 'monitoreo/monitoreo.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'MONITOREO - BEDCOM'
-        context['icono_modulo'] = 'fas fa-desktop'
         
-        # 1. Stock Total - Suma del stock de todos los productos activos
-        stock_total = producto.objects.filter(estado=True).aggregate(Sum('stock'))['stock__sum'] or 0
-        context['stock_total'] = stock_total
-        context['productos_url'] = '/vistas/productos/'
+        # 1. CARGAR HISTORIAL (Renderizado inicial)
+        # Obtenemos las últimas 50 acciones, ordenadas de la más reciente a la más antigua
+        context['historial_acciones'] = historial_acciones.objects.select_related('usuario').order_by('-fecha')[:50]
+
+        # 2. CARGAR KPIs (Indicadores)
+        # Stock total (suma de productos activos)
+        context['stock_total'] = producto.objects.filter(estado=True).count()
         
-        # 2. Insumos Bajos - Menor a 10 unidades
-        insumos_bajos = insumo.objects.filter(
-            cantidad__lt=10,
-            estado__in=['activo', 'Activo']
-        ).count()
-        context['insumos_bajos'] = insumos_bajos
-        context['insumos_bajos_lista'] = insumo.objects.filter(
-            cantidad__lt=10,
-            estado__in=['activo', 'Activo']
-        )[:5]
-        context['insumos_url'] = '/vistas/insumos/'
+        # Insumos bajos (ejemplo: menos de 10 unidades)
+        context['insumos_bajos'] = insumo.objects.filter(cantidad__lte=10).count()
         
-        # 3. Producción de Hoy - Entradas del día actual
-        hoy = timezone.now().date()
-        hoy_inicio = datetime.combine(hoy, datetime.min.time())
-        hoy_fin = datetime.combine(hoy, datetime.max.time())
-        
-        entradas_hoy = entrada.objects.filter(
-            fecha__range=(hoy_inicio, hoy_fin),
-            estado=True,
-            anulado=False
-        )
-        context['produccion_hoy'] = entradas_hoy.count()
-        context['entradas_hoy_lista'] = entradas_hoy[:5]  # Top 5 para mostrar
-        context['entrada_p_url'] = '/vistas/entrada_p/'
-        
-        # 4. Historial de Acciones - Últimas 10 acciones del sistema
-        try:
-            context['historial_acciones'] = list(historial_acciones.objects.select_related('usuario').order_by('-fecha')[:10])
-        except OperationalError:
-            context['historial_acciones'] = []
-        
+        # Producción hoy (puedes ajustar esta lógica según tu modelo de producción)
+        context['produccion_hoy'] = 0
+
+        # 3. URLs para redirección desde las tarjetas
+        # Usamos try/except por si alguna URL no está definida aún en urls.py
+        try: context['productos_url'] = reverse('productos')
+        except: context['productos_url'] = '#'
+            
+        try: context['insumos_url'] = reverse('insumos')
+        except: context['insumos_url'] = '#'
+            
+        try: context['entrada_p_url'] = reverse('entrada_p')
+        except: context['entrada_p_url'] = '#'
+
         return context
+
+@login_required
+def api_historial_tiempo_real(request):
+    """
+    Endpoint API que devuelve el historial en JSON para el script JS de monitoreo.html
+    """
+    try:
+        # Obtenemos las últimas 20 acciones para la actualización AJAX
+        acciones = historial_acciones.objects.select_related('usuario').order_by('-fecha')[:20]
+        
+        data = []
+        for accion in acciones:
+            data.append({
+                'modulo': accion.get_modulo_display(),
+                'descripcion': accion.descripcion,
+                'fecha': accion.fecha.strftime('%d/%m/%Y %H:%M'),
+                'usuario': accion.usuario.username if accion.usuario else 'Sistema'
+            })
+        
+        return JsonResponse({'success': True, 'data': data})
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
