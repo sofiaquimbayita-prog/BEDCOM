@@ -149,28 +149,26 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
   backdrop-filter: blur(8px);
   z-index: 10000;
   justify-content: center;
-  align-items: flex-start;
-  padding: 20px 10px;
+  align-items: flex-start; /* Esto permite que el modal baje con el margin */
+  padding-top: 50px; /* Espacio arriba */
   overflow-y: auto;
 }
 
 .modal-content {
-  background: #0f172a !important;
+  background: #0f172a !important; 
   color: #ffffff !important;
-  padding: 30px !important;
-  border-radius: 15px !important;
+  padding: 25px !important; /* <--- CAMBIA ESTO (tenías 0) */
+  border-radius: 12px !important;
   width: 90% !important;
-  max-width: 500px !important;
-  max-height: 90vh !important;
+  max-width: 550px !important;
+  margin: 0 auto 50px auto !important; /* Centrado horizontal */
   border: 1px solid #334155 !important;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
-  animation: modalFadeIn 0.3s ease-out;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  position: relative;
 }
 
 /* Scrollbar personalizada para modales */
@@ -229,26 +227,36 @@ header {
   border-color: #38bdf8 !important;
 }
 
-.img-producto {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    object-position: center;
+.helper-text {
+  color: #64748b !important;
+  font-size: 0.75rem !important;
+  margin-top: 6px !important;
+  font-style: italic;
 }
-/* Asegúrate de que esto exista en tu CSS */
-.error-msg {
-    display: none;
-    transition: all 0.3s ease;
+/* Localiza y actualiza estas clases en tu styles_usuarios.css */
+.error-message {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #ef4444;
+    display: none; /* Se activa con la clase .show */
+    font-weight: 500;
+    /* Usamos la animación que ya tienes definida al final de tu archivo */
+    animation: slideInError 0.3s ease-out; 
 }
 
-.error-msg.show {
+.error-message.show {
     display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    min-height: 20px;
-    z-index: 999;
 }
 
+/* Resalte visual para el input */
+.form-control.input-error {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+}
 
 /* ==================================================
    MODAL VIEW (VISTA DE PRODUCTO)
@@ -275,6 +283,39 @@ header {
 
 .modal-body-view .badge.inactive {
     color: #ef4444;
+}
+/* ==================================================
+   CENTRADO DE CONTENIDO EN MODALES (Inactivar/Activar)
+   ================================================== */
+
+/* 1. Contenedor principal del cuerpo */
+.modal-body {
+    display: block; /* Volver al flujo normal de arriba hacia abajo */
+    padding: 20px 0;
+    text-align: left; /* Para que los labels se lean bien */
+}
+
+/* 2. El icono de advertencia o éxito */
+.modal-body i.fas {
+    display: block;
+    margin: 0 auto 20px auto; /* Margen automático a los lados y 20px abajo */
+    text-align: center;
+    width: 100%;             /* Asegura que ocupe el ancho para centrar el glifo */
+}
+
+/* 3. Ajuste para los textos dentro del body */
+.modal-body h4, 
+.modal-body p {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 4. Asegurar que el modal-content no tenga paddings que desvíen el centro */
+.modal-content {
+    padding: 0 !important; /* El padding lo manejamos internamente en header, body y footer */
+    overflow: hidden;
+    border-radius: 8px;
 }
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
@@ -323,12 +364,6 @@ input:-webkit-autofill {
 
 .button-3:hover::before {
   left: 100%;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 10px;
-  margin-top: 25px;
 }
 
 .btn-cancel {
@@ -675,6 +710,14 @@ input:-webkit-autofill {
 .btn-delete:active {
     transform: translateY(0);
 }
+.modal-header {
+background: linear-gradient(135deg, var(--color-superficie));
+color: var(--color-texto);  
+border-radius: 8px 8px 0 0;
+margin: 0;
+width: 100%;
+
+}
 
 /* ==================================================
    TOOLBAR Y SWITCH
@@ -841,7 +884,10 @@ input:checked + .slider:before {
 .modal-content .input-error {
     border-color: #e74c3c !important;
 }
-
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
 @keyframes slideInError {
   from {
     opacity: 0;
@@ -860,13 +906,28 @@ input:checked + .slider:before {
   position: fixed; top: 85px; right: 25px; z-index: 10000;
   display: flex; flex-direction: column; gap: 12px;
 }
-
-.message {
-  min-width: 320px; padding: 16px 20px; border-radius: 14px;
-  background: #1e293b; color: white; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05);
-  animation: slideInToast 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+#toast-container {
+    position: fixed !important;
+    top: 20px;
+    right: 20px;
+    z-index: 99999 !important; /* Valor extremo para superar cualquier modal */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Permite clicks debajo si no es el toast */
 }
+.message {
+    pointer-events: auto; /* Reactiva clicks para el botón cerrar del toast */
+    min-width: 300px;
+    background: var(--color-borde); /* Color oscuro acorde a BedCom */
+    border-left: 5px solid #ef4444;
+    box-shadow: 0 10px 30px var(--color-borde);
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
 
 .message-content { display: flex; align-items: center; gap: 12px; }
 .message-content i { font-size: 20px; }
@@ -879,6 +940,16 @@ input:checked + .slider:before {
 .message.warning .message-content i { color: #f59e0b; }
 .message.info { border-left: 5px solid #38bdf8; }
 .message.info .message-content i { color: #38bdf8; }
+.message.error {
+    background: #ffffff;
+    border-left: 5px solid #ef4444;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: #333;
+    padding: 15px 20px;
+    border-radius: 4px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease-out;
+}
 
 .close-toast {
   background: rgba(255, 255, 255, 0.1); border: none; color: rgba(255, 255, 255, 0.6);
@@ -893,6 +964,7 @@ input:checked + .slider:before {
   .messages-container { right: 12px; left: 12px; max-width: calc(100% - 24px); top: 70px; }
   .message { min-width: auto; }
 }
+
 
 /* ==================================================
    RESPONSIVE - TABLET (768px y menos)
@@ -1048,10 +1120,31 @@ input:checked + .slider:before {
     font-size: 14px;
   }
   
-  .modal-footer {
-    flex-direction: column;
-    gap: 8px;
-  }
+.modal-footer {
+    display: flex;
+    padding: 20px 25px !important; /* Aumenta el margen interno lateral */
+    gap: 15px; /* Espacio entre botones */
+    border-top: 1px solid #334155; /* Línea sutil de separación */
+    background: #1e293b; /* Color de fondo del modal */
+}
+
+.modal-footer button {
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    /* Evita que los botones toquen los bordes */
+    max-width: 200px; 
+    width: 100%;
+}
+
+/* Efecto hover para que se sientan interactivos */
+.modal-footer button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
   
   .btn-cancel,
   .btn-save {
@@ -1125,4 +1218,35 @@ input:checked + .slider:before {
     padding: 3px 5px;
     font-size: 9px;
   }
+}
+
+/* ==================================================
+   FIX Modal Crear Usuario - Full Width Fields (No centered, full ancho)
+   ================================================== */
+#modalAdd .modal-body {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 30px 25px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+}
+
+#modalAdd .modal-content {
+    width: 95vw !important;
+    max-width: 700px !important;
+    margin: auto !important;
+}
+
+#modalAdd .form-group {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+#modalAdd .modal-body > div[style*="display: flex"] {
+    width: 100% !important;
+    justify-content: space-between !important;
 }

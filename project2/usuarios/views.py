@@ -1,165 +1,160 @@
 import logging
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, View
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import PerfilUsuario  # Seguimos usándolo para la cédula/teléfono
-from .forms import UserForm, PerfilForm, UserEditForm
+from .models import PerfilUsuario  
+from .forms import UserForm, UserEditForm
 
+# Obtenemos el modelo de usuario (Custom User o AbstractUser)
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
 # ==================================================
-#  1. LISTAR USUARIOS (Envía todo a DataTables)
+#  1. LISTAR USUARIOS
 # ==================================================
 class ListarUsuariosView(ListView):
     model = User
-    template_name = 'usuarios/listar.html'
+    template_name = 'usuarios/listar_final.html'
     context_object_name = 'usuarios'
 
     def get_queryset(self):
-        # IMPORTANTE: Quitamos el filtro de is_active de Django.
-        # Enviamos todos los usuarios para que el Switch de JS funcione 
-        # sin tener que recargar la página desde el servidor.
-        return User.objects.filter(is_superuser=False).select_related('perfil')
+        # Excluimos superusuarios de la lista de gestión
+        return User.objects.filter(is_superuser=False).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_form'] = UserForm()
-        context['perfil_form'] = PerfilForm()
         return context
 
 # ==================================================
-#  2. OBTENER DETALLE (Para el Modal de Edición)
+#  2. OBTENER DETALLE (AJAX)
 # ==================================================
 def obtener_detalle_usuario(request, pk):
     usuario = get_object_or_404(User, pk=pk)
-    perfil = getattr(usuario, 'perfil', None)
-    
     data = {
         'username': usuario.username,
         'email': usuario.email,
         'first_name': usuario.first_name,
         'last_name': usuario.last_name,
-        'cedula': perfil.cedula if perfil else '',
-        'telefono': perfil.telefono if perfil else '',
-        'rol': perfil.rol if perfil else 'empleado',
-        'estado': usuario.estado,  # Directo desde User
+        'cedula': usuario.cedula,
+        'telefono': usuario.telefono or '',
+        'rol': usuario.rol,
+        'estado': usuario.estado,  
     }
     return JsonResponse(data)
 
 # ==================================================
-#  3. CREAR USUARIO
+#  3. CREAR USUARIO (CON VALIDACIÓN DE UNICIDAD)
 # ==================================================
 class CrearUsuarioView(View):
     def post(self, request):
-        # Check if AJAX
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            user_form = UserForm(request.POST)
-            perfil_form = PerfilForm(request.POST)
-
-            if user_form.is_valid() and perfil_form.is_valid():
-                user = user_form.save(commit=False)
-                user.set_password(user_form.cleaned_data['password'])
-                user.is_active = True
-                user.estado = 'Activo'
-                user.save()
-
-                perfil = perfil_form.save(commit=False)
-                perfil.user = user
-                perfil.save()
-                return JsonResponse({'success': True, 'message': 'Usuario creado correctamente'})
-
-            # Form errors
-            errors = []
-            if user_form.errors:
-                errors.extend([str(e) for e in user_form.non_field_errors()])
-            if perfil_form.errors:
-                errors.extend([str(e) for e in perfil_form.non_field_errors()])
-            return JsonResponse({'success': False, 'message': 'Errores en formulario: ' + '; '.join(errors) or 'Datos inválidos'}, status=400)
-        
-        # Fallback non-AJAX
-        user_form = UserForm(request.POST)
-        perfil_form = PerfilForm(request.POST)
-        if user_form.is_valid() and perfil_form.is_valid():
-            # ... same save logic ...
-            messages.success(request, f'Usuario creado.')
-            return redirect('usuarios:listar')
-        
-        usuarios = User.objects.filter(is_superuser=False).select_related('perfil')
-        return render(request, 'usuarios/listar.html', {
-            'usuarios': usuarios,
-            'user_form': user_form,
-            'perfil_form': perfil_form
-        })
-
-# ==================================================
-#  4. EDITAR USUARIO
-# ==================================================
-class EditarUsuarioView(View):
-    def post(self, request, pk):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            usuario = get_object_or_404(User, pk=pk)    
-            perfil = get_object_or_404(PerfilUsuario, user=usuario)
+            form = UserForm(request.POST)
             
-            user_form = UserEditForm(request.POST, instance=usuario)
-            perfil_form = PerfilForm(request.POST, instance=perfil)
+            if form.is_valid():
+                # Extraemos datos limpios del formulario
+                cedula = form.cleaned_data.get('cedula')
+                email = form.cleaned_data.get('email')
+                telefono = form.cleaned_data.get('telefono')
 
-            if user_form.is_valid() and perfil_form.is_valid():
-                user = user_form.save(commit=False)
-                nueva_pass = user_form.cleaned_data.get('password')
-                if nueva_pass:
-                    user.set_password(nueva_pass)
-                user.save()
-                perfil_form.save()
-                return JsonResponse({'success': True, 'message': 'Usuario actualizado correctamente'})
+                errores_unicidad = {}
 
-            # Errors
-            errors = []
-            if user_form.errors:
-                errors.extend([str(e) for e in user_form.non_field_errors()])
-            if perfil_form.errors:
-                errors.extend([str(e) for e in perfil_form.non_field_errors()])
-            return JsonResponse({'success': False, 'message': 'Errores: ' + '; '.join(errors) or 'Datos inválidos'}, status=400)
+                # --- VALIDACIÓN DE TELÉFONO ÚNICO ---
+                if telefono and User.objects.filter(telefono=telefono).exists():
+                    errores_unicidad['telefono'] = ['Este número de teléfono ya está registrado por otro usuario.']
 
-        # Fallback non-AJAX
-        usuario = get_object_or_404(User, pk=pk)
-        perfil = get_object_or_404(PerfilUsuario, user=usuario)
-        user_form = UserEditForm(request.POST, instance=usuario)
-        perfil_form = PerfilForm(request.POST, instance=perfil)
-        if user_form.is_valid() and perfil_form.is_valid():
-            user = user_form.save(commit=False)
-            nueva_pass = user_form.cleaned_data.get('password')
-            if nueva_pass:
-                user.set_password(nueva_pass)
-            user.save()
-            perfil_form.save()
-            messages.success(request, 'Usuario actualizado.')
-            return redirect('usuarios:listar')
+                # --- VALIDACIÓN DE CÉDULA ÚNICA ---
+                if User.objects.filter(cedula=cedula).exists():
+                    errores_unicidad['cedula'] = ['Esta cédula ya existe en el sistema.']
 
-        messages.error(request, 'Error al actualizar.')
+                # --- VALIDACIÓN DE EMAIL ÚNICO ---
+                if email and User.objects.filter(email=email).exists():
+                    errores_unicidad['email'] = ['Este correo electrónico ya está en uso.']
+
+                # Si hay errores de duplicados, los enviamos de vuelta al modal
+                if errores_unicidad:
+                    return JsonResponse({'success': False, 'errors': errores_unicidad}, status=400)
+
+                try:
+                    user = form.save(commit=False)
+                    
+                    # Prevenimos el error 'NOT NULL constraint failed' en SQLite
+                    user.first_name = form.cleaned_data.get('first_name') or ""
+                    user.last_name = form.cleaned_data.get('last_name') or ""
+                    user.email = email or ""
+                    user.telefono = telefono or ""
+                    
+                    # Encriptación de contraseña obligatoria al crear
+                    password = form.cleaned_data.get('password')
+                    if password:
+                        user.set_password(password)
+                    
+                    user.is_active = True
+                    user.estado = 'Activo'
+                    user.save()
+                    
+                    return JsonResponse({'success': True, 'message': 'Usuario creado con éxito'})
+                
+                except Exception as e:
+                    logger.error(f"Error al guardar en DB: {str(e)}")
+                    return JsonResponse({'success': False, 'errors': {'db': [str(e)]}}, status=500)
+
+            # Si el formulario falla por otros motivos (ej: rol inválido)
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        
         return redirect('usuarios:listar')
 
 # ==================================================
-#  5. CAMBIAR ESTADO (La clave del Switch)
+#  4. EDITAR USUARIO (CON VALIDACIÓN EXCLUYENTE)
+# ==================================================
+class EditarUsuarioView(View):
+    def post(self, request, pk):
+        usuario = get_object_or_404(User, pk=pk)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            form = UserEditForm(request.POST, instance=usuario)
+
+            if form.is_valid():
+                telefono = form.cleaned_data.get('telefono')
+                
+                # Validar que el nuevo teléfono no lo tenga OTRO usuario (excluyendo al actual)
+                if telefono and User.objects.filter(telefono=telefono).exclude(pk=pk).exists():
+                    return JsonResponse({
+                        'success': False, 
+                        'errors': {'telefono': ['Este teléfono ya pertenece a otra persona.']}
+                    }, status=400)
+
+                user = form.save(commit=False)
+                
+                # Actualizar contraseña solo si se ingresó una nueva
+                nueva_pass = form.cleaned_data.get('password')
+                if nueva_pass:
+                    user.set_password(nueva_pass)
+                
+                user.save()
+                return JsonResponse({'success': True, 'message': 'Información actualizada'})
+
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        
+        return redirect('usuarios:listar')
+
+# ==================================================
+#  5. CAMBIAR ESTADO (ACTIVAR/DESACTIVAR)
 # ==================================================
 class CambiarEstadoUsuarioView(View):
     def post(self, request, pk):
         usuario = get_object_or_404(User, pk=pk)
         
-        # Toggle: Si está activo lo apaga, si está apagado lo activa
         if usuario.is_active:
             usuario.is_active = False
             usuario.estado = 'Inactivo'
-            accion = "desactivado"
         else:
             usuario.is_active = True
             usuario.estado = 'Activo'
-            accion = "activado"
             
         usuario.save()
-        
-        logger.info(f'✅ [BEDCOM] Usuario {usuario.username} ahora está {usuario.estado}')
-        messages.success(request, f'Usuario {usuario.username} {accion} correctamente.')
+        messages.success(request, f"El estado de {usuario.username} ha sido actualizado.")
         return redirect('usuarios:listar')

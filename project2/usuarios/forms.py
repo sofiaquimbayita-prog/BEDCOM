@@ -1,30 +1,62 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator, MinLengthValidator
+from django.core.validators import RegexValidator
 import re
-from .models import PerfilUsuario
 
-# Esto obtiene automáticamente tu modelo 'usuario' de BedCom
 User = get_user_model()
 
 class UserForm(forms.ModelForm):
-    # Nombres y apellidos: solo letras, espacios, acentos
+    # --- VALIDADORES REUTILIZABLES ---
     name_validator = RegexValidator(
         r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$',
         'Solo se permiten letras y espacios (acentos permitidos).',
         'invalid_name'
     )
     
+    numeric10_validator = RegexValidator(
+        r'^\d{10}$',
+        'Debe ser exactamente 10 dígitos numéricos.',
+        'invalid_numeric'
+    )
+
+    # --- CAMPOS PERSONALIZADOS ---
+    cedula = forms.CharField(
+        validators=[numeric10_validator],
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 1057...'}),
+        label='Cédula'
+    )
+    
+    telefono = forms.CharField(
+        validators=[numeric10_validator],
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 310...'}),
+        label='Teléfono'
+    )
+
+    rol = forms.ChoiceField(
+        choices=[
+            ('', 'Seleccione un rol...'),
+            ('administrador', 'Administrador'),
+            ('empleado', 'Empleado'),
+            ('vendedor', 'Vendedor'),
+        ],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Rol del Sistema'
+    )
+    
     password = forms.CharField(
         min_length=8,
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Mínimo 8 chars: 1 mayús, 1 número, 1 especial',
             'class': 'form-control',
-            'id': 'id_password_add'
+            'placeholder': '••••••••'
         }),
         label="Contraseña"
     )
+
+    # --- LÓGICA DE VALIDACIÓN (CLEAN) ---
 
     def clean_password(self):
         password = self.cleaned_data.get('password')
@@ -34,26 +66,32 @@ class UserForm(forms.ModelForm):
             if not re.search(r'\d', password):
                 raise ValidationError('Debe contener al menos un número.')
             if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-                raise ValidationError('Debe contener al menos un carácter especial (!@#$%^&*()).')
+                raise ValidationError('Debe contener al menos un carácter especial.')
         return password
 
     def clean_first_name(self):
-        return self.name_validator(self.cleaned_data['first_name'])
+        # CORRECCIÓN: Obtenemos el valor, validamos y RE-DEVOLVEMOS el valor
+        first_name = self.cleaned_data.get('first_name')
+        if first_name:
+            self.name_validator(first_name)
+        return first_name
 
     def clean_last_name(self):
-        return self.name_validator(self.cleaned_data['last_name'])
+        # CORRECCIÓN: Obtenemos el valor, validamos y RE-DEVOLVEMOS el valor
+        last_name = self.cleaned_data.get('last_name')
+        if last_name:
+            self.name_validator(last_name)
+        return last_name
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
-        # cedula y rol vienen de PerfilForm
+        # Definimos el orden exacto de los campos
+        fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'rol', 'telefono', 'password']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'cedula': forms.TextInput(attrs={'class': 'form-control'}),
-            'rol': forms.TextInput(attrs={'class': 'form-control'}), # O Select si prefieres
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'}),
         }
         labels = {
             'username': 'Nombre de Usuario',
@@ -62,64 +100,17 @@ class UserForm(forms.ModelForm):
             'email': 'Correo Electrónico',
         }
 
-class PerfilForm(forms.ModelForm):
-    # Cédula y teléfono: exactamente 10 dígitos
-    numeric10_validator = RegexValidator(
-        r'^\d{10}$',
-        'Debe ser exactamente 10 dígitos numéricos.',
-        'invalid_numeric'
-    )
-
-    cedula = forms.CharField(
-        validators=[numeric10_validator],
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'id_cedula'}),
-    )
-    telefono = forms.CharField(
-        validators=[numeric10_validator],
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'id_telefono'}),
-    )
-
-    class Meta:
-        model = PerfilUsuario
-        fields = ['rol', 'cedula', 'telefono']
-        widgets = {
-            'rol': forms.Select(attrs={'class': 'form-control'}),
-            'cedula': forms.TextInput(attrs={'class': 'form-control'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-class UserEditForm(UserForm):  # Hereda name_validator y password logic
-    # Override password to optional
+class UserEditForm(UserForm):
+    # En edición, la contraseña no es obligatoria
     password = forms.CharField(
         min_length=8,
         required=False,
-        empty_value='',
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Dejar vacío para no cambiar',
             'class': 'form-control',
-            'id': 'id_password_edit'
+            'placeholder': 'Dejar vacío para no cambiar'
         }),
         label="Nueva Contraseña (opcional)"
     )
 
     class Meta(UserForm.Meta):
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
-
-    class Meta:
-        model = User
-        # Campos que permites editar de tu modelo 'usuario'
-        fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'rol']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'cedula': forms.TextInput(attrs={'class': 'form-control'}),
-            'rol': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-        labels = {
-            'username': 'Nombre de Usuario',
-            'first_name': 'Nombres',
-            'last_name': 'Apellidos',
-            'email': 'Correo Electrónico',
-        }
+        fields = UserForm.Meta.fields
