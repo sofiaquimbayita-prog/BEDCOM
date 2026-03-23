@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from ...models import proveedor
 from ...forms import ProveedorForm
+from ...models import historial_acciones
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProveedorListView(ListView):
@@ -26,19 +27,26 @@ class ProveedorCreateView(View):
     def post(self, request):
         import logging
         logger = logging.getLogger(__name__)
-        
+
         try:
             logger.error("REQUEST POST: " + str(request.POST))
-            
+
             form = ProveedorForm(request.POST, request.FILES)
-            
+
             if form.is_valid():
                 logger.error("FORM IS VALID, saving...")
                 proveedor_obj = form.save(commit=False)
                 proveedor_obj.estado = True
                 proveedor_obj.save()
                 logger.error("PROVEEDOR SAVED WITH ID: " + str(proveedor_obj.id))
-                
+
+                historial_acciones.objects.create(
+                    usuario=request.user,
+                    modulo='proveedores',
+                    tipo_accion='crear',
+                    descripcion=f'Creación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
+                )
+
                 return JsonResponse({
                     'success': True,
                     'message': 'Proveedor creado exitosamente',
@@ -77,9 +85,15 @@ class ProveedorUpdateView(View):
         try:
             proveedor_obj = get_object_or_404(proveedor, pk=pk)
             form = ProveedorForm(request.POST, request.FILES, instance=proveedor_obj)
-            
+
             if form.is_valid():
                 proveedor_obj = form.save()
+                historial_acciones.objects.create(
+                    usuario=request.user,
+                    modulo='proveedores',
+                    tipo_accion='editar',
+                    descripcion=f'Edición de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
+                )
                 return JsonResponse({
                     'success': True,
                     'message': 'Proveedor actualizado exitosamente',
@@ -107,6 +121,7 @@ class ProveedorUpdateView(View):
                 'message': str(e)
             }, status=500)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ProveedorDeleteView(View):
     def post(self, request, pk):
@@ -114,10 +129,19 @@ class ProveedorDeleteView(View):
             proveedor_obj = get_object_or_404(proveedor, pk=pk)
             proveedor_obj.estado = False
             proveedor_obj.save()
+
+            historial_acciones.objects.create(
+                usuario=request.user,
+                modulo='proveedores',
+                tipo_accion='inactivar',
+                descripcion=f'Inactivación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
+            )
+
             messages.success(request, 'Proveedor desactivado correctamente')
             return JsonResponse({'success': True, 'message': 'Proveedor desactivado correctamente'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProveedorActivateView(View):
@@ -126,10 +150,19 @@ class ProveedorActivateView(View):
             proveedor_obj = get_object_or_404(proveedor, pk=pk)
             proveedor_obj.estado = True
             proveedor_obj.save()
+
+            historial_acciones.objects.create(
+                usuario=request.user,
+                modulo='proveedores',
+                tipo_accion='activar',
+                descripcion=f'Activación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
+            )
+
             messages.success(request, 'Proveedor activado correctamente')
             return JsonResponse({'success': True, 'message': 'Proveedor activado correctamente'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProveedorDataView(View):
@@ -137,14 +170,14 @@ class ProveedorDataView(View):
         try:
             solo_inactivos = request.GET.get('solo_inactivos', 'false').lower() == 'true'
             incluir_todos = request.GET.get('incluir_todos', 'false').lower() == 'true'
-            
+
             if incluir_todos:
                 proveedores = proveedor.objects.all()
             elif solo_inactivos:
                 proveedores = proveedor.objects.filter(estado=False)
             else:
                 proveedores = proveedor.objects.filter(estado=True)
-            
+
             proveedores_data = []
             for p in proveedores:
                 proveedores_data.append({
@@ -155,7 +188,7 @@ class ProveedorDataView(View):
                     'imagen': p.imagen.url if p.imagen else None,
                     'estado': p.estado
                 })
-            
+
             return JsonResponse({
                 'success': True,
                 'proveedores': proveedores_data,

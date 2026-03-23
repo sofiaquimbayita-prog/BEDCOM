@@ -1,0 +1,1 @@
+from .views import MonitoreoView,api_historial_tiempo_real,api_kpis,api_notificaciones

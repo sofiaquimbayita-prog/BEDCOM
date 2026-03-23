@@ -1,0 +1,254 @@
+{% extends 'includes/base.html' %}
+{% load static %}
+{% block title %}Monitoreo{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/monitoreo.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- HEADER ESPECIFICO DE MONITOREO -->
+
+
+<main class="monitoreo-main">
+    <!-- KPI CARDS -->
+    <section class="kpi-section">
+        <div class="kpi-grid">
+            <div class="kpi-card" data-color="blue" style="cursor: pointer;" onclick="window.location.href='{{ productos_url }}'">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-boxes"></i></div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                </div>
+                <div class="kpi-value" data-target="{{ stock_total|default:0 }}">{{ stock_total|default:0 }}</div>
+                <div class="kpi-label">Total Stock Productos</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="75"></div>
+                </div>
+                <div class="kpi-sub">Total unidades en stock de todos productos activos</div>
+            </div>
+
+            <div class="kpi-card" data-color="amber" style="cursor: pointer;" onclick="window.location.href='{{ insumos_url }}'">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Revisar</span>
+                </div>
+                <div class="kpi-value" data-target="{{ insumos_bajos|default:0 }}">{{ insumos_bajos|default:0 }}</div>
+                <div class="kpi-label">Insumos Bajos</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="30"></div>
+                </div>
+                <div class="kpi-sub">insumos bajos en stock</div>
+            </div>
+
+            <div class="kpi-card" data-color="orange" style="cursor: pointer;" onclick="window.location.href='{{ salida_p_url }}'">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-box-open"></i></div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-down"></i> {{ salidas_hoy|default:0 }}</span>
+                </div>
+                <div class="kpi-value" data-target="{{ salidas_hoy|default:0 }}" id="salidas_hoy_value">{{ salidas_hoy|default:0 }}</div>
+                <div class="kpi-label">Salidas Hoy</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="45"></div>
+                </div>
+                <div class="kpi-sub"> click para ir al modulo  Salidas de productos</div>
+            </div>
+
+            <div class="kpi-card" data-color="green" style="cursor: pointer;" onclick="window.location.href='{{ entrada_p_url }}'">
+                <div class="kpi-top">
+                    <div class="kpi-icon"><i class="fas fa-industry"></i></div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                </div>
+                <div class="kpi-value" data-target="{{ produccion_hoy|default:0 }}" data-kpi="produccion_hoy" id="produccion_hoy_value">{{ produccion_hoy|default:0 }}</div>
+                <div class="kpi-label">Producción Hoy</div>
+                <div class="kpi-bar-wrap">
+                    <div class="kpi-bar" data-pct="62"></div>
+                </div>
+                <div class="kpi-sub">click para ir al modulo de entrada de productos</div>
+            </div>
+        </div>
+    </section>
+ 
+    <!-- FILA INFERIOR: alertas + tabla -->
+    <section class="bottom-grid">
+        <!-- ALERTAS -->
+        <div class="panel alertas-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-shield-alt"></i> Alertas del Sistema</span>
+                <span class="badge-count" id="badge-alertas">{{ alertas_count|default:0 }}</span>
+            </div>
+            <div class="alertas-list" id="alertas-list">
+                {% for notif in notificaciones %}
+                <div class="alerta {% if notif.tipo == 'producto_bajo' %}warning{% elif notif.tipo == 'evento_vencido' %}danger{% else %}info{% endif %}" data-id="{{ notif.id }}">
+                    <i class="fas fa-{% if notif.tipo == 'producto_bajo' %}box-open{% elif notif.tipo == 'evento_vencido' %}exclamation-triangle{% else %}calendar-day{% endif %}"></i>
+                    <span><strong>{{ notif.titulo }}</strong>: {{ notif.mensaje }}</span>
+                    <small>{{ notif.fecha_notificacion|date:"d/m H:i" }}</small>
+                </div>
+                {% empty %}
+                <div class="alerta-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <span>No hay alertas pendientes</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="panel tabla-panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
+                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (5s)</span></span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Módulo</th>
+                            <th>Acción</th>
+                            <th>Fecha</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historial-body">
+                        {% for accion in historial_acciones %}
+                        <tr>
+                            <td>{{ accion.get_modulo_display|default:"General" }}</td>
+                            <td>{{ accion.descripcion|default:"-" }}</td>
+                            <td>{{ accion.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ accion.usuario.username|default:"Sistema" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
+                                No hay acciones recientes. Realiza algún movimiento (crear/editar producto) para ver el historial.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <!-- Body oculto para compatibilidad con script JS que busca tabla-body -->
+                    <tbody id="tabla-body" style="display:none;"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // Definir la variable 'procesos' con los datos reales de Django para que monitoreo.js pueda usarla
+    var procesos = [
+        {% for accion in historial_acciones %}
+        {
+            modulo: "{{ accion.get_modulo_display|default:'General'|escapejs }}",
+            accion: "{{ accion.descripcion|default:'Registro'|escapejs }}",
+            fecha: "{{ accion.fecha|date:'d/m/Y H:i' }}",
+            responsable: "{{ accion.usuario.username|default:'Sistema'|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    // Función para actualizar el historial vía AJAX
+    function actualizarHistorialAhora() {
+        const icon = document.getElementById('icon-refresh');
+        const text = document.getElementById('text-refresh');
+        
+        // Efecto visual de carga
+        icon.classList.add('fa-spin');
+        text.innerText = "Actualizando...";
+
+        fetch('/api/historial-tiempo-real/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tbody = document.getElementById('historial-body');
+                    let html = '';
+
+                    if (data.data.length === 0) {
+                        html = `<tr>
+                                    <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
+                                        No hay acciones recientes.
+                                    </td>
+                                </tr>`;
+                    } else {
+                        data.data.forEach(item => {
+                            html += `<tr>
+                                <td>${item.modulo}</td>
+                                <td>${item.descripcion}</td>
+                                <td>${item.fecha}</td>
+                                <td>${item.usuario}</td>
+                            </tr>`;
+                        });
+                    }
+                    
+                    // Actualizar el contenido de la tabla
+                    tbody.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error actualizando historial:', error))
+            .finally(() => {
+                // Quitar efecto de carga
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                    text.innerText = "Auto (5s)";
+                }, 500);
+            });
+    }
+
+    // Ejecutar automáticamente cada 5 segundos
+    setInterval(actualizarHistorialAhora, 5000);
+
+    // Polling para KPIs cada 10 segundos
+    function actualizarKPIs() {
+        fetch('/monitoreo/api/kpis/')
+            .then(response => response.json())
+            .then(data => {
+                // Update Producción Hoy
+                const prodEl = document.querySelector('[data-kpi="produccion_hoy"]');
+                if (prodEl) animarContador(prodEl, data.produccion_hoy);
+                
+                // Update Salidas Hoy
+                const salidasEl = document.getElementById('salidas_hoy_value');
+                if (salidasEl) animarContador(salidasEl, data.salidas_hoy);
+                
+                // Otros si se necesita
+                const stockEl = document.querySelector('.kpi-label[data-kpi="stock_total"] + .kpi-value');
+                if (stockEl) animarContador(stockEl, data.stock_total);
+            })
+            .catch(error => console.error('Error KPIs:', error));
+    }
+    setInterval(actualizarKPIs, 10000);
+    // Initial KPI load after DOM
+    setTimeout(actualizarKPIs, 1000);
+
+    // Alertas del sistema en tiempo real
+    function actualizarAlertas() {
+        fetch('/monitoreo/api/notificaciones/')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('alertas-list');
+                const badge = document.getElementById('badge-alertas');
+                if (data.total === 0) {
+                    list.innerHTML = `
+                        <div class="alerta-empty">
+                            <i class="fas fa-check-circle"></i>
+                            <span>No hay alertas pendientes</span>
+                        </div>`;
+                } else {
+                    list.innerHTML = data.data.map(n => `
+                        <div class="alerta ${n.tipo === 'producto_bajo' ? 'warning' : n.tipo === 'evento_vencido' ? 'danger' : 'info'}" data-id="${n.id}">
+                            <i class="fas fa-${n.tipo === 'producto_bajo' ? 'box-open' : n.tipo === 'evento_vencido' ? 'exclamation-triangle' : 'calendar-day'}"></i>
+                            <span><strong>${n.titulo}</strong>: ${n.mensaje}</span>
+                            <small>${n.fecha}</small>
+                        </div>
+                    `).join('');
+                }
+                if (badge) badge.textContent = data.total;
+            })
+            .catch(error => console.error('Error alertas:', error));
+    }
+
+    // Polling alertas cada 30 segundos
+    setInterval(actualizarAlertas, 30000);
+    // Load inicial
+    setTimeout(actualizarAlertas, 1500);
+</script>
+<script src="{% static 'ap1/js/monitoreo.js' %}"></script>
+{% endblock %}

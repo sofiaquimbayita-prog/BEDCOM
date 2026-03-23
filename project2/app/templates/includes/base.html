@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
     <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/x-icon">
 
 
@@ -37,6 +37,18 @@
             <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
                 <i class="fa-solid fa-sitemap"></i>
                 <span>BOM/RECETAS</span>
+            
+            <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
+                <i class="fa-solid fa-bed"></i>
+                <span>PRODUCTOS</span>
+            </a>
+            <a href="{% url 'categorias' %}" class="sidebar-module-item" title="Gestión de categorías">
+                <i class="fa-solid fa-tags"></i>
+                <span>CATEGORÍAS</span>
+            </a>
+            <a href="{% url 'insumos' %}" class="sidebar-module-item" title="Entradas y stock">
+                <i class="fa-solid fa-box-open"></i>
+                <span>INSUMOS</span>
             </a>
             <a href="{% url 'calendario' %}" class="sidebar-module-item" title="Fechas y reservas">
                 <i class="fa-solid fa-calendar-check"></i>
@@ -77,6 +89,10 @@
             <a href="{% url 'salida_producto' %}" class="sidebar-module-item" title="Movimientos">
                 <i class="fa-solid fa-file-export"></i>
                 <span>SALIDA DE PRODUCTOS</span>
+            </a>
+            <a href="{% url 'monitoreo' %}" class="sidebar-module-item" title="Dashboard en tiempo real">
+                <i class="fa-solid fa-desktop"></i>
+                <span>MONITOREO</span>
             </a>
             
             <!-- Nuevos módulos agregados -->
@@ -412,10 +428,13 @@ window.confirmarLogout = function() {
     };
     </script>
 
+    <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'ap1/js/menu.js' %}"></script>
-    <!-- Select2 JS -->
+    <!-- Select2 JS - CDN (storage warnings non-blocking; JS loads) -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/es.js"></script>
     {% block scripts %}{% endblock %}
+
 </body>
 </html>

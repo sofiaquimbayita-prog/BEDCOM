@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo
 
 urlpatterns = [
     # --- ENTRADA DE PRODUCTOS ---
@@ -65,6 +65,12 @@ urlpatterns = [
     path('calendario/editar/<int:pk>/', calendario.EventoUpdateView.as_view(), name='editar_evento'),
     path('calendario/completar/<int:pk>/', calendario.EventoCompletarView.as_view(), name='completar_evento'),
     path('calendario/eliminar/<int:pk>/', calendario.EventoEliminarView.as_view(), name='eliminar_evento'),
+
+    # --- MONITOREO ---
+    path('monitoreo/', monitoreo.MonitoreoView.as_view(), name='monitoreo'),
+    path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
+    path('monitoreo/api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial'),
+    path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
 
    # --- PROVEEDORES ---
       path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),

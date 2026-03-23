@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from app.models import producto, proveedor, entrada
+from app.models import producto, proveedor, entrada, historial_acciones
 from app.forms import EntradaForm
 from django.db import transaction
 from datetime import datetime
@@ -236,6 +236,15 @@ class EntradaCreateView(View):
                         item['insumo'].cantidad -= item['cantidad']
                         item['insumo'].save()
                         logger.error(f"Descontado insumo: {item['insumo'].nombre} - {item['cantidad']} unidades")
+                
+                # REGISTRO HISTORIAL
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='entradas',
+                        tipo_accion='crear',
+                        descripcion=f'Registró entrada de {cantidad} un. de "{producto_obj.nombre}"',
+                        usuario=request.user
+                    )
             
             logger.error("ENTRADA CREADA CON ID: " + str(entrada_obj.id))
             
@@ -320,6 +329,15 @@ class EntradaUpdateView(View):
                 # Aplicar nuevo stock
                 producto_obj.stock += cantidad
                 producto_obj.save()
+
+                # REGISTRO HISTORIAL
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='entradas',
+                        tipo_accion='editar',
+                        descripcion=f'Actualizó entrada #{entrada_obj.id} de "{producto_obj.nombre}"',
+                        usuario=request.user
+                    )
             
             return JsonResponse({
                 'success': True,
@@ -365,6 +383,15 @@ class EntradaDeleteView(View):
             with transaction.atomic():
                 entrada_obj.anulado = True
                 entrada_obj.save()
+
+                # REGISTRO HISTORIAL
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='entradas',
+                        tipo_accion='eliminar',
+                        descripcion=f'Anuló entrada #{entrada_obj.id} de "{entrada_obj.producto.nombre}"',
+                        usuario=request.user
+                    )
             
             logger.error("ENTRADA ANULADA: " + str(pk))
             
@@ -404,6 +431,15 @@ class EntradaReactivarView(View):
             with transaction.atomic():
                 entrada_obj.anulado = False
                 entrada_obj.save()
+
+                # REGISTRO HISTORIAL
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='entradas',
+                        tipo_accion='activar',
+                        descripcion=f'Reactivó entrada #{entrada_obj.id} de "{entrada_obj.producto.nombre}"',
+                        usuario=request.user
+                    )
             
             logger.error("ENTRADA REACTIVADA: " + str(pk))
             
@@ -418,4 +454,3 @@ class EntradaReactivarView(View):
                 'success': False,
                 'message': str(e)
             }, status=500)
-

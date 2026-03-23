@@ -1,6 +1,8 @@
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 # --- MODELOS BASE ---
+
 
 class categoria(models.Model):
     TIPO_PRODUCTO = 'producto'
@@ -9,10 +11,11 @@ class categoria(models.Model):
         (TIPO_PRODUCTO, 'Producto'),
         (TIPO_INSUMO, 'Insumo'),
     ]
-    
+
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField()
-    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default=TIPO_PRODUCTO)
+    tipo = models.CharField(
+        max_length=20, choices=TIPO_CHOICES, default=TIPO_PRODUCTO)
     estado = models.BooleanField(default=True)
 
     def __str__(self):
@@ -23,10 +26,13 @@ class categoria(models.Model):
         verbose_name_plural = "Categorías"
         db_table = "categorias"
 
-#rama sofia
+# rama sofia
+
+
 class proveedor(models.Model):
     nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=15) # Aumentado por si incluyen indicativos
+    # Aumentado por si incluyen indicativos
+    telefono = models.CharField(max_length=15)
     direccion = models.CharField(max_length=200)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
     estado = models.BooleanField(default=True)
@@ -39,12 +45,13 @@ class proveedor(models.Model):
         verbose_name_plural = "Proveedores"
         db_table = "proveedor"
 
+
 class respaldo(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     usuario = models.CharField(max_length=100)
     tipo_respaldo = models.CharField(max_length=20)
     descripcion = models.TextField(blank=True, null=True)
-    archivo = models.FileField(upload_to='respaldos_sql/') 
+    archivo = models.FileField(upload_to='respaldos_sql/')
     estado = models.BooleanField(default=True)
 
     def __str__(self):
@@ -55,6 +62,7 @@ class respaldo(models.Model):
         verbose_name_plural = "Respaldos"
         db_table = "respaldos"
         ordering = ['-fecha']
+
 
 class cliente(models.Model):
     cedula = models.CharField(max_length=20, unique=True)
@@ -71,8 +79,6 @@ class cliente(models.Model):
         verbose_name_plural = "Clientes"
         db_table = "clientes"
 
-from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
@@ -89,11 +95,12 @@ class UsuarioManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('rol', 'Administrador')
         extra_fields.setdefault('estado', 'Activo')
-        
+
         if 'cedula' not in extra_fields:
             extra_fields.setdefault('cedula', '00000000')
 
         return self.create_user(email, username, password, **extra_fields)
+
 
 class usuario(AbstractUser):
     # Campos personalizados
@@ -118,7 +125,7 @@ class usuario(AbstractUser):
         blank=True,
     )
 
-    REQUIRED_FIELDS = ['email', 'cedula', 'rol'] 
+    REQUIRED_FIELDS = ['email', 'cedula', 'rol']
 
     class Meta:
         db_table = "usuarios"
@@ -127,6 +134,7 @@ class usuario(AbstractUser):
         return self.username
 
 # --- MODELOS DE PRODUCTOS Y REPORTES ---
+
 
 class reporte(models.Model):
     tipo = models.CharField(max_length=100)
@@ -140,6 +148,7 @@ class reporte(models.Model):
         verbose_name = "Reporte"
         verbose_name_plural = "Reportes"
         db_table = "reporte"
+
 
 class producto(models.Model):
     nombre = models.CharField(max_length=100)
@@ -162,12 +171,15 @@ class producto(models.Model):
 # --- MODELO DE ENTRADA DE PRODUCTOS ---
 class entrada(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
-    producto = models.ForeignKey(producto, on_delete=models.CASCADE, related_name='entradas')
+    producto = models.ForeignKey(
+        producto, on_delete=models.CASCADE, related_name='entradas')
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     total = models.DecimalField(max_digits=12, decimal_places=2)
-    proveedor = models.ForeignKey(proveedor, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
-    usuario = models.ForeignKey(usuario, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
+    proveedor = models.ForeignKey(
+        proveedor, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
+    usuario = models.ForeignKey(
+        usuario, on_delete=models.CASCADE, related_name='entradas', null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
     estado = models.BooleanField(default=True)
     anulado = models.BooleanField(default=False, verbose_name="Anulado")
@@ -187,45 +199,51 @@ class garantia (models.Model):
     descripcion = models.TextField()
     estado = models.BooleanField(default=True)
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
-    
+
     def __str__(self):
         # Corregido: El campo 'duracion_meses' no existe. Retorna info básica.
         return f"Garantia para producto {self.id_producto_id}"
-    class Meta :
+
+    class Meta:
         verbose_name = "Garantia"
         verbose_name_plural = "Garantias"
         db_table = "garantias"
+
 
 class mantenimiento(models.Model):
     fecha = models.DateField()
     descripcion = models.TextField()
     # Asumo que id_garantia debe apuntar a Garantia, no a Reporte.
-    id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE) 
-    
+    id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE)
+
     def __str__(self):
         return f"Mantenimiento del {self.fecha}"
+
     class Meta:
         verbose_name = "Mantenimiento"
         verbose_name_plural = "Mantenimientos"
         db_table = "mantenimiento"
 # --- MODELOS DE INSUMOS Y PRODUCCIÓN (BOM) ---
 
+
 class insumo(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
     cantidad = models.IntegerField()
     unidad_medida = models.CharField(max_length=20)
-    precio = models.DecimalField(max_digits=10, decimal_places=2) 
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.CharField(max_length=20)
     id_categoria = models.ForeignKey('categoria', on_delete=models.CASCADE)
     id_proveedor = models.ForeignKey('proveedor', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nombre
+
     class Meta:
         verbose_name = "Insumo"
-        verbose_name_plural = "Insumos" 
-        db_table = "insumo" 
+        verbose_name_plural = "Insumos"
+        db_table = "insumo"
+
 
 class bom(models.Model):
     cantidad = models.IntegerField()
@@ -241,10 +259,12 @@ class bom(models.Model):
 
 # --- MODELOS DE COMPRAS Y VENTAS ---
 
+
 class compra(models.Model):
     fecha_suministro = models.DateField()
     cantidad = models.IntegerField()
-    precio_unidad = models.DecimalField(max_digits=12, decimal_places=2, default=0) # CAMBIO AQUÍ
+    precio_unidad = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0)  # CAMBIO AQUÍ
     proveedor = models.ForeignKey(proveedor, on_delete=models.CASCADE)
     insumo = models.ForeignKey(insumo, on_delete=models.CASCADE)
 
@@ -254,6 +274,7 @@ class compra(models.Model):
     class Meta:
         db_table = "proveedor_insumo"
         unique_together = ('proveedor', 'insumo')
+
 
 class pedido(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
@@ -269,15 +290,18 @@ class pedido(models.Model):
         verbose_name_plural = "Pedidos"
         db_table = "pedido"
 
+
 class detalle_pedido(models.Model):
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     sub_total = models.DecimalField(max_digits=10, decimal_places=2)
-    pedido = models.ForeignKey(pedido, related_name='detalles', on_delete=models.CASCADE)
+    pedido = models.ForeignKey(
+        pedido, related_name='detalles', on_delete=models.CASCADE)
     producto = models.ForeignKey(producto, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "detalle_pedido"
+
 
 class pago(models.Model):
     pedido = models.ForeignKey(pedido, on_delete=models.CASCADE)
@@ -288,7 +312,8 @@ class pago(models.Model):
     class Meta:
         db_table = "pagos"
 
-class supervision(models.Model): 
+
+class supervision(models.Model):
     fecha = models.DateField(auto_now_add=True)
     descripcion = models.TextField()
     usuario = models.ForeignKey(usuario, on_delete=models.CASCADE)
@@ -301,11 +326,14 @@ class supervision(models.Model):
         verbose_name_plural = "Supervisiones"
         db_table = "supervision"
 
-class despacho(models.Model): 
+
+class despacho(models.Model):
     fecha = models.DateField()
     estado_entrega = models.CharField(max_length=50, default="En proceso")
-    pedido = models.ForeignKey(pedido, on_delete=models.CASCADE, related_name='despachos')
-    supervision = models.ForeignKey(supervision, on_delete=models.CASCADE, null=True, blank=True)
+    pedido = models.ForeignKey(
+        pedido, on_delete=models.CASCADE, related_name='despachos')
+    supervision = models.ForeignKey(
+        supervision, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"despacho pedido #{self.pedido.id} - estado: {self.estado_entrega}"
@@ -315,6 +343,7 @@ class despacho(models.Model):
         verbose_name_plural = "Despachos"
         db_table = "despacho"
 # --- MODELOS DE CALENDARIO ---
+
 
 class CategoriaEvento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -333,9 +362,9 @@ class CategoriaEvento(models.Model):
 
 class calendario(models.Model):
 
-    ESTADO_PENDIENTE   = 'pendiente'
-    ESTADO_COMPLETADO  = 'completado'
-    ESTADO_ELIMINADO   = 'eliminado'
+    ESTADO_PENDIENTE = 'pendiente'
+    ESTADO_COMPLETADO = 'completado'
+    ESTADO_ELIMINADO = 'eliminado'
 
     ESTADO_CHOICES = [
         (ESTADO_PENDIENTE,  'Pendiente'),
@@ -344,24 +373,24 @@ class calendario(models.Model):
     ]
 
     MODO_AUTOMATICO = 'automatico'
-    MODO_MANUAL     = 'manual'
+    MODO_MANUAL = 'manual'
 
     MODO_CHOICES = [
         (MODO_AUTOMATICO, 'Automático'),
         (MODO_MANUAL,     'Manual'),
     ]
 
-    titulo             = models.CharField(max_length=100)
-    fecha              = models.DateField()
-    hora               = models.TimeField()
-    categoria          = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
-    descripcion        = models.TextField(blank=True, null=True)
-    modo_completado    = models.CharField(
+    titulo = models.CharField(max_length=100)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    categoria = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
+    descripcion = models.TextField(blank=True, null=True)
+    modo_completado = models.CharField(
         max_length=15,
         choices=MODO_CHOICES,
         default=MODO_AUTOMATICO,
     )
-    estado             = models.CharField(
+    estado = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default=ESTADO_PENDIENTE,
@@ -378,7 +407,8 @@ class calendario(models.Model):
 
 # --- MODELO DE SALIDA DE PRODUCTOS ---
 class salida_producto(models.Model):
-    id_producto = models.ForeignKey(producto, on_delete=models.CASCADE, related_name='salidas')
+    id_producto = models.ForeignKey(
+        producto, on_delete=models.CASCADE, related_name='salidas')
     cantidad = models.IntegerField()
     fecha = models.DateField()
     motivo = models.TextField()
@@ -393,3 +423,85 @@ class salida_producto(models.Model):
         verbose_name_plural = "Salidas de Productos"
         db_table = "salida_producto"
         ordering = ['-fecha']
+
+
+# --- MODELO DE HISTORIAL DE ACCIONES (LOG) ---
+class historial_acciones(models.Model):
+    TIPO_ACCION_CHOICES = [
+        ('crear', 'Crear'),
+        ('editar', 'Editar'),
+        ('eliminar', 'Eliminar'),
+        ('activar', 'Activar'),
+        ('inactivar', 'Inactivar'),
+        ('login', 'Inicio de Sesión'),
+        ('logout', 'Cierre de Sesión'),
+        ('exportar', 'Exportar'),
+        ('importar', 'Importar'),
+        ('respaldo', 'Respaldo'),
+        ('restaurar', 'Restaurar'),
+    ]
+
+    MODULO_CHOICES = [
+        ('productos', 'Productos'),
+        ('categorias', 'Categorías'),
+        ('insumos', 'Insumos'),
+        ('proveedores', 'Proveedores'),
+        ('entradas', 'Entradas'),
+        ('salidas', 'Salidas'),
+        ('calendario', 'Calendario'),
+        ('inventario', 'Inventario'),
+        ('bom', 'BOM/Recetas'),
+        ('usuarios', 'Usuarios'),
+        ('reportes', 'Reportes'),
+        ('respaldos', 'Respaldos'),
+        ('sistema', 'Sistema'),
+    ]
+
+    fecha = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(
+        usuario, on_delete=models.CASCADE, related_name='historial_acciones')
+    tipo_accion = models.CharField(max_length=20, choices=TIPO_ACCION_CHOICES)
+    modulo = models.CharField(max_length=20, choices=MODULO_CHOICES)
+    descripcion = models.CharField(max_length=255)
+    detalles = models.TextField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.get_tipo_accion_display()} en {self.get_modulo_display()} - {self.fecha.strftime('%d/%m/%Y %H:%M')}"
+
+    class Meta:
+        verbose_name = "Historial de Acción"
+        verbose_name_plural = "Historial de Acciones"
+        db_table = "historial_acciones"
+        ordering = ['-fecha']
+
+class Notificacion(models.Model):
+    TIPO_PRODUCTO_BAJO = 'producto_bajo'
+    TIPO_EVENTO_HOY = 'evento_hoy'
+    TIPO_EVENTO_MANANA = 'evento_manana'
+    TIPO_EVENTO_VENCIDO = 'evento_vencido'
+
+    TIPO_CHOICES = [
+        (TIPO_PRODUCTO_BAJO, 'Producto bajo stock'),
+        (TIPO_EVENTO_HOY, 'Evento hoy'),
+        (TIPO_EVENTO_MANANA, 'Evento mañana'),
+        (TIPO_EVENTO_VENCIDO, 'Evento vencido'),
+    ]
+
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    titulo = models.CharField(max_length=100)  # Nombre producto/evento
+    mensaje = models.CharField(max_length=200)  # Detalle
+    fecha_notificacion = models.DateTimeField(auto_now_add=True)
+    leida = models.BooleanField(default=False)
+    relacionada_id = models.PositiveIntegerField(null=True, blank=True)  # ID producto/calendario
+    relacionada_tipo = models.CharField(max_length=20, null=True, blank=True)  # 'producto' or 'calendario'
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.titulo}"
+
+    class Meta:
+        verbose_name = "Notificación"
+        verbose_name_plural = "Notificaciones"
+        db_table = "notificaciones"
+        ordering = ['-fecha_notificacion']
+
