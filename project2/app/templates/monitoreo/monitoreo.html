@@ -20,11 +20,11 @@
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
                 </div>
                 <div class="kpi-value" data-target="{{ stock_total|default:0 }}">{{ stock_total|default:0 }}</div>
-                <div class="kpi-label">Stock Total</div>
+                <div class="kpi-label">Total Stock Productos</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="75"></div>
                 </div>
-                <div class="kpi-sub">Click para ir al modulo productos</div>
+                <div class="kpi-sub">Total unidades en stock de todos productos activos</div>
             </div>
 
             <div class="kpi-card" data-color="amber" style="cursor: pointer;" onclick="window.location.href='{{ insumos_url }}'">
@@ -40,17 +40,17 @@
                 <div class="kpi-sub">insumos bajos en stock</div>
             </div>
 
-            <div class="kpi-card" data-color="red">
+            <div class="kpi-card" data-color="orange" style="cursor: pointer;" onclick="window.location.href='{{ salida_p_url }}'">
                 <div class="kpi-top">
-                    <div class="kpi-icon"><i class="fas fa-bell"></i></div>
-                    <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Urgente</span>
+                    <div class="kpi-icon"><i class="fas fa-box-open"></i></div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-down"></i> {{ salidas_hoy|default:0 }}</span>
                 </div>
-                <div class="kpi-value" data-target="0">0</div>
-                <div class="kpi-label">Alertas Activas</div>
+                <div class="kpi-value" data-target="{{ salidas_hoy|default:0 }}" id="salidas_hoy_value">{{ salidas_hoy|default:0 }}</div>
+                <div class="kpi-label">Salidas Hoy</div>
                 <div class="kpi-bar-wrap">
-                    <div class="kpi-bar" data-pct="20"></div>
+                    <div class="kpi-bar" data-pct="45"></div>
                 </div>
-                <div class="kpi-sub">que juan lo arregle</div>
+                <div class="kpi-sub"> click para ir al modulo  Salidas de productos</div>
             </div>
 
             <div class="kpi-card" data-color="green" style="cursor: pointer;" onclick="window.location.href='{{ entrada_p_url }}'">
@@ -58,7 +58,7 @@
                     <div class="kpi-icon"><i class="fas fa-industry"></i></div>
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
                 </div>
-                <div class="kpi-value" data-target="{{ produccion_hoy|default:0 }}">{{ produccion_hoy|default:0 }}</div>
+                <div class="kpi-value" data-target="{{ produccion_hoy|default:0 }}" data-kpi="produccion_hoy" id="produccion_hoy_value">{{ produccion_hoy|default:0 }}</div>
                 <div class="kpi-label">Producción Hoy</div>
                 <div class="kpi-bar-wrap">
                     <div class="kpi-bar" data-pct="62"></div>
@@ -74,13 +74,21 @@
         <div class="panel alertas-panel">
             <div class="panel-header">
                 <span class="panel-title"><i class="fas fa-shield-alt"></i> Alertas del Sistema</span>
-                <span class="badge-count">0</span>
+                <span class="badge-count" id="badge-alertas">{{ alertas_count|default:0 }}</span>
             </div>
-            <div class="alertas-list">
+            <div class="alertas-list" id="alertas-list">
+                {% for notif in notificaciones %}
+                <div class="alerta {% if notif.tipo == 'producto_bajo' %}warning{% elif notif.tipo == 'evento_vencido' %}danger{% else %}info{% endif %}" data-id="{{ notif.id }}">
+                    <i class="fas fa-{% if notif.tipo == 'producto_bajo' %}box-open{% elif notif.tipo == 'evento_vencido' %}exclamation-triangle{% else %}calendar-day{% endif %}"></i>
+                    <span><strong>{{ notif.titulo }}</strong>: {{ notif.mensaje }}</span>
+                    <small>{{ notif.fecha_notificacion|date:"d/m H:i" }}</small>
+                </div>
+                {% empty %}
                 <div class="alerta-empty">
                     <i class="fas fa-check-circle"></i>
-                    <span>No hay más alertas pendientes</span>
+                    <span>No hay alertas pendientes</span>
                 </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -186,6 +194,61 @@
 
     // Ejecutar automáticamente cada 5 segundos
     setInterval(actualizarHistorialAhora, 5000);
+
+    // Polling para KPIs cada 10 segundos
+    function actualizarKPIs() {
+        fetch('/monitoreo/api/kpis/')
+            .then(response => response.json())
+            .then(data => {
+                // Update Producción Hoy
+                const prodEl = document.querySelector('[data-kpi="produccion_hoy"]');
+                if (prodEl) animarContador(prodEl, data.produccion_hoy);
+                
+                // Update Salidas Hoy
+                const salidasEl = document.getElementById('salidas_hoy_value');
+                if (salidasEl) animarContador(salidasEl, data.salidas_hoy);
+                
+                // Otros si se necesita
+                const stockEl = document.querySelector('.kpi-label[data-kpi="stock_total"] + .kpi-value');
+                if (stockEl) animarContador(stockEl, data.stock_total);
+            })
+            .catch(error => console.error('Error KPIs:', error));
+    }
+    setInterval(actualizarKPIs, 10000);
+    // Initial KPI load after DOM
+    setTimeout(actualizarKPIs, 1000);
+
+    // Alertas del sistema en tiempo real
+    function actualizarAlertas() {
+        fetch('/monitoreo/api/notificaciones/')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('alertas-list');
+                const badge = document.getElementById('badge-alertas');
+                if (data.total === 0) {
+                    list.innerHTML = `
+                        <div class="alerta-empty">
+                            <i class="fas fa-check-circle"></i>
+                            <span>No hay alertas pendientes</span>
+                        </div>`;
+                } else {
+                    list.innerHTML = data.data.map(n => `
+                        <div class="alerta ${n.tipo === 'producto_bajo' ? 'warning' : n.tipo === 'evento_vencido' ? 'danger' : 'info'}" data-id="${n.id}">
+                            <i class="fas fa-${n.tipo === 'producto_bajo' ? 'box-open' : n.tipo === 'evento_vencido' ? 'exclamation-triangle' : 'calendar-day'}"></i>
+                            <span><strong>${n.titulo}</strong>: ${n.mensaje}</span>
+                            <small>${n.fecha}</small>
+                        </div>
+                    `).join('');
+                }
+                if (badge) badge.textContent = data.total;
+            })
+            .catch(error => console.error('Error alertas:', error));
+    }
+
+    // Polling alertas cada 30 segundos
+    setInterval(actualizarAlertas, 30000);
+    // Load inicial
+    setTimeout(actualizarAlertas, 1500);
 </script>
 <script src="{% static 'ap1/js/monitoreo.js' %}"></script>
 {% endblock %}

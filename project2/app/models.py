@@ -474,3 +474,34 @@ class historial_acciones(models.Model):
         verbose_name_plural = "Historial de Acciones"
         db_table = "historial_acciones"
         ordering = ['-fecha']
+
+class Notificacion(models.Model):
+    TIPO_PRODUCTO_BAJO = 'producto_bajo'
+    TIPO_EVENTO_HOY = 'evento_hoy'
+    TIPO_EVENTO_MANANA = 'evento_manana'
+    TIPO_EVENTO_VENCIDO = 'evento_vencido'
+
+    TIPO_CHOICES = [
+        (TIPO_PRODUCTO_BAJO, 'Producto bajo stock'),
+        (TIPO_EVENTO_HOY, 'Evento hoy'),
+        (TIPO_EVENTO_MANANA, 'Evento mañana'),
+        (TIPO_EVENTO_VENCIDO, 'Evento vencido'),
+    ]
+
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    titulo = models.CharField(max_length=100)  # Nombre producto/evento
+    mensaje = models.CharField(max_length=200)  # Detalle
+    fecha_notificacion = models.DateTimeField(auto_now_add=True)
+    leida = models.BooleanField(default=False)
+    relacionada_id = models.PositiveIntegerField(null=True, blank=True)  # ID producto/calendario
+    relacionada_tipo = models.CharField(max_length=20, null=True, blank=True)  # 'producto' or 'calendario'
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} - {self.titulo}"
+
+    class Meta:
+        verbose_name = "Notificación"
+        verbose_name_plural = "Notificaciones"
+        db_table = "notificaciones"
+        ordering = ['-fecha_notificacion']
+

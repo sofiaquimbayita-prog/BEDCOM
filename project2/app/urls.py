@@ -68,6 +68,9 @@ urlpatterns = [
 
     # --- MONITOREO ---
     path('monitoreo/', monitoreo.MonitoreoView.as_view(), name='monitoreo'),
+    path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
+    path('monitoreo/api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial'),
+    path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
 
    # --- PROVEEDORES ---
       path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),

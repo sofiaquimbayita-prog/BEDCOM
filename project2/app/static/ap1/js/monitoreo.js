@@ -45,6 +45,7 @@ function cargarTabla() {
             <td><strong>${p.nombre}</strong></td>
             <td><span class="estado ${p.estado}">${p.estado}</span></td>
             <td>${p.responsable}</td>
+            <td>${p.fecha}</td>
             <td>
                 <div class="row-progress-wrap">
                     <div class="row-progress" style="background:${p.color}" data-pct="${p.progreso}"></div>
