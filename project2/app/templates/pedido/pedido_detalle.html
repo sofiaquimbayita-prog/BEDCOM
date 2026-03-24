@@ -1,0 +1,54 @@
+{% extends "includes/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between">
+            <h4 class="mb-0">Detalle del Pedido #{{ pedido.id }}</h4>
+            <span class="badge bg-info">{{ pedido.estado }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Información del Cliente</h5>
+                    <p><strong>Nombre:</strong> {{ pedido.cliente.nombre }}<br>
+                    <strong>Cédula:</strong> {{ pedido.cliente.cedula }}<br>
+                    <strong>Teléfono:</strong> {{ pedido.cliente.telefono }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5>Resumen</h5>
+                    <p><strong>Fecha:</strong> {{ pedido.fecha|date:"d/m/Y H:i" }}<br>
+                    <strong class="h4">Total: ${{ pedido.total }}</strong></p>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in detalles %}
+                    <tr>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>${{ item.precio_unitario }}</td>
+                        <td>${{ item.sub_total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="mt-4">
+                <a href="{% url 'pedido_list' %}" class="btn btn-secondary">Volver a la lista</a>
+                <button onclick="window.print();" class="btn btn-outline-primary">
+                    <i class="fas fa-print"></i> Imprimir Comprobante
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

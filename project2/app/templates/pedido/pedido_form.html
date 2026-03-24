@@ -1,0 +1,165 @@
+{% extends "includes/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block header_title %}NUEVO PEDIDO{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="background: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);">
+        <div class="card-header text-white" style="background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <h4 class="mb-0"><i class="fas fa-cart-plus" style="color: var(--brand);"></i> Registrar Nuevo Pedido</h4>
+        </div>
+        
+        <div class="card-body" style="color: var(--text);">
+            <form method="post" id="pedido-form">
+                {% csrf_token %}
+                
+                <div class="row mb-4 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" style="color: var(--brand);">Seleccionar Cliente</label>
+                        {% render_field form.cliente class="form-control form-pedido-row" %}
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h5 style="color: var(--muted); margin-bottom: 0;">Total a Pagar:</h5>
+                        <h2 id="total-pedido-display" class="total-monto" style="margin-top: 0;">$0.00</h2>
+                    </div>
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.1);">
+
+                <h5 class="mb-3" style="color: var(--brand);"><i class="fas fa-list"></i> Detalle de Productos</h5>
+                <div class="table-responsive">
+                    <table class="table-bedcom" id="tabla-detalles">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Producto</th>
+                                <th style="width: 15%;">Precio</th>
+                                <th style="width: 10%;">Cant.</th>
+                                <th style="width: 35%;">Notas / Personalización</th>
+                                <th style="width: 10%;" class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="detalle-body">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <button type="button" class="btn btn-sm" id="btn-agregar-fila" 
+                            style="background: var(--ok); color: white; border-radius: var(--borde-md); padding: 8px 15px;">
+                        <i class="fas fa-plus"></i> Agregar Producto
+                    </button>
+                </div>
+
+                <div class="text-end border-top pt-4 mt-4" style="border-color: rgba(255,255,255,0.1) !important;">
+                    <a href="{% url 'pedido_list' %}" class="btn btn-outline-light me-2" style="border-radius: var(--borde-md);">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" 
+                            style="background: var(--brand); color: #000; font-weight: bold; border: none; padding: 10px 40px; border-radius: var(--borde-md);">
+                        <i class="fas fa-save"></i> GUARDAR PEDIDO
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="fila-template">
+    <tr>
+        <td>
+            <select name="producto[]" class="form-pedido-row select-producto" required style="width: 100%;">
+                <option value="">Seleccione...</option>
+                {% for p in productos %}
+                <option value="{{ p.id }}" data-precio="{{ p.precio }}">{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <div class="input-group">
+                <span class="input-group-text" style="background: transparent; border: none; color: var(--ok);">$</span>
+                <input type="number" name="precio[]" class="form-control precio-input" readonly 
+                       style="background: transparent; color: var(--ok); border: none; font-weight: bold;">
+            </div>
+        </td>
+        <td>
+            <input type="number" name="cantidad[]" class="form-pedido-row cantidad-input" value="1" min="1" required>
+        </td>
+        <td>
+            <input type="text" name="notas[]" class="form-pedido-row" placeholder="Talla, color, etc...">
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn-icon btn-eliminar" style="background: #ff5f5f;">
+                <i class="fas fa-times"></i>
+            </button>
+        </td>
+    </tr>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const detalleBody = document.getElementById('detalle-body');
+        const btnAgregar = document.getElementById('btn-agregar-fila');
+        const template = document.getElementById('fila-template');
+        const totalDisplay = document.getElementById('total-pedido-display');
+
+        // Función para calcular el total general
+        function calcularTotalGeneral() {
+            let total = 0;
+            const filas = detalleBody.querySelectorAll('tr');
+            filas.forEach(fila => {
+                const precio = parseFloat(fila.querySelector('.precio-input').value) || 0;
+                const cantidad = parseInt(fila.querySelector('.cantidad-input').value) || 0;
+                total += (precio * cantidad);
+            });
+            totalDisplay.innerText = `$${total.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
+        }
+
+        // Función para agregar una fila
+        function agregarFila() {
+            const clone = template.content.cloneNode(true);
+            detalleBody.appendChild(clone);
+            // Si usas Select2, inicialízalo aquí para la nueva fila
+        }
+
+        // Evento para agregar fila al hacer click
+        btnAgregar.addEventListener('click', agregarFila);
+
+        // Delegación de eventos para la tabla (Cambios en productos o cantidades)
+       // Dentro del script de tu formulario
+    detalleBody.addEventListener('change', function(e) {
+        const target = e.target;
+        const fila = target.closest('tr');
+
+        if (target.classList.contains('select-producto')) {
+            const selectedOption = target.options[target.selectedIndex];
+            // Aseguramos que el precio sea un número o "0" en lugar de vacío
+            const precio = selectedOption.dataset.precio || "0"; 
+            
+            const inputPrecio = fila.querySelector('.precio-input');
+            inputPrecio.value = precio;
+            
+            calcularTotalGeneral();
+        }
+
+        if (target.classList.contains('cantidad-input')) {
+            calcularTotalGeneral();
+        }
+    });
+
+        // Evento para eliminar fila
+        detalleBody.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-eliminar')) {
+                e.target.closest('tr').remove();
+                calcularTotalGeneral();
+            }
+        });
+
+        // Agregar una fila inicial por defecto
+        agregarFila();
+    });
+</script>
+{% endblock %}

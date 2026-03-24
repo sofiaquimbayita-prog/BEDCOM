@@ -1,0 +1,18 @@
+<tbody id="detalle-body">
+    {% for item in detalles %}
+    <tr>
+        <td>
+            <select name="producto[]" class="form-select select-producto">
+                {% for p in productos %}
+                <option value="{{ p.id }}" data-precio="{{ p.precio }}" {% if p.id == item.producto.id %}selected{% endif %}>
+                    {{ p.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="number" name="precio[]" class="form-control precio-input" value="{{ item.precio_unitario }}" readonly></td>
+        <td><input type="number" name="cantidad[]" class="form-control cantidad-input" value="{{ item.cantidad }}"></td>
+        <td><button type="button" class="btn btn-danger btn-eliminar"><i class="fas fa-trash"></i></button></td>
+    </tr>
+    {% endfor %}
+</tbody>

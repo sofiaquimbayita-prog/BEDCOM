@@ -1,0 +1,458 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}PEDIDOS{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+
+<main class="main-container">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <label class="switch-container" title="Mostrar pedidos anulados">
+        <span class="switch-text">Mostrar Anulados</span>
+        <label class="switch-control">
+          <input type="checkbox" id="toggleAnulados">
+          <span class="slider"></span>
+        </label>
+      </label>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-agregar" id="btnNuevoPedido">
+        <i class="fas fa-plus"></i> Nuevo Pedido
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="container-tabla">
+    <table id="tablaPedidos" class="display">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th class="no-sort">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pedidos %}
+        <tr data-anulado="{% if p.estado == 'Anulado' %}true{% else %}false{% endif %}">
+          <td><strong style="color:var(--color-acento)">#{{ p.id }}</strong></td>
+          <td>{{ p.fecha|date:"d/m/Y H:i" }}</td>
+          <td>{{ p.cliente.nombre }}</td>
+          <td><span style="color:var(--color-exito);font-weight:700">${{ p.total }}</span></td>
+          <td>
+            <select class="ped-estado-select estado-{{ p.estado|lower }}"
+                    data-id="{{ p.id }}" data-estado-actual="{{ p.estado }}">
+              <option value="Pendiente"  {% if p.estado == "Pendiente"  %}selected{% endif %}>⏳ Pendiente</option>
+              <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>✅ Completado</option>
+              <option value="Anulado"    {% if p.estado == "Anulado"    %}selected{% endif %}>🚫 Anulado</option>
+            </select>
+          </td>
+          <td>
+            <div class="icons">
+              <button class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+
+<!-- ══════════════════════════════
+     MODAL — VER DETALLE
+══════════════════════════════ -->
+<div class="modal" id="modalVer">
+  <div class="modal-contenido modal-contenido--wide">
+    <div class="modal-header modal-header--ver">
+      <h2 class="modal-titulo modal-titulo--ver">
+        <i class="fas fa-eye"></i> <span id="verTitulo">Detalle del Pedido</span>
+      </h2>
+      <button class="btn-cerrar btn-cerrar--ver" data-close="modalVer">&times;</button>
+    </div>
+
+    <!-- Info cliente -->
+    <div class="ver-grid" id="verInfoCliente"></div>
+
+    <!-- Tabla detalles -->
+    <div class="items-tabla-wrap">
+      <table class="items-tabla">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cant.</th>
+            <th>Precio unit.</th>
+            <th>Subtotal</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody id="verDetallesBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Total -->
+    <div class="resumen-total">
+      <span>Total del pedido</span>
+      <span class="total-monto" id="verTotal">$0</span>
+    </div>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalVer">Cerrar</button>
+      <button class="btn-guardar" onclick="window.print()" style="background:var(--color-ver);color:#fff;">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — CREAR / EDITAR
+══════════════════════════════ -->
+<div class="modal" id="modalForm">
+  <div class="modal-contenido modal-contenido--xl" id="modalFormContenido">
+    <div class="modal-header" id="modalFormHeader">
+      <h2 class="modal-titulo" id="formModalTitulo">
+        <i class="fas fa-cart-plus"></i> Registrar Pedido
+      </h2>
+      <button class="btn-cerrar" id="btnCerrarForm" data-close="modalForm">&times;</button>
+    </div>
+
+    <div class="form-alerta" id="formAlerta"></div>
+
+    <!-- Datos del cliente -->
+    <div class="cliente-seccion">
+      <div class="cliente-seccion-titulo">
+        <i class="fas fa-user-circle"></i> Datos del Cliente
+      </div>
+      <div class="divicion-3">
+        <div class="form-grupo">
+          <label>Nombre completo <span style="color:var(--color-error)">*</span></label>
+          <input type="text" id="clienteNombre" class="form-input" placeholder="Ej: Juan Pérez" autocomplete="off">
+        </div>
+        <div class="form-grupo">
+          <label>Cédula / NIT <span style="color:var(--color-error)">*</span></label>
+          <input type="text" id="clienteCedula" class="form-input" placeholder="Ej: 1234567890" autocomplete="off">
+        </div>
+        <div class="form-grupo">
+          <label>Teléfono</label>
+          <input type="text" id="clienteTelefono" class="form-input" placeholder="Ej: 3001234567">
+        </div>
+      </div>
+      <div id="clienteSugerencias" class="ped-sugerencias" style="display:none;"></div>
+    </div>
+
+    <!-- Total -->
+    <div class="resumen-total" style="margin-bottom:14px;">
+      <span>Total del pedido</span>
+      <span class="total-monto" id="formTotal">$0.00</span>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="items-tabla-wrap">
+      <table class="items-tabla">
+        <thead>
+          <tr>
+            <th style="width:36%">Producto <span style="color:var(--color-error)">*</span></th>
+            <th style="width:10%">Stock</th>
+            <th style="width:13%">Precio</th>
+            <th style="width:11%">Cant.</th>
+            <th style="width:22%">Notas</th>
+            <th style="width:8%" class="text-center">—</th>
+          </tr>
+        </thead>
+        <tbody id="formItemsBody"></tbody>
+      </table>
+    </div>
+
+    <button type="button" class="btn-agregar-fila" id="btnAgregarFila">
+      <i class="fas fa-plus-circle"></i> Agregar producto
+    </button>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalForm">Cancelar</button>
+      <button class="btn-guardar" id="btnGuardarPedido">
+        <i class="fas fa-save"></i> <span id="btnGuardarTexto">Guardar Pedido</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="messages" id="toastContainer"></div>
+
+
+<!-- ══════════════════════════════
+     SCRIPTS
+══════════════════════════════ -->
+<link  rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+
+<script>
+const PRODUCTOS_DATA = [
+  {% for p in productos %}
+  { id:{{ p.id }}, nombre:"{{ p.nombre|escapejs }}", precio:parseFloat("{{ p.precio }}"), stock:{{ p.stock }} }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+const CLIENTES_DATA = [
+  {% for c in clientes %}
+  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}", cedula:"{{ c.cedula|escapejs }}", telefono:"{{ c.telefono|escapejs }}" }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+const CSRF_TOKEN    = "{{ csrf_token }}";
+const URL_CREAR     = "{% url 'crear_pedido' %}";
+const URL_VER_BASE    = "{% url 'pedido_detalle' 0 %}".replace('/0/', '/__PK__/');
+const URL_EDITAR_BASE = "{% url 'editar_pedido'  0 %}".replace('/0/', '/__PK__/');
+const URL_ESTADO_BASE = "{% url 'cambiar_estado' 0 %}".replace('/0/', '/__PK__/');
+const URL_VER    = pk => URL_VER_BASE.replace('__PK__', pk);
+const URL_EDITAR = pk => URL_EDITAR_BASE.replace('__PK__', pk);
+const URL_ESTADO = pk => URL_ESTADO_BASE.replace('__PK__', pk);
+
+/* ── Toast ── */
+function showToast(msg, tipo='success') {
+  const c = document.getElementById('toastContainer');
+  const d = document.createElement('div');
+  const icon = tipo === 'success' ? 'fa-check-circle' : tipo === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+  d.className = `message message--${tipo}`;
+  d.innerHTML = `<i class="fas ${icon}"></i><span>${msg}</span>`;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 3500);
+}
+
+/* ── Modales ── */
+function openModal(id) { document.getElementById(id).classList.add('mostrar'); }
+function closeModal(id){ document.getElementById(id).classList.remove('mostrar'); }
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target===m) closeModal(m.id); }));
+
+/* ── DataTable ── */
+$(document).ready(function(){
+  const dt = $('#tablaPedidos').DataTable({
+    language: { url:'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
+    pageLength: 10,
+    order: [[0,'desc']],
+    columnDefs: [{ orderable:false, targets:5 }]
+  });
+  $('#toggleAnulados').on('change', function(){
+    dt.rows().nodes().to$().each(function(){
+      const anulado = $(this).data('anulado') === true;
+      $(this).toggle(!anulado || this.checked);
+    });
+  }).trigger('change');
+});
+
+/* ── Cambio de estado ── */
+document.querySelectorAll('.ped-estado-select').forEach(sel => {
+  sel.addEventListener('change', async function(){
+    const pk = this.dataset.id, nuevo = this.value, anterior = this.dataset.estadoActual;
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', CSRF_TOKEN);
+    fd.append('nuevo_estado', nuevo);
+    const res  = await fetch(URL_ESTADO(pk), { method:'POST', body:fd });
+    const data = await res.json();
+    if(data.ok){
+      this.dataset.estadoActual = nuevo;
+      this.className = `ped-estado-select estado-${nuevo.toLowerCase()}`;
+      this.closest('tr').dataset.anulado = nuevo==='Anulado' ? 'true' : 'false';
+      showToast(data.message);
+    } else {
+      this.value = anterior;
+      showToast(data.error, 'error');
+    }
+  });
+});
+
+/* ── Modal VER ── */
+document.querySelectorAll('.btn-ver').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const res  = await fetch(URL_VER(btn.dataset.id));
+    const data = await res.json();
+    if(!data.ok){ showToast(data.error,'error'); return; }
+    const p = data.pedido;
+    document.getElementById('verTitulo').textContent = `Pedido #${p.id}`;
+    document.getElementById('verInfoCliente').innerHTML = `
+      <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
+      <div class="ver-campo"><span class="ver-label">Cédula</span><span class="ver-valor">${p.cliente_cedula}</span></div>
+      <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${p.cliente_telefono}</span></div>
+      <div class="ver-campo"><span class="ver-label">Fecha</span><span class="ver-valor">${p.fecha}</span></div>
+      <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
+      <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${p.total}</span></div>
+    `;
+    document.getElementById('verDetallesBody').innerHTML = p.detalles.map(d=>`
+      <tr>
+        <td>${d.producto_nombre}</td>
+        <td>${d.cantidad}</td>
+        <td><span class="precio-display">$${d.precio_unitario}</span></td>
+        <td><span class="precio-display">$${d.sub_total}</span></td>
+        <td style="color:var(--color-texto-muted);font-size:0.85rem">${d.observaciones||'—'}</td>
+      </tr>`).join('');
+    document.getElementById('verTotal').textContent = `$${p.total}`;
+    openModal('modalVer');
+  });
+});
+
+/* ── Autocompletado cliente ── */
+const inpNombre   = document.getElementById('clienteNombre');
+const inpCedula   = document.getElementById('clienteCedula');
+const inpTelefono = document.getElementById('clienteTelefono');
+const divSug      = document.getElementById('clienteSugerencias');
+
+function limpiarCliente(){ inpNombre.value=''; inpCedula.value=''; inpTelefono.value=''; inpNombre.dataset.clienteId=''; divSug.style.display='none'; }
+
+function mostrarSugerencias(q){
+  if(!q||q.length<2){ divSug.style.display='none'; return; }
+  const ql = q.toLowerCase();
+  const found = CLIENTES_DATA.filter(c => c.nombre.toLowerCase().includes(ql)||c.cedula.includes(ql)).slice(0,6);
+  if(!found.length){ divSug.style.display='none'; return; }
+  divSug.innerHTML = found.map(c=>`
+    <div class="ped-sug-item" data-id="${c.id}" data-nombre="${c.nombre}" data-cedula="${c.cedula}" data-telefono="${c.telefono}">
+      <span class="ped-sug-nombre">${c.nombre}</span>
+      <span class="ped-sug-cedula">${c.cedula}</span>
+    </div>`).join('');
+  divSug.style.display='block';
+}
+inpNombre.addEventListener('input', () => mostrarSugerencias(inpNombre.value));
+inpCedula.addEventListener('input', () => mostrarSugerencias(inpCedula.value));
+divSug.addEventListener('click', e=>{
+  const item = e.target.closest('.ped-sug-item'); if(!item) return;
+  inpNombre.value=item.dataset.nombre; inpCedula.value=item.dataset.cedula; inpTelefono.value=item.dataset.telefono;
+  inpNombre.dataset.clienteId=item.dataset.id; divSug.style.display='none';
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#clienteSugerencias')&&!e.target.closest('#clienteNombre')&&!e.target.closest('#clienteCedula')) divSug.style.display='none';
+});
+
+/* ── Tabla dinámica de productos ── */
+let modoEdicion=false, pedidoEditandoId=null;
+
+function buildOpts(selId=''){
+  return `<option value="">— Producto —</option>`+
+    PRODUCTOS_DATA.map(p=>`<option value="${p.id}" data-precio="${p.precio}" data-stock="${p.stock}" ${p.id==selId?'selected':''}>${p.nombre}</option>`).join('');
+}
+
+function crearFila(item={}){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><select class="form-select-ped sel-producto">${buildOpts(item.producto_id||'')}</select></td>
+    <td><span class="stock-badge">—</span></td>
+    <td><span class="precio-display">—</span></td>
+    <td><input type="number" class="form-input inp-cantidad" value="${item.cantidad||1}" min="1" style="width:70px"></td>
+    <td><input type="text" class="form-input inp-notas" placeholder="Color, talla…" value="${item.observaciones||''}"></td>
+    <td style="text-align:center"><button type="button" class="btn-quitar-fila"><i class="fas fa-trash-alt"></i></button></td>`;
+
+  if(item.producto_id){
+    const prod=PRODUCTOS_DATA.find(p=>p.id==item.producto_id);
+    if(prod){
+      tr.querySelector('.stock-badge').textContent=prod.stock;
+      tr.querySelector('.precio-display').textContent=`$${parseFloat(prod.precio).toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+    }
+  }
+  tr.querySelector('.sel-producto').addEventListener('change',function(){
+    const opt=this.options[this.selectedIndex];
+    tr.querySelector('.stock-badge').textContent   = opt.dataset.stock  || '—';
+    tr.querySelector('.precio-display').textContent= opt.dataset.precio ? `$${parseFloat(opt.dataset.precio).toLocaleString('es-CO',{minimumFractionDigits:2})}` : '—';
+    recalcular();
+  });
+  tr.querySelector('.inp-cantidad').addEventListener('input', recalcular);
+  tr.querySelector('.btn-quitar-fila').addEventListener('click',()=>{ tr.remove(); recalcular(); });
+  return tr;
+}
+
+function recalcular(){
+  let t=0;
+  document.querySelectorAll('#formItemsBody tr').forEach(tr=>{
+    const sel=tr.querySelector('.sel-producto'), cant=parseInt(tr.querySelector('.inp-cantidad').value)||0;
+    if(sel&&sel.value){ const p=PRODUCTOS_DATA.find(p=>p.id==sel.value); if(p) t+=p.precio*cant; }
+  });
+  document.getElementById('formTotal').textContent=`$${t.toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+}
+
+function configurarModalCrear(){
+  const h=document.getElementById('modalFormHeader'), t=document.getElementById('formModalTitulo'), b=document.getElementById('btnGuardarPedido'), c=document.getElementById('btnCerrarForm');
+  h.className='modal-header modal-header--agregar';
+  t.innerHTML='<i class="fas fa-cart-plus"></i> Registrar Pedido'; t.className='modal-titulo modal-titulo--agregar';
+  b.className='btn-guardar'; c.className='btn-cerrar';
+  document.getElementById('btnGuardarTexto').textContent='Guardar Pedido';
+}
+function configurarModalEditar(id){
+  const h=document.getElementById('modalFormHeader'), t=document.getElementById('formModalTitulo'), b=document.getElementById('btnGuardarPedido'), c=document.getElementById('btnCerrarForm');
+  h.className='modal-header modal-header--editar';
+  t.innerHTML=`<i class="fas fa-edit"></i> Editar Pedido #${id}`; t.className='modal-titulo modal-titulo--editar';
+  b.className='btn-guardar btn-guardar--editar'; c.className='btn-cerrar btn-cerrar--editar';
+  document.getElementById('btnGuardarTexto').textContent='Actualizar Pedido';
+}
+
+function abrirModalCrear(){
+  modoEdicion=false; pedidoEditandoId=null;
+  limpiarCliente(); configurarModalCrear();
+  document.getElementById('formItemsBody').innerHTML='';
+  document.getElementById('formAlerta').style.display='none';
+  document.getElementById('formTotal').textContent='$0.00';
+  document.getElementById('formItemsBody').appendChild(crearFila());
+  openModal('modalForm');
+}
+document.getElementById('btnNuevoPedido').addEventListener('click', abrirModalCrear);
+
+document.querySelectorAll('.btn-editar').forEach(btn=>{
+  btn.addEventListener('click', async()=>{
+    const res=await fetch(URL_VER(btn.dataset.id)); const data=await res.json();
+    if(!data.ok){ showToast(data.error,'error'); return; }
+    const p=data.pedido; modoEdicion=true; pedidoEditandoId=btn.dataset.id;
+    configurarModalEditar(p.id);
+    inpNombre.value=p.cliente_nombre||''; inpCedula.value=p.cliente_cedula||''; inpTelefono.value=p.cliente_telefono||'';
+    inpNombre.dataset.clienteId=p.cliente_id||'';
+    document.getElementById('formAlerta').style.display='none'; divSug.style.display='none';
+    const body=document.getElementById('formItemsBody'); body.innerHTML='';
+    p.detalles.forEach(d=>body.appendChild(crearFila(d)));
+    recalcular(); openModal('modalForm');
+  });
+});
+
+document.getElementById('btnAgregarFila').addEventListener('click',()=>document.getElementById('formItemsBody').appendChild(crearFila()));
+
+/* Guardar */
+document.getElementById('btnGuardarPedido').addEventListener('click', async()=>{
+  const alerta=document.getElementById('formAlerta'); alerta.style.display='none';
+  const nombre=inpNombre.value.trim(), cedula=inpCedula.value.trim(), telefono=inpTelefono.value.trim();
+  if(!nombre){ alerta.textContent='Ingresa el nombre del cliente.'; alerta.style.display='block'; return; }
+  if(!cedula){ alerta.textContent='Ingresa la cédula o NIT del cliente.'; alerta.style.display='block'; return; }
+
+  const items=[];
+  document.querySelectorAll('#formItemsBody tr').forEach(tr=>{
+    const sel=tr.querySelector('.sel-producto'), cant=tr.querySelector('.inp-cantidad'), nota=tr.querySelector('.inp-notas');
+    if(!sel||!sel.value) return;
+    const cantidad=parseInt(cant.value); if(!cantidad||cantidad<1) return;
+    items.push({ producto_id:sel.value, cantidad, observaciones:nota?nota.value.trim():'' });
+  });
+  if(!items.length){ alerta.textContent='Agrega al menos un producto válido.'; alerta.style.display='block'; return; }
+
+  const btn=document.getElementById('btnGuardarPedido');
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Guardando…';
+
+  const url=modoEdicion?URL_EDITAR(pedidoEditandoId):URL_CREAR;
+  const res=await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
+    body:JSON.stringify({ cliente_id:inpNombre.dataset.clienteId||'', cliente_nombre:nombre, cliente_cedula:cedula, cliente_telefono:telefono, items }) });
+  const data=await res.json();
+
+  btn.disabled=false;
+  btn.innerHTML=`<i class="fas fa-save"></i> <span id="btnGuardarTexto">${modoEdicion?'Actualizar Pedido':'Guardar Pedido'}</span>`;
+
+  if(data.ok){ closeModal('modalForm'); showToast(data.message); setTimeout(()=>location.reload(),1200); }
+  else { alerta.textContent=data.error; alerta.style.display='block'; }
+});
+</script>
+{% endblock %}
