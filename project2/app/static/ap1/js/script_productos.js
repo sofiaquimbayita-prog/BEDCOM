@@ -228,20 +228,7 @@ window.cerrarModal = function(idModal) {
     if (modal) modal.style.display = 'none';
 };
 
-// Filtrar por estado
-$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    if (settings.nTable.id !== 'tablaProductos') return true;
 
-    var mostrarInactivos = $('#toggleInactivos').is(':checked');
-    var estadoRaw = data[5];
-    var s = String(estadoRaw).toLowerCase().trim();
-
-    if (!mostrarInactivos) {
-        return s === 'activo' || s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 't' || estadoRaw === true || estadoRaw === 1;
-    } else {
-        return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
-    }
-});
 
 // Función para inicializar Select2 en el modal de agregar producto
 function initSelect2EnModal(modalId) {
@@ -288,7 +275,23 @@ $(document).ready(function() {
         $('#tablaProductos').DataTable().destroy();
     }
 
-    $('#tablaProductos').DataTable({
+    // ── Filtro para switch Mostrar Inactivos (columna 5: Estado) ──
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        if (settings.nTable.id !== 'tablaProductos') return true;
+        
+        var mostrarInactivos = $('#toggleInactivos').is(':checked');
+        var estadoRaw = (data[5] || '').toLowerCase().trim();
+        
+        // Switch OFF: solo activos (por defecto muestra todos los que llegan del backend)
+        if (!mostrarInactivos) {
+            return true;
+        }
+        // Switch ON: solo inactivos
+        return estadoRaw.includes('inactivo');
+    });
+
+
+    var table = $('#tablaProductos').DataTable({
         "responsive": true,
         "language": {
             "sProcessing": "Procesando...",
@@ -310,9 +313,33 @@ $(document).ready(function() {
         "order": [[1, "asc"]]
     });
 
-    $('#toggleInactivos').on('change', function() {
-        $('#tablaProductos').DataTable().draw();
-    });
+    // ── Initialize toggle state from URL param ──
+    const urlParams = new URLSearchParams(window.location.search);
+    const mostrarInactivosFromUrl = urlParams.get('mostrar_inactivos') === 'true';
+    $('#toggleInactivos').prop('checked', mostrarInactivosFromUrl);
+    
+    // Initialize table filter after setting checkbox state
+    if (mostrarInactivosFromUrl) {
+        table.draw();
+    }
+
+
+// ── Toggle Activos / Inactivos - Backend Sync ──
+/*
+ * Toggle ON (?mostrar_inactivos=true): Backend loads ONLY inactive → JS shows all (fallback filter hides active, but none loaded)
+ * Toggle OFF (?mostrar_inactivos=false): Backend loads ONLY active → JS shows all
+ */
+$('#toggleInactivos').on('change', function() {
+    const mostrarInactivos = $(this).is(':checked');
+    
+    // Parse current URL params
+    const url = new URL(window.location);
+    url.searchParams.set('mostrar_inactivos', mostrarInactivos);
+    
+    // Update URL and reload to fetch correct data from backend
+    window.location.search = url.search;
+});
+
 
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
     $(document).on('submit', '#formAddProducto', function(e) {
