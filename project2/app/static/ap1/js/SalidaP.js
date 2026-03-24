@@ -160,88 +160,6 @@ function toggleAnulados() {
     window.location.href = url.toString();
 }
 
-// los detalles de una Función para ver salida
-function verSalida(id) {
-    console.log('Ver detalle de salida ID:', id);
-    
-    // Mostrar el modal primero
-    var modal = document.getElementById('modalVerSalida');
-    console.log('Modal encontrado:', modal);
-    
-    if (modal) {
-        modal.style.display = 'flex';
-        console.log('Modal mostrado, estilo:', modal.style.display);
-    } else {
-        console.error('Modal no encontrado en el DOM');
-        showErrorToast('Error: Modal no encontrado');
-        return;
-    }
-    
-    // Obtener los datos de la salida
-    fetch('/vistas/salida/detalle/' + id + '/', {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
-    })
-    .then(function(response) {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(function(data) {
-        console.log('Datos recibidos:', data);
-        if (data.success) {
-            var salida = data.data;
-            
-            // Llenar los campos del modal
-            document.getElementById('viewSalidaProducto').textContent = salida.producto;
-            document.getElementById('viewSalidaCantidad').textContent = salida.cantidad;
-            document.getElementById('viewSalidaFecha').textContent = salida.fecha;
-            document.getElementById('viewSalidaResponsable').textContent = salida.responsable;
-            document.getElementById('viewSalidaMotivo').textContent = salida.motivo;
-            
-            // Formatear el estado con icono
-            var estadoElemento = document.getElementById('viewSalidaEstado');
-            if (salida.estado) {
-                estadoElemento.innerHTML = '<i class="fas fa-check"></i> Activo';
-                estadoElemento.className = 'badge badge-active';
-            } else {
-                estadoElemento.innerHTML = '<i class="fas fa-times"></i> Anulado';
-                estadoElemento.className = 'badge badge-anulada';
-            }
-            
-        } else {
-            showErrorToast(data.message || 'Error al obtener los detalles');
-            cerrarModalVerSalida();
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        showErrorToast('Ocurrió un error al procesar la solicitud');
-        cerrarModalVerSalida();
-    });
-}
-
-// Función para cerrar el modal de ver salida
-function cerrarModalVerSalida() {
-    var modal = document.getElementById('modalVerSalida');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Función para cerrar modal al hacer click fuera
-function cerrarModalVerSalidaOnClick(event) {
-    if (event.target.classList.contains('modal')) {
-        cerrarModalVerSalida();
-    }
-}
-
-// Asignar funciones al objeto window
-window.verSalida = verSalida;
-window.cerrarModalVerSalida = cerrarModalVerSalida;
-window.cerrarModalVerSalidaOnClick = cerrarModalVerSalidaOnClick;
-
 // Funciones para el modal de nueva salida
 function abrirModalSalida() {
     var modal = document.getElementById('modalSalida');
@@ -485,12 +403,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validarResponsable() {
         const valor = responsableInput?.value?.trim() || '';
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
 
         if (responsableInput && errorResponsable) {
             if (valor.length < 3) {
                 responsableInput.classList.add("input-error");
                 responsableInput.classList.remove("input-ok");
                 errorResponsable.textContent = "El nombre debe tener al menos 3 caracteres";
+                return false;
+            } else if (!regex.test(valor)) {
+                responsableInput.classList.add("input-error");
+                responsableInput.classList.remove("input-ok");
+                errorResponsable.textContent = "No se permiten caracteres especiales";
                 return false;
             } else {
                 responsableInput.classList.remove("input-error");
@@ -503,6 +427,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (responsableInput) {
+        // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
+        responsableInput.addEventListener("input", function() {
+            var valorActual = this.value;
+            var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
+            
+            if (!regex.test(valorActual) && valorActual.length > 0) {
+                // Remover caracteres no permitidos
+                this.value = valorActual.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]/g, '');
+                if (errorResponsable) {
+                    errorResponsable.textContent = 'No se permiten caracteres especiales';
+                    errorResponsable.style.display = 'block';
+                }
+            } else {
+                if (errorResponsable) {
+                    errorResponsable.textContent = '';
+                    errorResponsable.style.display = 'none';
+                }
+            }
+        });
+        
         responsableInput.addEventListener("input", validarResponsable);
     }
 
@@ -576,6 +520,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (motivoInput) {
+        // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
+        motivoInput.addEventListener("input", function() {
+            var valorActual = this.value;
+            var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]+$/;
+            
+            if (!patron.test(valorActual) && valorActual.length > 0) {
+                // Remover caracteres no permitidos
+                this.value = valorActual.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]/g, '');
+                if (errorMotivo) {
+                    errorMotivo.textContent = 'No se permiten caracteres especiales';
+                    errorMotivo.style.display = 'block';
+                }
+            } else {
+                if (errorMotivo) {
+                    errorMotivo.textContent = '';
+                    errorMotivo.style.display = 'none';
+                }
+            }
+        });
+        
         motivoInput.addEventListener("input", validarMotivo);
     }
 
@@ -661,4 +625,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    window.onload = function() {
+        // Función para ordenar la tabla al hacer clic en el encabezado
+        function ordenarTabla(columna) {
+
+            console.log('Ordenando por columna:', columna);  // Agrega esta línea para depuración
+
+            const tabla = document.querySelector(".salidas-table");
+            const tbody = tabla.querySelector("tbody");
+            const filas = Array.from(tbody.querySelectorAll("tr"));
+
+            // Alternar entre orden ascendente y descendente
+            const asc = tabla.classList.toggle("asc");
+            tabla.classList.toggle("desc", !asc);
+
+            filas.sort((a, b) => {
+                const celdaA = a.children[columna].innerText.trim();
+                const celdaB = b.children[columna].innerText.trim();
+
+                // Si los valores son números
+                if (!isNaN(celdaA) && !isNaN(celdaB)) {
+                    return asc ? celdaA - celdaB : celdaB - celdaA;
+                }
+
+                // Si son cadenas de texto
+                return asc
+                    ? celdaA.localeCompare(celdaB)
+                    : celdaB.localeCompare(celdaA);
+            });
+
+            filas.forEach(fila => tbody.appendChild(fila)); // Reorganizar las filas
+        }
+        // Asignamos la función al objeto window para que sea global
+        window.ordenarTabla = ordenarTabla; // Asegura que la función esté disponible globalmente
+    };
 });
+

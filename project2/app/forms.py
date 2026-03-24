@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -373,7 +373,7 @@ class SalidaProductoForm(forms.ModelForm):
             'responsable': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'id_responsable',
-                'placeholder': 'Nombre del responsable'
+                'readonly': 'readonly'
             }),
         }
 
@@ -393,8 +393,8 @@ class SalidaProductoForm(forms.ModelForm):
             raise forms.ValidationError('La cantidad debe ser un número entero.')
         if cantidad <= 0:
             raise forms.ValidationError('La cantidad debe ser mayor a 0.')
-        if cantidad > 10000:
-            raise forms.ValidationError('La cantidad no puede superar 10,000 unidades.')
+        if cantidad > 100:
+            raise forms.ValidationError('La cantidad no puede superar 100 unidades.')
         return cantidad
 
     def clean_fecha(self):

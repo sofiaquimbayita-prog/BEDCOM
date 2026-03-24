@@ -11,11 +11,6 @@
             <p style="font-size: 16px; margin-bottom: 20px;">
                 ¿Está seguro de que desea <strong>anular</strong> esta salida?
             </p>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <p style="margin: 5px 0;"><strong>Producto:</strong> <span id="anularProducto"></span></p>
-                <p style="margin: 5px 0;"><strong>Cantidad:</strong> <span id="anularCantidad"></span></p>
-                <p style="margin: 5px 0;"><strong>Fecha:</strong> <span id="anularFecha"></span></p>
-            </div>
             <p style="color: #dc3545; font-size: 14px;">
                 <i class="fas fa-info-circle"></i> El stock será reintegrado al producto.
             </p>
@@ -38,42 +33,11 @@ var salidaIdAAnular = null;
 // Función para abrir el modal de confirmación de anulación
 function anularSalida(id) {
     console.log('Intentando anular salida ID:', id);
-    
-    // Primero obtenemos los datos de la salida para mostrar en el modal
-    fetch('/vistas/salida/detalle/' + id + '/', {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
-    })
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            // Llenar los datos en el modal
-            var productoElem = document.getElementById('anularProducto');
-            var cantidadElem = document.getElementById('anularCantidad');
-            var fechaElem = document.getElementById('anularFecha');
-            
-            if (productoElem) productoElem.textContent = data.data.producto;
-            if (cantidadElem) cantidadElem.textContent = data.data.cantidad;
-            if (fechaElem) fechaElem.textContent = data.data.fecha;
-            
-            // Guardar el ID y abrir el modal
-            salidaIdAAnular = id;
-            var modal = document.getElementById('modalAnularSalida');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
-        } else {
-            showErrorToast(data.message || 'Error al obtener los detalles');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        showErrorToast('Ocurrió un error al procesar la solicitud');
-    });
+    salidaIdAAnular = id;
+    var modal = document.getElementById('modalAnularSalida');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
 
 // Función para cerrar el modal de anulación
