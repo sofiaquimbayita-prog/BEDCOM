@@ -3,7 +3,7 @@
 import os
 import sys
 
-
+os.add_dll_directory(r'c:\Users\Public\GTK-for-Windows-Runtime-Environment-Installer-2022-01-04\gtk-nsis-pack\bin')
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
