@@ -111,9 +111,9 @@ AXES_RESET_ON_SUCCESS = True         # Limpia fallos si el usuario entra bien
 STATIC_URL = 'static/'
 
 # Carpeta donde están tus archivos originales
-STATICFILES_DIRS = [
-    BASE_DIR / 'app' / 'static',
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'app' / 'static',
+# ]
 
 # Carpeta donde WhiteNoise servirá los archivos en producción
 STATIC_ROOT = BASE_DIR / 'staticfiles' 

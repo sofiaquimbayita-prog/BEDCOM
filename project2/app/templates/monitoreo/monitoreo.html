@@ -1,9 +1,10 @@
-{% extends 'includes/base.html' %}
+{% extends "includes/base.html" %}
+
 {% load static %}
-{% block title %}Monitoreo{% endblock %}
+    --mon-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
 {% block head %}
-<link rel="stylesheet" href="{% static 'ap1/css/monitoreo.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/monitoreo.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -16,7 +17,7 @@
         <div class="kpi-grid">
             <div class="kpi-card" data-color="blue" style="cursor: pointer;" onclick="window.location.href='{{ productos_url }}'">
                 <div class="kpi-top">
-                    <div class="kpi-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="kpi-icon"><i class="fas fa-cubes-stacked"></i></div>
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
                 </div>
                 <div class="kpi-value" data-target="{{ stock_total|default:0 }}">{{ stock_total|default:0 }}</div>
@@ -29,7 +30,7 @@
 
             <div class="kpi-card" data-color="amber" style="cursor: pointer;" onclick="window.location.href='{{ insumos_url }}'">
                 <div class="kpi-top">
-                    <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="kpi-icon"><i class="fas fa-box-open"></i></div>
                     <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Revisar</span>
                 </div>
                 <div class="kpi-value" data-target="{{ insumos_bajos|default:0 }}">{{ insumos_bajos|default:0 }}</div>
@@ -42,7 +43,7 @@
 
             <div class="kpi-card" data-color="red">
                 <div class="kpi-top">
-                    <div class="kpi-icon"><i class="fas fa-bell"></i></div>
+                    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
                     <span class="kpi-trend down"><i class="fas fa-arrow-up"></i> Urgente</span>
                 </div>
                 <div class="kpi-value" data-target="0">0</div>
@@ -55,7 +56,7 @@
 
             <div class="kpi-card" data-color="green" style="cursor: pointer;" onclick="window.location.href='{{ entrada_p_url }}'">
                 <div class="kpi-top">
-                    <div class="kpi-icon"><i class="fas fa-industry"></i></div>
+                    <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
                     <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
                 </div>
                 <div class="kpi-value" data-target="{{ produccion_hoy|default:0 }}">{{ produccion_hoy|default:0 }}</div>
