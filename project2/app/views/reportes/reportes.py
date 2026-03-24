@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views import View as DjangoView
 from django.conf import settings
-from app.models import categoria, insumo, producto, proveedor, historial_acciones
+from app.models import categoria, insumo, producto, proveedor, pedido, detalle_pedido, despacho, compra, historial_acciones 
 from app.utils import exportar_pdf, exportar_excel, exportar_pdf_estadisticas
 from django.db.models import Sum, F, FloatField
 from django.db.models.functions import ExtractMonth, Cast
