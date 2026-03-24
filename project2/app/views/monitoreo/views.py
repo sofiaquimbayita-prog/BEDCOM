@@ -4,10 +4,12 @@ from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Sum
 
 # Importamos los modelos necesarios
 # Asegúrate de que 'app' sea el nombre correcto de tu aplicación donde están los modelos
-from app.models import historial_acciones, producto, insumo
+from app.models import historial_acciones, producto, insumo, entrada
 
 @method_decorator(login_required, name='dispatch')
 class MonitoreoView(TemplateView):
@@ -27,8 +29,10 @@ class MonitoreoView(TemplateView):
         # Insumos bajos (ejemplo: menos de 10 unidades)
         context['insumos_bajos'] = insumo.objects.filter(cantidad__lte=10).count()
         
-        # Producción hoy (puedes ajustar esta lógica según tu modelo de producción)
-        context['produccion_hoy'] = 0
+        # Producción de hoy (suma de cantidades de entradas de productos de hoy)
+        today = timezone.now().date()
+        produccion_hoy_sum = entrada.objects.filter(fecha__date=today, anulado=False).aggregate(total_cantidad=Sum('cantidad'))['total_cantidad']
+        context['produccion_hoy'] = produccion_hoy_sum if produccion_hoy_sum is not None else 0
 
         # 3. URLs para redirección desde las tarjetas
         # Usamos try/except por si alguna URL no está definida aún en urls.py
