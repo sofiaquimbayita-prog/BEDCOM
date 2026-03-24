@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido
 from .views.respaldos.views import backup
 
 #app_name = 'vista'
@@ -115,4 +115,13 @@ urlpatterns = [
       path('bom/eliminar/<int:pk>/', bom.BomDeleteView.as_view(), name='bom_eliminar'),
       path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
       path('bom/data/', bom.bom_data, name='bom_data'),
+      
+      
+        # --- PEDIDOS ---  
+      path('pedido/', pedido.PedidoListView.as_view(), name='pedido_list'),
+      path('pedido/nuevo/', pedido.PedidoCreateView.as_view(), name='crear_pedido'),
+      path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
+      path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
+      path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
+   
 ]

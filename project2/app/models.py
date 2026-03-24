@@ -298,6 +298,7 @@ class detalle_pedido(models.Model):
     pedido = models.ForeignKey(
         pedido, related_name='detalles', on_delete=models.CASCADE)
     producto = models.ForeignKey(producto, on_delete=models.CASCADE)
+    observaciones = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "detalle_pedido"
