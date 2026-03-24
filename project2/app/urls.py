@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo,backup
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo
+from .views.respaldos.views import backup
 
 #app_name = 'vista'
 urlpatterns = [
