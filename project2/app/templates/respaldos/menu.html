@@ -1,0 +1,118 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
+
+{% block body %}
+<div class="container-fluid mt-4">
+
+    <h2 class="mb-4">
+        <i class="bi bi-database"></i> Respaldo y Restauracion de BD
+    </h2>
+
+    <div class="stats-container">
+
+        <!-- ESTADO CONEXION -->
+        <div class="stat-card purple">
+            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+
+            {% if mysql_conectado %}
+                <span class="stat-value text-success">Conectado</span>
+            {% else %}
+                <span class="stat-value text-danger">Desconectado</span>
+            {% endif %}
+        </div>
+
+        <!-- DESCARGAR RESPALDO -->
+        <div class="stat-card blue">
+
+            <span class="stat-label">DESCARGAR RESPALDO</span>
+            <span class="stat-value small">Backup completo</span>
+
+            {% if mysql_conectado %}
+            <form method="post" action="{% url 'respaldos_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="backup_completo">
+
+                <button type="submit" class="stat-btn">
+                    Descargar SQL
+                </button>
+            </form>
+            {% else %}
+                <button class="stat-btn disabled">No disponible</button>
+            {% endif %}
+
+        </div>
+
+        <!-- RESTAURAR -->
+        <div class="stat-card green">
+
+            <span class="stat-label">RESTAURAR BD</span>
+            <span class="stat-value small">Subir archivo SQL</span>
+
+            {% if mysql_conectado %}
+            <div id="zona-carga" class="zona-carga-mini">
+                <input type="file" id="archivo-respaldo" accept=".sql">
+                <label for="archivo-respaldo" class="label-file-respaldo"></label>
+
+                <i class="bi bi-cloud-upload"></i>
+                <small>Subir archivo</small>
+            </div>
+            {% else %}
+                <span class="text-muted">No disponible</span>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- INFO -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card info-card">
+                <div class="card-header bg-info text-white">
+                    <h6><i class="bi bi-info-circle"></i> Información</h6>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Requisitos:</h6>
+                            <ul>
+                                <li>MySQL instalado localmente</li>
+                                <li>xxxxxxxxxxxxxxxx</li>
+                                <li>xxxxxxxxxxxxxxxx</li>
+                                <li>Usuario y contraseña configurados</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>Archivos generados:</h6>
+                            <ul>
+                                <li>backup_completo_YYYYMMDD_HHMMSS.sql</li>
+                                <li>Contiene toda la estructura y datos</li>
+                                <li>Editable con cualquier editor</li>
+                                <li>Reutilizable para restaurar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'ap1/js/respaldos.js' %}"></script>
+
+{% endblock %}
+
+{% block modals %}
+    {% include 'respaldos/modal_generar.html' %}
+    {% include 'respaldos/modal_view.html' %}
+    {% include 'respaldos/modal_delete.html' %}
+{% endblock %}

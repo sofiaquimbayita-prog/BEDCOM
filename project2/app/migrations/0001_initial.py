@@ -335,6 +335,28 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='entrada',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('fecha', models.DateTimeField(auto_now_add=True)),
+                ('cantidad', models.IntegerField()),
+                ('precio_unitario', models.DecimalField(decimal_places=2, max_digits=12)),
+                ('total', models.DecimalField(decimal_places=2, max_digits=12)),
+                ('observaciones', models.TextField(blank=True, null=True)),
+                ('estado', models.BooleanField(default=True)),
+                ('anulado', models.BooleanField(default=False, verbose_name='Anulado')),
+                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='entradas', to='app.producto')),
+                ('proveedor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='entradas', to='app.proveedor')),
+                ('usuario', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='entradas', to='app.usuario')),
+            ],
+            options={
+                'verbose_name': 'Entrada de Producto',
+                'verbose_name_plural': 'Entradas de Productos',
+                'db_table': 'entrada',
+                'ordering': ['-fecha'],
+            },
+        ),
+        migrations.CreateModel(
             name='bom',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),

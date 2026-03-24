@@ -285,6 +285,50 @@ $(document).ready(function() {
         $('.message').fadeOut(500, function() { $(this).remove(); });
     }, 5000);
 
+    // ================= TIPO DE RESPALDO =================
+
+    $(document).on('change', '#add_tipo', function(){
+
+        const tipo = $(this).val();
+
+        if(tipo === "parcial"){
+            $('#modulosContainer').slideDown(200);
+        }else{
+            $('#modulosContainer').slideUp(200);
+        }
+
+    });
+
+    // ================= SELECCION DE MODULOS =================
+
+    $(document).on('click', '.modulo-card', function(e){
+
+        if(e.target.tagName !== "INPUT"){
+
+            const checkbox = $(this).find('input');
+
+            checkbox.prop('checked', !checkbox.prop('checked'));
+
+        }
+
+        $(this).toggleClass('active');
+
+    });
+
+    // ================= SELECCION TIPO RESPALDO =================
+
+    $(document).on('click', '.tipo-card', function(){
+
+        $('.tipo-card').removeClass('active');
+
+        $(this).addClass('active');
+
+        const valor = $(this).data('value');
+
+        $('#add_tipo').val(valor).trigger('change');
+
+    });
+
     // ================= INICIALIZACIÓN =================
     filtrarTabla();
     
