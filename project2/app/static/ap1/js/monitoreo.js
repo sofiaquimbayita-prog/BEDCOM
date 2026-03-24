@@ -1,6 +1,4 @@
-// ── DATOS SIMULADOS (reemplazar con fetch a Django) ──────────────────────────
-
-// ── RELOJ EN TIEMPO REAL ──────────────────────────────────────────────────────
+ra// ── RELOJ EN TIEMPO REAL ──────────────────────────────────────────────────────
 function actualizarFecha() {
     const el = document.getElementById("fecha-hora");
     if (!el) return;
@@ -16,7 +14,7 @@ function animarContador(el, target, duracion = 1200) {
     const inicio = performance.now();
     const update = (ahora) => {
         const t = Math.min((ahora - inicio) / duracion, 1);
-        const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+        const ease = 1 - Math.pow(1 - t, 3);
         el.textContent = Math.round(ease * target);
         if (t < 1) requestAnimationFrame(update);
         else el.textContent = target;
@@ -24,7 +22,7 @@ function animarContador(el, target, duracion = 1200) {
     requestAnimationFrame(update);
 }
 
-// ── BARRAS DE PROGRESO ────────────────────────────────────────────────────────
+// ── BARRAS DE PROGRESO KPI ────────────────────────────────────────────────────────
 function animarBarras() {
     document.querySelectorAll(".kpi-bar").forEach(bar => {
         const pct = bar.dataset.pct;
@@ -32,63 +30,84 @@ function animarBarras() {
     });
 }
 
-// ── TABLA ─────────────────────────────────────────────────────────────────────
-function cargarTabla() {
-    const tbody = document.getElementById("tabla-body");
-    procesos.forEach((p, i) => {
-        const tr = document.createElement("tr");
-        tr.style.opacity = "0";
-        tr.style.transform = "translateY(10px)";
-        tr.style.transition = `opacity .4s ${i * 0.1 + 0.3}s, transform .4s ${i * 0.1 + 0.3}s`;
-
-        tr.innerHTML = `
-            <td><strong>${p.nombre}</strong></td>
-            <td><span class="estado ${p.estado}">${p.estado}</span></td>
-            <td>${p.responsable}</td>
-            <td>
-                <div class="row-progress-wrap">
-                    <div class="row-progress" style="background:${p.color}" data-pct="${p.progreso}"></div>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(tr);
-
-        // fade in row
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                tr.style.opacity = "1";
-                tr.style.transform = "translateY(0)";
-            });
+// ── TABLA HISTORIAL ─────────────────────────────────────────────────────────────
+function cargarHistorial(procesos) {
+    const tbody = document.getElementById("historial-body"); // Fixed: use visible tbody
+    if (!tbody) return;
+    
+    let html = '';
+    if (procesos.length === 0) {
+        html = `<tr>
+                    <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
+                        No hay acciones recientes.
+                    </td>
+                </tr>`;
+    } else {
+        procesos.forEach((item, i) => {
+            html += `
+                <tr style="opacity: 0; transform: translateY(10px); transition: opacity .4s ${i * 0.05 + 0.2}s, transform .4s ${i * 0.05 + 0.2}s;">
+                    <td>${item.modulo || 'General'}</td>
+                    <td>${item.accion || item.descripcion || '-'}</td>
+                    <td>${item.fecha}</td>
+                    <td>${item.responsable || item.usuario || 'Sistema'}</td>
+                </tr>`;
         });
-    });
-
-    // animate row progress bars
+    }
+    
+    tbody.innerHTML = html;
+    
+    // Animate in rows
     setTimeout(() => {
-        document.querySelectorAll(".row-progress").forEach(bar => {
-            bar.style.width = bar.dataset.pct + "%";
+        document.querySelectorAll("#historial-body tr").forEach(tr => {
+            tr.style.opacity = "1";
+            tr.style.transform = "translateY(0)";
         });
-    }, 600);
+    }, 100);
+}
+
+// ── ACTUALIZAR HISTORIAL AJAX (from template) ────────────────────────────────────
+function actualizarHistorialAhora() {
+    const icon = document.getElementById('icon-refresh');
+    const text = document.getElementById('text-refresh');
+    
+    icon.classList.add('fa-spin');
+    text.innerText = "Actualizando...";
+
+    fetch('/api/historial-tiempo-real/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cargarHistorial(data.data); // Use fixed function
+            }
+        })
+        .catch(error => console.error('Error actualizando historial:', error))
+        .finally(() => {
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                text.innerText = "Auto (5s)";
+            }, 500);
+        });
 }
 
 // ── INICIALIZACIÓN ────────────────────────────────────────────────────────────
 function init() {
-    // contadores KPI
+    // Animate KPI counters
     document.querySelectorAll(".kpi-value[data-target]").forEach((el, i) => {
         const target = parseInt(el.dataset.target);
-        setTimeout(() => animarContador(el, target), i * 80 + 100);
+setTimeout(() => animateCounter(the, target), i * 80 + 100);
     });
 
-    // barras KPI
+    // Animate KPI bars
     animarBarras();
 
-    // tabla
-    cargarTabla();
+// Load initial historial from global procesos (Django context)
+    if (typeof procesos !== 'undefined' && Array.isArray(procesos)) {
+        cargarHistorial(procesos);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", init);
 
-// ── NAVEGACIÓN ────────────────────────────────────────────────────────────────
-function irModulo(modulo) {
-    if (modulo === "insumos")   window.location.href = "/insumos/";
-    if (modulo === "logistica") window.location.href = "/logistica/";
-}
+// Auto-refresh historial every 5s (from template)
+setInterval(actualizarHistorialAhora, 5000);
+
