@@ -187,15 +187,15 @@ fetch('/vistas/monitoreo/api/historial-tiempo-real/')
                 // Quitar efecto de carga
                 setTimeout(() => {
                     icon.classList.remove('fa-spin');
-                    text.innerText = "Auto (5s)";
+                    text.innerText = "Auto (60s)";
                 }, 500);
             });
     }
 
-    // Ejecutar automáticamente cada 5 segundos
-    setInterval(actualizarHistorialAhora, 5000);
+    // Ejecutar automáticamente cada 1 minuto (60s)
+    setInterval(actualizarHistorialAhora, 60000);
 
-    // Polling para KPIs cada 10 segundos
+    // Polling para KPIs cada 1 minuto
     function actualizarKPIs() {
 fetch('/vistas/monitoreo/api/kpis/')
             .then(response => response.json())
@@ -214,7 +214,7 @@ fetch('/vistas/monitoreo/api/kpis/')
             })
             .catch(error => console.error('Error KPIs:', error));
     }
-    setInterval(actualizarKPIs, 10000);
+    setInterval(actualizarKPIs, 60000);
     // Initial KPI load after DOM
     setTimeout(actualizarKPIs, 1000);
 
@@ -245,8 +245,8 @@ fetch('/vistas/monitoreo/api/notificaciones/')
             .catch(error => console.error('Error alertas:', error));
     }
 
-    // Polling alertas cada 30 segundos
-    setInterval(actualizarAlertas, 30000);
+    // Polling alertas cada 1 minuto
+    setInterval(actualizarAlertas, 60000);
     // Load inicial
     setTimeout(actualizarAlertas, 1500);
 </script>
