@@ -1,224 +1,111 @@
 /* ============================================
-   RESPALDOS - CSS LIMPIO Y FUNCIONAL
+   BASE
    ============================================ */
-
-/* ===== BASE ===== */
-body{
+body {
   background: linear-gradient(135deg, #0f172a, #020617);
   color: #e2e8f0;
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* ===== TITULO ===== */
-h2{
+/* TITULO */
+h2 {
   font-size: 24px;
   font-weight: 700;
   color: #e2e8f0;
 }
 
 /* ============================================
-   TARJETAS FUNCIONALES
+   TARJETAS
    ============================================ */
-
-.stats-container{
-  display:flex;
-  gap:20px;
-  margin:25px 0;
-  flex-wrap:wrap;
+.stats-container {
+  display: flex;
+  gap: 20px;
+  margin: 25px 0;
+  flex-wrap: wrap;
 }
 
-.stat-card{
-  flex:1;
-  min-width:220px;
-  padding:20px;
-  border-radius:16px;
-  color:white;
-  display:flex;
-  flex-direction:column;
+.stat-card {
+  flex: 1;
+  min-width: 220px;
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+  display: flex;
+  flex-direction: column;
 
-  border:1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
   backdrop-filter: blur(10px);
-
   box-shadow: 0 15px 40px rgba(0,0,0,0.5);
   transition: all .25s ease;
 }
 
-.stat-card:hover{
+.stat-card:hover {
   transform: translateY(-5px);
 }
 
 /* TEXTO */
-.stat-label{
-  font-size:12px;
-  opacity:0.8;
-  margin-bottom:5px;
+.stat-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 5px;
 }
 
-.stat-value{
-  font-size:20px;
-  font-weight:700;
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
 }
 
 /* COLORES */
-.stat-card.purple{
+.stat-card.purple {
   background: linear-gradient(135deg,#7c3aed,#60a5fa);
 }
 
-.stat-card.blue{
+.stat-card.blue {
   background: linear-gradient(135deg,#2563eb,#3b82f6);
 }
 
-.stat-card.green{
+.stat-card.green {
   background: linear-gradient(135deg,#10b981,#059669);
 }
 
 /* ============================================
    BOTONES TARJETAS
    ============================================ */
-
-.stat-btn{
-  margin-top:12px;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  font-size:13px;
-  font-weight:600;
-  background:white;
-  color:#0f172a;
-  cursor:pointer;
+.stat-btn {
+  margin-top: 12px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  color: #0f172a;
+  cursor: pointer;
 }
 
-.stat-btn.disabled{
-  background:#64748b;
-  color:white;
-  cursor:not-allowed;
+.stat-btn.disabled {
+  background: #64748b;
+  color: white;
+  cursor: not-allowed;
 }
 
 /* ============================================
    ZONA CARGA
    ============================================ */
-
-.zona-carga-mini{
-  margin-top:12px;
-  padding:12px;
-  border:2px dashed rgba(255,255,255,0.5);
-  border-radius:10px;
-  text-align:center;
-  cursor:pointer;
+.zona-carga-mini {
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px dashed rgba(255,255,255,0.5);
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
 }
 
-.zona-carga-mini:hover{
+.zona-carga-mini:hover {
   background: rgba(255,255,255,0.1);
 }
 
-/* ============================================
-   CARDS (BOOTSTRAP OVERRIDE)
-   ============================================ */
-
-.card{
-  background: rgba(15,23,42,0.8) !important;
-  border-radius: 16px !important;
-  border:1px solid rgba(255,255,255,0.05) !important;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-}
-
-/* HEADERS */
-.bg-primary{
-  background: linear-gradient(135deg,#2563eb,#3b82f6) !important;
-}
-
-.bg-success{
-  background: linear-gradient(135deg,#10b981,#059669) !important;
-}
-
-.bg-info{
-  background: linear-gradient(135deg,#0ea5e9,#38bdf8) !important;
-}
-
-/* ============================================
-   BOTONES
-   ============================================ */
-
-.btn{
-  border-radius:10px;
-}
-
-.btn-primary{
-  background: linear-gradient(135deg,#2563eb,#3b82f6);
-  border:none;
-}
-
-.btn-secondary{
-  background:#334155;
-  border:none;
-}
-
-/* ============================================
-   MODALES
-   ============================================ */
-
-.modal-content{
-  background: rgba(15,23,42,0.95);
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-}
-
-.modal-header{
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.modal-header h3{
-  color:#38bdf8;
-}
-
-.close{
-  color:#94a3b8;
-}
-
-.close:hover{
-  color:white;
-}
-
-/* ============================================
-   FORMULARIOS
-   ============================================ */
-
-textarea{
-  background:#1e293b;
-  border:1px solid #334155;
-  color:white;
-  border-radius:10px;
-}
-
-textarea:focus{
-  border-color:#38bdf8;
-}
-
-/* ============================================
-   VIEW MODAL
-   ============================================ */
-
-.view-group{
-  background: rgba(255,255,255,0.03);
-  border-radius:8px;
-  padding:10px;
-  margin-bottom:10px;
-}
-
-.view-group label{
-  font-size:12px;
-  color:#94a3b8;
-}
-
-.view-group p{
-  margin:0;
-}
-
-/* ============================================
-   ZONA CARGA - INPUT FILE PERSONALIZADO
-   ============================================ */
-
+/* INPUT FILE OCULTO */
 #archivo-respaldo {
   position: absolute;
   opacity: 0;
@@ -228,13 +115,14 @@ textarea:focus{
   z-index: 2;
 }
 
+/* LABEL PERSONALIZADO */
 .label-file-respaldo {
   display: block;
   margin-top: 8px;
   padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 12px;
   color: white;
   font-weight: 600;
@@ -242,39 +130,43 @@ textarea:focus{
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .label-file-respaldo:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 25px rgba(16,185,129,0.3);
 }
 
-.label-file-respaldo:active {
-  transform: scale(0.98);
-}
-
-/* Texto del label con icono */
 .label-file-respaldo::before {
   content: "📁 Seleccionar archivo SQL";
-  display: block;
+}
+
+/* ============================================
+   CARD INFO
+   ============================================ */
+.card {
+  background: rgba(15,23,42,0.8) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.bg-info {
+  background: linear-gradient(135deg,#0ea5e9,#38bdf8) !important;
 }
 
 /* ============================================
    RESPONSIVE
    ============================================ */
-
 @media(max-width:768px){
-  .stats-container{
-    flex-direction:column;
+  .stats-container {
+    flex-direction: column;
   }
-  
+
   .label-file-respaldo {
     padding: 10px 16px;
     font-size: 13px;
   }
 }
-
