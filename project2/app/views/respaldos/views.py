@@ -151,38 +151,45 @@ def generar_archivo_descarga(contenido_sql, nombre_archivo):
 
     return response
 
-def restaurar_bd_desde_sql(contenido_sql):
+import tempfile  # ⬅️ agrégalo arriba con los imports
+
+def restaurar_bd_desde_sql(archivo):
     creds = obtener_credenciales_mysql()
 
     try:
+        # Guardar archivo temporal
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".sql") as temp:
+            for chunk in archivo.chunks():
+                temp.write(chunk)
+            temp_path = temp.name
+
         cmd = [
             os.path.join(creds["mysql_path"], 'mysql.exe'),
             '-h', creds["host"],
             '-u', creds["user"],
             '-P', str(creds["port"]),
-            '--password=' + creds["password"],
+            f'--password={creds["password"]}',
             creds["database"]
         ]
 
-        proceso = subprocess.Popen(
-            cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
+        with open(temp_path, 'r', encoding='utf-8') as f:
+            proceso = subprocess.run(
+                cmd,
+                stdin=f,
+                capture_output=True,
+                text=True
+            )
 
-        stdout, stderr = proceso.communicate(input=contenido_sql, timeout=120)
+        os.remove(temp_path)
 
         if proceso.returncode != 0:
-            raise Exception(f"Error MySQL: {stderr}")
+            raise Exception(proceso.stderr)
 
         return True
 
-    except subprocess.TimeoutExpired:
-        raise Exception("Timeout al restaurar la base de datos")
     except Exception as e:
         raise Exception(f"Error al restaurar: {str(e)}")
+
 class RespaldoDataView(View):
     """API para obtener los datos de los respaldos (para DataTables u otras funciones)"""
     def get(self, request, *args, **kwargs):
@@ -326,8 +333,10 @@ class DescargarRespaldoView(LoginRequiredMixin, View):
 class RestaurarDatosView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if 'archivo' not in request.FILES:
-            messages.error(request, "No se proporcionó archivo.")
-            return redirect('respaldos_list')
+            return JsonResponse({
+                'exito': False,
+                'mensaje': 'No se proporcionó archivo'
+            }, status=400)
 
         archivo = request.FILES['archivo']
 
@@ -337,11 +346,20 @@ class RestaurarDatosView(LoginRequiredMixin, View):
                 messages.error(request, "El archivo debe ser .sql")
                 return redirect('respaldos_list')
 
-            # Leer contenido
-            contenido_sql = archivo.read().decode('utf-8')
+            # Validar conexión primero
+            if not probar_conexion_mysql():
+                return JsonResponse({
+                    'exito': False,
+                    'mensaje': 'No hay conexión a MySQL'
+                }, status=400)
 
-            # Restaurar BD
-            restaurar_bd_desde_sql(contenido_sql)
+            # Restaurar usando archivo
+            restaurar_bd_desde_sql(archivo)
+
+            return JsonResponse({
+                'exito': True,
+                'mensaje': 'Base de datos restaurada correctamente'
+            })
 
             return JsonResponse({
                 'exito': True,
@@ -349,5 +367,7 @@ class RestaurarDatosView(LoginRequiredMixin, View):
             })
 
         except Exception as e:
-            messages.error(request, f"Error al restaurar: {str(e)}")
-            return redirect('respaldos_list')
+            return JsonResponse({
+                'exito': False,
+                'mensaje': f'Error: {str(e)}'
+            }, status=500)
