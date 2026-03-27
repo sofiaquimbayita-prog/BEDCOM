@@ -96,7 +96,7 @@
         <div class="panel tabla-panel">
             <div class="panel-header">
                 <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
-                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (5s)</span></span>
+                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (60s)</span></span>
             </div>
             <div class="table-wrap">
                 <table>
@@ -154,7 +154,7 @@
         icon.classList.add('fa-spin');
         text.innerText = "Actualizando...";
 
-        fetch('/api/historial-tiempo-real/')
+fetch('/vistas/monitoreo/api/historial-tiempo-real/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -197,7 +197,7 @@
 
     // Polling para KPIs cada 10 segundos
     function actualizarKPIs() {
-        fetch('/monitoreo/api/kpis/')
+fetch('/vistas/monitoreo/api/kpis/')
             .then(response => response.json())
             .then(data => {
                 // Update Producción Hoy
@@ -220,7 +220,7 @@
 
     // Alertas del sistema en tiempo real
     function actualizarAlertas() {
-        fetch('/monitoreo/api/notificaciones/')
+fetch('/vistas/monitoreo/api/notificaciones/')
             .then(response => response.json())
             .then(data => {
                 const list = document.getElementById('alertas-list');

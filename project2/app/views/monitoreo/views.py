@@ -183,11 +183,18 @@ def api_kpis(request):
 def api_notificaciones(request):
     """API endpoint para obtener notificaciones"""
     if request.method == 'GET':
-        data = {
-            'notificaciones': [
-                {'id': 1, 'mensaje': 'Nuevo evento detectado', 'tipo': 'info'},
-                {'id': 2, 'mensaje': 'Alerta en sistema', 'tipo': 'warning'},
-            ]
-        }
-        return JsonResponse(data)
+        notifs = Notificacion.objects.filter(leida=False).order_by('-fecha_notificacion')[:10]
+        data_list = []
+        for n in notifs:
+            data_list.append({
+                'id': n.id,
+                'titulo': getattr(n, 'titulo', n.mensaje or 'Notificación'),
+                'mensaje': n.mensaje,
+                'fecha': n.fecha_notificacion.strftime('%d/%m %H:%M') if hasattr(n, 'fecha_notificacion') else '',
+                'tipo': getattr(n, 'tipo', 'info')
+            })
+        return JsonResponse({
+            'data': data_list,
+            'total': len(data_list)
+        })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
