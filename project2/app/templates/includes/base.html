@@ -162,7 +162,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="cerrarModalLogout()">Cancelar</button>
-<button type="button" id="btnConfirmLogout" class="btn-confirmar-logout" onclick="confirmarLogout()">Cerrar Sesión</button>
+                <button type="button" id="btnConfirmLogout" class="btn-confirmar-logout" onclick="confirmarLogout()">Cerrar Sesión</button>
             </div>
         </div>
     </div>
@@ -424,7 +424,7 @@
 
 window.confirmarLogout = function() {
         console.log('Logout confirmed, redirecting to /logout/');
-        window.location.href = '/logout/';
+        window.location.href = '{% url "login:logout" %}';
     };
     </script>
 

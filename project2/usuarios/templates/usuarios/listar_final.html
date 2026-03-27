@@ -13,7 +13,6 @@
             <div class="switch-container">
                 <span class="switch-text">Mostrar inactivos</span>
                 <label class="switch-control">
-                    {# Este ID es el que activará el filtro en script_usuarios.js #}
                     <input type="checkbox" id="toggleInactivos">
                     <span class="slider"></span>
                 </label>
@@ -38,47 +37,38 @@
                     <th>Cédula</th> 
                     <th>Teléfono</th> 
                     <th>Estado</th> 
-                    <th>Acciones</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for u in usuarios %}
-                {# Eliminamos el display:none de Django para que DataTables pueda gestionarlo #}
-                <tr class="{% if not u.is_active %}fila-inactiva{% endif %}">
-                    <td>{{ u.id|default:"N/A" }}</td>
-                    <td style="font-weight: bold;">{{ u.username|default:"N/A" }}</td>
-                    <td>{{ u.first_name|default:"" }} {{ u.last_name|default:"" }}</td>
-                    <td style="text-transform: capitalize;">{{ u.rol|default:"Empleado" }}</td>
-                    <td>{{ u.cedula|default:"N/A" }}</td>
-                    <td>{{ u.telefono|default:"N/A" }}</td>
-                    {# La columna 6 (Estado) es vital para el filtro del switch #}
-                    <td class="col-estado">{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td>
-                    <td>
-                        <div class="acciones">
-                            <button title="Editar" onclick="abrirModalEditar('{{ u.id }}')" class="edit-btn">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            
-                            {% if u.is_active %}
-                                <button class="delete-btn" title="Desactivar" onclick="abrirModalEliminar('{{ u.id }}', '{{ u.username }}')">
-                                    <i class="fas fa-ban"></i>
-                                </button>
-                            {% else %}
-                                <button class="activate-btn" title="Activar" onclick="abrirModalActivar('{{ u.id }}', '{{ u.username }}')">
-                                    <i class="fas fa-redo"></i>
-                                </button>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 20px;">
-                        No hay usuarios registrados. ¡Comienza creando uno nuevo!
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+    {% for u in usuarios %}
+    <tr class="{% if not u.is_active %}fila-inactiva{% endif %}">
+        <td>{{ u.id }}</td>
+        <td style="font-weight: bold; color: #38bdf8;">{{ u.username }}</td>
+        <td>{{ u.first_name }} {{ u.last_name }}</td>
+        <td style="text-transform: capitalize;">{{ u.rol|default:"Empleado" }}</td>
+        <td>{{ u.cedula }}</td>
+        <td>{{ u.telefono|default:"N/A" }}</td>
+        <td class="col-estado">{% if u.is_active %}Activo{% else %}Inactivo{% endif %}</td>
+        <td>
+            <div class="acciones" style="display: flex; gap: 8px; justify-content: center;">
+                <button title="Editar" onclick="abrirModalEditar('{{ u.id }}')" class="edit-btn">
+                    <i class="fas fa-edit"></i>
+                </button>
+                {% if u.is_active %}
+                    <button class="delete-btn" title="Desactivar" onclick="abrirModalEliminar('{{ u.id }}', '{{ u.username }}')">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                {% else %}
+                    <button class="activate-btn" title="Activar" onclick="abrirModalActivar('{{ u.id }}', '{{ u.username }}')">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
         </table>
     </div>
 </main>

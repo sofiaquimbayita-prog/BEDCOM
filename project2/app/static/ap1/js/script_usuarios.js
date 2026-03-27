@@ -6,7 +6,7 @@
 const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 const numeric10Regex = /^\d{10}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
 
 // 2. SISTEMA DE NOTIFICACIONES (TOAST)
 function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
@@ -46,18 +46,17 @@ function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
     }, 5500);
 }
 
-// 3. VALIDACIÓN EN TIEMPO REAL (CORREGIDA PARA EDITAR)
+// 3. VALIDACIÓN EN TIEMPO REAL
 function validateFieldLive(input, validator, message, isRequired = true) {
     const value = input.val().trim();
     const inputId = input.attr('id'); 
-    const errorEl = $(`#error_${inputId}`); // Busca error_edit_username, etc.
+    const errorEl = $(`#error_${inputId}`); 
     
     input.removeClass('input-error');
     if(errorEl.length) {
         errorEl.text('').hide(); 
     }
     
-    // Si es opcional (como password en editar) y está vacío, no hay error
     if (!value && !isRequired) return true;
 
     if (!value && isRequired) {
@@ -75,7 +74,6 @@ function validateFieldLive(input, validator, message, isRequired = true) {
     return true;
 }
 
-// Eventos de validación al escribir
 $(document).on('input', '.form-control', function() {
     const input = $(this);
     const name = input.attr('name');
@@ -97,18 +95,17 @@ $(document).on('input', '.form-control', function() {
             break;
         case 'cedula': 
         case 'telefono': 
-            input.val(input.val().replace(/\D/g, '')); // Bloquea letras instantáneamente
+            input.val(input.val().replace(/\D/g, '')); 
             validateFieldLive(input, numeric10Regex, 'Deben ser 10 dígitos numéricos', (name === 'cedula')); 
             break;
         case 'password':
-            // En editar, la contraseña es opcional si el campo está vacío
             const req = !isEdit; 
-            validateFieldLive(input, passwordRegex, 'Mín 8 caracteres (debe incluir Mayúscula y Número)', req);
+validateFieldLive(input, passwordRegex, 'Mín 8 chars: 1 Mayúscula, 1 Número, 1 Símbolo Especial (!@#$%^&*)', req);
             break;
     }
 });
 
-// 4. LÓGICA DE DATATABLES
+// 4. LÓGICA DE DATATABLES (CORREGIDA PARA 8 COLUMNAS)
 $(document).ready(function() {
     const table = $('#tablaUsuarios').DataTable({
         responsive: true,
@@ -118,13 +115,14 @@ $(document).ready(function() {
             "sZeroRecords": "No se encontraron resultados",
             "oPaginate": { "sNext": "Sig", "sPrevious": "Ant" }
         },
-        order: [[0, "desc"]], 
-        columnDefs: [{ orderable: false, targets: [7] }]
+        order: [[0, "desc"]], // Ordenar por ID
+        columnDefs: [{ orderable: false, targets: [7] }] // Acciones es la columna índice 7
     });
 
+    // Filtro para el switch de inactivos
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const mostrarSoloInactivos = $('#toggleInactivos').is(':checked');
-        const textoEstado = (data[6] || "").trim();
+        const textoEstado = (data[6] || "").trim(); // Columna Estado ahora es índice 6
         return mostrarSoloInactivos ? textoEstado === "Inactivo" : textoEstado === "Activo";
     });
 
@@ -166,7 +164,7 @@ $(document).ready(function() {
                 mostrarNotificacion('Error', data.message || 'Error al procesar', 'error');
             }
         })
-        .catch(() => mostrarNotificacion('Error', 'Fallo de conexión con el servidor', 'error'));
+        .catch(() => mostrarNotificacion('Error', 'Fallo de conexión con MySQL', 'error'));
     });
 });
 
@@ -193,14 +191,11 @@ window.cerrarModal = function(id) {
 
 window.abrirModalEditar = function(id) {
     if (!id) return;
-    
     fetch(`/usuarios/detalle_json/${id}/`)
         .then(r => r.json())
         .then(data => {
             const f = $('#formEditUsuario');
             f.attr('action', `/usuarios/editar/${id}/`);
-            
-            // Llenado de campos con IDs de editar
             $('#edit_username').val(data.username);
             $('#edit_email').val(data.email);
             $('#edit_first_name').val(data.first_name);
@@ -208,12 +203,10 @@ window.abrirModalEditar = function(id) {
             $('#edit_cedula').val(data.cedula);
             $('#edit_telefono').val(data.telefono);
             $('#edit_rol').val(data.rol);
-            
             $('#editUsuarioNombre').text(data.username);
-            
             abrirModal('modalEdit');
         })
-        .catch(() => mostrarNotificacion('Error', 'No se pudieron cargar los datos del usuario', 'error'));
+        .catch(() => mostrarNotificacion('Error', 'Error al cargar datos desde MySQL', 'error'));
 };
 
 window.abrirModalEliminar = function(id, nombre) {
