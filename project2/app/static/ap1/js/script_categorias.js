@@ -167,20 +167,7 @@ window.cerrarModal = function(idModal) {
     if (modal) modal.style.display = 'none';
 };
 
-// Filtrar por estado
-$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    if (settings.nTable.id !== 'tablaCategorias') return true;
-
-    var mostrarInactivos = $('#toggleInactivos').is(':checked');
-    var estadoRaw = data[2];
-    var s = String(estadoRaw).toLowerCase().trim();
-
-    if (!mostrarInactivos) {
-        return s === 'activo' || s === '1' || s === 'true' || s === 'yes' || s === 'y' || s === 't' || estadoRaw === true || estadoRaw === 1;
-    } else {
-        return s === 'inactivo' || s === '0' || s === 'false' || s === 'no' || s === 'n' || s === 'f' || estadoRaw === false || estadoRaw === 0;
-    }
-});
+// Server-side filtering enabled - client-side DataTable row filter disabled for categorias
 
 $(document).ready(function() {
     

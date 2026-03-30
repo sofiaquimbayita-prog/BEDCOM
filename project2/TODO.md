@@ -1,2 +1,18 @@
-# TODO: Fix Monitoreo API 404 Errors\n\n## Plan Implementation Steps\n- [x] Step 1: Create TODO.md ✓\n- [x] Step 2: Edit project2/app/templates/monitoreo/monitoreo.html to fix 3 fetch URLs ✓\n  * /monitoreo/api/kpis/ → /vistas/monitoreo/api/kpis/\n  * /monitoreo/api/notificaciones/ → /vistas/monitoreo/api/notificaciones/\n  * /api/historial-tiempo-real/ → /vistas/monitoreo/api/historial-tiempo-real/\n- [x] Step 3: Update TODO.md with completion status ✓\n- [ ] Step 4: Restart Django dev server (`cd project2 && python manage.py runserver`), refresh /vistas/monitoreo/ in browser\n- [ ] Step 5: Verify no 404/JSON parse errors in console, real-time KPIs/alertas/historial update ✓\n\n**All code changes complete.**
+# TODO: Fix Categorías "Mostrar Inactivos" Button
+Status: ✅ COMPLETE
+
+## Changes Made
+1. ✅ **views.py**: Added server-side filtering - `estado=True` default, `?inactivos=1` shows all
+2. ✅ **index_categorias.html**: Inline JS toggle sets URL param + reloads page. Toggle reflects current URL state
+3. ✅ **script_categorias.js**: Disabled broken client-side row filter
+4. ✅ Preserved all create/edit/delete/activate functionality
+
+## How to Test
+1. Navigate to categorías page
+2. **Toggle OFF** (unchecked): Shows only **Activo** categories  
+3. **Toggle ON** (checked): Shows **all** (Activo + Inactivo)
+4. Create inactive category → verify appears only when toggle ON
+5. Server reload preserves toggle state via URL param
+
+**Fixed**: Button now properly filters server-side. No more showing both states incorrectly.
 
