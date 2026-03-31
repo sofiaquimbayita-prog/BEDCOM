@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import os
 import shutil
 from django.utils import timezone
@@ -12,7 +12,67 @@ from django.http import FileResponse, Http404
 from ...models import respaldo
 from ...forms import RespaldoForm
 from django.conf import settings
+from django.db import connections
+from django.db.utils import OperationalError
 
+
+# ================= VERIFICAR CONEXIÓN A BD =================
+def verificar_db():
+    try:
+        with connections['default'].cursor() as cursor:
+            cursor.execute("SELECT 1")
+        return True
+    except Exception:
+        return False
+    
+from django.views.decorators.http import require_http_methods
+
+# ================= RESTAURAR BD =================
+@require_http_methods(["POST"])
+def restaurar_datos(request):
+
+    if 'archivo' not in request.FILES:
+        return JsonResponse({'error': 'No se proporcionó archivo'}, status=400)
+
+    archivo = request.FILES['archivo']
+
+    if not archivo.name.endswith('.sql'):
+        return JsonResponse({'error': 'El archivo debe ser .sql'}, status=400)
+
+    try:
+        db = settings.DATABASES['default']
+
+        ruta_temp = os.path.join(settings.MEDIA_ROOT, 'temp_restore.sql')
+
+        # Guardar archivo temporal
+        with open(ruta_temp, 'wb+') as destino:
+            for chunk in archivo.chunks():
+                destino.write(chunk)
+
+        comando = [
+            r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe',
+            '-h', db['HOST'],
+            '-u', db['USER'],
+            '-P', str(db['PORT']),
+            f"--password={db['PASSWORD']}",
+            db['NAME']
+        ]
+
+        # Ejecutar SQL
+        with open(ruta_temp, 'r', encoding='utf-8') as f:
+            resultado = subprocess.run(comando, stdin=f)
+
+        if resultado.returncode != 0:
+            raise Exception("Error ejecutando el SQL")
+
+        os.remove(ruta_temp)
+
+        return JsonResponse({
+            'mensaje': 'Base de datos restaurada correctamente'
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 class RespaldoDataView(View):
     """API para obtener los datos de los respaldos (para DataTables u otras funciones)"""
@@ -52,7 +112,74 @@ class RespaldoListView(ListView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Gestión de Respaldos"
         context['icono_modulo'] = "fas fa-database"
+        
+        context['mysql_conectado'] = verificar_db()
+        
         return context
+    
+    def post(self, request, *args, **kwargs):
+
+        accion = request.POST.get('accion')
+
+        if accion == 'backup_completo':
+            try:
+                from datetime import datetime
+
+                db = settings.DATABASES['default']
+
+                cmd = [
+                    r'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe',
+                    '-h', db['HOST'],
+                    '-u', db['USER'],
+                    '-P', str(db['PORT']),
+                    f"--password={db['PASSWORD']}",
+                    db['NAME']
+                ]
+
+                resultado = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+
+                if resultado.returncode != 0:
+                    raise Exception(resultado.stderr)
+
+                sql_content = resultado.stdout
+
+                if not sql_content.strip():
+                    raise Exception("El respaldo está vacío")
+
+                # ================= GUARDAR ARCHIVO =================
+                nombre = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+                ruta_relativa = os.path.join('respaldos_sql', nombre)
+                ruta_destino = os.path.join(settings.MEDIA_ROOT, ruta_relativa)
+
+                os.makedirs(os.path.dirname(ruta_destino), exist_ok=True)
+
+                with open(ruta_destino, 'w', encoding='utf-8') as f:
+                    f.write(sql_content)
+
+                # ================= GUARDAR EN BD =================
+                respaldo.objects.create(
+                    archivo=ruta_relativa,
+                    usuario=request.user.username if request.user.is_authenticated else 'sistema',
+                    tipo_respaldo='completo',
+                    descripcion='Backup MySQL generado',
+                    estado=True
+                )
+
+                # ================= DESCARGAR =================
+                response = HttpResponse(sql_content, content_type='application/sql')
+                response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+
+                return response
+
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        return redirect('respaldos_list')
 
 
 class RespaldoCreateView(LoginRequiredMixin, CreateView):

@@ -1,0 +1,53 @@
+<div class="container-fluid">
+
+    <h4 class="mb-3">
+        <i class="bi bi-database"></i> Respaldo y Restauración
+    </h4>
+
+    <div class="stats-container">
+
+        <!-- ESTADO -->
+        <div class="stat-card purple">
+            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+
+            {% if mysql_conectado %}
+                <span class="stat-value text-success">Conectado</span>
+            {% else %}
+                <span class="stat-value text-danger">Desconectado</span>
+            {% endif %}
+        </div>
+
+        <!-- BACKUP -->
+        <div class="stat-card blue">
+            <span class="stat-label">DESCARGAR RESPALDO</span>
+            <span class="stat-value small">Backup completo</span>
+
+            {% if mysql_conectado %}
+            <form method="post" action="{% url 'respaldos_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="backup_completo">
+
+                <button type="submit" class="stat-btn">
+                    Descargar SQL
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- RESTAURAR -->
+        <div class="stat-card green">
+            <span class="stat-label">RESTAURAR BD</span>
+
+            {% if mysql_conectado %}
+            <div id="zona-carga" class="zona-carga-mini">
+                <input type="file" id="archivo-respaldo" accept=".sql">
+                <label for="archivo-respaldo" class="label-file-respaldo"></label>
+                <i class="bi bi-cloud-upload"></i>
+                <small>Subir archivo</small>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>

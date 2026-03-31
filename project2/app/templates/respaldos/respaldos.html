@@ -84,7 +84,7 @@
 
         <!-- Action Bar -->
         <div class="action-bar" style="margin: 25px 0; text-align: right;">
-            <button type="button" class="btn-generar primary" onclick="abrirModal('generarModal')">
+            <button type="button" class="btn-generar primary" onclick="abrirModal('generarModal'); activarJSRespaldos();">
                 <i class="fas fa-plus-circle"></i> NUEVO RESPALDO
             </button>
         </div>
@@ -155,7 +155,67 @@
 <!-- MODAL: Generar Respaldo -->
 <div id="generarModal" class="modal">
     <div class="modal-content">
-        {% include "respaldos/modal_generar.html" %}
+
+        <div class="modal-header">
+            <h3>
+                <i class="fas fa-database"></i> Gestión de Base de Datos
+            </h3>
+            <button class="close" onclick="cerrarModal('generarModal')">&times;</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="stats-container">
+
+                <!-- ESTADO -->
+                <div class="stat-card purple">
+                    <span class="stat-label">ESTADO DE CONEXIÓN</span>
+
+                    {% if mysql_conectado %}
+                        <span class="stat-value text-success">Conectado</span>
+                    {% else %}
+                        <span class="stat-value text-danger">Desconectado</span>
+                    {% endif %}
+                </div>
+
+                <!-- BACKUP -->
+                <div class="stat-card blue">
+                    <span class="stat-label">DESCARGAR RESPALDO</span>
+
+                    {% if mysql_conectado %}
+                    <form method="post" action="{% url 'respaldos_list' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="backup_completo">
+
+                        <button type="submit" class="stat-btn">
+                            Descargar SQL
+                        </button>
+                    </form>
+                    {% else %}
+                        <button class="stat-btn disabled">No disponible</button>
+                    {% endif %}
+                </div>
+
+                <!-- RESTAURAR -->
+                <div class="stat-card green">
+
+                    <span class="stat-label">RESTAURAR BD</span>
+
+                    {% if mysql_conectado %}
+                    <div class="zona-carga-mini">
+                        <input type="file" id="archivo-respaldo" accept=".sql">
+                        <label for="archivo-respaldo" class="label-file-respaldo"></label>
+                        <i class="bi bi-cloud-upload"></i>
+                        <small>Subir archivo</small>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 </div>
 
@@ -173,9 +233,17 @@
     </div>
 </div>
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<script>
+    const URL_RESTAURAR = "{% url 'restaurar_datos' %}";
+</script>
+
 <script src="{% static 'ap1/js/respaldos.js' %}?v={% now 'U' %}"></script>
+<script src="{% static 'ap1/js/modal_restauracion.js' %}?v={% now 'U' %}"></script>
 
 {% endblock %}
 
