@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom
-
+from app.views.respaldos.views import modal_respaldos
 
 urlpatterns = [
     # --- ENTRADA DE PRODUCTOS ---
@@ -82,6 +82,7 @@ urlpatterns = [
     path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
     path('respaldos/restaurar-datos/', respaldos.views.restaurar_datos, name='restaurar_datos'),
     path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
+    path('modal/respaldos/', modal_respaldos, name='modal_respaldos'),
     
     # --- SALIDA DE PRODUCTOS ---
     path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),

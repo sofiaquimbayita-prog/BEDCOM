@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, CreateView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -295,3 +295,7 @@ class DescargarRespaldoView(LoginRequiredMixin, View):
             # El archivo podría no estar disponible
             raise Http404("No se puede acceder al archivo.")
 
+def modal_respaldos(request):
+    return render(request, 'respaldos/modal_restauracion.html', {
+        'mysql_conectado': verificar_db()
+    })

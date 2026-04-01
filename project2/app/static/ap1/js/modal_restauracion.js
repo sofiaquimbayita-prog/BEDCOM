@@ -11,7 +11,7 @@ function abrirRespaldos() {
         </div>
     `;
 
-    fetch('/modal/respaldos/')
+    fetch(URL_MODAL_RESPALDOS)
         .then(res => res.text())
         .then(html => {
             contenedor.innerHTML = html;
