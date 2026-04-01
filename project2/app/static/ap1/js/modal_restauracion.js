@@ -67,6 +67,7 @@ function activarJSRespaldos() {
 
             return data;
         })
+        
         .then(data => {
             console.log("✅ RESPUESTA BACKEND:", data);
 
@@ -74,9 +75,14 @@ function activarJSRespaldos() {
                 mostrarToast(data.error, 'danger');
             } else {
                 mostrarToast(data.mensaje || 'Restauración exitosa', 'success');
-                location.reload(); // 🔥 importante
+
+                // Esperar antes de recargar
+                setTimeout(() => {
+                    location.reload();
+                }, 5000);
             }
         })
+
         .catch(error => {
             mostrarToast(error.message, 'danger');
         })

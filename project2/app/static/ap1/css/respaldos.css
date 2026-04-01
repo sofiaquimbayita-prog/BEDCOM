@@ -369,6 +369,190 @@ input:checked + .slider:before {
   color: #2563eb;
 }
 
+/* ================= STATS CARDS - MODAL RESTAURACIÓN ================= */
+.stats-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 160px;
+  justify-content: center;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card.purple {
+  border-left: 4px solid #27ae60;
+  background: linear-gradient(135deg, rgba(101, 231, 92, 0.15), rgba(108, 92, 231, 0.05));
+}
+
+.stat-card.purple .stat-btn {
+  background: linear-gradient(135deg, #6c5ce7, #a55eea);
+}
+
+.stat-card.blue {
+  border-left: 4px solid var(--brand);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(96, 165, 250, 0.05));
+}
+
+.stat-card.blue .stat-btn {
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+}
+
+.stat-card.green {
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, rgba(103, 28, 182, 0.15), rgba(46, 183, 204, 0.05));
+}
+
+.stat-card.green .stat-btn {
+  background: linear-gradient(135deg, var(--accent), #6c5ce7);
+}
+
+.stat-card .stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.stat-card .stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.stat-card .stat-value.text-success { color: var(--success); }
+.stat-card .stat-value.text-danger { color: var(--danger); }
+
+.stat-card .stat-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-card .stat-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card .stat-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.zona-carga-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.zona-carga-mini input[type="file"] {
+  display: none;
+}
+
+.label-file-respaldo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 15px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  background: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  max-width: 200px;
+}
+
+.label-file-respaldo:hover {
+  border-color: var(--success);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.label-file-respaldo i {
+  font-size: 1.8rem;
+  color: var(--text-muted);
+}
+
+.label-file-respaldo small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.file-hint {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.file-hint i {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.file-hint small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.label-file-respaldo:hover .file-hint i {
+  color: var(--success);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-container {
+    gap: 16px;
+  }
+  
+  .stat-card {
+    padding: 20px;
+    min-height: 140px;
+  }
+}
+
 /* ================= MODALS ================= */
 .modal {
   display: none;
@@ -394,12 +578,14 @@ input:checked + .slider:before {
   border-radius: 20px;
   max-width: 500px;
   width: 100%;
-  padding: 30px;
+  padding: 24px; /* Reducido para menor altura */
   position: relative;
   z-index: 100001;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   color: white;
   animation: modalSlideIn 0.3s ease;
+  max-height: 90vh; /* Limite altura */
+  overflow-y: auto;
 }
 
 @keyframes modalSlideIn {
@@ -418,14 +604,16 @@ input:checked + .slider:before {
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 5px; /* Línea más visible */
   height: 100%;
-  background: linear-gradient(180deg, #60a5fa, #818cf8);
+  background: linear-gradient(180deg, var(--brand), var(--accent));
   border-radius: 20px 0 0 20px;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.3); /* Glow sutil */
 }
 
 .modal-content.delete::before {
-  background: linear-gradient(180deg, #f87171, #ef4444);
+  background: linear-gradient(180deg, var(--danger), var(--danger-dark));
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
 /* Modal Header */
