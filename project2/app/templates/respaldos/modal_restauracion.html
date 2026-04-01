@@ -1,9 +1,12 @@
-<div class="container-fluid">
+<div class="modal-header position-relative">
+    <h3 class="mb-0" style="padding-right: 45px;">
+        <i class="fas fa-database me-2" style="vertical-align: middle;"></i>
+        Restauración de Base de Datos
+    </h3>
+    <span class="close position-absolute" onclick="cerrarModal('modal_restauracion')" style="top: 12px; right: 15px; font-size: 1.6rem; line-height: 1; cursor: pointer; z-index: 10;">&times;</span>
+</div>
 
-    <h4 class="mb-3">
-        <i class="bi bi-database"></i> Respaldo y Restauración
-    </h4>
-
+<div class="container-fluid p-4">
     <div class="stats-container">
 
         <!-- ESTADO -->
@@ -42,12 +45,11 @@
             <div id="zona-carga" class="zona-carga-mini">
                 <input type="file" id="archivo-respaldo" accept=".sql">
                 <label for="archivo-respaldo" class="label-file-respaldo"></label>
-                <i class="bi bi-cloud-upload"></i>
-                <small>Subir archivo</small>
+                <i class="bi bi-folder-open" title="Abrirá el explorador de archivos"></i>
+                <small>Seleccionar archivo SQL </small>
             </div>
             {% endif %}
         </div>
 
     </div>
-
 </div>
