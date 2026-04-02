@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
 --
 -- Host: localhost    Database: bedcom
 -- ------------------------------------------------------
--- Server version	8.0.43
+-- Server version	8.0.45
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -91,7 +91,7 @@ CREATE TABLE `auth_permission` (
 
 LOCK TABLES `auth_permission` WRITE;
 /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',3,'add_permission'),(6,'Can change permission',3,'change_permission'),(7,'Can delete permission',3,'delete_permission'),(8,'Can view permission',3,'view_permission'),(9,'Can add group',2,'add_group'),(10,'Can change group',2,'change_group'),(11,'Can delete group',2,'delete_group'),(12,'Can view group',2,'view_group'),(13,'Can add user',4,'add_user'),(14,'Can change user',4,'change_user'),(15,'Can delete user',4,'delete_user'),(16,'Can view user',4,'view_user'),(17,'Can add content type',5,'add_contenttype'),(18,'Can change content type',5,'change_contenttype'),(19,'Can delete content type',5,'delete_contenttype'),(20,'Can view content type',5,'view_contenttype'),(21,'Can add session',6,'add_session'),(22,'Can change session',6,'change_session'),(23,'Can delete session',6,'delete_session'),(24,'Can view session',6,'view_session'),(25,'Can add CategorÃƒÂ­a',9,'add_categoria'),(26,'Can change CategorÃƒÂ­a',9,'change_categoria'),(27,'Can delete CategorÃƒÂ­a',9,'delete_categoria'),(28,'Can view CategorÃƒÂ­a',9,'view_categoria'),(29,'Can add CategorÃƒÂ­a de Evento',10,'add_categoriaevento'),(30,'Can change CategorÃƒÂ­a de Evento',10,'change_categoriaevento'),(31,'Can delete CategorÃƒÂ­a de Evento',10,'delete_categoriaevento'),(32,'Can view CategorÃƒÂ­a de Evento',10,'view_categoriaevento'),(33,'Can add Cliente',11,'add_cliente'),(34,'Can change Cliente',11,'change_cliente'),(35,'Can delete Cliente',11,'delete_cliente'),(36,'Can view Cliente',11,'view_cliente'),(37,'Can add Garantia',16,'add_garantia'),(38,'Can change Garantia',16,'change_garantia'),(39,'Can delete Garantia',16,'delete_garantia'),(40,'Can view Garantia',16,'view_garantia'),(41,'Can add Proveedor',22,'add_proveedor'),(42,'Can change Proveedor',22,'change_proveedor'),(43,'Can delete Proveedor',22,'delete_proveedor'),(44,'Can view Proveedor',22,'view_proveedor'),(45,'Can add Respaldo',24,'add_respaldo'),(46,'Can change Respaldo',24,'change_respaldo'),(47,'Can delete Respaldo',24,'delete_respaldo'),(48,'Can view Respaldo',24,'view_respaldo'),(49,'Can add SupervisiÃƒÂ³n',26,'add_supervision'),(50,'Can change SupervisiÃƒÂ³n',26,'change_supervision'),(51,'Can delete SupervisiÃƒÂ³n',26,'delete_supervision'),(52,'Can view SupervisiÃƒÂ³n',26,'view_supervision'),(53,'Can add Usuario',27,'add_usuario'),(54,'Can change Usuario',27,'change_usuario'),(55,'Can delete Usuario',27,'delete_usuario'),(56,'Can view Usuario',27,'view_usuario'),(57,'Can add Evento',8,'add_calendario'),(58,'Can change Evento',8,'change_calendario'),(59,'Can delete Evento',8,'delete_calendario'),(60,'Can view Evento',8,'view_calendario'),(61,'Can add Insumo',17,'add_insumo'),(62,'Can change Insumo',17,'change_insumo'),(63,'Can delete Insumo',17,'delete_insumo'),(64,'Can view Insumo',17,'view_insumo'),(65,'Can add Mantenimiento',18,'add_mantenimiento'),(66,'Can change Mantenimiento',18,'change_mantenimiento'),(67,'Can delete Mantenimiento',18,'delete_mantenimiento'),(68,'Can view Mantenimiento',18,'view_mantenimiento'),(69,'Can add Pedido',20,'add_pedido'),(70,'Can change Pedido',20,'change_pedido'),(71,'Can delete Pedido',20,'delete_pedido'),(72,'Can view Pedido',20,'view_pedido'),(73,'Can add pago',19,'add_pago'),(74,'Can change pago',19,'change_pago'),(75,'Can delete pago',19,'delete_pago'),(76,'Can view pago',19,'view_pago'),(77,'Can add Producto',21,'add_producto'),(78,'Can change Producto',21,'change_producto'),(79,'Can delete Producto',21,'delete_producto'),(80,'Can view Producto',21,'view_producto'),(81,'Can add detalle_pedido',14,'add_detalle_pedido'),(82,'Can change detalle_pedido',14,'change_detalle_pedido'),(83,'Can delete detalle_pedido',14,'delete_detalle_pedido'),(84,'Can view detalle_pedido',14,'view_detalle_pedido'),(85,'Can add Salida de Producto',25,'add_salida_producto'),(86,'Can change Salida de Producto',25,'change_salida_producto'),(87,'Can delete Salida de Producto',25,'delete_salida_producto'),(88,'Can view Salida de Producto',25,'view_salida_producto'),(89,'Can add Despacho',13,'add_despacho'),(90,'Can change Despacho',13,'change_despacho'),(91,'Can delete Despacho',13,'delete_despacho'),(92,'Can view Despacho',13,'view_despacho'),(93,'Can add Reporte',23,'add_reporte'),(94,'Can change Reporte',23,'change_reporte'),(95,'Can delete Reporte',23,'delete_reporte'),(96,'Can view Reporte',23,'view_reporte'),(97,'Can add Entrada de Producto',15,'add_entrada'),(98,'Can change Entrada de Producto',15,'change_entrada'),(99,'Can delete Entrada de Producto',15,'delete_entrada'),(100,'Can view Entrada de Producto',15,'view_entrada'),(101,'Can add bom (Estructura de Producto)',7,'add_bom'),(102,'Can change bom (Estructura de Producto)',7,'change_bom'),(103,'Can delete bom (Estructura de Producto)',7,'delete_bom'),(104,'Can view bom (Estructura de Producto)',7,'view_bom'),(105,'Can add compra',12,'add_compra'),(106,'Can change compra',12,'change_compra'),(107,'Can delete compra',12,'delete_compra'),(108,'Can view compra',12,'view_compra'),(109,'Can add access attempt',28,'add_accessattempt'),(110,'Can change access attempt',28,'change_accessattempt'),(111,'Can delete access attempt',28,'delete_accessattempt'),(112,'Can view access attempt',28,'view_accessattempt'),(113,'Can add access log',31,'add_accesslog'),(114,'Can change access log',31,'change_accesslog'),(115,'Can delete access log',31,'delete_accesslog'),(116,'Can view access log',31,'view_accesslog'),(117,'Can add access failure',30,'add_accessfailurelog'),(118,'Can change access failure',30,'change_accessfailurelog'),(119,'Can delete access failure',30,'delete_accessfailurelog'),(120,'Can view access failure',30,'view_accessfailurelog'),(121,'Can add access attempt expiration',29,'add_accessattemptexpiration'),(122,'Can change access attempt expiration',29,'change_accessattemptexpiration'),(123,'Can delete access attempt expiration',29,'delete_accessattemptexpiration'),(124,'Can view access attempt expiration',29,'view_accessattemptexpiration');
+INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',3,'add_permission'),(6,'Can change permission',3,'change_permission'),(7,'Can delete permission',3,'delete_permission'),(8,'Can view permission',3,'view_permission'),(9,'Can add group',2,'add_group'),(10,'Can change group',2,'change_group'),(11,'Can delete group',2,'delete_group'),(12,'Can view group',2,'view_group'),(13,'Can add user',4,'add_user'),(14,'Can change user',4,'change_user'),(15,'Can delete user',4,'delete_user'),(16,'Can view user',4,'view_user'),(17,'Can add content type',5,'add_contenttype'),(18,'Can change content type',5,'change_contenttype'),(19,'Can delete content type',5,'delete_contenttype'),(20,'Can view content type',5,'view_contenttype'),(21,'Can add session',6,'add_session'),(22,'Can change session',6,'change_session'),(23,'Can delete session',6,'delete_session'),(24,'Can view session',6,'view_session'),(25,'Can add CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾',9,'add_categoria'),(26,'Can change CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒ',9,'change_categoria'),(27,'Can delete CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒ',9,'delete_categoria'),(28,'Can view CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚',9,'view_categoria'),(29,'Can add CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾',10,'add_categoriaevento'),(30,'Can change CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒ',10,'change_categoriaevento'),(31,'Can delete CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒ',10,'delete_categoriaevento'),(32,'Can view CategorÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚',10,'view_categoriaevento'),(33,'Can add Cliente',11,'add_cliente'),(34,'Can change Cliente',11,'change_cliente'),(35,'Can delete Cliente',11,'delete_cliente'),(36,'Can view Cliente',11,'view_cliente'),(37,'Can add Garantia',16,'add_garantia'),(38,'Can change Garantia',16,'change_garantia'),(39,'Can delete Garantia',16,'delete_garantia'),(40,'Can view Garantia',16,'view_garantia'),(41,'Can add Proveedor',22,'add_proveedor'),(42,'Can change Proveedor',22,'change_proveedor'),(43,'Can delete Proveedor',22,'delete_proveedor'),(44,'Can view Proveedor',22,'view_proveedor'),(45,'Can add SupervisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦',26,'add_supervision'),(46,'Can change SupervisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚',26,'change_supervision'),(47,'Can delete SupervisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚',26,'delete_supervision'),(48,'Can view SupervisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒ',26,'view_supervision'),(49,'Can add Usuario',27,'add_usuario'),(50,'Can change Usuario',27,'change_usuario'),(51,'Can delete Usuario',27,'delete_usuario'),(52,'Can view Usuario',27,'view_usuario'),(53,'Can add Evento',8,'add_calendario'),(54,'Can change Evento',8,'change_calendario'),(55,'Can delete Evento',8,'delete_calendario'),(56,'Can view Evento',8,'view_calendario'),(57,'Can add Insumo',17,'add_insumo'),(58,'Can change Insumo',17,'change_insumo'),(59,'Can delete Insumo',17,'delete_insumo'),(60,'Can view Insumo',17,'view_insumo'),(61,'Can add Mantenimiento',18,'add_mantenimiento'),(62,'Can change Mantenimiento',18,'change_mantenimiento'),(63,'Can delete Mantenimiento',18,'delete_mantenimiento'),(64,'Can view Mantenimiento',18,'view_mantenimiento'),(65,'Can add Pedido',20,'add_pedido'),(66,'Can change Pedido',20,'change_pedido'),(67,'Can delete Pedido',20,'delete_pedido'),(68,'Can view Pedido',20,'view_pedido'),(69,'Can add pago',19,'add_pago'),(70,'Can change pago',19,'change_pago'),(71,'Can delete pago',19,'delete_pago'),(72,'Can view pago',19,'view_pago'),(73,'Can add Producto',21,'add_producto'),(74,'Can change Producto',21,'change_producto'),(75,'Can delete Producto',21,'delete_producto'),(76,'Can view Producto',21,'view_producto'),(77,'Can add detalle_pedido',14,'add_detalle_pedido'),(78,'Can change detalle_pedido',14,'change_detalle_pedido'),(79,'Can delete detalle_pedido',14,'delete_detalle_pedido'),(80,'Can view detalle_pedido',14,'view_detalle_pedido'),(81,'Can add Despacho',13,'add_despacho'),(82,'Can change Despacho',13,'change_despacho'),(83,'Can delete Despacho',13,'delete_despacho'),(84,'Can view Despacho',13,'view_despacho'),(85,'Can add Reporte',23,'add_reporte'),(86,'Can change Reporte',23,'change_reporte'),(87,'Can delete Reporte',23,'delete_reporte'),(88,'Can view Reporte',23,'view_reporte'),(89,'Can add bom (Estructura de Producto)',7,'add_bom'),(90,'Can change bom (Estructura de Producto)',7,'change_bom'),(91,'Can delete bom (Estructura de Producto)',7,'delete_bom'),(92,'Can view bom (Estructura de Producto)',7,'view_bom'),(93,'Can add compra',12,'add_compra'),(94,'Can change compra',12,'change_compra'),(95,'Can delete compra',12,'delete_compra'),(96,'Can view compra',12,'view_compra'),(97,'Can add Respaldo',24,'add_respaldo'),(98,'Can change Respaldo',24,'change_respaldo'),(99,'Can delete Respaldo',24,'delete_respaldo'),(100,'Can view Respaldo',24,'view_respaldo'),(101,'Can add Entrada de Producto',15,'add_entrada'),(102,'Can change Entrada de Producto',15,'change_entrada'),(103,'Can delete Entrada de Producto',15,'delete_entrada'),(104,'Can view Entrada de Producto',15,'view_entrada'),(105,'Can add Salida de Producto',25,'add_salida_producto'),(106,'Can change Salida de Producto',25,'change_salida_producto'),(107,'Can delete Salida de Producto',25,'delete_salida_producto'),(108,'Can view Salida de Producto',25,'view_salida_producto'),(109,'Can add access attempt',28,'add_accessattempt'),(110,'Can change access attempt',28,'change_accessattempt'),(111,'Can delete access attempt',28,'delete_accessattempt'),(112,'Can view access attempt',28,'view_accessattempt'),(113,'Can add access log',31,'add_accesslog'),(114,'Can change access log',31,'change_accesslog'),(115,'Can delete access log',31,'delete_accesslog'),(116,'Can view access log',31,'view_accesslog'),(117,'Can add access failure',30,'add_accessfailurelog'),(118,'Can change access failure',30,'change_accessfailurelog'),(119,'Can delete access failure',30,'delete_accessfailurelog'),(120,'Can view access failure',30,'view_accessfailurelog'),(121,'Can add access attempt expiration',29,'add_accessattemptexpiration'),(122,'Can change access attempt expiration',29,'change_accessattemptexpiration'),(123,'Can delete access attempt expiration',29,'delete_accessattemptexpiration'),(124,'Can view access attempt expiration',29,'view_accessattemptexpiration');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +125,7 @@ CREATE TABLE `auth_user` (
 
 LOCK TABLES `auth_user` WRITE;
 /*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
-INSERT INTO `auth_user` VALUES (1,'pbkdf2_sha256$1200000$LxNUFazSaX22TJMRyuB2OE$96Ztw4gm6Q+f1xqvBhvmjZDKxSZpQeLIwfO4qPH+oME=','2026-03-27 14:32:11.659242',1,'luis@gmail.com','','','luis@gmail.com',1,1,'2026-03-16 16:34:27.113618');
+INSERT INTO `auth_user` VALUES (1,'pbkdf2_sha256$1200000$VuubwXrdPqbPW1BuIIURXy$K56M2xrtKfVlieYX5CbNyumRrgu0shyzrF5oDq4Klv0=','2026-04-02 04:34:10.907850',1,'luis','','','luis@gmail.com',1,1,'2026-04-01 17:08:54.098950');
 /*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -209,7 +209,7 @@ CREATE TABLE `axes_accessattempt` (
   KEY `axes_accessattempt_user_agent_ad89678b` (`user_agent`),
   KEY `axes_accessattempt_username_3f2d4ca0` (`username`),
   CONSTRAINT `axes_accessattempt_chk_1` CHECK ((`failures_since_start` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -298,7 +298,7 @@ CREATE TABLE `axes_accesslog` (
   KEY `axes_accesslog_ip_address_86b417e5` (`ip_address`),
   KEY `axes_accesslog_user_agent_0e659004` (`user_agent`),
   KEY `axes_accesslog_username_df93064b` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -307,7 +307,7 @@ CREATE TABLE `axes_accesslog` (
 
 LOCK TABLES `axes_accesslog` WRITE;
 /*!40000 ALTER TABLE `axes_accesslog` DISABLE KEYS */;
-INSERT INTO `axes_accesslog` VALUES (1,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','127.0.0.1','luis@gmail.com','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-03-16 16:35:03.497006',NULL,'b354aa8dd8aded75317e1354fab192ec68f4c72bd208ea95eee4703d19405636'),(2,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','127.0.0.1','luis@gmail.com','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-03-17 16:17:31.781865',NULL,'27f6ffddf584384a60a669f7f790e2bf54f58c360e9e08277bf47ba6e5360f91'),(3,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','127.0.0.1','luis@gmail.com','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-03-27 14:32:11.642404',NULL,'7270168595de9329087b81d6c25764dab0a649019edfd097b06d6452eda316d1');
+INSERT INTO `axes_accesslog` VALUES (1,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','127.0.0.1','luis','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-04-01 17:09:21.529962',NULL,'784690d9f6e3ba77de5adb4bed394f98bb582fd3399921b20e41cc95384887a4'),(2,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','127.0.0.1','luis','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-04-01 17:44:03.193275',NULL,'11227af26f04305dc2029c6590d9edc4d078ee41a0d1d5fdf64fc4e029c66316'),(3,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','127.0.0.1','luis','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-04-02 01:41:10.249379',NULL,'f78d53a68cf4bd82705bf1347ffaae6c53e24357797ab46041e79d4226f93889'),(4,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','127.0.0.1','luis','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','/login/','2026-04-02 04:34:10.900887',NULL,'0294b8a016b7d650b732e3296c7f934c35c464d44aeb20eaedf75962ec87d5d4');
 /*!40000 ALTER TABLE `axes_accesslog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -380,11 +380,11 @@ CREATE TABLE `categorias` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
   `descripcion` longtext NOT NULL,
-  `tipo` varchar(20) NOT NULL,
   `estado` tinyint(1) NOT NULL,
+  `tipo` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -393,6 +393,7 @@ CREATE TABLE `categorias` (
 
 LOCK TABLES `categorias` WRITE;
 /*!40000 ALTER TABLE `categorias` DISABLE KEYS */;
+INSERT INTO `categorias` VALUES (1,'erterer','erterteertertertertrt',1,'producto');
 /*!40000 ALTER TABLE `categorias` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -558,7 +559,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -567,7 +568,7 @@ CREATE TABLE `django_migrations` (
 
 LOCK TABLES `django_migrations` WRITE;
 /*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
-INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2026-03-16 16:28:52.978772'),(2,'auth','0001_initial','2026-03-16 16:28:54.225876'),(3,'admin','0001_initial','2026-03-16 16:28:54.531413'),(4,'admin','0002_logentry_remove_auto_add','2026-03-16 16:28:54.547562'),(5,'admin','0003_logentry_add_action_flag_choices','2026-03-16 16:28:54.563111'),(6,'app','0001_initial','2026-03-16 16:28:58.628597'),(7,'contenttypes','0002_remove_content_type_name','2026-03-16 16:28:58.967269'),(8,'auth','0002_alter_permission_name_max_length','2026-03-16 16:28:59.163105'),(9,'auth','0003_alter_user_email_max_length','2026-03-16 16:28:59.220909'),(10,'auth','0004_alter_user_username_opts','2026-03-16 16:28:59.237929'),(11,'auth','0005_alter_user_last_login_null','2026-03-16 16:28:59.373983'),(12,'auth','0006_require_contenttypes_0002','2026-03-16 16:28:59.379839'),(13,'auth','0007_alter_validators_add_error_messages','2026-03-16 16:28:59.394758'),(14,'auth','0008_alter_user_username_max_length','2026-03-16 16:28:59.603334'),(15,'auth','0009_alter_user_last_name_max_length','2026-03-16 16:28:59.796109'),(16,'auth','0010_alter_group_name_max_length','2026-03-16 16:28:59.855730'),(17,'auth','0011_update_proxy_permissions','2026-03-16 16:28:59.910107'),(18,'auth','0012_alter_user_first_name_max_length','2026-03-16 16:29:00.079470'),(19,'axes','0001_initial','2026-03-16 16:29:00.164328'),(20,'axes','0002_auto_20151217_2044','2026-03-16 16:29:00.480511'),(21,'axes','0003_auto_20160322_0929','2026-03-16 16:29:00.523219'),(22,'axes','0004_auto_20181024_1538','2026-03-16 16:29:00.553452'),(23,'axes','0005_remove_accessattempt_trusted','2026-03-16 16:29:00.679821'),(24,'axes','0006_remove_accesslog_trusted','2026-03-16 16:29:00.787971'),(25,'axes','0007_alter_accessattempt_unique_together','2026-03-16 16:29:00.874000'),(26,'axes','0008_accessfailurelog','2026-03-16 16:29:01.098973'),(27,'axes','0009_add_session_hash','2026-03-16 16:29:01.264193'),(28,'axes','0010_accessattemptexpiration','2026-03-16 16:29:01.414059'),(29,'sessions','0001_initial','2026-03-16 16:29:01.499562');
+INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2026-04-01 17:08:07.838543'),(2,'auth','0001_initial','2026-04-01 17:08:08.862199'),(3,'admin','0001_initial','2026-04-01 17:08:09.075144'),(4,'admin','0002_logentry_remove_auto_add','2026-04-01 17:08:09.086485'),(5,'admin','0003_logentry_add_action_flag_choices','2026-04-01 17:08:09.101270'),(6,'app','0001_initial','2026-04-01 17:08:11.436678'),(7,'app','0002_respaldo','2026-04-01 17:08:11.471234'),(8,'app','0003_entrada','2026-04-01 17:08:11.794383'),(9,'app','0004_add_anulado_to_entrada','2026-04-01 17:08:11.894230'),(10,'app','0003_categoria_tipo','2026-04-01 17:08:11.987096'),(11,'app','0005_merge_0003_categoria_tipo_0004_add_anulado_to_entrada','2026-04-01 17:08:11.991852'),(12,'app','0006_salida_producto','2026-04-01 17:08:12.114331'),(13,'app','0007_usuario_email','2026-04-01 17:08:12.192113'),(14,'contenttypes','0002_remove_content_type_name','2026-04-01 17:08:12.369873'),(15,'auth','0002_alter_permission_name_max_length','2026-04-01 17:08:12.469319'),(16,'auth','0003_alter_user_email_max_length','2026-04-01 17:08:12.506335'),(17,'auth','0004_alter_user_username_opts','2026-04-01 17:08:12.519942'),(18,'auth','0005_alter_user_last_login_null','2026-04-01 17:08:12.615184'),(19,'auth','0006_require_contenttypes_0002','2026-04-01 17:08:12.619926'),(20,'auth','0007_alter_validators_add_error_messages','2026-04-01 17:08:12.633554'),(21,'auth','0008_alter_user_username_max_length','2026-04-01 17:08:12.743809'),(22,'auth','0009_alter_user_last_name_max_length','2026-04-01 17:08:12.840676'),(23,'auth','0010_alter_group_name_max_length','2026-04-01 17:08:12.871931'),(24,'auth','0011_update_proxy_permissions','2026-04-01 17:08:12.903171'),(25,'auth','0012_alter_user_first_name_max_length','2026-04-01 17:08:13.001883'),(26,'axes','0001_initial','2026-04-01 17:08:13.080688'),(27,'axes','0002_auto_20151217_2044','2026-04-01 17:08:13.283818'),(28,'axes','0003_auto_20160322_0929','2026-04-01 17:08:13.307214'),(29,'axes','0004_auto_20181024_1538','2026-04-01 17:08:13.332241'),(30,'axes','0005_remove_accessattempt_trusted','2026-04-01 17:08:13.410356'),(31,'axes','0006_remove_accesslog_trusted','2026-04-01 17:08:13.485009'),(32,'axes','0007_alter_accessattempt_unique_together','2026-04-01 17:08:13.555500'),(33,'axes','0008_accessfailurelog','2026-04-01 17:08:13.677605'),(34,'axes','0009_add_session_hash','2026-04-01 17:08:13.763472'),(35,'axes','0010_accessattemptexpiration','2026-04-01 17:08:13.864205'),(36,'sessions','0001_initial','2026-04-01 17:08:13.928437'),(37,'app','0002_respaldo_ip_creacion_respaldo_tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o_archivo','2026-04-01 17:55:46.060627');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -593,7 +594,7 @@ CREATE TABLE `django_session` (
 
 LOCK TABLES `django_session` WRITE;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
-INSERT INTO `django_session` VALUES ('4rqugh2fp6t895w5jeu66qt5m7240zbx','.eJxVi7sKwzAMAP9FcwlWq0giY6HfYWRHxqEPQp1Mpf8eAhna8e64D0RblxrX5u84jTAAwunXJct3f-3B5rk7qHW3p02P69H-hmqtwgDuY6KCZ2c2pESZTI2IRXplyoLWY9HAahRyCqlkoaCifnF2DALfDQv4MWY:1w2AuF:z-rPrBSslVJ4zkLFMiwoQnMpZvwCjXbVY_y5Fa8CCmw','2026-03-30 16:35:03.549812'),('ldswo08fmyovhhb940e37yhzsyf0r6s6','.eJxVi7sKwzAMAP9FcwlWq0giY6HfYWRHxqEPQp1Mpf8eAhna8e64D0RblxrX5u84jTAAwunXJct3f-3B5rk7qHW3p02P69H-hmqtwgDuY6KCZ2c2pESZTI2IRXplyoLWY9HAahRyCqlkoaCifnF2DALfDQv4MWY:1w2X6p:lCsEn8Om7KfD3XuBp__3gV_JFRjnYbSZRUbvO-Nat9Y','2026-03-31 16:17:31.812247'),('rvh139uqde4kcij7ju8cem1x75f7t3c4','.eJxVi7sKwzAMAP9FcwlWq0giY6HfYWRHxqEPQp1Mpf8eAhna8e64D0RblxrX5u84jTAAwunXJct3f-3B5rk7qHW3p02P69H-hmqtwgDuY6KCZ2c2pESZTI2IRXplyoLWY9HAahRyCqlkoaCifnF2DALfDQv4MWY:1w68EN:-Ex0EA190_aJhqWM5GjEDDFBLfiPnbZv9TP20ZVHgkQ','2026-04-10 14:32:11.675084');
+INSERT INTO `django_session` VALUES ('9udpbqcu4x3eqkdblfx5o3fbicgx4msn','.eJxVizsKwzAQBe-iOhg9WdZaKQM5h1itV8jkg4niKuTuxuAiKefNm49JvL5rWpu-0jyZs4E5_W6Z5abPXfCydAe17vrg-X453F9QudX9PRAh5uizV-uk15hdmURd0ALFaLOgeAjAIRLggiskBOkLsQ2j-W4MzTGM:1w873W:I8brFQFAcop2W-2DjSf9aW5EetYE6TCV6heZWHFOAnA','2026-04-16 01:41:10.262923'),('k6j12qh9039p4ugdwj11tmd9ponzwyop','.eJxVizsKwzAQBe-iOhg9WdZaKQM5h1itV8jkg4niKuTuxuAiKefNm49JvL5rWpu-0jyZs4E5_W6Z5abPXfCydAe17vrg-X453F9QudX9PRAh5uizV-uk15hdmURd0ALFaLOgeAjAIRLggiskBOkLsQ2j-W4MzTGM:1w7z4D:RZlbkQqZ9tNj8ufjSQs_g6BeejP9xcs9GvUySwBvfpQ','2026-04-15 17:09:21.541350'),('ty32mq0on86q4e5d6cth035m2dhmztym','.eJxVizsKwzAQBe-iOhg9WdZaKQM5h1itV8jkg4niKuTuxuAiKefNm49JvL5rWpu-0jyZs4E5_W6Z5abPXfCydAe17vrg-X453F9QudX9PRAh5uizV-uk15hdmURd0ALFaLOgeAjAIRLggiskBOkLsQ2j-W4MzTGM:1w89kw:yl3ulwshYmBvvsXpqBU3GUNo3J00RT6bKhEviTA5s2o','2026-04-16 04:34:10.913855'),('xzwmq6jvf2qrptgr2hy76spbx8c9h64h','.eJxVizsKwzAQBe-iOhg9WdZaKQM5h1itV8jkg4niKuTuxuAiKefNm49JvL5rWpu-0jyZs4E5_W6Z5abPXfCydAe17vrg-X453F9QudX9PRAh5uizV-uk15hdmURd0ALFaLOgeAjAIRLggiskBOkLsQ2j-W4MzTGM:1w7zbn:-i2bOub_vPAKlYJwuXLddSk2dG4c9_kztiIdWyf4SNw','2026-04-15 17:44:03.205798');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -612,10 +613,10 @@ CREATE TABLE `entrada` (
   `total` decimal(12,2) NOT NULL,
   `observaciones` longtext,
   `estado` tinyint(1) NOT NULL,
-  `anulado` tinyint(1) NOT NULL,
   `producto_id` bigint NOT NULL,
   `proveedor_id` bigint DEFAULT NULL,
   `usuario_id` bigint DEFAULT NULL,
+  `anulado` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `entrada_producto_id_6810d15d_fk_productos_id` (`producto_id`),
   KEY `entrada_proveedor_id_07c29e94_fk_proveedor_id` (`proveedor_id`),
@@ -858,7 +859,7 @@ CREATE TABLE `productos` (
   PRIMARY KEY (`id`),
   KEY `productos_categoria_id_92c5ef6b_fk_categorias_id` (`categoria_id`),
   CONSTRAINT `productos_categoria_id_92c5ef6b_fk_categorias_id` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -867,6 +868,7 @@ CREATE TABLE `productos` (
 
 LOCK TABLES `productos` WRITE;
 /*!40000 ALTER TABLE `productos` DISABLE KEYS */;
+INSERT INTO `productos` VALUES (1,'Barniz mate','retertertert',435.00,43,'',1,1),(2,'ghfghfgh','fghfghfghfg',564.00,5,'',1,1);
 /*!40000 ALTER TABLE `productos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -970,8 +972,11 @@ CREATE TABLE `respaldos` (
   `descripcion` longtext,
   `archivo` varchar(100) NOT NULL,
   `estado` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `ip_creacion` char(39) DEFAULT NULL,
+  `tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o_archivo` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `respaldos_chk_1` CHECK ((`tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o_archivo` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -980,6 +985,7 @@ CREATE TABLE `respaldos` (
 
 LOCK TABLES `respaldos` WRITE;
 /*!40000 ALTER TABLE `respaldos` DISABLE KEYS */;
+INSERT INTO `respaldos` VALUES (1,'2026-04-02 02:38:17.042976','luis','restaurado','RestauraciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n BD desde archivo: prueba_datos.sql a las 2026-04-02 02:38:17','',1,NULL,NULL),(2,'2026-04-02 02:39:08.699649','luis','restaurado','RestauraciÃƒÆ’Ã‚Â³n BD desde archivo: backup_20260401_213841.sql a las 2026-04-02 02:39:08','',1,NULL,NULL),(3,'2026-04-02 02:42:25.130277','luis','restaurado','RestauraciÃƒÂ³n BD desde archivo: backup_20260401_214206.sql a las 2026-04-02 02:42:25','',1,NULL,NULL),(4,'2026-04-02 02:47:50.635139','luis','completo','Backup MySQL generado','respaldos_sql\\backup_20260401_214750.sql',1,NULL,NULL),(5,'2026-04-02 02:47:59.695084','luis','completo','Backup MySQL generado','respaldos_sql\\backup_20260401_214759.sql',1,NULL,NULL);
 /*!40000 ALTER TABLE `respaldos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1051,10 +1057,10 @@ CREATE TABLE `usuarios` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `cedula` varchar(20) NOT NULL,
   `nombre_usuario` varchar(50) NOT NULL,
-  `email` varchar(100) DEFAULT NULL,
   `rol` varchar(20) NOT NULL,
   `estado` varchar(20) NOT NULL,
   `foto_perfil` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `cedula` (`cedula`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1066,8 +1072,56 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'luis@gmail.com','luis@gmail.com','luis@gmail.com','admin','Activo','');
+INSERT INTO `usuarios` VALUES (1,'luis','luis','admin','Activo','','luis@gmail.com');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usuarios_groups`
+--
+
+DROP TABLE IF EXISTS `usuarios_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usuarios_groups` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `usuario_id` bigint NOT NULL,
+  `group_id` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usuarios_groups`
+--
+
+LOCK TABLES `usuarios_groups` WRITE;
+/*!40000 ALTER TABLE `usuarios_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usuarios_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usuarios_user_permissions`
+--
+
+DROP TABLE IF EXISTS `usuarios_user_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usuarios_user_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `usuario_id` bigint NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usuarios_user_permissions`
+--
+
+LOCK TABLES `usuarios_user_permissions` WRITE;
+/*!40000 ALTER TABLE `usuarios_user_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usuarios_user_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -1079,4 +1133,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-31 10:35:56
+-- Dump completed on 2026-04-01 23:34:21
