@@ -5,5 +5,4 @@ from .views import (
     RespaldoRestoreView,
     DescargarRespaldoView,
     RespaldoDataView,
-    RestaurarDatosView
 )
