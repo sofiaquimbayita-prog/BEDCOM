@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido,clientes
 from app.views.respaldos.views import modal_respaldos
 
 #app_name = 'vista'
@@ -129,5 +129,15 @@ urlpatterns = [
     path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
     path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
     path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
+
+# --- CLIENTES ---
+path('clientes/', clientes.ClienteListView.as_view(), name='clientes_list'),
+path('clientes/data/', clientes.ClienteDataView.as_view(), name='clientes_data'),
+path('clientes/obtener/<int:pk>/', clientes.ClienteDetailView.as_view(), name='clientes_obtener'),
+path('clientes/crear/', clientes.ClienteCreateView.as_view(), name='clientes_crear'),
+path('clientes/editar/<int:pk>/', clientes.ClienteUpdateView.as_view(), name='clientes_editar'),
+path('clientes/toggle/<int:pk>/', clientes.ClienteToggleEstadoView.as_view(), name='clientes_toggle'),
+path('clientes/historial/<int:pk>/', clientes.ClienteHistorialView.as_view(), name='clientes_historial'),
+path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
 
 ]
