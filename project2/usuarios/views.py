@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import IntegrityError
-from .models import PerfilUsuario  
 from .forms import UserForm, UserEditForm
 
 # Obtenemos el modelo de usuario (Custom User o AbstractUser)

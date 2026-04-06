@@ -5,7 +5,6 @@ from django.contrib.auth import logout as auth_logout
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView
 from django.contrib import messages
-from usuarios.models import PerfilUsuario
 
 class LoginFormView(LoginView):
     template_name = 'login.html'
@@ -39,14 +38,9 @@ class RegistroUsuarioView(CreateView):
     
     def form_valid(self, form):
         user = form.save(commit=False)
+        user.rol = 'administrador'
+        user.estado = 'Activo'
         user.set_password(form.cleaned_data["password1"])
         user.save()
-        
-        # Crear perfil por defecto
-        PerfilUsuario.objects.get_or_create(
-            user=user,
-            defaults={'rol': 'administrador', 'cedula': form.cleaned_data['cedula'], 'telefono': form.cleaned_data['telefono']}
-        )
-        
         messages.success(self.request, 'Cuenta creada exitosamente. Por favor inicia sesión.')
         return super().form_valid(form)
