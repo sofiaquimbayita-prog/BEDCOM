@@ -1,0 +1,55 @@
+<div class="modal-header position-relative">
+    <h3 class="mb-0" style="padding-right: 45px;">
+        <i class="fas fa-database me-2" style="vertical-align: middle;"></i>
+        Restauración de Base de Datos
+    </h3>
+    <span class="close position-absolute" onclick="cerrarModal('modal_restauracion')" style="top: 12px; right: 15px; font-size: 1.6rem; line-height: 1; cursor: pointer; z-index: 10;">&times;</span>
+</div>
+
+<div class="container-fluid p-4">
+    <div class="stats-container">
+
+        <!-- ESTADO -->
+        <div class="stat-card purple">
+            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+
+            {% if mysql_conectado %}
+                <span class="stat-value text-success">Conectado</span>
+            {% else %}
+                <span class="stat-value text-danger">Desconectado</span>
+            {% endif %}
+        </div>
+
+        <!-- BACKUP -->
+        <div class="stat-card blue">
+            <span class="stat-label">DESCARGAR RESPALDO</span>
+            <span class="stat-value small">Backup completo</span>
+
+            {% if mysql_conectado %}
+            <form method="post" action="{% url 'respaldos_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="backup_completo">
+
+                <button type="submit" class="stat-btn">
+                    Descargar SQL
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- RESTAURAR -->
+        <div class="stat-card green">
+            <span class="stat-label">RESTAURAR BD</span>
+
+            {% if mysql_conectado %}
+            <div id="zona-carga" class="zona-carga-mini">
+                <input type="file" id="archivo-respaldo" accept=".sql">
+                <label for="archivo-respaldo" class="label-file-respaldo"></label>
+                <i class="bi bi-folder-open" title="Abrirá el explorador de archivos"></i>
+                <small>Seleccionar archivo SQL </small>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

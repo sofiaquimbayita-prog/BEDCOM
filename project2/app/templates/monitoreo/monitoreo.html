@@ -96,7 +96,7 @@
         <div class="panel tabla-panel">
             <div class="panel-header">
                 <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
-                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (5s)</span></span>
+                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (60s)</span></span>
             </div>
             <div class="table-wrap">
                 <table>
@@ -154,7 +154,7 @@
         icon.classList.add('fa-spin');
         text.innerText = "Actualizando...";
 
-        fetch('/api/historial-tiempo-real/')
+fetch('/vistas/monitoreo/api/historial-tiempo-real/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -187,17 +187,17 @@
                 // Quitar efecto de carga
                 setTimeout(() => {
                     icon.classList.remove('fa-spin');
-                    text.innerText = "Auto (5s)";
+                    text.innerText = "Auto (60s)";
                 }, 500);
             });
     }
 
-    // Ejecutar automáticamente cada 5 segundos
-    setInterval(actualizarHistorialAhora, 5000);
+    // Ejecutar automáticamente cada 1 minuto (60s)
+    setInterval(actualizarHistorialAhora, 60000);
 
-    // Polling para KPIs cada 10 segundos
+    // Polling para KPIs cada 1 minuto
     function actualizarKPIs() {
-        fetch('/monitoreo/api/kpis/')
+fetch('/vistas/monitoreo/api/kpis/')
             .then(response => response.json())
             .then(data => {
                 // Update Producción Hoy
@@ -214,13 +214,13 @@
             })
             .catch(error => console.error('Error KPIs:', error));
     }
-    setInterval(actualizarKPIs, 10000);
+    setInterval(actualizarKPIs, 60000);
     // Initial KPI load after DOM
     setTimeout(actualizarKPIs, 1000);
 
     // Alertas del sistema en tiempo real
     function actualizarAlertas() {
-        fetch('/monitoreo/api/notificaciones/')
+fetch('/vistas/monitoreo/api/notificaciones/')
             .then(response => response.json())
             .then(data => {
                 const list = document.getElementById('alertas-list');
@@ -245,8 +245,8 @@
             .catch(error => console.error('Error alertas:', error));
     }
 
-    // Polling alertas cada 30 segundos
-    setInterval(actualizarAlertas, 30000);
+    // Polling alertas cada 1 minuto
+    setInterval(actualizarAlertas, 60000);
     // Load inicial
     setTimeout(actualizarAlertas, 1500);
 </script>

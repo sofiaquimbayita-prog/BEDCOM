@@ -1,10 +1,15 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, entrada_p, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido
-from .views.respaldos.views import backup
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido,clientes
+from app.views.respaldos.views import modal_respaldos
 
 #app_name = 'vista'
 urlpatterns = [
+    # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
+    path('api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial_alias'),
+    path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis_alias'),
+    path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones_alias'),
+    
     # --- ENTRADA DE PRODUCTOS ---
     path('entrada_p/', entrada_p.EntradaListView.as_view(), name='entrada_p'),
     path('entrada_p/data/', entrada_p.EntradaDataView.as_view(), name='entrada_p_data'),
@@ -73,55 +78,66 @@ urlpatterns = [
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
     path('monitoreo/api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial'),
     path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
+    
+    # --- PROVEEDORES ---
+    path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),
+    path('proveedores/data/', proveedores.ProveedorDataView.as_view(), name='proveedores_data'),
+    path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedores_create'),
+    path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedores_update'),
+    path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
+    path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
+    
+    # --- RESPALDOS ---
+    path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
+    path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),
+    path('respaldos/eliminar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
+    path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
+    path('respaldos/restaurar-datos/', respaldos.views.restaurar_datos, name='restaurar_datos'),
+    path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
+    path('modal/respaldos/', modal_respaldos, name='modal_respaldos'),
+    
+    # --- SALIDA DE PRODUCTOS ---
+    path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
+    path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
+    path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_producto_anular'),
+    path('salida/detalle/<int:pk>/', salida_p.DetalleSalidaView.as_view(), name='salida_detalle'),
+    
+    # --- BOM (ESTRUCTURA DE PRODUCTOS) ---
+    path('bom/', bom.BomListView.as_view(), name='bom_list'),
+    path('bom/crear-receta/', bom.bom_crear_receta, name='bom_crear_receta'),
+    path('bom/editar-receta/', bom.bom_editar_receta, name='bom_editar_receta'),
+    path('bom/eliminar/<int:pk>/', bom.BomDeleteView.as_view(), name='bom_eliminar'),
+    path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
+    path('bom/data/', bom.bom_data, name='bom_data'),
 
-   # --- PROVEEDORES ---
-      path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),
-      path('proveedores/data/', proveedores.ProveedorDataView.as_view(), name='proveedores_data'),
-      path('proveedores/crear/', proveedores.ProveedorCreateView.as_view(), name='proveedores_create'),
-      path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedores_update'),
-      path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
-      path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
-      
-      # --- RESPALDOS ---
-      path('respaldos/', backup, name='respaldos_list'),
-      path('respaldos/crear/', respaldos.RespaldoCreateView.as_view(), name='generar_respaldo'),
-      path('respaldos/eliminar/<int:pk>/', respaldos.RespaldoDeleteView.as_view(), name='eliminar_respaldo'),
-      path('respaldos/restaurar/<int:pk>/', respaldos.RespaldoRestoreView.as_view(), name='restaurar_respaldo'),
-      path('descargar/<int:id>/', respaldos.DescargarRespaldoView.as_view(), name='descargar_respaldo'),
-      path('restaurar-datos/', respaldos.RestaurarDatosView.as_view(), name='restaurar_datos'),
-      
-   # --- SALIDA DE PRODUCTOS ---
-      path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
-      path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
-      path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_anular'),
-      path('salida/detalle/<int:pk>/', salida_p.DetalleSalidaView.as_view(), name='salida_detalle'),
-      
-      # --- INVENTARIO ---
-      path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
-      
-      # --- LOGÍSTICA Y PLANEACIÓN ---
-      path('logistica/', logistica.LogisticaListView.as_view(), name='logistica'),
-      
-      # --- GESTION DE DATOS ---
-      path('gestion/', gestion.GestionListView.as_view(), name='gestion'),
-      
-# --- SUMINISTROS ---
-      path('suministros/', suministros.SuministrosListView.as_view(), name='suministros'),
+    # --- INVENTARIO ---
+    path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
+    
+    # --- LOGÍSTICA Y PLANEACIÓN ---
+    path('logistica/', logistica.LogisticaListView.as_view(), name='logistica'),
+    
+    # --- GESTION DE DATOS ---
+    path('gestion/', gestion.GestionListView.as_view(), name='gestion'),
+    
+# -- SUMINISTROS ---
+    path('suministros/', suministros.SuministrosListView.as_view(), name='suministros'),
+    
+    
+# --- PEDIDOS ---  
+    path('pedido/', pedido.PedidoListView.as_view(), name='pedido_list'),
+    path('pedido/nuevo/', pedido.PedidoCreateView.as_view(), name='crear_pedido'),
+    path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
+    path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
+    path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
 
-      # --- BOM (ESTRUCTURA DE PRODUCTOS) ---
-      path('bom/', bom.BomListView.as_view(), name='bom_list'),
-      path('bom/crear-receta/', bom.bom_crear_receta, name='bom_crear_receta'),
-      path('bom/editar-receta/', bom.bom_editar_receta, name='bom_editar_receta'),
-      path('bom/eliminar/<int:pk>/', bom.BomDeleteView.as_view(), name='bom_eliminar'),
-      path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
-      path('bom/data/', bom.bom_data, name='bom_data'),
-      
-      
-        # --- PEDIDOS ---  
-      path('pedido/', pedido.PedidoListView.as_view(), name='pedido_list'),
-      path('pedido/nuevo/', pedido.PedidoCreateView.as_view(), name='crear_pedido'),
-      path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
-      path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
-      path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
-   
+# --- CLIENTES ---
+path('clientes/', clientes.ClienteListView.as_view(), name='clientes_list'),
+path('clientes/data/', clientes.ClienteDataView.as_view(), name='clientes_data'),
+path('clientes/obtener/<int:pk>/', clientes.ClienteDetailView.as_view(), name='clientes_obtener'),
+path('clientes/crear/', clientes.ClienteCreateView.as_view(), name='clientes_crear'),
+path('clientes/editar/<int:pk>/', clientes.ClienteUpdateView.as_view(), name='clientes_editar'),
+path('clientes/toggle/<int:pk>/', clientes.ClienteToggleEstadoView.as_view(), name='clientes_toggle'),
+path('clientes/historial/<int:pk>/', clientes.ClienteHistorialView.as_view(), name='clientes_historial'),
+path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
+
 ]

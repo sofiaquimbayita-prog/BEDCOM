@@ -9,11 +9,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
+
+<style>
+/* Logistica Grid - 3 cards per row */
+.logistica-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem 1.5rem;
+  width: 100%;
+}
+
+
+</style>
 {% endblock %}
 
 {% block content %}
 <main class="container menu">
     <div class="menu-layout">
+        <div class="logistica-grid menu-grid">
             <a href="{% url 'salida_producto' %}" class="menu-card-link">
                 <article class="menu-card">
                     <div class="menu-card-image">
@@ -54,7 +67,8 @@
                     </div>
                 </article>
             </a>
-            <a href="{% url 'monitoreo' %}" class="menu-card-link">
+          
+            <a href="{% url 'clientes_list' %}">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Monitoreo">
@@ -62,12 +76,25 @@
                     </div>
                     <div class="menu-icon-badge"><i class="fa-solid fa-desktop"></i></div>
                     <div class="menu-card-content">
-                        <h3>MONITOREO</h3>
+                        <h3>CLIENTES</h3>
                         <p class="muted">Panel de control en tiempo real</p>
                     </div>
                 </article>
             </a>
-
+            <a href="{% url 'pedido_list' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/bom.png' %}" alt="Módulo BOM">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-list-check"></i></div>
+                    <div class="menu-card-content">
+                        <h3>PEDIDOS</h3>
+                        <p class="muted">Gestión de pedidos</p>
+                    </div>
+                </article>
+            </a>
+        </div>
     </div>
 </main>
 {% endblock %}
