@@ -83,10 +83,6 @@
             data-estado="{{ c.estado }}">
           <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
           <td>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--color-principal),var(--color-acento));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;flex-shrink:0;">
-                {{ c.nombre|slice:":1"|upper }}
-              </div>
               <span style="font-weight:600">{{ c.nombre }}</span>
             </div>
           </td>
@@ -288,10 +284,10 @@
 /* ─── URLs ─── */
 const URL_CLIENTES_DATA  = "{% url 'clientes_data' %}";
 const URL_CREAR          = "{% url 'clientes_crear' %}";
-const URL_OBTENER   = id => `/clientes/obtener/${id}/`;
-const URL_EDITAR    = id => `/clientes/editar/${id}/`;
-const URL_TOGGLE    = id => `/clientes/toggle/${id}/`;
-const URL_HISTORIAL = id => `/clientes/historial/${id}/`;
+const URL_OBTENER   = pk => "{% url 'clientes_obtener' 0 %}".replace('0', pk);
+const URL_EDITAR    = pk => "{% url 'clientes_editar' 0 %}".replace('0', pk);
+const URL_TOGGLE    = pk => "{% url 'clientes_toggle' 0 %}".replace('0', pk);
+const URL_HISTORIAL = pk => "{% url 'clientes_historial' 0 %}".replace('0', pk);
 const URL_PAGO           = "{% url 'clientes_pago' %}";
 const CSRF_TOKEN         = '{{ csrf_token }}';
 
