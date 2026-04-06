@@ -79,6 +79,11 @@ $(document).ready(function() {
         }
     });
 
+    // ================= NUEVO MODAL DESCARGA SQL =================
+    window.abrirModalDescargaSQL = function() {
+        abrirModal('modalDescargaSQL');
+    };
+
     // ================= VALIDACIONES DEL FORMULARIO =================
     
     // Función para filtrar caracteres no válidos en tiempo real

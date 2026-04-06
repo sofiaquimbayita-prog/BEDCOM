@@ -20,22 +20,7 @@
             {% endif %}
         </div>
 
-        <!-- BACKUP -->
-        <div class="stat-card blue">
-            <span class="stat-label">DESCARGAR RESPALDO</span>
-            <span class="stat-value small">Backup completo</span>
 
-            {% if mysql_conectado %}
-            <form method="post" action="{% url 'respaldos_list' %}">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="backup_completo">
-
-                <button type="submit" class="stat-btn">
-                    Descargar SQL
-                </button>
-            </form>
-            {% endif %}
-        </div>
 
         <!-- RESTAURAR -->
         <div class="stat-card green">

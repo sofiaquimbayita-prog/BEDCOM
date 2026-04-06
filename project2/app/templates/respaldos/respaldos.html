@@ -84,8 +84,11 @@
 
         <!-- Action Bar -->
         <div class="action-bar" style="margin: 25px 0; text-align: right;">
-            <button type="button" class="btn-generar primary" onclick="abrirRespaldos(); abrirModal('generarModal');">
-                <i class="fas fa-plus-circle"></i> NUEVO RESPALDO
+            <button type="button" class="btn-generar primary" onclick="abrirRespaldos(); abrirModal('generarModal');" style="margin-right: 10px;">
+                <i class="fas fa-plus-circle"></i> Restaurar Respaldo
+            </button>
+            <button type="button" class="btn-generar secondary" onclick="abrirModalDescargaSQL();">
+                <i class="fas fa-file-download"></i> Nuevo Respaldo SQL
             </button>
         </div>
 
@@ -170,6 +173,13 @@
 <div id="deleteModal" class="modal">
     <div class="modal-content delete">
         {% include "respaldos/modal_delete.html" %}
+    </div>
+</div>
+
+<!-- MODAL: Descargar SQL (nuevo) -->
+<div id="modalDescargaSQL" class="modal">
+    <div class="modal-content">
+        {% include "respaldos/modal_descarga_sql.html" %}
     </div>
 </div>
 
