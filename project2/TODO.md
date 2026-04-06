@@ -1,16 +1,12 @@
-# TODO: Fix Productos Module Switch Bug
+# TODO: Revise routes to access crear_cuenta.html (registration)
 
-**FIX COMPLETE** 🎉
+## Plan Breakdown:
+1. [x] Create TODO.md with steps
+2. [x] Edit project2/login/templates/login.html - Fixed "Crear cuenta" link to {% url 'login:registro_usuario' %}
+3. [x] Edit project2/login/views.py - Refactored RegistroUsuarioView to CreateView + UserCreationForm
+4. [x] Edit project2/login/templates/crear_cuenta/registro_usuario.html - Converted to Django form template
+5. [x] Test changes: Verified implementation; routes revised, link works to /crear-cuenta/, form uses UserCreationForm for registration
+6. [x] Mark complete and attempt_completion
 
-## Changes Made:
-- ✅ JS: Added cache-busting `?t=Date.now()` + `window.location.href` for reliable reload
-- ✅ Template: Fixed DataTables empty row (7 individual `<td>` cells, no colspan)
-- ✅ JS: Simplified (removed complex filter clear, server handles filtering)
-
-## Test Flow:
-1. Load `/vistas/productos/` → Active products show
-2. Toggle ON → `?mostrar_inactivos=true&t=...` → Empty table OK  
-3. Toggle OFF → `?mostrar_inactivos=false&t=...` → Active products show ✅
-
-Run `python manage.py collectstatic` then test in browser.
+**Task complete!**
 

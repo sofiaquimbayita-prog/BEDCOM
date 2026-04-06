@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - BEDCOM</title> 
+    
+    <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px; 
+            margin: 0;
+            min-height: 100vh;
+            background-color: #1a1a1a; 
+            font-family: sans-serif;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(30, 41, 59, 0.8); 
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            margin: auto 0; 
+        }
+
+        .titulo {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            box-sizing: border-box;
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        .botonr {
+            width: 100%;
+            padding: 15px;
+            margin-top: 30px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .pregunta {
+            margin-top: 20px;
+            color: #888;
+            text-align: center;
+        }
+
+        .pregunta a { 
+            color: #60a5fa; 
+            text-decoration: none; 
+        }
+
+        .errorlist {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <h1 class="titulo">CREAR CUENTA</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login:registro_usuario' %}">
+            {% csrf_token %}
+            
+            <div>
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+
+            <div>
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+
+            <div>
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {{ form.first_name.errors }}
+            </div>
+
+            <div>
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {{ form.last_name.errors }}
+            </div>
+
+            <div>
+                {{ form.cedula.label_tag }}
+                {{ form.cedula }}
+                {{ form.cedula.errors }}
+            </div>
+
+            <div>
+                {{ form.telefono.label_tag }}
+                {{ form.telefono }}
+                {{ form.telefono.errors }}
+            </div>
+
+            <div>
+                <label class="label">Foto de Perfil (opcional)</label>
+                {{ form.foto_perfil }}
+                {{ form.foto_perfil.errors }}
+            </div>
+
+            <div>
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+                {{ form.password1.errors }}
+            </div>
+
+            <div>
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+                {{ form.password2.errors }}
+            </div>
+
+            <button type="submit" class="botonr">REGISTRAR</button>
+        </form>
+    </div>
+
+    <p class="pregunta">¿Ya tienes una cuenta? <a href="{% url 'login:login' %}">Inicia sesión</a></p>
+
+</body>
+</html>
+

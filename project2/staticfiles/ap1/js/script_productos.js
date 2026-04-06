@@ -271,11 +271,6 @@ function initSelect2EnTodosLosModales() {
 
 $(document).ready(function() {
     
-    // Clear previous DataTable filters to prevent persistence across reloads
-    $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(filterFn) {
-        return typeof filterFn !== 'function' || filterFn.toString().indexOf('tablaProductos') === -1;
-    });
-
     if ($.fn.dataTable.isDataTable('#tablaProductos')) {
         $('#tablaProductos').DataTable().destroy();
     }
