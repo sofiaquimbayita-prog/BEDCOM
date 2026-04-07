@@ -58,7 +58,7 @@
         <div class="stats-cards">
             <div class="small-card total">
                 <div class="label">Total Registros</div>
-                <div class="value">{{ respaldos|length }}</div>
+<div class="value">{{ respaldos_activos|length }}</div>
             </div>
             <div class="small-card last">
                 <div class="label">Último Tipo</div>
@@ -106,7 +106,7 @@
                 </thead>
                 <tbody>
                     {% for r in respaldos %}
-                    <tr class="respaldo-row {% if not r.estado %}inactive-row{% endif %}">
+                    <tr class="respaldo-row {% if not r.estado %}inactive-row{% endif %}" style="{% if not r.estado %}display: none;{% endif %}">
                         <td>{{ r.fecha|date:'d/m/Y H:i' }}</td>
                         <td><i class="fas fa-user-shield" style="font-size: 0.8rem; color: #94a3b8;"></i> {{ r.usuario }}</td>
                         <td>

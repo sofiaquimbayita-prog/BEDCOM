@@ -105,14 +105,16 @@ class RespaldoListView(ListView):
     context_object_name = 'respaldos'
 
     def get_queryset(self):
-        # Cargar todos los respaldos (activos e inactivos)
-        return respaldo.objects.all().order_by('-fecha')
+        # Cargar TODOS para que JS pueda mostrar inactivos, contador usa length de activos
+        todos_respaldos = respaldo.objects.all().order_by('-fecha')
+        self.context_activos = todos_respaldos.filter(estado=True)
+        return todos_respaldos
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Gestión de Respaldos"
         context['icono_modulo'] = "fas fa-database"
-        
+        context['respaldos_activos'] = getattr(self, 'context_activos', respaldo.objects.filter(estado=True))
         context['mysql_conectado'] = verificar_db()
         
         return context
