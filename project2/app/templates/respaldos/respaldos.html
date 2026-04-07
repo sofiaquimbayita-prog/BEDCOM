@@ -107,7 +107,7 @@
                 <tbody>
                     {% for r in respaldos %}
                     <tr class="respaldo-row {% if not r.estado %}inactive-row{% endif %}" style="{% if not r.estado %}display: none;{% endif %}">
-                        <td>{{ r.fecha|date:'d/m/Y H:i' }}</td>
+                        <td>{{ r.fecha|date:'d/m/Y H:i:s' }}</td>
                         <td><i class="fas fa-user-shield" style="font-size: 0.8rem; color: #94a3b8;"></i> {{ r.usuario }}</td>
                         <td>
                             <span class="badge-movimiento badge-{{ r.tipo_respaldo|lower }}">
@@ -119,7 +119,7 @@
                             <div class="table-actions" style="display: flex; justify-content: center; gap: 15px;">
                                 <!-- Ver detalles -->
                                 <i class="fa-regular fa-eye" 
-                                   onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"
+onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i:s' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"
                                    title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
                                
                                 {% if r.estado %}
@@ -130,12 +130,12 @@
 
                                     <!-- Inactivar -->
                                     <i class="fa-regular fa-trash-can" 
-                                       onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"
+onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
                                        title="Inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
                                 {% else %}
                                     <!-- Reactivar -->
                                     <i class="fas fa-undo-alt" 
-                                       onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i' }}')"
+onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
                                        title="Reactivar" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
                                 {% endif %}
                             </div>
