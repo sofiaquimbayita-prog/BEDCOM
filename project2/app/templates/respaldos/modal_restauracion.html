@@ -36,6 +36,24 @@
                     <span class="file-action">Explorar archivo SQL</span>
                 </label>
                 <small class="file-selected" id="archivo-respaldo-nombre">Ningun archivo seleccionado</small>
+
+                <div id="restauracion-estado" class="restauracion-estado" aria-live="polite" hidden>
+                    <div class="restauracion-estado-header">
+                        <span class="restauracion-estado-titulo">
+                            <i class="fas fa-rotate-right fa-spin"></i>
+                            Restaurando respaldo
+                        </span>
+                        <span class="restauracion-estado-porcentaje" id="restauracion-porcentaje">0%</span>
+                    </div>
+
+                    <div class="restauracion-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="restauracion-detalle">
+                        <div id="restauracion-progress-bar" class="restauracion-progress-bar"></div>
+                    </div>
+
+                    <small id="restauracion-detalle" class="restauracion-detalle">
+                        Esperando archivo para iniciar la restauracion.
+                    </small>
+                </div>
             </div>
             {% endif %}
         </div>
