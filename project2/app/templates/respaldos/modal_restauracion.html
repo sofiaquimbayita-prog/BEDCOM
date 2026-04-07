@@ -1,7 +1,7 @@
 <div class="modal-header position-relative">
     <h3 class="mb-0" style="padding-right: 45px;">
         <i class="fas fa-database me-2" style="vertical-align: middle;"></i>
-        Restauración de Base de Datos
+        Restauracion de Base de Datos
     </h3>
     <span class="close position-absolute" onclick="cerrarModal('modal_restauracion')" style="top: 12px; right: 15px; font-size: 1.6rem; line-height: 1; cursor: pointer; z-index: 10;">&times;</span>
 </div>
@@ -11,7 +11,7 @@
 
         <!-- ESTADO -->
         <div class="stat-card purple">
-            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+            <span class="stat-label">ESTADO DE CONEXION</span>
 
             {% if mysql_conectado %}
                 <span class="stat-value text-success">Conectado</span>
@@ -29,9 +29,13 @@
             {% if mysql_conectado %}
             <div id="zona-carga" class="zona-carga-mini">
                 <input type="file" id="archivo-respaldo" accept=".sql">
-                <label for="archivo-respaldo" class="label-file-respaldo"></label>
-                <i class="bi bi-folder-open" title="Abrirá el explorador de archivos"></i>
-                <small>Seleccionar archivo SQL </small>
+                <label for="archivo-respaldo" class="label-file-respaldo">
+                    <i class="bi bi-cloud-arrow-up-fill" aria-hidden="true"></i>
+                    <span class="file-title">Haz clic para seleccionar tu respaldo</span>
+                    <small class="file-subtitle">o arrastra aqui un archivo .sql</small>
+                    <span class="file-action">Explorar archivo SQL</span>
+                </label>
+                <small class="file-selected" id="archivo-respaldo-nombre">Ningun archivo seleccionado</small>
             </div>
             {% endif %}
         </div>

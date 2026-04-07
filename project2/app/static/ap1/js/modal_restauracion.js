@@ -7,7 +7,7 @@ function abrirRespaldos() {
     contenedor.innerHTML = `
         <div class="text-center p-4">
             <div class="spinner-border text-primary"></div>
-            <p class="mt-2">Cargando módulo...</p>
+            <p class="mt-2">Cargando modulo...</p>
         </div>
     `;
 
@@ -18,15 +18,17 @@ function abrirRespaldos() {
             activarJSRespaldos();
         })
         .catch(() => {
-            mostrarToast('Error cargando el módulo', 'danger');
+            mostrarToast('Error cargando el modulo', 'danger');
         });
 }
 
 
 // ================= FUNCIONALIDAD =================
 function activarJSRespaldos() {
-    console.log("🔥 activarJSRespaldos ejecutado");
+    console.log("activarJSRespaldos ejecutado");
     const input = document.getElementById('archivo-respaldo');
+    const zonaCarga = document.getElementById('zona-carga');
+    const nombreArchivo = document.getElementById('archivo-respaldo-nombre');
 
     if (!input) return;
 
@@ -35,16 +37,26 @@ function activarJSRespaldos() {
     input.parentNode.replaceChild(nuevoInput, input);
 
     nuevoInput.addEventListener('change', function () {
-        console.log("📂 archivo seleccionado");
+        console.log("archivo seleccionado");
 
         const archivo = this.files[0];
-        if (!archivo) return;
-
-        if (!archivo.name.endsWith('.sql')) {
-            mostrarToast('Archivo inválido. Debe ser .sql', 'warning');
-            this.value = '';
+        if (!archivo) {
+            if (zonaCarga) zonaCarga.classList.remove('archivo-seleccionado');
+            if (nombreArchivo) nombreArchivo.textContent = 'Ningun archivo seleccionado';
             return;
         }
+
+        if (!archivo.name.endsWith('.sql')) {
+            mostrarToast('Archivo invalido. Debe ser .sql', 'warning');
+            this.value = '';
+
+            if (zonaCarga) zonaCarga.classList.remove('archivo-seleccionado');
+            if (nombreArchivo) nombreArchivo.textContent = 'Selecciona un archivo con extension .sql';
+            return;
+        }
+
+        if (zonaCarga) zonaCarga.classList.add('archivo-seleccionado');
+        if (nombreArchivo) nombreArchivo.textContent = `Archivo seleccionado: ${archivo.name}`;
 
         const formData = new FormData();
         formData.append('archivo', archivo);
@@ -62,19 +74,19 @@ function activarJSRespaldos() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.mensaje || 'Error en la restauración');
+                throw new Error(data.mensaje || 'Error en la restauracion');
             }
 
             return data;
         })
         
         .then(data => {
-            console.log("✅ RESPUESTA BACKEND:", data);
+            console.log("RESPUESTA BACKEND:", data);
 
             if (data.error) {
                 mostrarToast(data.error, 'danger');
             } else {
-                mostrarToast(data.mensaje || 'Restauración exitosa', 'success');
+                mostrarToast(data.mensaje || 'Restauracion exitosa', 'success');
 
                 // Esperar antes de recargar
                 setTimeout(() => {
@@ -120,7 +132,7 @@ function mostrarLoaderBoton(elemento) {
 }
 
 function quitarLoaderBoton() {
-    // puedes mejorar esto si quieres targeting específico
+    // puedes mejorar esto si quieres targeting especifico
 }
 
 
