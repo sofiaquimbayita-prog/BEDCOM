@@ -65,7 +65,6 @@
         <tr>
           <th>ID</th>
           <th>Nombre</th>
-          <th>Cédula / NIT</th>
           <th>Teléfono</th>
           <th>Deuda</th>
           <th>Estado</th>
@@ -75,19 +74,17 @@
       <tbody>
         {% for c in clientes %}
         <tr data-inactivo="{% if not c.estado %}true{% else %}false{% endif %}"
-            data-id="{{ c.id }}"
-            data-nombre="{{ c.nombre }}"
-            data-cedula="{{ c.cedula }}"
-            data-telefono="{{ c.telefono }}"
-            data-direccion="{{ c.direccion }}"
-            data-estado="{{ c.estado }}">
-          <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
-          <td>
-              <span style="font-weight:600">{{ c.nombre }}</span>
-            </div>
-          </td>
-          <td style="color:var(--color-texto-muted);font-family:monospace">{{ c.cedula }}</td>
-          <td>{{ c.telefono }}</td>
+              data-id="{{ c.id }}"
+              data-nombre="{{ c.nombre }}"
+              data-telefono="{{ c.telefono }}"
+              data-direccion="{{ c.direccion }}"
+              data-estado="{{ c.estado }}">
+                <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
+                <td>
+                <span style="font-weight:600">{{ c.nombre }}</span>
+                </div>
+                </td>
+                <td>{{ c.telefono }}</td>
           <td class="td-deuda" data-id="{{ c.id }}">
             <span style="color:var(--color-texto-muted);font-size:0.8rem">Cargando…</span>
           </td>
@@ -156,12 +153,8 @@
       <div class="form-grupo">
         <label>Nombre completo <span style="color:var(--color-error)">*</span></label>
         <input type="text" id="fNombre" class="form-input" placeholder="Ej: Juan Pérez" autocomplete="off">
+        </div>
       </div>
-      <div class="form-grupo">
-        <label>Cédula / NIT <span style="color:var(--color-error)">*</span></label>
-        <input type="text" id="fCedula" class="form-input" placeholder="Ej: 1234567890" autocomplete="off">
-      </div>
-    </div>
     <div class="divicion">
       <div class="form-grupo">
         <label>Teléfono</label>
@@ -198,10 +191,6 @@
     <!-- Card cliente -->
     <div class="cli-card" id="histCliCard">
       <div class="cli-avatar" id="histCliAvatar">?</div>
-      <div>
-        <div class="cli-info-nombre" id="histCliNombre">—</div>
-        <div class="cli-info-cedula" id="histCliCedula">—</div>
-      </div>
     </div>
 
     <!-- Resumen deuda -->
@@ -375,7 +364,6 @@ document.querySelectorAll('.view-btn').forEach(btn => {
     const deuda = parseFloat(c.deuda);
     document.getElementById('verInfoCliente').innerHTML = `
       <div class="ver-campo"><span class="ver-label">Nombre</span><span class="ver-valor">${c.nombre}</span></div>
-      <div class="ver-campo"><span class="ver-label">Cédula / NIT</span><span class="ver-valor" style="font-family:monospace">${c.cedula}</span></div>
       <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${c.telefono}</span></div>
       <div class="ver-campo"><span class="ver-label">Dirección</span><span class="ver-valor">${c.direccion}</span></div>
       <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${c.estado ? 'activo' : 'inactivo'}">${c.estado ? 'Activo' : 'Inactivo'}</span></span></div>
@@ -396,7 +384,7 @@ function configurarModalCrear() {
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--agregar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar';
   document.getElementById('btnGuardarTexto').textContent= 'Guardar Cliente';
-  ['fNombre','fCedula','fTelefono','fDireccion'].forEach(id => {
+  ['fNombre','fTelefono','fDireccion'].forEach(id => {
     document.getElementById(id).className = 'form-input';
   });
 }
@@ -406,7 +394,7 @@ function configurarModalEditar(id) {
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--editar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar btn-guardar--editar';
   document.getElementById('btnGuardarTexto').textContent= 'Actualizar Cliente';
-  ['fNombre','fCedula','fTelefono','fDireccion'].forEach(id => {
+  ['fNombre',,'fTelefono','fDireccion'].forEach(id => {
     document.getElementById(id).className = 'form-input editar';
   });
 }
@@ -414,7 +402,7 @@ function configurarModalEditar(id) {
 document.getElementById('btnNuevoCliente').addEventListener('click', () => {
   modoEdicion = false; clienteEditandoId = null;
   configurarModalCrear();
-  ['fNombre','fCedula','fTelefono','fDireccion'].forEach(id => document.getElementById(id).value = '');
+  ['fNombre','fTelefono','fDireccion'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('formAlerta').style.display = 'none';
   openModal('modalForm');
 });
@@ -425,7 +413,6 @@ document.querySelectorAll('.edit-btn').forEach(btn => {
     modoEdicion = true; clienteEditandoId = btn.dataset.id;
     configurarModalEditar(btn.dataset.id);
     document.getElementById('fNombre').value    = tr.dataset.nombre    || '';
-    document.getElementById('fCedula').value    = tr.dataset.cedula    || '';
     document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
     document.getElementById('fDireccion').value = tr.dataset.direccion || '';
     document.getElementById('formAlerta').style.display = 'none';
@@ -438,12 +425,10 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const alerta = document.getElementById('formAlerta');
   alerta.style.display = 'none';
   const nombre    = document.getElementById('fNombre').value.trim();
-  const cedula    = document.getElementById('fCedula').value.trim();
   const telefono  = document.getElementById('fTelefono').value.trim();
   const direccion = document.getElementById('fDireccion').value.trim();
 
   if (!nombre) { alerta.textContent = 'El nombre es obligatorio.'; alerta.style.display = 'block'; return; }
-  if (!cedula)  { alerta.textContent = 'La cédula o NIT es obligatorio.'; alerta.style.display = 'block'; return; }
 
   const btn = document.getElementById('btnGuardarCliente');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
@@ -452,7 +437,7 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const res    = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-    body: JSON.stringify({ nombre, cedula, telefono, direccion })
+    body: JSON.stringify({ nombre, telefono, direccion })
   });
   const data = await res.json();
 
@@ -501,7 +486,6 @@ document.querySelectorAll('.historial-btn').forEach(btn => {
     const c = data.cliente;
     document.getElementById('histCliAvatar').textContent = c.nombre.charAt(0).toUpperCase();
     document.getElementById('histCliNombre').textContent = c.nombre;
-    document.getElementById('histCliCedula').textContent = `Cédula: ${c.cedula} · Tel: ${c.telefono}`;
     document.getElementById('histTotalPedidos').textContent = data.total_pedidos;
 
     const totalFacturado = data.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);

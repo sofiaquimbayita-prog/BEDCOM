@@ -138,21 +138,23 @@
       <div class="cliente-seccion-titulo">
         <i class="fas fa-user-circle"></i> Datos del Cliente
       </div>
+      <div class="form-grupo">
+        <label>Seleccionar Cliente <span style="color:var(--color-error)">*</span></label>
+        <select id="clienteSelect" class="form-control form-input" required>
+          <option value="">— Seleccionar cliente —</option>
+        </select>
+      </div>
       <div class="divicion-3">
         <div class="form-grupo">
-          <label>Nombre completo <span style="color:var(--color-error)">*</span></label>
-          <input type="text" id="clienteNombre" class="form-input" placeholder="Ej: Juan Pérez" autocomplete="off">
-        </div>
-        <div class="form-grupo">
-          <label>Cédula / NIT <span style="color:var(--color-error)">*</span></label>
-          <input type="text" id="clienteCedula" class="form-input" placeholder="Ej: 1234567890" autocomplete="off">
+          <label>Nombre</label>
+          <input type="text" id="clienteNombre" class="form-input" readonly>
         </div>
         <div class="form-grupo">
           <label>Teléfono</label>
-          <input type="text" id="clienteTelefono" class="form-input" placeholder="Ej: 3001234567">
+          <input type="text" id="clienteTelefono" class="form-input" readonly>
         </div>
       </div>
-      <div id="clienteSugerencias" class="ped-sugerencias" style="display:none;"></div>
+<!-- Sugerencias removidas: ahora usa dropdown -->
     </div>
 
     <!-- Total -->
@@ -210,7 +212,7 @@ const PRODUCTOS_DATA = [
 ];
 const CLIENTES_DATA = [
   {% for c in clientes %}
-  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}", cedula:"{{ c.cedula|escapejs }}", telefono:"{{ c.telefono|escapejs }}" }{% if not forloop.last %},{% endif %}
+  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}",telefono:"{{ c.telefono|escapejs }}" }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
 const CSRF_TOKEN    = "{{ csrf_token }}";
@@ -286,7 +288,6 @@ document.querySelectorAll('.btn-ver').forEach(btn => {
     document.getElementById('verTitulo').textContent = `Pedido #${p.id}`;
     document.getElementById('verInfoCliente').innerHTML = `
       <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
-      <div class="ver-campo"><span class="ver-label">Cédula</span><span class="ver-valor">${p.cliente_cedula}</span></div>
       <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${p.cliente_telefono}</span></div>
       <div class="ver-campo"><span class="ver-label">Fecha</span><span class="ver-valor">${p.fecha}</span></div>
       <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
@@ -305,35 +306,36 @@ document.querySelectorAll('.btn-ver').forEach(btn => {
   });
 });
 
-/* ── Autocompletado cliente ── */
-const inpNombre   = document.getElementById('clienteNombre');
-const inpCedula   = document.getElementById('clienteCedula');
-const inpTelefono = document.getElementById('clienteTelefono');
-const divSug      = document.getElementById('clienteSugerencias');
+/* ── Dropdown cliente ── */
+const inpNombre     = document.getElementById('clienteNombre');
+const inpTelefono   = document.getElementById('clienteTelefono');
+const clienteSelect = document.getElementById('clienteSelect');
 
-function limpiarCliente(){ inpNombre.value=''; inpCedula.value=''; inpTelefono.value=''; inpNombre.dataset.clienteId=''; divSug.style.display='none'; }
-
-function mostrarSugerencias(q){
-  if(!q||q.length<2){ divSug.style.display='none'; return; }
-  const ql = q.toLowerCase();
-  const found = CLIENTES_DATA.filter(c => c.nombre.toLowerCase().includes(ql)||c.cedula.includes(ql)).slice(0,6);
-  if(!found.length){ divSug.style.display='none'; return; }
-  divSug.innerHTML = found.map(c=>`
-    <div class="ped-sug-item" data-id="${c.id}" data-nombre="${c.nombre}" data-cedula="${c.cedula}" data-telefono="${c.telefono}">
-      <span class="ped-sug-nombre">${c.nombre}</span>
-      <span class="ped-sug-cedula">${c.cedula}</span>
-    </div>`).join('');
-  divSug.style.display='block';
+function limpiarCliente(){
+  inpNombre.value = '';
+  inpTelefono.value = '';
+  inpNombre.dataset.clienteId = '';
+  clienteSelect.value = '';
 }
-inpNombre.addEventListener('input', () => mostrarSugerencias(inpNombre.value));
-inpCedula.addEventListener('input', () => mostrarSugerencias(inpCedula.value));
-divSug.addEventListener('click', e=>{
-  const item = e.target.closest('.ped-sug-item'); if(!item) return;
-  inpNombre.value=item.dataset.nombre; inpCedula.value=item.dataset.cedula; inpTelefono.value=item.dataset.telefono;
-  inpNombre.dataset.clienteId=item.dataset.id; divSug.style.display='none';
+
+document.addEventListener('DOMContentLoaded', function() {
+  clienteSelect.innerHTML += CLIENTES_DATA.map(c => 
+    `<option value="${c.id}">${c.nombre} </option>`
+  ).join('');
 });
-document.addEventListener('click', e=>{
-  if(!e.target.closest('#clienteSugerencias')&&!e.target.closest('#clienteNombre')&&!e.target.closest('#clienteCedula')) divSug.style.display='none';
+
+clienteSelect.addEventListener('change', function() {
+  const id = this.value;
+  if (id) {
+    const c = CLIENTES_DATA.find(x => x.id == id);
+    if (c) {
+      inpNombre.value = c.nombre;
+      inpTelefono.value = c.telefono;
+      inpNombre.dataset.clienteId = id;
+    }
+  } else {
+    limpiarCliente();
+  }
 });
 
 /* ── Tabla dinámica de productos ── */
@@ -413,7 +415,8 @@ document.querySelectorAll('.btn-editar').forEach(btn=>{
     if(!data.ok){ showToast(data.error,'error'); return; }
     const p=data.pedido; modoEdicion=true; pedidoEditandoId=btn.dataset.id;
     configurarModalEditar(p.id);
-    inpNombre.value=p.cliente_nombre||''; inpCedula.value=p.cliente_cedula||''; inpTelefono.value=p.cliente_telefono||'';
+    clienteSelect.value = p.cliente_id || '';
+    inpNombre.value=p.cliente_nombre||''; inpTelefono.value=p.cliente_telefono||'';
     inpNombre.dataset.clienteId=p.cliente_id||'';
     document.getElementById('formAlerta').style.display='none'; divSug.style.display='none';
     const body=document.getElementById('formItemsBody'); body.innerHTML='';
@@ -427,9 +430,10 @@ document.getElementById('btnAgregarFila').addEventListener('click',()=>document.
 /* Guardar */
 document.getElementById('btnGuardarPedido').addEventListener('click', async()=>{
   const alerta=document.getElementById('formAlerta'); alerta.style.display='none';
-  const nombre=inpNombre.value.trim(), cedula=inpCedula.value.trim(), telefono=inpTelefono.value.trim();
+  const clienteId = clienteSelect.value;
+  if(!clienteId){ alerta.textContent='Selecciona un cliente.'; alerta.style.display='block'; return; }
+  const nombre=inpNombre.value.trim(), telefono=inpTelefono.value.trim();
   if(!nombre){ alerta.textContent='Ingresa el nombre del cliente.'; alerta.style.display='block'; return; }
-  if(!cedula){ alerta.textContent='Ingresa la cédula o NIT del cliente.'; alerta.style.display='block'; return; }
 
   const items=[];
   document.querySelectorAll('#formItemsBody tr').forEach(tr=>{
@@ -445,7 +449,7 @@ document.getElementById('btnGuardarPedido').addEventListener('click', async()=>{
 
   const url=modoEdicion?URL_EDITAR(pedidoEditandoId):URL_CREAR;
   const res=await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
-    body:JSON.stringify({ cliente_id:inpNombre.dataset.clienteId||'', cliente_nombre:nombre, cliente_cedula:cedula, cliente_telefono:telefono, items }) });
+    body:JSON.stringify({ cliente_id:inpNombre.dataset.clienteId||'', cliente_nombre:nombre, cliente_telefono:telefono, items }) });
   const data=await res.json();
 
   btn.disabled=false;

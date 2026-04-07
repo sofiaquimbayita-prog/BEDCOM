@@ -23,15 +23,9 @@ def _resolver_cliente(data):
     - Si no existe: lo crea.
     Retorna la instancia de cliente.
     """
-    cedula   = data.get('cliente_cedula', '').strip()
     nombre   = data.get('cliente_nombre', '').strip()
     telefono = data.get('cliente_telefono', '').strip() or '—'
-
-    if not cedula or not nombre:
-        raise ValueError('El nombre y la cédula del cliente son obligatorios.')
-
     obj, creado = cliente.objects.get_or_create(
-        cedula=cedula,
         defaults={'nombre': nombre, 'telefono': telefono, 'direccion': '—', 'estado': True}
     )
     if not creado:
@@ -59,7 +53,6 @@ def _pedido_to_dict(obj):
         'total': str(obj.total),
         'cliente_id': obj.cliente.id,
         'cliente_nombre': obj.cliente.nombre,
-        'cliente_cedula': obj.cliente.cedula,
         'cliente_telefono': obj.cliente.telefono,
         'detalles': [
             {

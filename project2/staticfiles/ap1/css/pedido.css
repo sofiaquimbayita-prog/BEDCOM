@@ -175,7 +175,6 @@ input:checked + .slider::before { transform:translateX(20px); }
 .ped-sug-item:last-child { border-bottom:none; }
 .ped-sug-item:hover { background:var(--acento-glow); }
 .ped-sug-nombre { font-size:0.9rem; color:var(--color-texto); font-weight:500; }
-.ped-sug-cedula { font-size:0.78rem; color:var(--color-texto-muted); background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:var(--borde-sm); white-space:nowrap; }
 
 /* 8. TABLA ITEMS */
 .items-tabla-wrap { border:1px solid var(--color-borde); border-radius:var(--borde-lg); overflow:hidden; margin-bottom:12px; overflow-x:auto; }
