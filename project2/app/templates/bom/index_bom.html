@@ -111,12 +111,17 @@
             
             <div class="form-group">
                 <label>PRODUCTO</label>
-                <select name="producto" id="recetaProducto" required>
-                    <option value="" disabled selected>Seleccione un producto</option>
-                    {% for p in productos %}
-                    <option value="{{ p.id }}">{{ p.nombre }}</option>
-                    {% endfor %}
-                </select>
+                <div style="position: relative;">
+                    <select name="producto" id="recetaProducto" required>
+                        <option value="" disabled selected>Seleccione un producto</option>
+                        {% for p in productos %}
+                        <option value="{{ p.id }}">{{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" onclick="abrirModalNuevoProducto()" class="btn-nuevo-producto" title="Crear nuevo producto">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -329,10 +334,11 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    // Inicializar la lista de productos con receta desde el template Django
-    var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};
-</script>
+    <script>
+        // Variables JS desde Django context
+        var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};
+        var categorias = {{ categorias|safe }};
+    </script>
 <script src="{% static 'ap1/js/script_bom.js' %}"></script>
 
 {% endblock %}

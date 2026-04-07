@@ -483,6 +483,98 @@ function eliminarInsumoEditReceta(index) {
     renderEditRecetaTable();
 }
 
+// Modal Nuevo Producto
+let modalNuevoProducto = null;
+
+function abrirModalNuevoProducto() {
+    if (modalNuevoProducto) {
+        modalNuevoProducto.style.display = 'flex';
+        return;
+    }
+    
+    modalNuevoProducto = document.createElement('div');
+    modalNuevoProducto.className = 'modal';
+    modalNuevoProducto.style.display = 'flex';
+    modalNuevoProducto.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-box"></i> Nuevo Producto para Receta</h3>
+                <button class="close-modal" onclick="cerrarModalNuevoProducto()">&times;</button>
+            </div>
+            <form id="formNuevoProducto">
+                <input type="hidden" name="action" value="bom_producto">
+                <div class="form-group">
+                    <label>Nombre del Producto *</label>
+                    <input type="text" name="nombre" required placeholder="Ej: Base Baúl Premium">
+                </div>
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="categoria" required>
+                        <option value="">Seleccione categoría</option>
+                        ${categorias.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModalNuevoProducto()">Cancelar</button>
+                    <button type="submit" class="btn-save">Crear Producto</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modalNuevoProducto);
+    
+    // Submit handler
+    document.getElementById('formNuevoProducto').addEventListener('submit', function(e) {
+        e.preventDefault();
+        crearProductoBOM();
+    });
+}
+
+function cerrarModalNuevoProducto() {
+    if (modalNuevoProducto) {
+        modalNuevoProducto.remove();
+        modalNuevoProducto = null;
+    }
+}
+
+function crearProductoBOM() {
+    const form = document.getElementById('formNuevoProducto');
+    const formDataObj = Object.fromEntries(new FormData(form));
+    
+    // Enviar a BOM API con producto_data
+    const data = {
+        producto_data: formDataObj,
+        insumos: recetaInsumos
+    };
+    
+    fetch('/vistas/bom/crear-receta/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cerrarModalNuevoProducto();
+            mostrarMensaje('success', data.message);
+            
+            // Limpiar y recargar
+            recetaInsumos = [];
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            mostrarMensaje('error', data.error || data.message || 'Error al crear');
+        }
+    })
+    .catch(err => {
+        mostrarMensaje('error', 'Error de conexión');
+        console.error(err);
+    });
+}
+
 // Función para abrir modal
 function abrirModal(modalId) {
     // Limpiar receta al abrir
@@ -495,7 +587,6 @@ function abrirModal(modalId) {
         $('#recetaInsumosBody').html('<tr id="recetaVacio"><td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">No hay insumos agregados. Use el formulario de arriba para agregar.</td></tr>');
         
         // Inicializar Select2 para receta (necesario porque el modal estaba oculto)
-        // Se usa dropdownParent para que el dropdown aparezca sobre el modal
         $('#recetaProducto, #recetaInsumo').select2({
             language: 'es',
             placeholder: 'Seleccione una opción',

@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, bom, usuario, pedido, detalle_pedido
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -280,6 +280,8 @@ class EntradaForm(forms.ModelForm):
             raise forms.ValidationError('Debe seleccionar un producto.')
         if not producto.estado:
             raise forms.ValidationError('El producto seleccionado está inactivo.')
+        if not bom.objects.filter(producto=producto).exists():
+            raise forms.ValidationError('Este producto requiere una <strong>receta (BOM)</strong> creada primero. <a href="/vistas/bom/" target="_blank">Ir a BOM</a>')
         return producto
 
     def clean_cantidad(self):
@@ -383,6 +385,8 @@ class SalidaProductoForm(forms.ModelForm):
             raise forms.ValidationError('Debe seleccionar un producto.')
         if not producto.estado:
             raise forms.ValidationError('El producto seleccionado está inactivo.')
+        if not bom.objects.filter(producto=producto).exists():
+            raise forms.ValidationError('Este producto requiere una <strong>receta (BOM)</strong> creada primero. <a href="/vistas/bom/" target="_blank">Ir a BOM</a>')
         return producto
 
     def clean_cantidad(self):
@@ -462,3 +466,33 @@ class DetallePedidoForm(forms.ModelForm):
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
         }
+
+
+class BomProductoForm(forms.ModelForm):
+    class Meta:
+        model = producto
+        fields = ['nombre', 'categoria']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del nuevo producto'
+            }),
+            'categoria': forms.Select(attrs={
+                'class': 'form-control'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from app.models import categoria
+        self.fields['categoria'].queryset = categoria.objects.filter(tipo='producto', estado=True)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.precio = 0
+        instance.stock = 0
+        instance.estado = True
+        instance.descripcion = f"Nuevo producto creado desde BOM para receta."
+        if commit:
+            instance.save()
+        return instance
