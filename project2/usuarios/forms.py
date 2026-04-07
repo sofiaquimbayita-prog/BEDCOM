@@ -106,11 +106,35 @@ class UserEditForm(UserForm):
         min_length=8,
         required=False,
         widget=forms.PasswordInput(attrs={
+            'id': 'edit_password',
             'class': 'form-control',
             'placeholder': 'Dejar vacío para no cambiar'
         }),
         label="Nueva Contraseña (opcional)"
     )
+    confirm_password = forms.CharField(
+        min_length=8,
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'id': 'edit_confirm_password',
+            'class': 'form-control',
+            'placeholder': 'Confirme nueva contraseña'
+        }),
+        label="Confirmar Contraseña"
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if password and confirm_password:
+            if password != confirm_password:
+                raise ValidationError("Las contraseñas no coinciden.")
+        elif password and not confirm_password:
+            raise ValidationError("Debe confirmar la nueva contraseña.")
+
+        return cleaned_data
 
     class Meta(UserForm.Meta):
-        fields = UserForm.Meta.fields
+        fields = UserForm.Meta.fields + ['confirm_password']

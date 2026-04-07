@@ -6,16 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cambiar contraseña</title>
   <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'ap1/css/styles_crear_usuario.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
 </head>
 <body>
  <!-- Botón de Idioma - Esquina Superior Derecha -->
-<div class="idioma-container">
-    <button class="boton-idioma">
-        <i class="fa-solid fa-globe"></i> ES
-    </button>
-</div>
+
 
 <!-- Botón de Ayuda - Esquina Inferior Derecha -->
 <div class="ayuda-container">
@@ -26,34 +23,57 @@
   <h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
 
   <div class="contenedor">
-    <div class="formulario">
-<form method="post">
+<div class="formulario">
+  {% if messages %}
+    <div class="messages-container" id="toast-container">
+      {% for message in messages %}
+        <div class="message {{ message.tags }}">
+          <div class="message-content">
+            {% if message.tags == 'success' or message.tags == 'info' %}
+              <i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+              <i class="fas fa-times-circle"></i>
+            {% else %}
+              <i class="fas fa-info-circle"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+          </div>
+          <button type="button" class="close-toast" onclick="cerrarToast(this)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <form id="cambiarContrasenaForm" method="post" novalidate>
         {% csrf_token %}
         
         <label class="label">{{ form.new_password1.label }}</label>
-        <div class="password-container">
+        <div class="input-wrapper">
           {{ form.new_password1 }}
-          <button type="button" onclick="toggleView('id_new_password1')">
-            <i class="fa-solid fa-eye"></i>
+          <button type="button" class="password-toggle" onclick="togglePassword('id_new_password1', this)">
+            <i class="fas fa-eye" id="toggle-icon-new_password1"></i>
           </button>
         </div>
+        <span class="mensaje-error" id="error_new_password1"></span>
         {% if form.new_password1.errors %}
-          <span class="error-msg">{{ form.new_password1.errors }}</span>
+          <div class="django-errors error">{{ form.new_password1.errors }}</div>
         {% endif %}
 
         <label class="label">{{ form.new_password2.label }}</label>
-        <div class="password-container">
+        <div class="input-wrapper">
           {{ form.new_password2 }}
-          <button type="button" onclick="toggleView('id_new_password2')">
-            <i class="fa-solid fa-eye"></i>
+          <button type="button" class="password-toggle" onclick="togglePassword('id_new_password2', this)">
+            <i class="fas fa-eye" id="toggle-icon-new_password2"></i>
           </button>
         </div>
+        <span class="mensaje-error" id="error_new_password2"></span>
         {% if form.new_password2.errors %}
-          <span class="error-msg">{{ form.new_password2.errors }}</span>
+          <div class="django-errors error">{{ form.new_password2.errors }}</div>
         {% endif %}
 
         {% if form.non_field_errors %}
-          <div class="error-msg">{{ form.non_field_errors }}</div>
+          <div class="django-errors error">{{ form.non_field_errors }}</div>
         {% endif %}
 
         <button type="submit" class="botonr">CAMBIAR CONTRASEÑA</button>
@@ -61,19 +81,125 @@
     </div>
   </div>
   <script>
-    function toggleView(id) {
+    // Adapted from script_crear_usuario.js for password change form
+    function togglePassword(id, el) {
       const input = document.getElementById(id);
-      const icon = input.nextElementSibling.querySelector('i');
+      const icon = el.querySelector('i');
       if (input.type === 'password') {
         input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
       } else {
         input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
       }
     }
+
+    function validarPassword(password) {
+      if (password.length < 8) return 'Mínimo 8 caracteres';
+      if (!/[A-Z]/.test(password)) return 'Requiere al menos una mayúscula';
+      if (!/\d/.test(password)) return 'Requiere al menos un número';
+      if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) return 'Requiere al menos un carácter especial';
+      return '';
+    }
+
+    function mostrarError(input, mensaje) {
+      const errorId = 'error_' + input.name;
+      const errorSpan = document.getElementById(errorId);
+      if (errorSpan) {
+        errorSpan.textContent = mensaje;
+        errorSpan.classList.add('show');
+      }
+      input.classList.add('error');
+      input.classList.remove('success');
+      input.setCustomValidity(mensaje);
+    }
+
+    function ocultarError(input) {
+      const errorId = 'error_' + input.name;
+      const errorSpan = document.getElementById(errorId);
+      if (errorSpan) {
+        errorSpan.textContent = '';
+        errorSpan.classList.remove('show');
+      }
+      input.classList.remove('error');
+      if (input.value.trim()) input.classList.add('success');
+      input.setCustomValidity('');
+    }
+
+    function validarMatchPasswords() {
+      const pass1 = document.getElementById('id_new_password1');
+      const pass2 = document.getElementById('id_new_password2');
+      if (pass1.value && pass2.value && pass1.value !== pass2.value) {
+        mostrarError(pass2, 'Contraseñas no coinciden');
+      } else {
+        ocultarError(pass2);
+      }
+    }
+
+    function validarEnTiempoReal() {
+      const pass1 = document.getElementById('id_new_password1');
+      const pass2 = document.getElementById('id_new_password2');
+      if (pass1) {
+        pass1.addEventListener('input', function() {
+          const error = validarPassword(this.value);
+          if (error) mostrarError(this, error);
+          else ocultarError(this);
+          validarMatchPasswords();
+        });
+        pass1.addEventListener('blur', function() {
+          const error = validarPassword(this.value);
+          if (error) mostrarError(this, error);
+          else ocultarError(this);
+        });
+      }
+      if (pass2) {
+        pass2.addEventListener('input', validarMatchPasswords);
+        pass2.addEventListener('blur', validarMatchPasswords);
+      }
+    }
+
+    function mostrarMensaje(tipo, texto) {
+      let cont = document.getElementById('toast-container') || crearToastContainer();
+      let msg = document.createElement('div');
+      msg.className = `message ${tipo}`;
+      msg.innerHTML = `
+        <div class="message-content">
+          <i class="fas fa-${tipo === 'success' ? 'check' : 'times'}-circle"></i>
+          <span>${texto}</span>
+        </div>
+        <button class="close-toast" onclick="cerrarToast(this)"><i class="fas fa-times"></i></button>
+      `;
+      cont.appendChild(msg);
+      setTimeout(() => cerrarToast(msg.querySelector('.close-toast')), 5000);
+    }
+
+    function crearToastContainer() {
+      let c = document.createElement('div');
+      c.id = 'toast-container';
+      c.className = 'messages-container';
+      document.querySelector('.contenedor').prepend(c);
+      return c;
+    }
+
+    function cerrarToast(btn) {
+      btn.closest('.message').style.animation = 'slideOutToast .3s';
+      setTimeout(() => btn.closest('.message').remove(), 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      validarEnTiempoReal();
+      document.getElementById('cambiarContrasenaForm').addEventListener('submit', function(e) {
+        let valido = this.checkValidity();
+        if (!valido) {
+          e.preventDefault();
+          mostrarMensaje('error', 'Corrige los errores antes de enviar.');
+        }
+      });
+      // Auto-close existing toasts
+      document.querySelectorAll('.message').forEach(msg => {
+        setTimeout(() => cerrarToast(msg.querySelector('.close-toast')), 5000);
+      });
+    });
   </script>
 </body>
 </html>

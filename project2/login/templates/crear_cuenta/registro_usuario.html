@@ -1,233 +1,126 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta - BEDCOM</title> 
     
     <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <link rel="stylesheet" href="{% static 'ap1/css/styles_crear_usuario.css' %}">
 
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* El padding asegura que NUNCA pegue a los bordes de la pantalla */
-            padding: 60px 20px; 
-            margin: 0;
-            min-height: 100vh;
-            background-color: #1a1a1a; 
-            /* Descomenta la línea de abajo para poner tu imagen de fondo */
-            /* background: #1a1a1a url("{% static 'ap1/img/tu_fondo.jpg' %}") no-repeat center center fixed; background-size: cover; */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        .contenedor {
-            width: 100%;
-            max-width: 550px; /* Un poco más ancho para que las columnas respiren */
-            background: rgba(30, 41, 59, 0.85); 
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            /* Este margin auto es el que hace la magia del centrado vertical */
-            margin-top: 90px;
-            margin-bottom: auto; 
-        }
-
-        .titulo-container {
-            background: #3b82f6; /* Color azul de tu botón superior */
-            padding: 12px;
-            border-radius: 50px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .titulo-container h1 {
-            color: white;
-            margin: 0;
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Estilos para los labels e inputs de Django */
-        form label {
-            display: block;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            margin-top: 18px;
-            font-size: 14px;
-        }
-
-        form input {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.05);
-            color: white;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        form input:focus {
-            border-color: #3b82f6;
-            background: rgba(255,255,255,0.1);
-        }
-
-        /* Contenedor para campos en la misma fila */
-        .fila-doble {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .fila-doble > div {
-            flex: 1;
-        }
-
-        .botonr {
-            width: 100%;
-            padding: 15px;
-            margin-top: 35px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            text-transform: uppercase;
-            transition: background 0.3s ease;
-        }
-
-        .botonr:hover {
-            background: #1d4ed8;
-        }
-
-        .pregunta {
-            margin-top: 25px;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 60px;
-            margin-top: 20px;
-        }
-
-        .pregunta a { 
-            color: #00aeff; 
-            text-decoration: none; 
-            font-weight: bold;
-        }
-
-        /* Errores */
-        .errorlist {
-            color: #f87171;
-            font-size: 12px;
-            margin-top: 5px;
-            list-style: none;
-            padding: 0;
-        }
-
-        .success {
-            background: #10b981;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* Ajuste para móviles: los campos dobles se vuelven individuales */
-        @media (max-width: 500px) {
-            .fila-doble { flex-direction: column; gap: 0; }
-        }
-    </style>
 </head>
 <body>
-
-    <div class="contenedor">
+ <div class="contenedor">
         <div class="titulo-container">
             <h1>CREAR CUENTA</h1>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="success">{{ message }}</div>
-            {% endfor %}
+            <div class="messages-container" id="toast-container">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        <div class="message-content">
+                            {% if message.tags == 'success' or message.tags == 'info' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="fas fa-times-circle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                        <button type="button" class="close-toast" onclick="cerrarToast(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
-
-        <form method="post" action="{% url 'login:registro_usuario' %}" enctype="multipart/form-data">
+        <form id="registroForm" method="post" action="{% url 'login:registro_usuario' %}" novalidate>
             {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="django-errors error">{{ form.non_field_errors }}</div>
+            {% endif %}
             
             <div>
-                {{ form.username.label_tag }}
-                {{ form.username }}
-                {{ form.username.errors }}
+                <label>Nombre de usuario *</label>
+                <input type="text" name="username" id="id_username" required minlength="5" maxlength="150">
+                <span class="mensaje-error" id="error_username"></span>
+                {% if form.username.errors %}
+                    <div class="django-errors error">{{ form.username.errors }}</div>
+                {% endif %}
             </div>
 
             <div>
-                {{ form.email.label_tag }}
-                {{ form.email }}
-                {{ form.email.errors }}
+                <label>Email *</label>
+                <input type="email" name="email" id="id_email" required>
+                <span class="mensaje-error" id="error_email"></span>
             </div>
 
             <div class="fila-doble">
                 <div>
-                    {{ form.first_name.label_tag }}
-                    {{ form.first_name }}
-                    {{ form.first_name.errors }}
+                    <label>Nombres *</label>
+                    <input type="text" name="first_name" id="id_first_name" required>
+                    <span class="mensaje-error" id="error_first_name"></span>
                 </div>
                 <div>
-                    {{ form.last_name.label_tag }}
-                    {{ form.last_name }}
-                    {{ form.last_name.errors }}
+                    <label>Apellidos *</label>
+                    <input type="text" name="last_name" id="id_last_name" required>
+                    <span class="mensaje-error" id="error_last_name"></span>
                 </div>
             </div>
 
             <div class="fila-doble">
                 <div>
-                    {{ form.cedula.label_tag }}
-                    {{ form.cedula }}
-                    {{ form.cedula.errors }}
+                    <label>Cédula (10 dígitos) *</label>
+                    <input type="number" name="cedula" id="id_cedula" required oninput="limitDigits(this, 10)">
+                    <span class="mensaje-error" id="error_cedula"></span>
                 </div>
                 <div>
-                    {{ form.telefono.label_tag }}
-                    {{ form.telefono }}
-                    {{ form.telefono.errors }}
+                    <label>Teléfono (10 dígitos)</label>
+                    <input type="number" name="telefono" id="id_telefono" oninput="limitDigits(this, 10)">
+                    <span class="mensaje-error" id="error_telefono"></span>
                 </div>
-            </div>
-
-            <div>
-                <label>Foto de Perfil (opcional)</label>
-                {{ form.foto_perfil }}
-                {{ form.foto_perfil.errors }}
             </div>
 
             <div class="fila-doble">
                 <div>
-                    {{ form.password1.label_tag }}
-                    {{ form.password1 }}
-                    {{ form.password1.errors }}
+                    <label>Contraseña *</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="password1" id="id_password1" required minlength="8">
+                        <button type="button" class="password-toggle" onclick="togglePassword('id_password1', this)">
+                            <i class="fas fa-eye" id="toggle-icon-password1"></i>
+                        </button>
+                    </div>
+                    <span class="mensaje-error" id="error_password1"></span>
                 </div>
+
                 <div>
-                    {{ form.password2.label_tag }}
-                    {{ form.password2 }}
-                    {{ form.password2.errors }}
+                    <label>Repite contraseña *</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="password2" id="id_password2" required minlength="8">
+                        <button type="button" class="password-toggle" onclick="togglePassword('id_password2', this)">
+                            <i class="fas fa-eye" id="toggle-icon-password2"></i>
+                        </button>
+                    </div>
+                        <span class="mensaje-error" id="error_password2"></span>
                 </div>
             </div>
-
             <button type="submit" class="botonr">REGISTRAR</button>
         </form>
+        {% if success %}
+        <div class="success-section" style="margin-top: 20px; text-align: center; padding: 20px; background: rgba(16, 185, 129, 0.2); border-radius: 10px; border: 1px solid #10b981;">
+            <i class="fas fa-check-circle" style="font-size: 3em; color: #10b981;"></i>
+            <p style="font-size: 1.2em; margin: 10px 0;">¡Usuario creado correctamente!</p>
+            <a href="{% url 'login:login' %}" class="botonr" style="display: inline-block; max-width: 250px;">Ir al Login</a>
+        </div>
+        {% endif %}
     </div>
-
     <p class="pregunta">¿Ya tienes una cuenta? <a href="{% url 'login:login' %}">Inicia sesión</a></p>
-
+    
+    <script src="{% static 'ap1/js/script_crear_usuario.js' %}"></script>
 </body>
 </html>

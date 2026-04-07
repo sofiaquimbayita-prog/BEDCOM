@@ -1,14 +1,16 @@
-# TODO: Remove perfil_usuario table from usuarios app
+# Task: Revise error messages and validations in cambiar_contrasena.html to match registro_usuario.html
 
-## Approved Plan Steps:
-- [x] Step 1: Edit project2/usuarios/models.py - Remove PerfilUsuario model class
-- [x] Step 2: Edit project2/usuarios/views.py - Remove unused import
-- [x] Step 3: Edit project2/login/forms.py - Remove unused import  
-- [x] Step 4: Edit project2/login/views.py - Remove PerfilUsuario.objects.get_or_create() block
-- [ ] Step 5: cd project2 &amp;&amp; python manage.py migrate usuarios 0001_initial --fake   (then delete migration file)
-- [ ] Step 6: Run makemigrations usuarios
-- [ ] Step 7: Run migrate
-- [ ] Step 8: Test user registration
-- [ ] Step 9: Verify DB table dropped
-- [ ] Step 10: Mark complete
-
+## Steps:
+- [x] Understand files and create detailed edit plan (approved by user)
+- [ ] Create this TODO.md ✅
+- [x] Update cambiar_contrasena.html:
+  - Add styles_crear_usuario.css link ✅
+  - Add messages container for Django messages/toasts ✅
+  - Update password input structure to use input-wrapper + password-toggle ✅
+  - Add mensaje-error spans with IDs (error_new_password1, error_new_password2) ✅
+  - Change Django errors to django-errors class ✅
+  - Add form id="cambiarContrasenaForm" novalidate ✅
+  - Inline JS: real-time validation, password strength/match, togglePassword, mostrarMensaje toasts, form submit check ✅
+- [x] Test: Verify client-side errors show for weak passwords/non-match, toasts work, Django errors styled properly (verified via code review: JS functions match registro_usuario patterns, structure identical)
+- [x] Update TODO.md with completion status ✅
+- [ ] Run attempt_completion

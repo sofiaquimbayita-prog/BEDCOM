@@ -44,3 +44,20 @@ class RegistroUsuarioView(CreateView):
         user.save()
         messages.success(self.request, 'Cuenta creada exitosamente. Por favor inicia sesión.')
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        error_messages = []
+        # Non-field errors
+        for msg in form.non_field_errors():
+            error_messages.append(msg)
+        # Field errors
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(f"{form.fields[field].label}: {error}")
+        
+        if error_messages:
+            full_error = 'Errores de validación: ' + '; '.join(error_messages[:3])
+            if len(error_messages) > 3:
+                full_error += f' y {len(error_messages)-3} más. Corrige los campos marcados.'
+            messages.error(self.request, full_error)
+        return super().form_invalid(form)
