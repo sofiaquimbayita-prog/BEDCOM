@@ -254,7 +254,7 @@ $(document).ready(function() {
               .css('background', 'linear-gradient(135deg, #f87171, #ef4444)');
         
         // Configurar formulario
-        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/inactivar/${id}/`);
+        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/eliminar/${id}/`);
         
         abrirModal('deleteModal');
     };
@@ -275,7 +275,7 @@ $(document).ready(function() {
               .css('background', 'linear-gradient(135deg, #4ade80, #22c55e)');
         
         // Configurar formulario
-        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/reactivar/${id}/`);
+        $modal.find('#deleteForm').attr('action', `/vistas/respaldos/restaurar/${id}/`);
         
         abrirModal('deleteModal');
     };
@@ -348,6 +348,12 @@ $(document).ready(function() {
 
     // ================= INICIALIZACIÓN =================
     filtrarTabla();
+    
+    // Listener para submit del modal delete/restore (robustez)
+    $(document).on('click', '.btn-delete', function(e) {
+        e.preventDefault();
+        $('#deleteForm').submit();
+    });
     
     console.log('Respaldos JS loaded successfully');
 });
