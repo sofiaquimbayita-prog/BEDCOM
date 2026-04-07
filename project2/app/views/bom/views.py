@@ -92,7 +92,7 @@ class BomCreateView(SuccessMessageMixin, CreateView):
                     usuario=self.request.user
                 )
             except Exception as e:
-                print(f"Error historial BOM: {e}")
+                logger.error(f"Error historial BOM: {e}")
         return response
 
     def form_invalid(self, form):

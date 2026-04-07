@@ -9,13 +9,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------------------------------
 # 2. SEGURIDAD (MODO PRODUCCIÓN)
 # --------------------------------------------------------------------------
-SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g'
+SECRET_KEY = 'dj@#k9p$2m!q8w3e5r7t^y1u4i6o9p0a2s5d8f1g4h7j3k6l9zxcv-bnm.'
 
 # IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
-DEBUG = True 
+DEBUG = False
 
 # Dominios permitidos para acceder al servidor
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['*']
+
 
 # --------------------------------------------------------------------------
 # 3. DEFINICIÓN DE APLICACIONES
@@ -141,8 +142,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'porprobar221@gmail.com'
-EMAIL_HOST_PASSWORD = 'fitnkymdfulxiceg'  
-DEFAULT_FROM_EMAIL = 'Sistema BEDCOM <porprobar221@gmail.com>'
+EMAIL_HOST_PASSWORD = 'TU_APP_PASSWORD_AQUI'  # Cambia por tu app password segura
+DEFAULT_FROM_EMAIL = 'Sistema BEDCOM <tu-email@dominio.com>'
+
 
 # Redirecciones
 LOGIN_REDIRECT_URL = 'menu'  
