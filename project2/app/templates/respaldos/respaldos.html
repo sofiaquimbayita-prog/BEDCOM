@@ -58,11 +58,11 @@
         <div class="stats-cards">
             <div class="small-card total">
                 <div class="label">Total Registros</div>
-<div class="value">{{ respaldos_activos|length }}</div>
+<div class="value" id="totalRespaldosActivos">{{ respaldos_activos|length }}</div>
             </div>
             <div class="small-card last">
                 <div class="label">Último Tipo</div>
-                <div class="value">
+                <div class="value" id="ultimoTipoRespaldo">
                     {% if respaldos %}
                         {{ respaldos.0.tipo_respaldo|capfirst }}
                     {% else %}
@@ -72,7 +72,7 @@
             </div>
             <div class="small-card recent">
                 <div class="label">Fecha Reciente</div>
-                <div class="value">
+                <div class="value" id="fechaRecienteRespaldo">
                     {% if respaldos %}
                         {{ respaldos.0.fecha|date:'d/m/Y' }}
                     {% else %}

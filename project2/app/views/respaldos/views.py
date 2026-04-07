@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, CreateView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 import os
@@ -98,6 +98,21 @@ class RespaldoDataView(View):
         return JsonResponse({'data': data}, safe=False)
 
 
+def serializar_respaldo(respaldo_obj):
+    fecha_local = timezone.localtime(respaldo_obj.fecha)
+    return {
+        'id': respaldo_obj.id,
+        'fecha': fecha_local.strftime('%d/%m/%Y %H:%M:%S'),
+        'fecha_corta': fecha_local.strftime('%d/%m/%Y'),
+        'usuario': respaldo_obj.usuario,
+        'tipo_respaldo': respaldo_obj.tipo_respaldo,
+        'descripcion': respaldo_obj.descripcion or '',
+        'descripcion_corta': (respaldo_obj.descripcion or '')[:40],
+        'estado': respaldo_obj.estado,
+        'download_url': reverse('descargar_respaldo', args=[respaldo_obj.id]),
+    }
+
+
 class RespaldoListView(ListView):
     """Vista principal de la lista de respaldos"""
     model = respaldo
@@ -120,8 +135,8 @@ class RespaldoListView(ListView):
         return context
     
     def post(self, request, *args, **kwargs):
-
         accion = request.POST.get('accion')
+        es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         if accion == 'backup_completo':
             try:
@@ -164,13 +179,20 @@ class RespaldoListView(ListView):
                     f.write(sql_content)
 
                 # ================= GUARDAR EN BD =================
-                respaldo.objects.create(
+                nuevo_respaldo = respaldo.objects.create(
                     archivo=ruta_relativa,
                     usuario=request.user.username if request.user.is_authenticated else 'sistema',
                     tipo_respaldo='completo',
                     descripcion='Backup MySQL generado',
                     estado=True
                 )
+
+                if es_ajax:
+                    return JsonResponse({
+                        'ok': True,
+                        'mensaje': 'Respaldo SQL generado correctamente.',
+                        'respaldo': serializar_respaldo(nuevo_respaldo),
+                    })
 
                 # ================= DESCARGAR =================
                 response = HttpResponse(sql_content, content_type='application/sql')
@@ -179,6 +201,11 @@ class RespaldoListView(ListView):
                 return response
 
             except Exception as e:
+                if es_ajax:
+                    return JsonResponse({
+                        'ok': False,
+                        'mensaje': f'Error al generar el respaldo: {str(e)}',
+                    }, status=400)
                 messages.error(request, f"Error: {str(e)}")
 
         return redirect('respaldos_list')

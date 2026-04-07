@@ -1,5 +1,131 @@
 $(document).ready(function() {
-    
+    function escapeHtml(valor) {
+        return String(valor ?? '').replace(/[&<>"']/g, function(char) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[char];
+        });
+    }
+
+    function escapeJsString(valor) {
+        return String(valor ?? '')
+            .replace(/\\/g, '\\\\')
+            .replace(/\r?\n/g, ' ')
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"');
+    }
+
+    function truncarDescripcion(texto, limite = 40) {
+        if (!texto) {
+            return '-';
+        }
+
+        return texto.length > limite ? `${texto.slice(0, limite - 3)}...` : texto;
+    }
+
+    function mostrarToast(mensaje, tipo = 'success') {
+        const icono = tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        const toastHtml = `
+            <div class="message ${tipo}">
+                <div class="message-content">
+                    <i class="fas ${icono}"></i>
+                    <span class="text">${escapeHtml(mensaje)}</span>
+                </div>
+                <button type="button" class="close-toast" onclick="cerrarToast(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+
+        let $contenedor = $('#toast-container');
+        if (!$contenedor.length) {
+            $contenedor = $('<div class="messages-container" id="toast-container"></div>');
+            $('body').append($contenedor);
+        }
+
+        const $toast = $(toastHtml);
+        $contenedor.append($toast);
+
+        setTimeout(() => {
+            $toast.fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
+
+    function construirFilaRespaldo(respaldo) {
+        const fecha = escapeHtml(respaldo.fecha);
+        const usuario = escapeHtml(respaldo.usuario);
+        const tipo = String(respaldo.tipo_respaldo || '');
+        const tipoUpper = escapeHtml(tipo.toUpperCase());
+        const tipoLower = escapeHtml(tipo.toLowerCase());
+        const descripcion = escapeHtml(truncarDescripcion(respaldo.descripcion || ''));
+        const descripcionCompleta = escapeJsString(respaldo.descripcion || '');
+        const fechaModal = escapeJsString(respaldo.fecha);
+        const usuarioModal = escapeJsString(respaldo.usuario);
+        const tipoModal = escapeJsString(tipo);
+        const downloadUrl = escapeHtml(respaldo.download_url);
+
+        return `
+            <tr class="respaldo-row">
+                <td>${fecha}</td>
+                <td><i class="fas fa-user-shield" style="font-size: 0.8rem; color: #94a3b8;"></i> ${usuario}</td>
+                <td>
+                    <span class="badge-movimiento badge-${tipoLower}">
+                        ${tipoUpper}
+                    </span>
+                </td>
+                <td>${descripcion}</td>
+                <td style="text-align: center;">
+                    <div class="table-actions" style="display: flex; justify-content: center; gap: 15px;">
+                        <i class="fa-regular fa-eye"
+                           onclick="openViewModal('${fechaModal}', '${usuarioModal}', '${tipoModal}', '${descripcionCompleta}')"
+                           title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
+                        <a href="${downloadUrl}" title="Descargar SQL" style="text-decoration: none;">
+                            <i class="fas fa-file-download" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
+                        </a>
+                        <i class="fa-regular fa-trash-can"
+                           onclick="openDeleteModal('${respaldo.id}', '${fechaModal}')"
+                           title="Inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function actualizarResumenRespaldos(respaldo) {
+        const $total = $('#totalRespaldosActivos');
+        const totalActual = parseInt($total.text(), 10) || 0;
+        $total.text(totalActual + 1);
+
+        $('#ultimoTipoRespaldo').text(
+            respaldo.tipo_respaldo
+                ? respaldo.tipo_respaldo.charAt(0).toUpperCase() + respaldo.tipo_respaldo.slice(1)
+                : '-'
+        );
+        $('#fechaRecienteRespaldo').text(respaldo.fecha_corta || '-');
+    }
+
+    function insertarNuevoRespaldoEnTabla(respaldo) {
+        const $tbody = $('#respaldosTable tbody');
+        $tbody.find('.empty-row').remove();
+        $tbody.prepend(construirFilaRespaldo(respaldo));
+        actualizarResumenRespaldos(respaldo);
+        filtrarTabla();
+    }
+
+    function descargarArchivoRespaldo(url) {
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.style.display = 'none';
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+    }
 
     // ================= FILTROS =================
     function filtrarTabla() {
@@ -83,6 +209,45 @@ $(document).ready(function() {
     window.abrirModalDescargaSQL = function() {
         abrirModal('modalDescargaSQL');
     };
+
+    $(document).on('submit', '#backupSqlForm', async function(e) {
+        e.preventDefault();
+
+        const form = e.currentTarget;
+        const $form = $(form);
+        const $btn = $('#backupSqlSubmitBtn');
+        const textoOriginal = $btn.html();
+
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Generando...');
+
+        try {
+            const response = await fetch($form.attr('action'), {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                throw new Error(data.mensaje || 'No fue posible generar el respaldo.');
+            }
+
+            insertarNuevoRespaldoEnTabla(data.respaldo);
+            cerrarModal('modalDescargaSQL');
+            mostrarToast(data.mensaje || 'Respaldo generado correctamente.', 'success');
+
+            if (data.respaldo && data.respaldo.download_url) {
+                descargarArchivoRespaldo(data.respaldo.download_url);
+            }
+        } catch (error) {
+            mostrarToast(error.message || 'Ocurrió un error al generar el respaldo.', 'error');
+        } finally {
+            $btn.prop('disabled', false).html(textoOriginal);
+        }
+    });
 
     // ================= VALIDACIONES DEL FORMULARIO =================
     

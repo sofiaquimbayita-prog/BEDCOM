@@ -14,10 +14,10 @@
             <span class="stat-value small">Backup completo de la base de datos</span>
 
             {% if mysql_conectado %}
-            <form method="post" action="{% url 'respaldos_list' %}">
+            <form method="post" action="{% url 'respaldos_list' %}" id="backupSqlForm">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="backup_completo">
-                <button type="submit" class="stat-btn">
+                <button type="submit" class="stat-btn" id="backupSqlSubmitBtn">
                     <i class="fas fa-file-download me-1"></i> Descargar SQL
                 </button>
             </form>
