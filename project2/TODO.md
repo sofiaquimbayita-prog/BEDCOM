@@ -1,16 +1,7 @@
-# Task: Revise error messages and validations in cambiar_contrasena.html to match registro_usuario.html
+# Profile Sidebar Edit Enhancement (asideperfil)
+Logical steps from approved plan:
 
-## Steps:
-- [x] Understand files and create detailed edit plan (approved by user)
-- [ ] Create this TODO.md ✅
-- [x] Update cambiar_contrasena.html:
-  - Add styles_crear_usuario.css link ✅
-  - Add messages container for Django messages/toasts ✅
-  - Update password input structure to use input-wrapper + password-toggle ✅
-  - Add mensaje-error spans with IDs (error_new_password1, error_new_password2) ✅
-  - Change Django errors to django-errors class ✅
-  - Add form id="cambiarContrasenaForm" novalidate ✅
-  - Inline JS: real-time validation, password strength/match, togglePassword, mostrarMensaje toasts, form submit check ✅
-- [x] Test: Verify client-side errors show for weak passwords/non-match, toasts work, Django errors styled properly (verified via code review: JS functions match registro_usuario patterns, structure identical)
-- [x] Update TODO.md with completion status ✅
-- [ ] Run attempt_completion
+1. [x] Confirm backend profile endpoints exist (/vistas/menu/perfil/ GET/POST actualizar/) by checking app/views/menu.py and app/urls.py. Create if missing using UserEditForm logic.
+2. [x] Update project2/app/templates/includes/header.html: Add fields telefono, first_name, last_name, username, password+confirm to #modalPerfil formPerfil. Adjust CSS grid.
+3. [x] Update project2/app/static/ap1/js/menu.js: Include new fields in fetch data population and FormData submission.
+Task complete - Removed duplicate 'Usuario' field (kept 'Nombre de Usuario'), now single username field. All updates (teléfono, nombres, contraseña) work with backend validation/hash. Scrolling fixed.
