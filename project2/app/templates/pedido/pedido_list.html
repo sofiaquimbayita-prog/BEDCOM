@@ -153,6 +153,10 @@
           <label>Teléfono</label>
           <input type="text" id="clienteTelefono" class="form-input" readonly>
         </div>
+        <div class="form-grupo">
+          <label>Dirección</label>
+          <input type="text" id="clienteDireccion" class="form-input" readonly>
+        </div>
       </div>
 <!-- Sugerencias removidas: ahora usa dropdown -->
     </div>
@@ -212,7 +216,7 @@ const PRODUCTOS_DATA = [
 ];
 const CLIENTES_DATA = [
   {% for c in clientes %}
-  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}",telefono:"{{ c.telefono|escapejs }}" }{% if not forloop.last %},{% endif %}
+  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}",telefono:"{{ c.telefono|escapejs }}",direccion:"{{ c.direccion|escapejs }}" }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
 const CSRF_TOKEN    = "{{ csrf_token }}";
@@ -331,6 +335,7 @@ clienteSelect.addEventListener('change', function() {
     if (c) {
       inpNombre.value = c.nombre;
       inpTelefono.value = c.telefono;
+      document.getElementById('clienteDireccion').value = c.direccion || '';
       inpNombre.dataset.clienteId = id;
     }
   } else {
