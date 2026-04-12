@@ -1,128 +1,30 @@
-{% extends "includes/base.html" %}
-{% load static %}
+/* ─── URLs ─── */
+const URL_CLIENTES_DATA  = "/vistas/clientes/data/";
+const URL_CREAR          = "/vistas/clientes/crear/";
+const URL_OBTENER   = pk => `/vistas/clientes/obtener/${pk}/`;
+const URL_EDITAR    = pk => `/vistas/clientes/editar/${pk}/`;
+const URL_TOGGLE    = pk => `/vistas/clientes/toggle/${pk}/`;
+const URL_HISTORIAL = pk => `/vistas/clientes/historial/${pk}/`;
+const URL_PAGO           = "/vistas/clientes/pago/";
+const CSRF_TOKEN         = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
 
-{% block header_title %}CLIENTES{% endblock %}
+/* ─── DataTable ─── */
+let tabla;
+document.addEventListener('DOMContentLoaded', function () {
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/cliente.css' %}">
+  tabla = $('#tablaClientes').DataTable({
+    language: {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+    },
+    order: [[1, 'asc']],
+    columnDefs: [{ orderable: false, targets: -1 }],
+    pageLength: 15,
+  });
 
-<main class="main-container">
-
-  <!-- ══ KPI CARDS ══ -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--total"><i class="fas fa-users"></i></div>
-      <div>
-        <div class="kpi-value">{{ total_clientes }}</div>
-        <div class="kpi-label">Total Clientes</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--activo"><i class="fas fa-user-check"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-exito)">{{ activos }}</div>
-        <div class="kpi-label">Activos</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--inactivo"><i class="fas fa-user-slash"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-inactivar)">{{ inactivos }}</div>
-        <div class="kpi-label">Inactivos</div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--deuda"><i class="fas fa-file-invoice-dollar"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-deuda)">{{ con_deuda }}</div>
-        <div class="kpi-label">Con Deuda</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ Toolbar ══ -->
-  <div class="toolbar">
-    <div class="toolbar-left">
-      <label class="switch-container" title="Mostrar clientes inactivos">
-        <span class="switch-text">Mostrar Inactivos</span>
-        <label class="switch-control">
-          <input type="checkbox" id="toggleInactivos">
-          <span class="slider"></span>
-        </label>
-      </label>
-    </div>
-    <div class="toolbar-right">
-      <button class="btn-agregar" id="btnNuevoCliente">
-        <i class="fas fa-user-plus"></i> Nuevo Cliente
-      </button>
-    </div>
-  </div>
-
-  <!-- ══ Tabla ══ -->
-  <div class="container-tabla">
-    <table id="tablaClientes" class="display">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Teléfono</th>
-          <th>Deuda</th>
-          <th>Estado</th>
-          <th class="no-sort">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in clientes %}
-        <tr data-inactivo="{% if not c.estado %}true{% else %}false{% endif %}"
-              data-id="{{ c.id }}"
-              data-nombre="{{ c.nombre }}"
-              data-telefono="{{ c.telefono }}"
-              data-direccion="{{ c.direccion }}"
-              data-estado="{{ c.estado }}">
-                <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
-                <td>
-                <span style="font-weight:600">{{ c.nombre }}</span>
-                </td>
-                <td>{{ c.telefono }}</td>
-          <td class="td-deuda" data-id="{{ c.id }}">
-            <span style="color:var(--color-texto-muted);font-size:0.8rem">Cargando…</span>
-          </td>
-          <td>
-            {% if c.estado %}
-              <span class="badge-estado badge-activo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Activo</span>
-            {% else %}
-              <span class="badge-estado badge-inactivo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Inactivo</span>
-            {% endif %}
-          </td>
-          <td>
-            <div class="icons">
-              <button class="view-btn"     data-id="{{ c.id }}" title="Ver detalle"><i class="fas fa-eye"></i></button>
-              <button class="historial-btn" data-id="{{ c.id }}" title="Historial de pedidos"><i class="fas fa-history"></i></button>
-              <button class="edit-btn"     data-id="{{ c.id }}" title="Editar cliente"><i class="fas fa-edit"></i></button>
-              <button class="toggle-btn {% if c.estado %}inactivar{% endif %}"
-                      data-id="{{ c.id }}"
-                      data-estado="{{ c.estado }}"
-                      title="{% if c.estado %}Inactivar{% else %}Activar{% endif %}">
-                <i class="fas {% if c.estado %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-</main>
-
-{% include 'clientes/modals/modal_ver.html' %}
-{% include 'clientes/modals/modal_form.html' %}
-{% include 'clientes/modals/modal_historial.html' %}
-{% include 'clientes/modals/modal_pago.html' %}
-
-
-<script src="{% static 'ap1/js/clientes.js' %}"></script>
-
+  // Ocultar inactivos por defecto
+  ocultarInactivos();
+  cargarDeudas();
+});
 
 /* ─── Toggle inactivos ─── */
 document.getElementById('toggleInactivos').addEventListener('change', function () {
@@ -312,7 +214,6 @@ document.querySelectorAll('.historial-btn').forEach(btn => {
 
     const c = data.cliente;
     document.getElementById('histCliAvatar').textContent = c.nombre.charAt(0).toUpperCase();
-    document.getElementById('histCliNombre').textContent = c.nombre;
     document.getElementById('histTotalPedidos').textContent = data.total_pedidos;
 
     const totalFacturado = data.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
@@ -418,5 +319,3 @@ document.addEventListener('keydown', e => {
     ['modalVer','modalForm','modalHistorial','modalPago'].forEach(id => closeModal(id));
   }
 });
-</script>
-{% endblock %}
