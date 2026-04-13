@@ -28,6 +28,38 @@ let editRecetaInsumos = [];
 // La variable productosConReceta se define en el template HTML antes de cargar este script
 
 $(document).ready(function() {
+    // BOM Agregar Producto handler
+    $('#formBomAgregarProducto').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('precio', 0);
+        formData.append('stock', 0);
+        formData.append('descripcion', 'Producto creado desde BOM');
+        
+        $.ajax({
+            url: '/productos/crear/',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            success: function(response) {
+                if (response.success) {
+                    mostrarMensaje('success', response.message);
+                    cerrarModal('BOM_AGREGAR_PRODUCTO');
+                    location.reload();
+                } else {
+                    mostrarMensaje('error', 'Error al crear producto');
+                }
+            },
+            error: function() {
+                mostrarMensaje('error', 'Error de servidor');
+            }
+        });
+    });
+    
     // Inicializar DataTable solo si hay datos en la tabla
     const tablaBody = document.querySelector('#tablaBom tbody');
     const hasData = tablaBody && tablaBody.querySelectorAll('tr').length > 0 && !tablaBody.querySelector('td[colspan="6"]');
