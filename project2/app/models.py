@@ -277,6 +277,7 @@ class compra(models.Model):
 
 class pedido(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
+    fecha_entrega = models.DateField(null=True, blank=True, verbose_name="Fecha de entrega") 
     estado = models.CharField(max_length=20, default="Pendiente")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     abono = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True, blank=True)  # NUEVO CAMPO

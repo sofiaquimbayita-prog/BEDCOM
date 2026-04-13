@@ -153,6 +153,13 @@ document.querySelectorAll('.edit-btn').forEach(btn => {
 document.getElementById('btnGuardarCliente').addEventListener('click', async () => {
   const alerta = document.getElementById('formAlerta');
   alerta.style.display = 'none';
+  const validacion = window.validarFormularioCliente();
+  if (!validacion.valido) {
+    alerta.innerHTML = validacion.errores.join('<br>');
+    alerta.style.display = 'block';
+    return;
+  }
+
   const nombre    = document.getElementById('fNombre').value.trim();
   const telefono  = document.getElementById('fTelefono').value.trim();
   const direccion = document.getElementById('fDireccion').value.trim();

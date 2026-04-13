@@ -254,3 +254,47 @@ class PedidoStateChangeView(View):
 
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
+        
+
+MAX_PRODUCTOS_POR_PEDIDO = 20  # $1,000 COP
+
+def validar_pedido(items, total, abono):
+    """Valida todas las reglas de negocio del pedido"""
+    errores = []
+    
+    # 1. Validar que haya al menos un producto
+    if not items:
+        errores.append("El pedido debe tener al menos un producto")
+    
+    # 2. Validar máximo de productos
+    if len(items) > MAX_PRODUCTOS_POR_PEDIDO:
+        errores.append(f"Máximo {MAX_PRODUCTOS_POR_PEDIDO} productos por pedido")
+    
+    # 4. Validar abono (mínimo 50% del total)
+    if abono < (total * 0.5):
+        errores.append(f"El abono debe ser al menos el 50% del total (mínimo ${total * 0.5:,.0f})")
+    
+    # 5. Validar que el abono no supere el total
+    if abono > total:
+        errores.append("El abono no puede ser mayor al total del pedido")
+    
+    # 6. Validar productos duplicados
+    productos_ids = [item['producto_id'] for item in items]
+    if len(productos_ids) != len(set(productos_ids)):
+        errores.append("No se puede agregar el mismo producto múltiples veces")
+    
+    return errores
+
+def validar_stock_productos(items):
+    """Valida que haya suficiente stock para todos los productos"""
+    for item in items:
+        try:
+            prod = producto.objects.get(pk=item['producto_id'])
+            cantidad = int(item['cantidad'])
+            
+            if prod.stock < cantidad:
+                return False, f"Stock insuficiente para '{prod.nombre}'. Disponible: {prod.stock}"
+        except producto.DoesNotExist:
+            return False, f"Producto ID {item['producto_id']} no existe"
+    
+    return True, "OK"

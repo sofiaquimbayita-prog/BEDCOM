@@ -190,7 +190,7 @@ function ejecutarAnular(entradaId) {
         headers: { 'X-CSRFToken': csrftoken },
         data: { id: entradaId },
         success: (response) => {
-            console.log('✅ Anular success:', response);
+            console.log('Anular success:', response);
             if (response.success) {
                 mostrarMensaje('success', response.message || 'Entrada anulada');
                 cerrarModal('modalDelete');
@@ -228,7 +228,7 @@ function ejecutarReactivar(entradaId) {
         headers: { 'X-CSRFToken': csrftoken },
         data: { id: entradaId },
         success: (response) => {
-            console.log('✅ Reactivar success:', response);
+            console.log('Reactivar success:', response);
             if (response.success) {
                 mostrarMensaje('success', response.message || 'Entrada reactivada');
                 cerrarModal('modalReactivate');
@@ -463,6 +463,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (id) ejecutarReactivar(id);
     });
     
-    console.log('✅ Entrada_p.js loaded: Anular/Reactivar handlers active');
+    console.log('Entrada_p.js loaded: Anular/Reactivar handlers active');
   }); // Fin DOMContentLoaded
 

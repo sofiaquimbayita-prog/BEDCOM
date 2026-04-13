@@ -69,7 +69,7 @@ function activarJSRespaldos() {
         })
         
         .then(data => {
-            console.log("✅ RESPUESTA BACKEND:", data);
+            console.log(" RESPUESTA BACKEND:", data);
 
             if (data.error) {
                 mostrarToast(data.error, 'danger');

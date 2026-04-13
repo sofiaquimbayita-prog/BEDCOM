@@ -53,9 +53,9 @@
           <td>
             <select class="ped-estado-select estado-{{ p.estado|lower }}"
                     data-id="{{ p.id }}" data-estado-actual="{{ p.estado }}">
-              <option value="Pendiente"  {% if p.estado == "Pendiente"  %}selected{% endif %}>⏳ Pendiente</option>
-              <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>✅ Completado</option>
-              <option value="Anulado"    {% if p.estado == "Anulado"    %}selected{% endif %}>🚫 Anulado</option>
+              <option value="Pendiente"  {% if p.estado == "Pendiente"  %}selected{% endif %}>Pendiente</option>
+              <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>Completado</option>
+              <option value="Anulado"    {% if p.estado == "Anulado"    %}selected{% endif %}> nulado</option>
             </select>
           </td>
           <td>
@@ -167,12 +167,6 @@
         </thead>
         <tbody id="formItemsBody"></tbody>
       </table>
-    </div>
-
-        <!-- Total -->
-    <div class="resumen-total" style="margin-bottom:14px;">
-      <span>Total del pedido</span>
-      <span class="total-monto" id="formTotal">$0.00</span>
     </div>
 
     <!-- Campo ABONO INICIAL -->
@@ -340,6 +334,8 @@ document.querySelectorAll('.btn-ver').forEach(btn => {
     }
   });
 });
+ 
+// validaciones
 
 // Validar abono (mínimo 50% del total)
 function validarAbono(total, abono) {
@@ -349,6 +345,182 @@ function validarAbono(total, abono) {
     }
     return { valido: true, mensaje: '' };
 }
+
+
+// 2. Validación de stock disponible - MEJORAR
+function validarStock(productoId, cantidad) {
+    const producto = PRODUCTOS_DATA.find(p => p.id == productoId);
+    if (!producto) return { valido: false, mensaje: 'Producto no encontrado' };
+    if (producto.stock < cantidad) {
+        return { valido: false, mensaje: `Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}` };
+    }
+    return { valido: true, mensaje: '' };
+}
+
+// 3. Validación de cantidad mínima
+function validarCantidad(cantidad) {
+    if (!cantidad || cantidad < 1) {
+        return { valido: false, mensaje: 'La cantidad debe ser al menos 1' };
+    }
+    if (cantidad > 9999) {
+        return { valido: false, mensaje: 'La cantidad no puede superar 9999' };
+    }
+    return { valido: true, mensaje: '' };
+}
+
+// 4. Validación de cliente seleccionado
+function validarCliente(clienteId) {
+    if (!clienteId) {
+        return { valido: false, mensaje: 'Debe seleccionar un cliente' };
+    }
+    return { valido: true, mensaje: '' };
+}
+
+// 5. Validación de productos duplicados
+function validarProductosDuplicados(items) {
+    const productosIds = items.map(item => item.producto_id);
+    const duplicados = productosIds.filter((id, index) => productosIds.indexOf(id) !== index);
+    if (duplicados.length > 0) {
+        const productosNombres = duplicados.map(id => {
+            const p = PRODUCTOS_DATA.find(p => p.id == id);
+            return p ? p.nombre : id;
+        });
+        return { valido: false, mensaje: `Productos duplicados: ${productosNombres.join(', ')}` };
+    }
+    return { valido: true, mensaje: '' };
+}
+
+// 6. Validación de máximo de productos por pedido
+const MAX_PRODUCTOS_POR_PEDIDO = 150;
+function validarLimiteProductos(items) {
+    if (items.length > MAX_PRODUCTOS_POR_PEDIDO) {
+        return { valido: false, mensaje: `Máximo ${MAX_PRODUCTOS_POR_PEDIDO} productos por pedido` };
+    }
+    return { valido: true, mensaje: '' };
+}
+
+
+
+// Validación en tiempo real de cantidad vs stock
+function agregarValidacionTiempoReal() {
+    // Cuando cambia la cantidad, verificar stock
+    document.querySelector('#formItemsBody').addEventListener('input', function(e) {
+        if (e.target.classList.contains('inp-cantidad')) {
+            const tr = e.target.closest('tr');
+            const productoSelect = tr.querySelector('.sel-producto');
+            const cantidad = parseInt(e.target.value) || 0;
+            
+            if (productoSelect && productoSelect.value) {
+                const productoId = productoSelect.value;
+                const producto = PRODUCTOS_DATA.find(p => p.id == productoId);
+                
+                if (producto && cantidad > producto.stock) {
+                    e.target.classList.add('error-input');
+                    e.target.style.borderColor = 'var(--color-error)';
+                    
+                    // Mostrar mensaje de error temporal
+                    const errorMsg = document.createElement('small');
+                    errorMsg.textContent = `Stock máximo: ${producto.stock}`;
+                    errorMsg.style.color = 'var(--color-error)';
+                    errorMsg.style.fontSize = '0.7rem';
+                    
+                    const parent = e.target.parentElement;
+                    const existingError = parent.querySelector('.stock-error-msg');
+                    if (existingError) existingError.remove();
+                    parent.appendChild(errorMsg);
+                    errorMsg.classList.add('stock-error-msg');
+                    
+                    setTimeout(() => errorMsg.remove(), 3000);
+                } else {
+                    e.target.style.borderColor = '';
+                    const existingError = e.target.parentElement.querySelector('.stock-error-msg');
+                    if (existingError) existingError.remove();
+                }
+            }
+        }
+    });
+}
+
+// Validación de abono en tiempo real
+function validarAbonoEnTiempoReal() {
+    const abonoInput = document.getElementById('abonoInput');
+    const totalDisplay = document.getElementById('formTotal');
+    
+    if (abonoInput && totalDisplay) {
+        abonoInput.addEventListener('input', function() {
+            const total = parseFloat(totalDisplay.textContent.replace(/[^0-9.-]/g, '')) || 0;
+            const abono = parseFloat(this.value) || 0;
+            const minimo = total * 0.5;
+            
+            if (abono > 0 && abono < minimo) {
+                this.style.borderColor = 'var(--color-error)';
+                const helpText = document.getElementById('abonoHelp');
+                if (helpText) {
+                    helpText.style.color = 'var(--color-error)';
+                    helpText.textContent = `El abono debe ser mínimo $${minimo.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
+                }
+            } else {
+                this.style.borderColor = '';
+                const helpText = document.getElementById('abonoHelp');
+                if (helpText) {
+                    helpText.style.color = 'var(--color-texto-muted)';
+                    helpText.textContent = 'El abono debe ser al menos el 50% del total del pedido';
+                }
+            }
+        });
+    }
+}
+
+// Llamar estas funciones al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    agregarValidacionTiempoReal();
+    validarAbonoEnTiempoReal();
+});
+// Función de validación completa antes de guardar
+function validarPedidoCompleto(items, total, abono, clienteId) {
+    const errores = [];
+    
+    // Validar cliente
+    if (!clienteId) {
+        errores.push('Debe seleccionar un cliente');
+    }
+    
+    // Validar productos
+    if (!items.length) {
+        errores.push('Debe agregar al menos un producto');
+    }
+    
+    // Validar productos duplicados
+    const productosIds = items.map(item => item.producto_id);
+    const duplicados = productosIds.filter((id, index) => productosIds.indexOf(id) !== index);
+    if (duplicados.length > 0) {
+        errores.push('No puede agregar el mismo producto múltiples veces');
+    }
+    
+    // Validar stock
+    for (const item of items) {
+        const producto = PRODUCTOS_DATA.find(p => p.id == item.producto_id);
+        if (!producto) {
+            errores.push(`Producto ID ${item.producto_id} no existe`);
+        } else if (producto.stock < item.cantidad) {
+            errores.push(`Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}`);
+        }
+    }
+    
+    
+    // Validar abono
+    const minimoAbono = total * 0.5;
+    if (abono < minimoAbono) {
+        errores.push(`El abono debe ser al menos el 50% del total (mínimo $${minimoAbono.toLocaleString('es-CO', {minimumFractionDigits: 2})})`);
+    }
+    
+    if (abono > total) {
+        errores.push('El abono no puede ser mayor al total del pedido');
+    }
+    
+    return errores;
+}
+
 
 /* ── Dropdown cliente ── */
 const clienteSelect = document.getElementById('clienteSelect');
