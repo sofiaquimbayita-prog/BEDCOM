@@ -1,0 +1,318 @@
+/* ════════════════════════════════════════════════════
+   MÓDULO DE CLIENTES — Alineado al sistema BEDCOM
+   ════════════════════════════════════════════════════ */
+
+:root {
+  --color-principal:        #5181d3;
+  --color-principal-oscuro: #347ea9;
+  --color-acento:           #00b3ff;
+  --color-editar:           #f59e0b;
+  --color-editar-glow:      rgba(245,158,11,0.15);
+  --color-editar-glow-brd:  rgba(245,158,11,0.35);
+  --color-ver:              #a78bfa;
+  --color-ver-glow:         rgba(167,139,250,0.15);
+  --color-ver-glow-brd:     rgba(167,139,250,0.35);
+  --color-inactivar:        #ef4444;
+  --color-inactivar-glow:   rgba(239,68,68,0.15);
+  --color-inactivar-brd:    rgba(239,68,68,0.35);
+  --color-activar:          #10b981dc;
+  --color-activar-glow:     rgba(16,185,129,0.15);
+  --color-activar-brd:      rgba(16,185,129,0.35);
+  --color-superficie:       rgba(30,41,59,0.9);
+  --color-superficie-dark:  #0f172a;
+  --color-superficie-input: #1e293b;
+  --color-texto:            #ffffff;
+  --color-texto-oscuro:     #f1f1f1;
+  --color-texto-muted:      #94a3b8;
+  --color-texto-disabled:   #475569;
+  --color-borde:            #334155;
+  --color-exito:            #10b981;
+  --color-error:            #ef4444;
+  --color-advertencia:      #f59e0b;
+  --color-deuda:            #f97316;
+  --color-deuda-glow:       rgba(249,115,22,0.15);
+  --color-deuda-brd:        rgba(249,115,22,0.35);
+  --borde-sm:  6px;
+  --borde-md:  8px;
+  --borde-lg:  12px;
+  --borde-xl:  15px;
+  --sombra-lg: 0 10px 25px rgba(0,0,0,0.4);
+  --sombra-xl: 0 25px 50px rgba(0,0,0,0.6);
+  --transicion-rapida: 0.2s ease;
+  --transicion-normal: 0.3s ease;
+  --acento-glow:        rgba(56,189,248,0.15);
+  --acento-glow-border: rgba(56,189,248,0.3);
+  --acento-glow-ring:   rgba(56,189,248,0.25);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; }
+
+/* ── 1. LAYOUT ── */
+.main-container { padding:24px; color:var(--color-texto); min-height:calc(100vh - 80px); animation:fadeIn 0.4s ease; }
+
+/* ── 2. KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--borde-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--sombra-lg); }
+.kpi-icon {
+  width: 46px; height: 46px;
+  border-radius: var(--borde-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.kpi-icon--total   { background: rgba(81,129,211,0.15); color: var(--color-principal); }
+.kpi-icon--activo  { background: var(--color-activar-glow);  color: var(--color-exito); }
+.kpi-icon--inactivo{ background: var(--color-inactivar-glow); color: var(--color-inactivar); }
+.kpi-icon--deuda   { background: var(--color-deuda-glow); color: var(--color-deuda); }
+.kpi-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+.kpi-label { font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-muted); margin-top: 3px; }
+
+/* ── 3. TOOLBAR ── */
+.toolbar { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+.toolbar-left  { display:flex; align-items:center; gap:12px; }
+.toolbar-right { display:flex; align-items:center; gap:12px; }
+
+.switch-container { display:flex; align-items:center; gap:12px; padding:9px 16px; background:var(--color-superficie); border-radius:50px; border:1px solid var(--color-borde); cursor:pointer; transition:border-color var(--transicion-rapida); }
+.switch-container:hover { border-color:var(--color-acento); }
+.switch-text { font-size:0.85rem; font-weight:600; color:var(--color-texto-muted); white-space:nowrap; user-select:none; }
+.switch-control { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
+.switch-control input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; inset:0; background:#475569; border-radius:34px; transition:background 0.35s ease; }
+.slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,0.3); transition:transform 0.35s ease; }
+input:checked + .slider { background:var(--color-advertencia); }
+input:checked + .slider::before { transform:translateX(20px); }
+
+.btn-agregar {
+  background:var(--color-superficie); color:var(--color-texto); border:none;
+  padding:12px 20px; border-radius:var(--borde-md); font-size:15px;
+  display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+  transition:all var(--transicion-normal); position:relative; overflow:hidden; text-decoration:none;
+}
+.btn-agregar::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transition:left 0.5s ease; }
+.btn-agregar:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(14,165,233,0.5); background:linear-gradient(135deg,#363c3e 0%,#17272e 100%); color:var(--color-texto); }
+.btn-agregar:hover::before { left:100%; }
+
+/* ── 4. TABLA ── */
+.container-tabla { background:var(--color-superficie); border-radius:var(--borde-lg); padding:25px; width:95%; margin:0 auto 30px auto; box-shadow:var(--sombra-lg); position:relative; z-index:1; overflow:hidden; }
+
+#tablaClientes { width:100% !important; color:var(--color-texto); min-width:600px; }
+.dataTables_wrapper { color:var(--color-texto) !important; width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label { color:var(--color-texto-muted) !important; }
+.dataTables_wrapper .dataTables_filter input { background:var(--color-superficie-input) !important; border:1px solid var(--color-borde) !important; border-radius:var(--borde-sm); padding:6px 12px; color:var(--color-texto) !important; margin-left:8px; transition:all var(--transicion-rapida); }
+.dataTables_wrapper .dataTables_filter input:focus { border-color:var(--color-acento) !important; outline:none; box-shadow:0 0 0 2px var(--acento-glow); }
+.dataTables_length select { background:var(--color-borde) !important; color:var(--color-texto) !important; border:1px solid var(--color-borde) !important; border-radius:var(--borde-sm); padding:2px 4px; }
+.dataTables_length select option { background:var(--color-borde) !important; color:var(--color-texto) !important; }
+.dataTables_wrapper table.dataTable thead th { color:var(--color-texto); font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; padding:14px 12px; border-bottom:1px solid var(--acento-glow-border) !important; border-top:none !important; }
+.dataTables_wrapper table.dataTable.display tbody tr.odd  { background:rgba(255,255,255,0.02) !important; }
+.dataTables_wrapper table.dataTable.display tbody tr.even { background:transparent !important; }
+.dataTables_wrapper table.dataTable tbody td { padding:14px 12px; border-top:1px solid rgba(255,255,255,0.05) !important; color:var(--color-texto-oscuro); font-size:0.9rem; }
+#tablaClientes tbody tr:hover { background:var(--acento-glow) !important; cursor:pointer; }
+#tablaClientes tbody tr:hover td { color:var(--color-acento) !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button { color:var(--color-texto) !important; border-radius:var(--borde-sm) !important; border:none !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover { background:var(--acento-glow) !important; color:var(--color-acento) !important; border:none !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background:rgba(56,189,248,0.2) !important; color:var(--color-acento) !important; border:1px solid var(--acento-glow-border) !important; font-weight:bold; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover { color:var(--color-texto-disabled) !important; }
+
+/* ── 5. BADGES ── */
+.badge-estado {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 50px;
+  font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.badge-activo   { background: var(--color-activar-glow);   color: var(--color-exito);    border: 1px solid var(--color-activar-brd); }
+.badge-inactivo { background: var(--color-inactivar-glow); color: var(--color-inactivar); border: 1px solid var(--color-inactivar-brd); }
+.badge-deuda    { background: var(--color-deuda-glow);     color: var(--color-deuda);     border: 1px solid var(--color-deuda-brd); }
+.badge-saldado  { background: var(--color-activar-glow);   color: var(--color-exito);     border: 1px solid var(--color-activar-brd); }
+.badge-pendiente{ background: rgba(245,158,11,0.15);       color: var(--color-advertencia); border: 1px solid rgba(245,158,11,0.35); }
+.badge-completado{background: var(--color-activar-glow);   color: var(--color-exito);     border: 1px solid var(--color-activar-brd); }
+.badge-anulado  { background: var(--color-inactivar-glow); color: var(--color-inactivar); border: 1px solid var(--color-inactivar-brd); }
+
+/* ── 6. ICONOS DE ACCIÓN ── */
+.icons { display:flex; align-items:center; gap:6px; }
+.view-btn, .edit-btn, .toggle-btn, .historial-btn, .pago-btn {
+  border:none; border-radius:var(--borde-md); padding:7px 10px;
+  cursor:pointer; font-size:13px;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:all var(--transicion-rapida); position:relative; overflow:hidden;
+}
+.view-btn   { background:var(--color-ver-glow);       color:var(--color-ver);       border:1px solid var(--color-ver-glow-brd); }
+.edit-btn   { background:var(--color-editar-glow);    color:var(--color-editar);    border:1px solid var(--color-editar-glow-brd); }
+.toggle-btn { background:var(--color-activar-glow);   color:var(--color-exito);     border:1px solid var(--color-activar-brd); }
+.toggle-btn.inactivar { background:var(--color-inactivar-glow); color:var(--color-inactivar); border:1px solid var(--color-inactivar-brd); }
+.historial-btn { background:rgba(56,189,248,0.1); color:var(--color-acento); border:1px solid var(--acento-glow-border); }
+.pago-btn   { background:var(--color-deuda-glow);     color:var(--color-deuda);     border:1px solid var(--color-deuda-brd); }
+
+.view-btn:hover     { background:var(--color-ver);       color:#fff; box-shadow:0 4px 14px var(--color-ver-glow); transform:translateY(-1px); }
+.edit-btn:hover     { background:var(--color-editar);    color:#000; box-shadow:0 4px 14px var(--color-editar-glow); transform:translateY(-1px); }
+.toggle-btn:hover   { background:var(--color-exito);     color:#fff; box-shadow:0 4px 14px var(--color-activar-glow); transform:translateY(-1px); }
+.toggle-btn.inactivar:hover { background:var(--color-inactivar); color:#fff; box-shadow:0 4px 14px var(--color-inactivar-glow); transform:translateY(-1px); }
+.historial-btn:hover{ background:var(--color-acento);   color:#000; box-shadow:0 4px 14px var(--acento-glow); transform:translateY(-1px); }
+.pago-btn:hover     { background:var(--color-deuda);     color:#fff; box-shadow:0 4px 14px var(--color-deuda-glow); transform:translateY(-1px); }
+
+/* ── 7. MODALES ── */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9000; align-items:center; justify-content:center; animation:fadeIn 0.2s ease; backdrop-filter:blur(4px); }
+.modal.open { display:flex; }
+.modal-contenido { background:var(--color-superficie-dark); border:1px solid var(--color-borde); border-radius:var(--borde-xl); padding:32px; width:90%; max-width:550px; max-height:90vh; overflow-y:auto; box-shadow:var(--sombra-xl); animation:slideUp 0.3s ease; scrollbar-width:thin; scrollbar-color:var(--color-borde) transparent; }
+.modal-contenido--wide { max-width:700px; }
+.modal-contenido--xl   { max-width:860px; }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid var(--color-borde); }
+.modal-header--agregar { border-bottom-color: var(--color-principal); }
+.modal-header--editar  { border-bottom-color: var(--color-editar); }
+.modal-header--ver     { border-bottom-color: var(--color-ver); }
+.modal-header--historial { border-bottom-color: var(--color-acento); }
+.modal-header--pago    { border-bottom-color: var(--color-deuda); }
+
+.modal-titulo { font-size:1.15rem; font-weight:700; display:flex; align-items:center; gap:10px; }
+.modal-titulo--agregar  { color: var(--color-principal); }
+.modal-titulo--editar   { color: var(--color-editar); }
+.modal-titulo--ver      { color: var(--color-ver); }
+.modal-titulo--historial{ color: var(--color-acento); }
+.modal-titulo--pago     { color: var(--color-deuda); }
+
+.btn-cerrar { background:transparent; border:1px solid var(--color-borde); color:var(--color-texto-muted); width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:all var(--transicion-rapida); flex-shrink:0; }
+.btn-cerrar:hover { background:var(--color-inactivar-glow); border-color:var(--color-inactivar); color:var(--color-inactivar); }
+.btn-cerrar--editar:hover { background:var(--color-editar-glow); border-color:var(--color-editar); color:var(--color-editar); }
+
+/* ── 8. FORMULARIO ── */
+.form-grupo { margin-bottom:14px; }
+.form-grupo label { display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-texto-muted); margin-bottom:6px; }
+.form-input { width:100%; padding:11px 14px; background:var(--color-superficie-input); border:1px solid var(--color-borde); border-radius:var(--borde-md); color:var(--color-texto); font-family:inherit; font-size:0.92rem; outline:none; transition:border-color var(--transicion-rapida),box-shadow var(--transicion-rapida); }
+.form-input:focus { border-color:var(--color-acento); box-shadow:0 0 0 2px var(--acento-glow); }
+.form-input.editar:focus { border-color:var(--color-editar) !important; box-shadow:0 0 0 2px var(--color-editar-glow); }
+.form-input.pago-focus:focus { border-color:var(--color-deuda) !important; box-shadow:0 0 0 2px var(--color-deuda-glow); }
+.divicion   { display:grid; grid-template-columns:1fr 1fr;     gap:0 20px; }
+.divicion-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px; }
+.form-alerta { display:none; background:var(--color-inactivar-glow); border:1px solid var(--color-inactivar-brd); color:#fca5a5; padding:10px 14px; border-radius:var(--borde-md); font-size:0.85rem; margin-bottom:14px; }
+.form-botones { display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid var(--color-borde); }
+.btn-cancelar { background:transparent; border:1px solid var(--color-borde); color:var(--color-texto-muted); padding:10px 22px; border-radius:var(--borde-md); cursor:pointer; font-size:0.9rem; transition:all var(--transicion-rapida); }
+.btn-cancelar:hover { border-color:var(--color-texto-muted); color:var(--color-texto); }
+.btn-guardar { background:var(--color-principal); color:#fff; border:none; padding:10px 28px; border-radius:var(--borde-md); cursor:pointer; font-weight:700; font-size:0.9rem; display:inline-flex; align-items:center; gap:8px; transition:all var(--transicion-rapida); }
+.btn-guardar:hover { filter:brightness(1.1); transform:translateY(-1px); box-shadow:0 4px 14px rgba(81,129,211,0.4); }
+.btn-guardar:disabled { opacity:0.55; cursor:not-allowed; transform:none; }
+.btn-guardar--editar { background:var(--color-editar); color:#000; }
+.btn-guardar--editar:hover { box-shadow:0 4px 14px var(--color-editar-glow); }
+.btn-guardar--pago { background:var(--color-deuda); color:#fff; }
+.btn-guardar--pago:hover { box-shadow:0 4px 14px var(--color-deuda-glow); }
+
+/* ── 9. CARD DE CLIENTE (modal historial) ── */
+.cli-card {
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(56,189,248,0.05); border: 1px solid var(--acento-glow-border);
+  border-radius: var(--borde-lg); padding: 14px 18px; margin-bottom: 20px;
+}
+.cli-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-principal), var(--color-acento));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: #fff; font-weight: 800; flex-shrink: 0;
+}
+.cli-info-nombre { font-size: 1rem; font-weight: 700; color: var(--color-texto); }
+.cli-info-cedula { font-size: 0.8rem; color: var(--color-texto-muted); margin-top: 2px; }
+
+/* ── 10. RESUMEN DEUDA ── */
+.deuda-resumen {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;
+}
+.deuda-item {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--borde-md); padding: 12px 14px; text-align: center;
+}
+.deuda-item--alert { background: var(--color-deuda-glow); border-color: var(--color-deuda-brd); }
+.deuda-valor { font-size: 1.3rem; font-weight: 800; color: var(--color-exito); }
+.deuda-valor--alert { color: var(--color-deuda); }
+.deuda-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-muted); margin-top: 4px; }
+
+/* ── 11. HISTORIAL DE PEDIDOS ── */
+.historial-pedido {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--borde-md); padding: 14px 16px; margin-bottom: 10px;
+  transition: background var(--transicion-rapida);
+}
+.historial-pedido:hover { background: rgba(56,189,248,0.04); }
+.historial-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.historial-id   { font-size: 0.95rem; font-weight: 700; color: var(--color-acento); }
+.historial-fecha{ font-size: 0.8rem; color: var(--color-texto-muted); }
+.historial-monto{ font-size: 1rem; font-weight: 700; color: var(--color-exito); }
+.historial-pendiente { font-size: 0.82rem; color: var(--color-deuda); font-weight: 600; margin-top: 4px; }
+.historial-pago-btn {
+  background: var(--color-deuda-glow); color: var(--color-deuda);
+  border: 1px solid var(--color-deuda-brd); border-radius: var(--borde-md);
+  padding: 5px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  transition: all var(--transicion-rapida); display: inline-flex; align-items: center; gap: 5px;
+}
+.historial-pago-btn:hover { background: var(--color-deuda); color: #fff; transform: translateY(-1px); }
+
+/* ── 12. MODAL VER ── */
+.ver-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.ver-campo { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:var(--borde-md); padding:11px 14px; display:flex; flex-direction:column; gap:4px; }
+.ver-campo--destacado { grid-column:1 / -1; }
+.ver-label { font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-texto-muted); }
+.ver-valor { font-size:0.95rem; color:var(--color-texto); font-weight:500; }
+.ver-valor--monto { font-size:1.4rem; font-weight:800; color:var(--color-deuda); }
+
+/* ── 13. TOAST ── */
+.messages { position:fixed; top:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+.message { min-width:280px; max-width:360px; padding:14px 18px; border-radius:var(--borde-lg); font-size:0.9rem; font-weight:500; display:flex; align-items:flex-start; gap:10px; box-shadow:var(--sombra-lg); animation:toastIn 0.3s ease; pointer-events:all; }
+@keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+.message--success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#6ee7b7; }
+.message--error   { background:rgba(239,68,68,0.15);  border:1px solid rgba(239,68,68,0.35);  color:#fca5a5; }
+.message--info    { background:rgba(56,189,248,0.15); border:1px solid var(--acento-glow-border); color:#7dd3fc; }
+
+/* ── 14. EMPTY STATE ── */
+.historial-vacio { text-align: center; padding: 30px; color: var(--color-texto-muted); }
+.historial-vacio i { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.4; display: block; }
+
+/* ── 15. SECCIÓN HEADER HISTORIAL ── */
+.seccion-titulo {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-acento); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+
+/* ── 16. ANIMACIONES ── */
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── 17. RESPONSIVE ── */
+@media (max-width:900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:768px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .toolbar { padding:10px; gap:12px; }
+  .toolbar-left, .toolbar-right { justify-content:center; width:100%; }
+  .btn-agregar { justify-content:center; width:100%; }
+  .switch-container { width:100%; max-width:100%; justify-content:center; }
+  .modal-contenido { padding:22px !important; width:93% !important; }
+  .modal-contenido--wide,.modal-contenido--xl { max-width:93% !important; }
+  .divicion,.divicion-3 { grid-template-columns:1fr; gap:0; }
+  .ver-grid { grid-template-columns:1fr; }
+  .ver-campo--destacado { grid-column:1; }
+  .deuda-resumen { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width:576px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .main-container { padding:10px; }
+  .container-tabla { padding:10px; margin:10px auto; width:100%; border-radius:8px; }
+  .modal-contenido { padding:18px !important; width:96% !important; }
+  .form-botones { flex-direction:column; }
+  .deuda-resumen { grid-template-columns: 1fr; }
+}

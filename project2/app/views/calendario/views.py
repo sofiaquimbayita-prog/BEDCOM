@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import date, datetime
-from ...models import calendario, CategoriaEvento
+from ...models import calendario, CategoriaEvento, historial_acciones, usuario
 from ...forms import calendarioForm
 
 
@@ -142,6 +142,16 @@ class EventoCreateView(View):
             evento = form.save(commit=False)
             evento.modo_completado = modo_completado
             evento.save()
+            try:
+                tipo_accion = 'editar' if instancia and instancia.pk else 'crear'
+                historial_acciones.objects.create(
+                    usuario=request.user,
+                    tipo_accion=tipo_accion,
+                    modulo='calendario',
+                    descripcion=f"Evento: {evento.titulo} ({evento.fecha.strftime('%d/%m/%Y')} {evento.hora.strftime('%H:%M')})"
+                )
+            except Exception as e:
+                print(f"Error logging calendario {tipo_accion}: {e}")
             return JsonResponse({
                 'status':  'success',
                 'message': 'Evento guardado correctamente.',
@@ -180,6 +190,15 @@ class EventoCompletarView(View):
 
         evento.estado = estado
         evento.save(update_fields=['estado'])
+        try:
+            historial_acciones.objects.create(
+                usuario=request.user,
+                tipo_accion='editar',
+                modulo='calendario',
+                descripcion=f"Estado evento '{evento.titulo}': {evento.get_estado_display()}"
+            )
+        except Exception as e:
+            print(f"Error logging completar evento: {e}")
         return JsonResponse({'status': 'success', 'estado': evento.estado})
 
 
@@ -188,4 +207,13 @@ class EventoEliminarView(View):
         evento = get_object_or_404(calendario, id=pk)
         evento.estado = calendario.ESTADO_ELIMINADO
         evento.save(update_fields=['estado'])
+        try:
+            historial_acciones.objects.create(
+                usuario=request.user,
+                tipo_accion='eliminar',
+                modulo='calendario',
+                descripcion=f"Evento eliminado: {evento.titulo}"
+            )
+        except Exception as e:
+            print(f"Error logging eliminar evento: {e}")
         return JsonResponse({'status': 'success', 'message': 'Actividad eliminada.'})

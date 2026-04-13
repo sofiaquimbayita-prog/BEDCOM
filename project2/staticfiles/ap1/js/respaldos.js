@@ -223,6 +223,7 @@ $(document).ready(function() {
         }
     });
 
+
     // ================= VER DETALLES =================
     window.openViewModal = function(fecha, usuario, tipo, desc) {
         $('#viewFecha').text(fecha);
@@ -274,6 +275,17 @@ $(document).ready(function() {
         abrirModal('deleteModal');
     };
 
+    function abrirRespaldos() {
+        fetch('/ruta/modal/respaldos/')  // 👈 tu URL en Django
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('contenidoRespaldos').innerHTML = html;
+
+                // 🔥 IMPORTANTE: reinicializar eventos
+                activarJSRespaldos();
+            });
+    }
+
     // ================= TOAST NOTIFICATIONS =================
     window.cerrarToast = function(btn) {
         const toast = $(btn).closest('.message');
@@ -284,6 +296,50 @@ $(document).ready(function() {
     setTimeout(() => {
         $('.message').fadeOut(500, function() { $(this).remove(); });
     }, 5000);
+
+    // ================= TIPO DE RESPALDO =================
+
+    $(document).on('change', '#add_tipo', function(){
+
+        const tipo = $(this).val();
+
+        if(tipo === "parcial"){
+            $('#modulosContainer').slideDown(200);
+        }else{
+            $('#modulosContainer').slideUp(200);
+        }
+
+    });
+
+    // ================= SELECCION DE MODULOS =================
+
+    $(document).on('click', '.modulo-card', function(e){
+
+        if(e.target.tagName !== "INPUT"){
+
+            const checkbox = $(this).find('input');
+
+            checkbox.prop('checked', !checkbox.prop('checked'));
+
+        }
+
+        $(this).toggleClass('active');
+
+    });
+
+    // ================= SELECCION TIPO RESPALDO =================
+
+    $(document).on('click', '.tipo-card', function(){
+
+        $('.tipo-card').removeClass('active');
+
+        $(this).addClass('active');
+
+        const valor = $(this).data('value');
+
+        $('#add_tipo').val(valor).trigger('change');
+
+    });
 
     // ================= INICIALIZACIÓN =================
     filtrarTabla();

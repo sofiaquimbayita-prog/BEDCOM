@@ -12,11 +12,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.safestring import mark_safe
 
 # Importación de tus modelos
-from ...models import producto, categoria, reporte, usuario
+from ...models import producto, categoria, reporte, usuario, historial_acciones
 
 
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
-
 # --- VISTA DE LISTADO ---
 @method_decorator(login_required, name='dispatch')
 class producto_list_view(ListView):
@@ -25,19 +24,30 @@ class producto_list_view(ListView):
     context_object_name = 'productos'
 
     def get_queryset(self):
-        # Filtra solo activos y optimiza la carga de categorías e imágenes
-        # Devolver todos los productos (activos e inactivos). El filtrado por
-        # estado se hará en el cliente mediante el switch/ DataTable.
-        return producto.objects.select_related('categoria').order_by('-id')
+        """
+        Filtrar productos activos por defecto. Soporte para ?mostrar_inactivos=true
+        Switch ON: only inactive (estado=False)
+        Switch OFF: only active (estado=True)
+        """
+        mostrar_inactivos = self.request.GET.get('mostrar_inactivos', 'false').lower() == 'true'
+        
+        queryset = producto.objects.select_related('categoria')
+        
+        if mostrar_inactivos:
+            queryset = queryset.filter(estado=False)
+        else:
+            queryset = queryset.filter(estado=True)
+        return queryset.order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         # Filtrar solo categorías de tipo producto
         context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
         context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
+        
         return context
-
-
+    
 # --- VISTA DE CREACIÓN (AGREGAR) ---
 @method_decorator(login_required, name='dispatch')
 class producto_create_view(SuccessMessageMixin, CreateView):
@@ -96,6 +106,18 @@ class producto_create_view(SuccessMessageMixin, CreateView):
 
         # Guardar el producto
         self.object = form.save()
+
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if self.request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='productos',
+                    tipo_accion='crear',
+                    descripcion=f'Creó el producto "{self.object.nombre}"',
+                    usuario=self.request.user
+                )
+            except Exception as e:
+                print(f"Error al registrar historial: {e}")
         
         # Responder según el tipo de request
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -184,6 +206,18 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
 
         # Guardar
         self.object = form.save()
+
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if self.request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='productos',
+                    tipo_accion='editar',
+                    descripcion=f'Editó el producto "{self.object.nombre}"',
+                    usuario=self.request.user
+                )
+            except Exception as e:
+                print(f"Error al registrar historial: {e}")
         
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             response = {'success': True, 'message': 'Producto actualizado correctamente'}
@@ -225,6 +259,18 @@ class producto_delete_view(DeleteView):
         self.object.estado = False
         self.object.save()
 
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='productos',
+                    tipo_accion='inactivar',
+                    descripcion=f'Inactivó el producto "{self.object.nombre}"',
+                    usuario=request.user
+                )
+            except Exception as e:
+                print(f"Error al registrar historial: {e}")
+
         messages.success(request, f"El producto '{self.object.nombre}' fue inactivado correctamente.")
         return HttpResponseRedirect(success_url)
 
@@ -246,5 +292,18 @@ class producto_activate_view(SuccessMessageMixin, DeleteView):
         self.object.estado = True
         self.object.save()
 
+        # REGISTRAR ACCIÓN EN HISTORIAL
+        if request.user.is_authenticated:
+            try:
+                historial_acciones.objects.create(
+                    modulo='productos',
+                    tipo_accion='activar',
+                    descripcion=f'Activó el producto "{self.object.nombre}"',
+                    usuario=request.user
+                )
+            except Exception as e:
+                print(f"Error al registrar historial: {e}")
+
         messages.success(request, f"El producto '{self.object.nombre}' fue activado correctamente.")
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.get_success_url())
+

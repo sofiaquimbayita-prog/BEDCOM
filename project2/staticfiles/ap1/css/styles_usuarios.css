@@ -1,0 +1,200 @@
+/* ==================================================
+   styles_usuarios.css - Estilo Unificado BedCom
+   ================================================== */
+
+:root {
+  --bg: #0b1220;
+  --card: #1b2537;
+  --card-hover: #25324d;
+  --text: #e9eef7;
+  --muted: #a9b3c7;
+  --brand: #5cc8ff;
+  --ok: #2ecc71;
+  --warn: #ffb020;
+  --info: #5fa8ff;
+  --danger: #e74c3c;
+  --radius: 12px;
+  --transicion: 0.3s ease;
+  --sombra-lg: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+/* Contenedor Principal (Copia fiel de Productos) */
+.container-tabla {
+  background-color: var(--card) !important;
+  padding: 24px;
+  border-radius: var(--radius);
+  margin: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--sombra-lg);
+}
+
+/* Toolbar de Filtros y Botones */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 15px;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Personalización de DataTables para calcar Productos */
+table.dataTable {
+  border-bottom: none !important;
+  background: transparent !important;
+  margin-top: 15px !important;
+  width: 100% !important;
+}
+
+table.dataTable thead th {
+  background: rgba(92, 200, 255, 0.03) !important;
+  color: var(--brand) !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 1.2px !important;
+  padding: 16px !important;
+  border-bottom: 2px solid var(--brand) !important;
+  text-align: left;
+}
+
+table.dataTable tbody td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+table.dataTable tbody tr {
+  background-color: transparent !important;
+  transition: var(--transicion);
+}
+
+table.dataTable tbody tr:hover {
+  background-color: rgba(92, 200, 255, 0.05) !important;
+}
+
+/* Estilos de Modales con Desenfoque (Igual a Productos) */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(7, 11, 20, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background-color: var(--card) !important;
+  margin: 5% auto;
+  padding: 35px;
+  border-radius: 16px !important;
+  width: 90%;
+  max-width: 600px;
+  border: 1px solid rgba(92, 200, 255, 0.2) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+  position: relative;
+}
+
+/* Badges de Estado */
+.badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.badge-success { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.badge-danger { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+.badge-info { background: rgba(95, 168, 255, 0.15); color: #5fa8ff; }
+
+/* Botones de Acción en la Tabla */
+.acciones {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.edit-btn, .delete-btn, .activate-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.edit-btn { background: var(--warn); color: #000; }
+.delete-btn { background: var(--danger); color: #fff; }
+.activate-btn { background: var(--ok); color: #fff; }
+
+.edit-btn:hover, .delete-btn:hover, .activate-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+/* Estilo para los inputs de búsqueda de DataTables */
+.dataTables_wrapper .dataTables_filter input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text) !important;
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    margin-left: 10px !important;
+}
+
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--muted) !important;
+    margin-top: 15px !important;
+}
+
+/* Switch Slider */
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch-control input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #334155;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px; width: 14px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider { background-color: var(--brand); }
+input:checked + .slider:before { transform: translateX(20px); }

@@ -63,6 +63,8 @@
    CONTENEDOR PRINCIPAL
    ================================================== */
 .bom-gestion {
+  display: flex;
+  flex-direction: column;
   padding: 24px;
   color: var(--color-texto);
   min-height: calc(100vh - 80px);
@@ -870,15 +872,25 @@ table.dataTable tbody tr:last-child td {
     align-items: center;
     justify-content: center;
     transition: transform 0.2s;
+    margin-left: 0px;
 }
 
 .btn-add-item:hover {
     transform: scale(1.05);
 }
 
-/* Evitar que Select2 rompa la línea si lo usas */
+
 .select2-container--default {
     flex: 2;
+}
+
+/* Boton crear Receta */
+.crear-receta {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
 }
 /* ==================================================
    TABLA EN MODAL - ESTILO OSCURO
@@ -1022,6 +1034,7 @@ input:-webkit-autofill {
   .button-2, .button-3 {
     width: 100%;
     justify-content: center;
+    margin-right: 0px;
   }
 
   .container-tabla {

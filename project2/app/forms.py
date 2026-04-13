@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -437,3 +437,28 @@ class SalidaProductoForm(forms.ModelForm):
 
         return cleaned_data
 
+
+
+class PedidoForm(forms.ModelForm):
+    class Meta:
+        model = pedido
+        fields = ['cliente'] # El estado y total se calculan/asignan en la view
+        widgets = {
+            'cliente': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
+class DetallePedidoForm(forms.ModelForm):
+    # Campo extra para las notas de personalización que mencionaste
+    notas_personalizacion = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Cambios específicos...'}),
+        required=False
+    )
+
+    class Meta:
+        model = detalle_pedido
+        fields = ['producto', 'cantidad', 'precio_unitario']
+        widgets = {
+            'producto': forms.Select(attrs={'class': 'form-control'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        }

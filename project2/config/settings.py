@@ -12,10 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g'
 
 # IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
-DEBUG = True 
+DEBUG = True
 
 # Dominios permitidos para acceder al servidor
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['*']
+
 
 # --------------------------------------------------------------------------
 # 3. DEFINICIÓN DE APLICACIONES
@@ -29,14 +30,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Tus aplicaciones
     'app',
     
-    # Seguridad externa
     'axes',
     
-    # Custom user model setting (must be string, after 'app')
-    
+    'usuarios',
+    'widget_tweaks',
 ]
 AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
 
@@ -86,8 +85,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # --------------------------------------------------------------------------
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bedcom',
+        'USER': 'root',
+        'PASSWORD': '123456789',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -154,7 +157,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 10. LOCALIZACIÓN
 # --------------------------------------------------------------------------
 LANGUAGE_CODE = 'es-co'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
-

@@ -1,7 +1,7 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block header_title %}Salida de Productos{% endblock %}
+{% block header_title %}Salida de Productos - BEDCOM{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/SalidaP.css' %}">
@@ -113,9 +113,7 @@
 </main>
 
 <!-- Modales con z-index escalonado para apertura individual -->
-<div style="position: relative; z-index: 10005;">
-{% include 'salida_p/modal_anular_salida.html' %}
-</div>
+<!-- Modal anular eliminado: usar SweetAlert desde SalidaP.js -->
 <div style="position: relative; z-index: 10010;">
 {% include 'salida_p/modal_nueva_salida.html' %}
 </div>

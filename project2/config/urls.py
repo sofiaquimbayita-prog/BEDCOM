@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('vistas/', include('app.urls')),
     path('', include(('login.urls', 'login'), namespace='login')),
+    path('usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
 ]
 
 # Serve media files during development

@@ -61,7 +61,6 @@
 body {
   height: 100vh;
  background: 
-    linear-gradient(180deg, rgba(33, 31, 31, 0.219), rgba(12, 18, 32, 0.539)),
     var(--fondo-login);
   background-size: cover;
   background-repeat: no-repeat;

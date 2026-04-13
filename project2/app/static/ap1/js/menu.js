@@ -127,9 +127,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            document.getElementById('perfilCedula').value = data.data.cedula;
+            document.getElementById('perfilCedula').value = data.data.cedula || '';
             document.getElementById('perfilNombre').value = data.data.username || '';
-            document.getElementById('perfilEmail').value = data.data.email;
+            document.getElementById('perfilEmail').value = data.data.email || '';
+            document.getElementById('perfilTelefono').value = data.data.telefono || '';
+            document.getElementById('perfilFirstName').value = data.data.first_name || '';
+            document.getElementById('perfilLastName').value = data.data.last_name || '';
             document.getElementById('perfilRol').value = data.data.rol;
             document.getElementById('perfilEstado').value = data.data.estado;
             // Update foto preview
@@ -189,7 +192,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData();
       formData.append('nombre_usuario', document.getElementById('perfilNombre').value);
       formData.append('email', document.getElementById('perfilEmail').value);
+      formData.append('telefono', document.getElementById('perfilTelefono').value);
+      formData.append('first_name', document.getElementById('perfilFirstName').value);
+      formData.append('last_name', document.getElementById('perfilLastName').value);
       formData.append('cedula', document.getElementById('perfilCedula').value);
+      formData.append('password', document.getElementById('perfilPassword').value);
+      formData.append('confirm_password', document.getElementById('perfilConfirmPassword').value);
       const fotoFile = document.getElementById('perfilFoto').files[0];
       if (fotoFile) {
         formData.append('foto_perfil', fotoFile);

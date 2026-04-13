@@ -14,7 +14,7 @@ class MenuView(TemplateView):
     template_name = 'menu/menu.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'MENÚ PRINCIPAL'
+        context['titulo_pagina'] = 'MENÚ PRINCIPAL - BEDCOM'
         return context
 
 @login_required
@@ -25,9 +25,12 @@ def get_perfil(request):
         return JsonResponse({
             'success': True,
             'data': {
-                'cedula': usuario_obj.cedula,
+                'cedula': usuario_obj.cedula or '',
                 'username': usuario_obj.username,
+                'first_name': usuario_obj.first_name or '',
+                'last_name': usuario_obj.last_name or '',
                 'email': usuario_obj.email or '',
+                'telefono': usuario_obj.telefono or '',
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
                 'foto_perfil': usuario_obj.foto_perfil.url if usuario_obj.foto_perfil else None
@@ -49,27 +52,44 @@ def update_perfil(request):
         # Manejar FormData (multipart)
         cedula = request.POST.get('cedula')
         nombre_usuario = request.POST.get('nombre_usuario')
+        username = request.POST.get('username')
+        telefono = request.POST.get('telefono')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
         
-        if cedula:
-            # Check if cedula already exists for other user
-            if usuario.objects.filter(cedula=cedula).exclude(username=request.user.username).exists():
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Cédula ya existe para otro usuario'
-                })
-            usuario_obj.cedula = cedula
+        # Username update (primary key, careful)
+        if username:
+            if usuario.objects.filter(username=username).exclude(username=request.user.username).exists():
+                return JsonResponse({'success': False, 'error': 'Nombre de usuario ya existe.'})
+            usuario_obj.username = username
         
         if nombre_usuario:
-            usuario_obj.username = nombre_usuario
-            
+            usuario_obj.username = nombre_usuario  # Legacy fallback
+        
+        if first_name:
+            usuario_obj.first_name = first_name
+        if last_name:
+            usuario_obj.last_name = last_name
+        if telefono:
+            if usuario.objects.filter(telefono=telefono).exclude(username=request.user.username).exists():
+                return JsonResponse({'success': False, 'error': 'Teléfono ya registrado por otro usuario.'})
+            usuario_obj.telefono = telefono
         if email:
             usuario_obj.email = email
-            
+        
+        # Password
+        if password:
+            if password != confirm_password:
+                return JsonResponse({'success': False, 'error': 'Contraseñas no coinciden.'})
+            usuario_obj.set_password(password)
+        
         # Foto perfil
         if 'foto_perfil' in request.FILES:
             usuario_obj.foto_perfil = request.FILES['foto_perfil']
-            
+        
         usuario_obj.save()
         
         return JsonResponse({
@@ -77,7 +97,10 @@ def update_perfil(request):
             'data': {
                 'cedula': usuario_obj.cedula,
                 'username': usuario_obj.username,
+                'first_name': usuario_obj.first_name,
+                'last_name': usuario_obj.last_name,
                 'email': usuario_obj.email,
+                'telefono': usuario_obj.telefono,
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
                 'foto_perfil': usuario_obj.foto_perfil.url if usuario_obj.foto_perfil else None

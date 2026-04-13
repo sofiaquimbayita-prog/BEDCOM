@@ -5,12 +5,15 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from app.models import producto, salida_producto, usuario
+from django.contrib.auth.decorators import login_required
+from app.models import producto, salida_producto, usuario, historial_acciones
 from app.forms import SalidaProductoForm
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SalidaProductoCreateView(View):
+    
     def post(self, request):
+        
         form = SalidaProductoForm(request.POST)
 
         if form.is_valid():
@@ -55,6 +58,15 @@ class SalidaProductoCreateView(View):
             producto_obj.save()
             salida.save()
 
+            # REGISTRO HISTORIAL - AGREGADO
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='salidas',
+                    tipo_accion='crear',
+                    descripcion=f'Registró salida de {salida.cantidad} un. de "{producto_obj.nombre}" (motivo: {motivo[:50]})',
+                    usuario=request.user
+                )
+
             return JsonResponse({
                 'success': True,
                 'message': 'Salida registrada correctamente'
@@ -88,6 +100,15 @@ class SalidaProductoAnularView(View):
 
             salida.estado = False
             salida.save()
+
+            # REGISTRO HISTORIAL - AGREGADO
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='salidas',
+                    tipo_accion='eliminar',
+                    descripcion=f'Anuló salida #{salida.id} de "{salida.id_producto.nombre}"',
+                    usuario=request.user
+                )
 
             return JsonResponse({
                 'success': True,
@@ -129,6 +150,7 @@ class SalidaProductoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = "Salida de Productos - BEDCOM"
         context['productos'] = producto.objects.filter(estado=True)
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()

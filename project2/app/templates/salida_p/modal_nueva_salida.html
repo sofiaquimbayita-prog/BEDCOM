@@ -64,7 +64,7 @@
     <option value="">Seleccione un responsable</option>
     {% if usuarios %}
     {% for u in usuarios %}
-    <option value="{{ u.nombre_usuario }}">{{ u.nombre_usuario }}</option>
+    <option value="{{ u.username }}">{{ u.username }}</option>
     {% endfor %}
     {% else %}
     <option value="" disabled>No hay usuarios registrados</option>
