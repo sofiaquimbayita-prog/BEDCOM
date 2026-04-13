@@ -223,6 +223,7 @@ $(document).ready(function() {
         }
     });
 
+
     // ================= VER DETALLES =================
     window.openViewModal = function(fecha, usuario, tipo, desc) {
         $('#viewFecha').text(fecha);
@@ -273,6 +274,17 @@ $(document).ready(function() {
         
         abrirModal('deleteModal');
     };
+
+    function abrirRespaldos() {
+        fetch('/ruta/modal/respaldos/')  // 👈 tu URL en Django
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('contenidoRespaldos').innerHTML = html;
+
+                // 🔥 IMPORTANTE: reinicializar eventos
+                activarJSRespaldos();
+            });
+    }
 
     // ================= TOAST NOTIFICATIONS =================
     window.cerrarToast = function(btn) {

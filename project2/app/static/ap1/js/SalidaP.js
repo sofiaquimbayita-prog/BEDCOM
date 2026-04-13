@@ -107,7 +107,7 @@ function _doAnularFetch(id) {
         return response.json();
     })
     .then(data => {
-        console.log('✅ Data received:', data);
+        console.log(' Data received:', data);
         if (data.success) {
             showSuccessToast(data.message || 'Anulada correctamente');
             setTimeout(() => location.reload(), 1500);

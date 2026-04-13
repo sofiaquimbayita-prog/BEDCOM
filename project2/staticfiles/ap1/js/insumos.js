@@ -628,7 +628,7 @@ $(document).ready(function () {
         const fd = new FormData(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Guardando…');
 
-        // ✅ FIX: agregado X-CSRFToken para que Django acepte la request
+        // FIX: agregado X-CSRFToken para que Django acepte la request
         fetch(INSUMO_CREAR_CAT_URL, {
             method: 'POST', body: fd,
             headers: {
@@ -758,7 +758,7 @@ $(document).ready(function () {
         const fd = new FormData(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Guardando…');
 
-        // ✅ FIX: agregado X-CSRFToken para que Django acepte la request
+        // FIX: agregado X-CSRFToken para que Django acepte la request
         fetch(INSUMO_CREAR_PROV_URL, {
             method: 'POST', body: fd,
             headers: {

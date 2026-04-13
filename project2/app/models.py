@@ -65,7 +65,6 @@ class respaldo(models.Model):
 
 
 class cliente(models.Model):
-    cedula = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
     direccion = models.CharField(max_length=200)
@@ -278,12 +277,18 @@ class compra(models.Model):
 
 class pedido(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
+    fecha_entrega = models.DateField(null=True, blank=True, verbose_name="Fecha de entrega") 
     estado = models.CharField(max_length=20, default="Pendiente")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    abono = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True, blank=True)  # NUEVO CAMPO
     cliente = models.ForeignKey(cliente, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"pedido #{self.id} - {self.cliente.nombre}"
+    
+    @property
+    def saldo_pendiente(self):
+        return self.total - (self.abono or 0)
 
     class Meta:
         verbose_name = "Pedido"

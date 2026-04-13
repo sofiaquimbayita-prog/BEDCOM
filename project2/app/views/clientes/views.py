@@ -15,12 +15,11 @@ from ...models import cliente, pedido, pago
 def _cliente_to_dict(obj):
     return {
         'id':        obj.id,
-        'cedula':    obj.cedula,
         'nombre':    obj.nombre,
         'telefono':  obj.telefono,
         'direccion': obj.direccion,
         'estado':    obj.estado,
-    }
+        }
 
 
 # ─────────────────────────────────────────────
@@ -80,20 +79,14 @@ class ClienteCreateView(View):
     def post(self, request, *args, **kwargs):
         try:
             data    = json.loads(request.body)
-            cedula  = data.get('cedula', '').strip()
             nombre  = data.get('nombre', '').strip()
             telefono = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
-
-            if not cedula or not nombre:
-                return JsonResponse({'ok': False, 'error': 'Nombre y cédula son obligatorios.'})
-
-            if cliente.objects.filter(cedula=cedula).exists():
-                return JsonResponse({'ok': False, 'error': f'Ya existe un cliente con la cédula {cedula}.'})
-
+            
+            if not nombre:
+                return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
             with transaction.atomic():
                 obj = cliente.objects.create(
-                    cedula=cedula,
                     nombre=nombre,
                     telefono=telefono or '—',
                     direccion=direccion or '—',
@@ -118,20 +111,14 @@ class ClienteUpdateView(View):
         try:
             data    = json.loads(request.body)
             obj     = get_object_or_404(cliente, pk=pk)
-            cedula  = data.get('cedula', '').strip()
             nombre  = data.get('nombre', '').strip()
             telefono = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
-
-            if not cedula or not nombre:
-                return JsonResponse({'ok': False, 'error': 'Nombre y cédula son obligatorios.'})
-
-            # Verificar que la cédula no esté en uso por OTRO cliente
-            if cliente.objects.filter(cedula=cedula).exclude(pk=pk).exists():
-                return JsonResponse({'ok': False, 'error': f'La cédula {cedula} ya está registrada en otro cliente.'})
-
+            
+            if not nombre:
+                return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
+            
             with transaction.atomic():
-                obj.cedula    = cedula
                 obj.nombre    = nombre
                 obj.telefono  = telefono or '—'
                 obj.direccion = direccion or '—'

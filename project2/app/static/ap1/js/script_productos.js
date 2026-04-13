@@ -275,23 +275,8 @@ $(document).ready(function() {
         $('#tablaProductos').DataTable().destroy();
     }
 
-    // ── Filtro para switch Mostrar Inactivos (columna 5: Estado) ──
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        if (settings.nTable.id !== 'tablaProductos') return true;
-        
-        var mostrarInactivos = $('#toggleInactivos').is(':checked');
-        var estadoRaw = (data[5] || '').toLowerCase().trim();
-        
-        // Switch OFF: solo activos (por defecto muestra todos los que llegan del backend)
-        if (!mostrarInactivos) {
-            return true;
-        }
-        // Switch ON: solo inactivos
-        return estadoRaw.includes('inactivo');
-    });
-
-
     var table = $('#tablaProductos').DataTable({
+
         "responsive": true,
         "language": {
             "sProcessing": "Procesando...",
@@ -335,10 +320,12 @@ $('#toggleInactivos').on('change', function() {
     // Parse current URL params
     const url = new URL(window.location);
     url.searchParams.set('mostrar_inactivos', mostrarInactivos);
+    url.searchParams.set('t', Date.now());  // Cache-busting timestamp
     
-    // Update URL and reload to fetch correct data from backend
-    window.location.search = url.search;
+    // Force reload with new URL to fetch fresh data from backend
+    window.location.href = url.toString();
 });
+
 
 
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX

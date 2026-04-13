@@ -1,0 +1,46 @@
+
+<!-- MODAL — REGISTRAR PAGO -->
+<div class="modal" id="modalPago">
+  <div class="modal-contenido">
+    <div class="modal-header modal-header--pago">
+      <h2 class="modal-titulo modal-titulo--pago">
+        <i class="fas fa-money-bill-wave"></i> Registrar Pago
+      </h2>
+      <button class="btn-cerrar" data-close="modalPago">&times;</button>
+    </div>
+
+    <div class="form-alerta" id="pagoAlerta"></div>
+
+    <div class="ver-grid" style="margin-bottom:16px">
+      <div class="ver-campo">
+        <span class="ver-label">Pedido</span>
+        <span class="ver-valor" id="pagoIdPedido">—</span>
+      </div>
+      <div class="ver-campo">
+        <span class="ver-label">Total del pedido</span>
+        <span class="ver-valor" id="pagoTotalPedido">$0</span>
+      </div>
+      <div class="ver-campo">
+        <span class="ver-label">Ya pagado</span>
+        <span class="ver-valor" style="color:var(--color-exito)" id="pagoPagado">$0</span>
+      </div>
+      <div class="ver-campo ver-campo--destacado deuda-item--alert" style="border-radius:var(--borde-md);padding:11px 14px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--color-deuda-brd)">
+        <span class="ver-label" style="color:var(--color-deuda)">Saldo Pendiente</span>
+        <span class="ver-valor ver-valor--monto" id="pagoPendiente">$0</span>
+      </div>
+    </div>
+
+    <div class="form-grupo">
+      <label>Monto a pagar <span style="color:var(--color-error)">*</span></label>
+      <input type="number" id="pagoMonto" class="form-input pago-focus" placeholder="0.00" min="0.01" step="0.01">
+    </div>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalPago">Cancelar</button>
+      <button class="btn-guardar btn-guardar--pago" id="btnGuardarPago">
+        <i class="fas fa-check"></i> <span id="btnPagoTexto">Confirmar Pago</span>
+      </button>
+    </div>
+  </div>
+</div>
+

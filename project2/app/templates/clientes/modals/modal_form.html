@@ -1,0 +1,39 @@
+
+<!-- MODAL — CREAR / EDITAR CLIENTE -->
+<div class="modal" id="modalForm">
+  <div class="modal-contenido">
+    <div class="modal-header" id="modalFormHeader">
+      <h2 class="modal-titulo" id="formModalTitulo">
+        <i class="fas fa-user-plus"></i> Nuevo Cliente
+      </h2>
+      <button class="btn-cerrar" id="btnCerrarForm" data-close="modalForm">&times;</button>
+    </div>
+
+    <div class="form-alerta" id="formAlerta"></div>
+
+    <div class="divicion">
+      <div class="form-grupo">
+        <label>Nombre completo <span style="color:var(--color-error)">*</span></label>
+        <input type="text" id="fNombre" class="form-input" placeholder="Ej: Juan Pérez" autocomplete="off">
+      </div>
+    </div>
+    <div class="divicion">
+      <div class="form-grupo">
+        <label>Teléfono</label>
+        <input type="text" id="fTelefono" class="form-input" placeholder="Ej: 3001234567">
+      </div>
+      <div class="form-grupo">
+        <label>Dirección</label>
+        <input type="text" id="fDireccion" class="form-input" placeholder="Ej: Cra 5 #12-34">
+      </div>
+    </div>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalForm">Cancelar</button>
+      <button class="btn-guardar" id="btnGuardarCliente">
+        <i class="fas fa-save"></i> <span id="btnGuardarTexto">Guardar Cliente</span>
+      </button>
+    </div>
+  </div>
+</div>
+
