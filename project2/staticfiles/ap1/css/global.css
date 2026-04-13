@@ -10,7 +10,7 @@
   --warn: #ffb020;
   --info: #5fa8ff;
   --accent: #6c5ce7;
-  --danger: #ef4444;
+  --danger: #4ea3a5;
   --espacio-sm: 8px;
   --espacio-md: 16px;
   --borde-md: 8px;
@@ -55,14 +55,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased; /* Texto más nítido */
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
   height: 100vh;
  background: 
-    linear-gradient(180deg, rgba(33, 31, 31, 0.219), rgba(12, 18, 32, 0.539)),
     var(--fondo-login);
   background-size: cover;
   background-repeat: no-repeat;
@@ -97,7 +95,7 @@ body {
   transition: all 0.3s ease;
   
   /* Tipografía y alineación */
-  font-family: inherit;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   font-weight: bold;
   display: flex;
