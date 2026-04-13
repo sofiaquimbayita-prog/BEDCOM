@@ -1,7 +1,7 @@
 <div class="modal-header position-relative">
     <h3 class="mb-0" style="padding-right: 45px;">
         <i class="fas fa-database me-2" style="vertical-align: middle;"></i>
-        Restauración de Base de Datos
+        Restauracion de Base de Datos
     </h3>
     <span class="close position-absolute" onclick="cerrarModal('modal_restauracion')" style="top: 12px; right: 15px; font-size: 1.6rem; line-height: 1; cursor: pointer; z-index: 10;">&times;</span>
 </div>
@@ -11,7 +11,7 @@
 
         <!-- ESTADO -->
         <div class="stat-card purple">
-            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+            <span class="stat-label">ESTADO DE CONEXION</span>
 
             {% if mysql_conectado %}
                 <span class="stat-value text-success">Conectado</span>
@@ -20,22 +20,7 @@
             {% endif %}
         </div>
 
-        <!-- BACKUP -->
-        <div class="stat-card blue">
-            <span class="stat-label">DESCARGAR RESPALDO</span>
-            <span class="stat-value small">Backup completo</span>
 
-            {% if mysql_conectado %}
-            <form method="post" action="{% url 'respaldos_list' %}">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="backup_completo">
-
-                <button type="submit" class="stat-btn">
-                    Descargar SQL
-                </button>
-            </form>
-            {% endif %}
-        </div>
 
         <!-- RESTAURAR -->
         <div class="stat-card green">
@@ -44,9 +29,31 @@
             {% if mysql_conectado %}
             <div id="zona-carga" class="zona-carga-mini">
                 <input type="file" id="archivo-respaldo" accept=".sql">
-                <label for="archivo-respaldo" class="label-file-respaldo"></label>
-                <i class="bi bi-folder-open" title="Abrirá el explorador de archivos"></i>
-                <small>Seleccionar archivo SQL </small>
+                <label for="archivo-respaldo" class="label-file-respaldo">
+                    <i class="bi bi-cloud-arrow-up-fill" aria-hidden="true"></i>
+                    <span class="file-title">Haz clic para seleccionar tu respaldo</span>
+                    <small class="file-subtitle">o arrastra aqui un archivo .sql</small>
+                    <span class="file-action">Explorar archivo SQL</span>
+                </label>
+                <small class="file-selected" id="archivo-respaldo-nombre">Ningun archivo seleccionado</small>
+
+                <div id="restauracion-estado" class="restauracion-estado" aria-live="polite" hidden>
+                    <div class="restauracion-estado-header">
+                        <span class="restauracion-estado-titulo">
+                            <i class="fas fa-rotate-right fa-spin"></i>
+                            Restaurando respaldo
+                        </span>
+                        <span class="restauracion-estado-porcentaje" id="restauracion-porcentaje">0%</span>
+                    </div>
+
+                    <div class="restauracion-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="restauracion-detalle">
+                        <div id="restauracion-progress-bar" class="restauracion-progress-bar"></div>
+                    </div>
+
+                    <small id="restauracion-detalle" class="restauracion-detalle">
+                        Esperando archivo para iniciar la restauracion.
+                    </small>
+                </div>
             </div>
             {% endif %}
         </div>
