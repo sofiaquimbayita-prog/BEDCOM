@@ -227,7 +227,6 @@ input:checked + .slider::before { transform:translateX(20px); }
   font-size: 1.3rem; color: #fff; font-weight: 800; flex-shrink: 0;
 }
 .cli-info-nombre { font-size: 1rem; font-weight: 700; color: var(--color-texto); }
-.cli-info-cedula { font-size: 0.8rem; color: var(--color-texto-muted); margin-top: 2px; }
 
 /* ── 10. RESUMEN DEUDA ── */
 .deuda-resumen {
@@ -315,4 +314,62 @@ input:checked + .slider::before { transform:translateX(20px); }
   .modal-contenido { padding:18px !important; width:96% !important; }
   .form-botones { flex-direction:column; }
   .deuda-resumen { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* ESTILOS PARA VALIDACIONES EN TIEMPO REAL               */
+/* ═══════════════════════════════════════════════════════ */
+
+.input-error {
+    border-color: var(--color-inactivar) !important;
+    box-shadow: 0 0 0 2px var(--color-inactivar-glow) !important;
+}
+
+.input-success {
+    border-color: var(--color-exito) !important;
+    box-shadow: 0 0 0 2px var(--color-activar-glow) !important;
+}
+
+.char-counter {
+    font-size: 0.7rem;
+    color: var(--color-texto-muted);
+    float: right;
+    margin-top: 4px;
+}
+
+.input-error-message {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    min-height: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Animación para mensajes de error */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.input-error {
+    animation: shake 0.3s ease-in-out;
+}
+
+/* Mejora visual para campos con éxito */
+.form-input.input-success {
+    background: rgba(16, 185, 129, 0.05);
+}
+
+/* Tooltip para validaciones */
+.validation-tooltip {
+    position: absolute;
+    background: var(--color-superficie-dark);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--borde-sm);
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: var(--color-texto);
+    box-shadow: var(--sombra-lg);
+    z-index: 1000;
+    max-width: 250px;
 }

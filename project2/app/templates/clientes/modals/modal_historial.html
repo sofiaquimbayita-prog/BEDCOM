@@ -1,0 +1,43 @@
+
+<!-- MODAL — HISTORIAL DE PEDIDOS -->
+<div class="modal" id="modalHistorial">
+  <div class="modal-contenido modal-contenido--xl">
+    <div class="modal-header modal-header--historial">
+      <h2 class="modal-titulo modal-titulo--historial">
+        <i class="fas fa-history"></i> Historial de Pedidos
+      </h2>
+      <button class="btn-cerrar" data-close="modalHistorial">&times;</button>
+    </div>
+
+    <!-- Card cliente -->
+<div class="cli-card" id="histCliCard">
+      <div class="cli-avatar" id="histCliAvatar">?</div>
+      <span id="histCliNombre"></span>
+    </div>
+
+    <!-- Resumen deuda -->
+    <div class="deuda-resumen" id="histDeudaResumen">
+      <div class="deuda-item">
+        <div class="deuda-valor" id="histTotalPedidos">0</div>
+        <div class="deuda-label">Pedidos</div>
+      </div>
+      <div class="deuda-item">
+        <div class="deuda-valor" id="histTotalFacturado">$0</div>
+        <div class="deuda-label">Total Facturado</div>
+      </div>
+      <div class="deuda-item deuda-item--alert" id="histDeudaCard">
+        <div class="deuda-valor deuda-valor--alert" id="histDeudaTotal">$0</div>
+        <div class="deuda-label">Deuda Pendiente</div>
+      </div>
+    </div>
+
+    <!-- Lista de pedidos -->
+    <div class="seccion-titulo"><i class="fas fa-list"></i> Pedidos Registrados</div>
+    <div id="histPedidosList"></div>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalHistorial">Cerrar</button>
+    </div>
+  </div>
+</div>
+
