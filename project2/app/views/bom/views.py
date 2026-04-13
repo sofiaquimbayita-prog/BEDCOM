@@ -56,7 +56,7 @@ class BomListView(ListView):
         context['insumos'] = insumo.objects.all().order_by('nombre')
         
         # CATEGORÍAS para nuevo producto
-        context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
+        context['categorias'] = categoria.objects.filter(estado=True).order_by('nombre')
         
         # Obtener lista de productos que ya tienen receta (para validación JS)
         context['productos_con_receta'] = list(producto.objects.filter(
