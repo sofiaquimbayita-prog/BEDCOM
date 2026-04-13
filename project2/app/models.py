@@ -279,10 +279,15 @@ class pedido(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, default="Pendiente")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    abono = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True, blank=True)  # NUEVO CAMPO
     cliente = models.ForeignKey(cliente, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"pedido #{self.id} - {self.cliente.nombre}"
+    
+    @property
+    def saldo_pendiente(self):
+        return self.total - (self.abono or 0)
 
     class Meta:
         verbose_name = "Pedido"

@@ -51,6 +51,7 @@ def _pedido_to_dict(obj):
         'fecha': obj.fecha.strftime('%d/%m/%Y %H:%M'),
         'estado': obj.estado,
         'total': str(obj.total),
+        'abono': str(obj.abono or 0),  # NUEVO
         'cliente_id': obj.cliente.id,
         'cliente_nombre': obj.cliente.nombre,
         'cliente_telefono': obj.cliente.telefono,
@@ -109,7 +110,8 @@ class PedidoCreateView(View):
 
             with transaction.atomic():
                 cli = _resolver_cliente(data)
-                nuevo_pedido = pedido.objects.create(cliente=cli, total=0)
+                abono = float(data.get('abono', 0))
+                nuevo_pedido = pedido.objects.create(cliente=cli, total=0, abono=abono)
 
                 total = 0
                 for item in items:
@@ -162,6 +164,8 @@ class PedidoUpdateView(View):
 
             with transaction.atomic():
                 obj_pedido = get_object_or_404(pedido, pk=pk)
+                abono = float(data.get('abono', 0))
+                obj_pedido.abono = abono        
 
                 # Restaurar stock de los detalles actuales
                 for d in obj_pedido.detalles.select_related('producto').all():
