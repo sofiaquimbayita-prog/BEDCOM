@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from ...models import pedido, detalle_pedido, producto, cliente
+from ...models import pedido, detalle_pedido, producto, cliente, pago
 from ...forms import PedidoForm
 
 
@@ -65,6 +65,13 @@ def _pedido_to_dict(obj):
                 'observaciones': d.observaciones or '',
             }
             for d in obj.detalles.select_related('producto').all()
+        ],
+        'pagos': [
+            {
+                'fecha': p.fecha_pago.strftime('%d/%m/%Y'),
+                'monto': str(p.monto),
+            }
+            for p in obj.pago_set.all().order_by('-fecha_pago')
         ]
     }
 
@@ -110,17 +117,28 @@ class PedidoCreateView(View):
 
             with transaction.atomic():
                 cli = _resolver_cliente(data)
+
+                # Validación: cliente no puede tener pedidos pendientes
+                if pedido.objects.filter(cliente=cli, estado="Pendiente").exists():
+                    return JsonResponse({
+                        'ok': False,
+                        'error': 'El cliente ya tiene un pedido pendiente.'
+                    })
+
                 abono = float(data.get('abono', 0))
                 nuevo_pedido = pedido.objects.create(cliente=cli, total=0, abono=abono)
 
                 total = 0
+
                 for item in items:
                     prod = get_object_or_404(producto, pk=item['producto_id'])
                     cantidad = int(item['cantidad'])
                     precio_unit = prod.precio
 
                     if prod.stock < cantidad:
-                        raise Exception(f"Stock insuficiente para «{prod.nombre}» (disponible: {prod.stock})")
+                        raise Exception(
+                            f"Stock insuficiente para «{prod.nombre}» (disponible: {prod.stock})"
+                        )
 
                     sub = precio_unit * cantidad
                     total += sub
@@ -148,7 +166,6 @@ class PedidoCreateView(View):
 
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
-
 
 # ─────────────────────────────────────────────
 # API: editar pedido vía AJAX (POST JSON)
@@ -226,25 +243,40 @@ class PedidoStateChangeView(View):
             nuevo_estado = request.POST.get('nuevo_estado')
 
             if not nuevo_estado:
-                return JsonResponse({'ok': False, 'error': 'No se proporcionó un nuevo estado.'})
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Debe enviar el nuevo estado.'
+                })
 
             with transaction.atomic():
+                # Anular pedido → devolver stock
                 if nuevo_estado == 'Anulado' and obj_pedido.estado != 'Anulado':
-                    for item in obj_pedido.detalles.select_related('producto').all():
+                    obj_pedido.estado = 'Anulado'
+                    obj_pedido.save()
+
+                    for item in obj_pedido.detalle_pedido_set.all():
                         item.producto.stock += item.cantidad
                         item.producto.save()
 
+                # Reactivar pedido → descontar stock
                 elif obj_pedido.estado == 'Anulado' and nuevo_estado != 'Anulado':
-                    for item in obj_pedido.detalles.select_related('producto').all():
+
+                    for item in obj_pedido.detalle_pedido_set.all():
                         if item.producto.stock < item.cantidad:
                             raise Exception(
-                                f"No hay stock suficiente para reactivar con el producto «{item.producto.nombre}»"
+                                f"No hay stock suficiente para «{item.producto.nombre}»"
                             )
+
+                    obj_pedido.estado = nuevo_estado
+                    obj_pedido.save()
+
+                    for item in obj_pedido.detalle_pedido_set.all():
                         item.producto.stock -= item.cantidad
                         item.producto.save()
 
-                obj_pedido.estado = nuevo_estado
-                obj_pedido.save()
+                else:
+                    obj_pedido.estado = nuevo_estado
+                    obj_pedido.save()
 
             return JsonResponse({
                 'ok': True,
@@ -255,46 +287,62 @@ class PedidoStateChangeView(View):
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
         
+class PagoUpdateView(View):
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            monto = float(data.get('monto', 0))
 
-MAX_PRODUCTOS_POR_PEDIDO = 20  # $1,000 COP
+            if monto <= 0:
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'El monto debe ser mayor a 0.'
+                })
 
-def validar_pedido(items, total, abono):
-    """Valida todas las reglas de negocio del pedido"""
+            obj_pedido = get_object_or_404(pedido, pk=pk)
+            saldo_pendiente = obj_pedido.saldo_pendiente
+
+            if monto > saldo_pendiente:
+                return JsonResponse({
+                    'ok': False,
+                    'error': f'El abono no puede exceder el saldo pendiente (${saldo_pendiente}).'
+                })
+
+            with transaction.atomic():
+                pago.objects.create(
+                    pedido=obj_pedido,
+                    monto=monto
+                )
+
+                obj_pedido.abono += monto
+                obj_pedido.save()
+
+            return JsonResponse({
+                'ok': True,
+                'message': f'Abono agregado. Nuevo saldo: ${obj_pedido.saldo_pendiente}',
+                'pedido': _pedido_to_dict(obj_pedido)
+            })
+
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)})
+def validar_pedido(items, abono, total):
+    MAX_PRODUCTOS_POR_PEDIDO = 150
     errores = []
-    
-    # 1. Validar que haya al menos un producto
+
     if not items:
         errores.append("El pedido debe tener al menos un producto")
-    
-    # 2. Validar máximo de productos
+
     if len(items) > MAX_PRODUCTOS_POR_PEDIDO:
         errores.append(f"Máximo {MAX_PRODUCTOS_POR_PEDIDO} productos por pedido")
-    
-    # 4. Validar abono (mínimo 50% del total)
+
     if abono < (total * 0.5):
-        errores.append(f"El abono debe ser al menos el 50% del total (mínimo ${total * 0.5:,.0f})")
-    
-    # 5. Validar que el abono no supere el total
+        errores.append(f"El abono debe ser al menos el 50% del total")
+
     if abono > total:
-        errores.append("El abono no puede ser mayor al total del pedido")
-    
-    # 6. Validar productos duplicados
+        errores.append("El abono no puede ser mayor al total")
+
     productos_ids = [item['producto_id'] for item in items]
     if len(productos_ids) != len(set(productos_ids)):
-        errores.append("No se puede agregar el mismo producto múltiples veces")
-    
-    return errores
+        errores.append("No se puede repetir productos")
 
-def validar_stock_productos(items):
-    """Valida que haya suficiente stock para todos los productos"""
-    for item in items:
-        try:
-            prod = producto.objects.get(pk=item['producto_id'])
-            cantidad = int(item['cantidad'])
-            
-            if prod.stock < cantidad:
-                return False, f"Stock insuficiente para '{prod.nombre}'. Disponible: {prod.stock}"
-        except producto.DoesNotExist:
-            return False, f"Producto ID {item['producto_id']} no existe"
-    
-    return True, "OK"
+    return errores
