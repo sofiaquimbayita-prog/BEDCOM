@@ -70,7 +70,7 @@
             
             <tbody>
                 {% for p in productos %}
-                <tr>
+                <tr {% if not p.tiene_receta %}class="pending-recipe"{% endif %}>
                     <td>
                         {% if p.imagen %}
                             <img src="/media/{{ p.imagen }}" alt="{{ p.nombre }}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
@@ -78,7 +78,14 @@
                             <img src="{% static 'ap1/img/cama.jpg' %}" alt="Sin imagen" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; opacity: 0.5;">
                         {% endif %}
                     </td>
-                    <td style="font-weight: bold;">{{ p.nombre }}</td>
+                    <td style="font-weight: bold;">
+                        {{ p.nombre }}
+                        <br><small>
+                            <span class="recipe-badge {% if p.tiene_receta %}recipe-complete{% else %}recipe-pending{% endif %}">
+                                {% if p.tiene_receta %}✓ Receta OK{% else %}⚠ RECETA PENDIENTE{% endif %}
+                            </span>
+                        </small>
+                    </td>
                     <td>
                         <span class="badge {% if p.stock < 10 %}bg-danger{% else %}bg-success{% endif %}">
                             {{ p.stock }} unidades
@@ -114,6 +121,7 @@
                         </div>
                     </td>
                 </tr>
+
                 {% empty %}
                 <tr>
                     <td colspan="1" style="text-align: center; padding: 20px;">No hay productos disponibles en la base de datos.</td>

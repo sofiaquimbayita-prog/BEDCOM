@@ -165,6 +165,9 @@ def bom_crear_receta(request):
         
         print(f"Total created: {created_count}, errors: {errors}")
         if created_count > 0:
+            # LIMPIAR CACHE DEL PRODUCTO
+            producto_obj.limpiar_cache_receta()
+            
             # REGISTRAR ACCIÓN EN HISTORIAL
             if request.user.is_authenticated:
                 try:
@@ -195,6 +198,8 @@ def bom_crear_receta(request):
         print(f"Traceback: {e}")
         logger.error(f"BOM crear error: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'})
+
+
 
 
 @login_required
@@ -246,6 +251,9 @@ def bom_editar_receta(request):
             created_count += 1
         
         if created_count > 0:
+            # LIMPIAR CACHE DEL PRODUCTO
+            producto_obj.limpiar_cache_receta()
+            
             # REGISTRAR ACCIÓN EN HISTORIAL
             if request.user.is_authenticated:
                 try:
@@ -273,6 +281,8 @@ def bom_editar_receta(request):
     except Exception as e:
         logger.error(f"BOM editar error: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': str(e)})
+
+
 
 
 @method_decorator(login_required, name='dispatch')

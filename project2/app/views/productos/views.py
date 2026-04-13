@@ -31,13 +31,14 @@ class producto_list_view(ListView):
         """
         mostrar_inactivos = self.request.GET.get('mostrar_inactivos', 'false').lower() == 'true'
         
-        queryset = producto.objects.select_related('categoria')
+        queryset = producto.objects.select_related('categoria').prefetch_related('bom_set')
         
         if mostrar_inactivos:
             queryset = queryset.filter(estado=False)
         else:
             queryset = queryset.filter(estado=True)
         return queryset.order_by('-id')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
