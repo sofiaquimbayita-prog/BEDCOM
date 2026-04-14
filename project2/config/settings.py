@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'axes',
     
     'usuarios',
+    'ia',
     'widget_tweaks',
 ]
 AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed

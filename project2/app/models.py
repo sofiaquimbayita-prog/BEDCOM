@@ -107,7 +107,7 @@ class usuario(AbstractUser):
     cedula = models.CharField(max_length=20, unique=True)
     rol = models.CharField(max_length=20)
     estado = models.CharField(max_length=20, default='Activo')
-    foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
+    foto_usua = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(max_length=100, unique=True)
 

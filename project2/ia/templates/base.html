@@ -1,0 +1,22 @@
+<button type="button" class="btn btn-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#modalIA" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+  <i class="bi bi-robot"></i> IA
+</button>
+
+<div class="modal fade" id="modalIA" tabindex="-1" aria-labelledby="modalIALabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Asistente BEDCOM</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="chat-box" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+          </div>
+        <div class="input-group">
+          <input type="text" id="pregunta-ia" class="form-control" placeholder="Ej: ¿Cuántas camas hay?">
+          <button class="btn btn-success" onclick="enviarPregunta()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

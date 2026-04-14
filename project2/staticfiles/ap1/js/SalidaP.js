@@ -69,78 +69,55 @@ function getCookie(name) {
 
 // Función para anular una salida
 function anularSalida(id) {
-    console.log('Intentando anular salida ID:', id);
+    console.log('🔄 AnularSalida llamada con ID:', id);
     
     if (typeof Swal === 'undefined') {
-        console.warn('SweetAlert2 no está cargado, usando confirm nativo');
-        if (!confirm('¿Está seguro de que desea anular esta salida? El stock será reintegrado.')) {
-            return;
-        }
-        
-        // Proceder con la anulación sin SweetAlert
-        fetch('/vistas/salida/anular/' + id + '/', {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            if (data.success) {
-                showSuccessToast(data.message);
-                setTimeout(function() {
-                    location.reload();
-                }, 1500);
-            } else {
-                showErrorToast(data.message || 'Error al anular la salida');
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            showErrorToast('Ocurrió un error al procesar la solicitud');
-        });
+        console.warn('SweetAlert2 no cargado - fallback confirm');
+        if (!confirm('¿Anular salida ID ' + id + '? Stock se reintegrará.')) return;
+        _doAnularFetch(id);
         return;
     }
     
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción anulará la salida y reintegrará el stock al producto.',
+        title: '¿Anular salida #' + id + '?',
+        text: 'Stock se reintegrará al producto.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Sí, anular',
         cancelButtonText: 'Cancelar'
-    }).then(function(result) {
-        if (result.isConfirmed) {
-            fetch('/vistas/salida/anular/' + id + '/', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    showSuccessToast(data.message);
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showErrorToast(data.message || 'Error al anular la salida');
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                showErrorToast('Ocurrió un error al procesar la solicitud');
-            });
+    }).then((result) => {
+        if (result.isConfirmed) _doAnularFetch(id);
+    });
+}
+
+function _doAnularFetch(id) {
+    console.log('📡 Fetch POST /vistas/salida/anular/' + id);
+    fetch('/vistas/salida/anular/' + id + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
         }
+    })
+    .then(response => {
+        console.log('📥 Response status:', response.status);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        console.log('✅ Data received:', data);
+        if (data.success) {
+            showSuccessToast(data.message || 'Anulada correctamente');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showErrorToast(data.message || 'Error backend');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Anular error:', error);
+        showErrorToast('Error conexión: ' + error.message);
     });
 }
 

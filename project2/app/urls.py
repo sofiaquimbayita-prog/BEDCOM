@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido,clientes
 from app.views.respaldos.views import modal_respaldos
@@ -140,4 +140,5 @@ path('clientes/toggle/<int:pk>/', clientes.ClienteToggleEstadoView.as_view(), na
 path('clientes/historial/<int:pk>/', clientes.ClienteHistorialView.as_view(), name='clientes_historial'),
 path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
 
+path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
 ]
