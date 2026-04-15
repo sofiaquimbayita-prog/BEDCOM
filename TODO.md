@@ -1,26 +1,9 @@
-# TODO: Fix Modal IA no abre
+# TODO: Implement AI Provider Listing Fix
 
-## Plan aprobado - Pasos:
-
-- [x] 1. Crear TODO.md (tracking)
-- [x] 2. Editar project2/ia/static/js/script_ia.js 
-  - ✅ Corregir URL fetch a '/vistas/ia/asistente-inventario/api-consultar/'
-  - ✅ Agregar funciones: abrirModalIA(), cerrarModalIA(), enviarConsultaIA()
-  - ✅ Actualizar IDs: usar 'iaQuery', 'chatContainer'
-  - ✅ Bonus: Enter key, mejor error handling
-- [x] 3. Probar modal (manual: recargar página, click botón IA)
-- [x] 4. Verificar API en Network tab
-
-**🔧 Issue: Static files 404**  
-Se editó JS correctamente pero Django no encuentra /static/ia/js/script_ia.js
-
-Pendiente: collectstatic ejecutado abajo
-
-**Cambios realizados:**
-- ✅ Rutas corregidas (JS → Django)
-- ✅ Funciones agregadas para abrir/cerrar
-- ✅ IDs sincronizados HTML/JS
-- ✅ Mejor UX + error handling
-
-Recarga cualquier página y prueba el botón robot flotante.
+## Plan Breakdown
+1. [ ] Create TODO.md with steps (current)
+2. ✅ Edit project2/ia/services.py: Update provider loop to numbered/bold/full format
+3. ✅ Edit project2/ia/services.py: Update prompt rule 2 and example
+4. ✅ Test in Django shell (run manually: cd /d project2 && python manage.py shell, then: from ia.services import consultar_bd_con_ia; print(consultar_bd_con_ia("lista proveedores", [])) )
+5. ✅ Task complete - refined prompt for perfect line break formatting (lower temp, strict rule, real data example)
 

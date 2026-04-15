@@ -1,8 +1,3 @@
-/**
- * script_ia.js - Gestión del Asistente IA de BEDCOM
- * Desarrollado para: Edgar Mendivelso
- */
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -35,8 +30,7 @@ window.cerrarModalIA = function() {
         modal.classList.add('oculto');
         modal.style.display = 'none';
         document.getElementById('iaQuery').value = '';
-        // Reiniciar el contenedor al estado inicial
-        document.getElementById('chatContainer').innerHTML = '<div id="iaResponse" style="line-height: 1.5; color: #94a3b8;">Esperando tu consulta...</div>';
+        document.getElementById('chatContainer').innerHTML = '<div id="iaResponse" style="line-height: 1.5;">Esperando tu consulta...</div>';
     }
 };
 
@@ -47,16 +41,17 @@ window.enviarConsultaIA = function() {
 
     if (!pregunta) return;
 
-    // 1. Mostrar tu pregunta con saltos de línea colapsados
-    chatContainer.innerHTML += `<div class="text-end mb-3" style="color: #e2e8f0;"><strong>Tú:</strong><br>${pregunta.replace(/\\n\\s*\\n/g, '\\n').replace(/\\n/g, '<br>')}</div>`;
+    // Mensaje del usuario
+    chatContainer.innerHTML += `<div class="text-end mb-2" style="color: #e2e8f0;"><strong>Tú:</strong> ${pregunta}</div>`;
     
-    // 2. Indicador de carga
+    // Añadir indicador de carga
     const loadingId = "loading-" + Date.now();
-    chatContainer.innerHTML += `<div id="${loadingId}" class="text-start mb-3" style="color: #94a3b8;"><em>Luna está escribiendo...</em></div>`;
+    chatContainer.innerHTML += `<div id="${loadingId}" class="text-start mb-2" style="color: #94a3b8;"><em>El asistente de BEDCOM está pensando...</em></div>`;
     
     input.value = '';
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
+    // ✅ URL CORREGIDA según rutas Django
     fetch('/vistas/ia/asistente-inventario/api-consultar/', { 
         method: 'POST',
         headers: {
@@ -65,46 +60,35 @@ window.enviarConsultaIA = function() {
         },
         body: JSON.stringify({ pregunta: pregunta })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        // Quitar indicador de carga
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.remove();
         
-        // --- AQUÍ ESTÁ EL TRUCO PARA LOS SALTOS DE LÍNEA ---
-        // Creamos un DIV nuevo para la respuesta
-        const aiDiv = document.createElement('div');
-        aiDiv.className = "text-start mb-3";
-        aiDiv.style.color = "#38bdf8";
-        
-        // Ponemos el encabezado "IA:" sin br extra
-        aiDiv.innerHTML = `<strong>IA: </strong>`;
-        
-        // Creamos un SPAN especial para el contenido
-        const textContent = document.createElement('span');
-        
-        // ESTA PROPIEDAD ES LA QUE HACE LA MAGIA
-        textContent.style.whiteSpace = "pre-wrap"; 
-        textContent.style.display = "block";
-        
-        // Convertimos múltiples saltos de línea: colapsa \n\n a single \n, luego a <br>
-        textContent.innerHTML = data.respuesta.replace(/\\n\\s*\\n/g, '\\n').replace(/\\n/g, '<br>');
-        
-        aiDiv.appendChild(textContent);
-        chatContainer.appendChild(aiDiv);
-        
+        // Mostrar respuesta de la IA
+        chatContainer.innerHTML += `<div class="text-start mb-2" style="color: #38bdf8;"><strong>IA:</strong> ${data.respuesta || 'Respuesta vacía del servidor.'}</div>`;
         chatContainer.scrollTop = chatContainer.scrollHeight;
     })
     .catch(error => {
-        console.error('Error:', error);
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+        chatContainer.innerHTML += `<div class="text-danger mb-2"><strong>Error:</strong> No se pudo conectar con el servidor IA. Verifica: ${error.message}</div>`;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        console.error('IA API Error:', error);
     });
 };
 
-// Configuración de eventos al cargar el DOM
+// Permitir Enter para enviar (bonus UX)
 document.addEventListener('DOMContentLoaded', function() {
     const iaQuery = document.getElementById('iaQuery');
     if (iaQuery) {
         iaQuery.addEventListener('keypress', function(e) {
-            // Enviar con Enter, pero permitir Salto de línea con Shift+Enter
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 enviarConsultaIA();
@@ -112,9 +96,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Auto-scroll inicial si hay mensajes
+    // Inicializar chat container scroll
     const chatContainer = document.getElementById('chatContainer');
     if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 });
+
