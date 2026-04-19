@@ -114,6 +114,13 @@ $(document).ready(function () {
     /* 
        CARGA DE EVENTOS
      */
+    const coloresCategoria = {
+        'produccion': '#3498db',
+        'logistica': '#e67e22',
+        'inventario': '#9b59b6',
+        'admin': '#34495e'
+    };
+
     async function cargarEventos() {
         try {
             const resp = await fetch(url('eventosData'));
@@ -132,7 +139,7 @@ $(document).ready(function () {
             actualizarSidebar(json.data || []);
 
             return eventos.map(e => {
-                const color = e.categoria_color || '#3498db';
+                const color = coloresCategoria[e.categoria] || '#3498db';
                 return {
                     id:              e.id,
                     title:           e.titulo,
@@ -187,10 +194,11 @@ $(document).ready(function () {
 
         const mapa = {};
         eventos.forEach(e => {
-            if (!mapa[e.categoria_id]) {
-                mapa[e.categoria_id] = { nombre: e.categoria, color: e.categoria_color, total: 0 };
+            const catKey = e.categoria;
+            if (!mapa[catKey]) {
+                mapa[catKey] = { nombre: e.categoria, color: coloresCategoria[catKey] || '#3498db', total: 0 };
             }
-            mapa[e.categoria_id].total++;
+            mapa[catKey].total++;
         });
 
         const cats = Object.values(mapa);

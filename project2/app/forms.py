@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido,despacho
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -450,7 +450,7 @@ class PedidoForm(forms.ModelForm):
 class DetallePedidoForm(forms.ModelForm):
     # Campo extra para las notas de personalización que mencionaste
     notas_personalizacion = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Cambios específicos...'}),
+        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Cambios específicos...'}), 
         required=False
     )
 
@@ -461,4 +461,14 @@ class DetallePedidoForm(forms.ModelForm):
             'producto': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        }
+
+
+class DespachoForm(forms.ModelForm):
+    class Meta:
+        model = despacho
+        fields = ['responsable', 'observaciones']
+        widgets = {
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'observaciones': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }

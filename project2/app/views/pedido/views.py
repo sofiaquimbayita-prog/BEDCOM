@@ -51,6 +51,8 @@ def _pedido_to_dict(obj):
         'fecha': obj.fecha.strftime('%d/%m/%Y %H:%M'),
         'estado': obj.estado,
         'total': str(obj.total),
+'fecha_entrega': obj.fecha_entrega.isoformat() if obj.fecha_entrega else None,
+        'fecha_entrega': obj.fecha_entrega.isoformat() if obj.fecha_entrega else None,
         'abono': str(obj.abono or 0),  # NUEVO
         'cliente_id': obj.cliente.id,
         'cliente_nombre': obj.cliente.nombre,
@@ -125,8 +127,9 @@ class PedidoCreateView(View):
                         'error': 'El cliente ya tiene un pedido pendiente.'
                     })
 
+                fecha_entrega = data.get('fecha_entrega') 
                 abono = float(data.get('abono', 0))
-                nuevo_pedido = pedido.objects.create(cliente=cli, total=0, abono=abono)
+                nuevo_pedido = pedido.objects.create(cliente=cli, total=0, abono=abono, fecha_entrega=fecha_entrega if fecha_entrega else None)
 
                 total = 0
 
@@ -181,8 +184,11 @@ class PedidoUpdateView(View):
 
             with transaction.atomic():
                 obj_pedido = get_object_or_404(pedido, pk=pk)
+                fecha_entrega = data.get('fecha_entrega')
                 abono = float(data.get('abono', 0))
-                obj_pedido.abono = abono        
+                obj_pedido.abono = abono
+                if fecha_entrega:
+                    obj_pedido.fecha_entrega = fecha_entrega
 
                 # Restaurar stock de los detalles actuales
                 for d in obj_pedido.detalles.select_related('producto').all():

@@ -63,6 +63,15 @@
               <button class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
                 <i class="fas fa-eye"></i>
               </button>
+              {% if p.estado == "Pendiente" and p.despacho %}
+              <button class="btn-despacho-existe" title="Ya en despacho">
+                <i class="fas fa-truck" style="color: #10b981;"></i>
+              </button>
+              {% elif p.estado == "Pendiente" %}
+              <button class="btn-despacho" data-id="{{ p.id }}" title="Enviar a despacho">
+                <i class="fas fa-truck" style="color: #3b82f6;"></i>
+              </button>
+              {% endif %}
               <button class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
@@ -146,27 +155,41 @@
         <label>Seleccionar Cliente <span style="color:var(--color-error)">*</span></label>
         <select id="clienteSelect" class="form-control form-input" required>
           <option value="">— Seleccionar cliente —</option>
-        </select>
-      </div>
-    </div>
+      </select>
+  </div>
+</div>
 
-
+<!-- Sección Fecha de Entrega -->
+<div class="cliente-seccion">
+  <div class="cliente-seccion-titulo">
+    <i class="fas fa-calendar-alt"></i> Fecha de Entrega <span style="color:var(--color-error)">*</span>
+  </div>
+  <div class="form-grupo">
+    <input type="date" id="fechaEntregaInput" class="form-input" required min="{{ today }}">
+    <small style="color: var(--color-texto-muted); font-size: 0.8rem;">
+      Selecciona una fecha futura para la entrega del pedido
+    </small>
+  </div>
+</div>
 
     <!-- Tabla de productos -->
     <div class="items-tabla-wrap">
       <table class="items-tabla">
         <thead>
           <tr>
-            <th style="width:36%">Producto <span style="color:var(--color-error)">*</span></th>
-            <th style="width:10%">Stock</th>
-            <th style="width:13%">Precio</th>
-            <th style="width:11%">Cant.</th>
-            <th style="width:22%">Notas</th>
-            <th style="width:8%" class="text-center">—</th>
+            <th>Producto <span style="color:var(--color-error)">*</span></th>
+            <th class="ped-table-w-stock">Stock</th>
+            <th class="ped-table-w-price">Precio</th>
+            <th class="ped-table-w-qty">Cant.</th>
+            <th class="ped-table-w-notes">Notas</th>
+            <th class="text-center ped-table-w-action">—</th>
           </tr>
         </thead>
         <tbody id="formItemsBody"></tbody>
       </table>
+      <button type="button" class="btn-agregar-fila" id="btnAgregarFila">
+        <i class="fas fa-plus-circle"></i> Agregar producto
+      </button>
     </div>
 
     <!-- Campo ABONO INICIAL -->
@@ -174,12 +197,11 @@
     <div class="cliente-seccion-titulo">
         <i class="fas fa-money-bill-wave"></i> Abono Inicial
     </div>
-    <div class="divicion">
+<div class="divicion abono-divicion">
         <div class="form-grupo">
             <label>Monto de abono <span style="color:var(--color-error)">*</span></label>
             <div class="input-group" style="display: flex; align-items: center;">
-                <span style="background: var(--color-superficie-input); padding: 11px; border-radius: var(--borde-md) 0 0 var(--borde-md); border: 1px solid var(--color-borde); border-right: none;">$</span>
-                <input type="number" id="abonoInput" class="form-input" step="0.01" min="0" style="border-radius: 0 var(--borde-md) var(--borde-md) 0;" placeholder="0.00">
+                <input type="number" id="abonoInput" class="form-input" step="0.01" min="0" style="border-radius: 0 var(--borde-md) var(--borde-md) 0;" placeholder="$0.00">
             </div>
             <small id="abonoHelp" style="color: var(--color-texto-muted); font-size: 0.7rem; display: block; margin-top: 5px;">
                 El abono debe ser al menos el 50% del total del pedido
@@ -192,9 +214,7 @@
     </div>
 </div>
 
-    <button type="button" class="btn-agregar-fila" id="btnAgregarFila">
-      <i class="fas fa-plus-circle"></i> Agregar producto
-    </button>
+ 
 
     <div class="form-botones">
       <button class="btn-cancelar" data-close="modalForm">Cancelar</button>
@@ -230,7 +250,9 @@ const URL_EDITAR_BASE = "{% url 'editar_pedido'  0 %}".replace('/0/', '/__PK__/'
 const URL_ESTADO_BASE = "{% url 'cambiar_estado' 0 %}".replace('/0/', '/__PK__/');
 const URL_VER    = pk => URL_VER_BASE.replace('__PK__', pk);
 const URL_EDITAR = pk => URL_EDITAR_BASE.replace('__PK__', pk);
+const URL_DESPACHO = "{% url 'despacho_crear' %}";
 const URL_ESTADO = pk => URL_ESTADO_BASE.replace('__PK__', pk);
+
 
 /* ── Toast ── */
 function showToast(msg, tipo='success') {
@@ -302,6 +324,33 @@ document.querySelectorAll('.ped-estado-select').forEach(sel => {
   });
 });
 
+/* ── Botón Despacho ── */
+document.querySelectorAll('.btn-despacho').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const pk = btn.dataset.id;
+    if (!confirm('¿Enviar pedido #' + pk + ' a despachos?')) return;
+    
+    try {
+      const res = await fetch(URL_DESPACHO, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ pedido_id: pk })
+      });
+      const data = await res.json();
+      
+      if (data.ok) {
+        showToast(data.message);
+        btn.outerHTML = '<button class="btn-despacho-existe" title="Ya en despacho"><i class="fas fa-truck" style="color: #10b981;"></i></button>';
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error de conexión', 'error');
+    }
+  });
+});
+
 /* ── Modal VER ── */
 document.querySelectorAll('.btn-ver').forEach(btn => {
   btn.addEventListener('click', async () => {
@@ -314,7 +363,8 @@ document.querySelectorAll('.btn-ver').forEach(btn => {
       document.getElementById('verInfoCliente').innerHTML = `
         <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
         <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${p.cliente_telefono}</span></div>
-        <div class="ver-campo"><span class="ver-label">Fecha</span><span class="ver-valor">${p.fecha}</span></div>
+        <div class="ver-campo"><span class="ver-label">Fecha Creación</span><span class="ver-valor">${p.fecha}</span></div>
+        <div class="ver-campo"><span class="ver-label">Fecha Entrega</span><span class="ver-valor">${p.fecha_entrega ? new Date(p.fecha_entrega + 'T00:00').toLocaleDateString('es-CO') : '—'}</span></div>
         <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
         <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono || 0).toLocaleString('es-CO', {minimumFractionDigits:2})}</span></div>
         <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toLocaleString('es-CO', {minimumFractionDigits:2})}</span></div>
@@ -622,6 +672,8 @@ function abrirModalCrear() {
     modoEdicion = false;
     pedidoEditandoId = null;
     if (clienteSelect) clienteSelect.value = '';
+    const fechaEntregaInput = document.getElementById('fechaEntregaInput');
+    if (fechaEntregaInput) fechaEntregaInput.value = '';
     configurarModalCrear();
     const itemsBody = document.getElementById('formItemsBody');
     const alerta = document.getElementById('formAlerta');
@@ -659,6 +711,8 @@ document.querySelectorAll('.btn-editar').forEach(btn => {
       const abonoInput = document.getElementById('abonoInput');
       
       if (alerta) alerta.style.display = 'none';
+      const fechaEntregaInput = document.getElementById('fechaEntregaInput');
+      if (fechaEntregaInput) fechaEntregaInput.value = p.fecha_entrega || '';
       if (itemsBody) {
         itemsBody.innerHTML = '';
         p.detalles.forEach(d => itemsBody.appendChild(crearFila(d)));
@@ -702,10 +756,29 @@ if (btnGuardar) {
     const nombreCliente = clienteSeleccionado ? clienteSeleccionado.nombre : '';
     const telefonoCliente = clienteSeleccionado ? clienteSeleccionado.telefono : '';
     
+    const fechaEntregaInput = document.getElementById('fechaEntregaInput');
+    const fechaEntrega = fechaEntregaInput ? fechaEntregaInput.value : '';
     const abonoInput = document.getElementById('abonoInput');
     const abono = parseFloat(abonoInput ? abonoInput.value : 0) || 0;
     const totalText = document.getElementById('formTotal');
     const total = parseFloat(totalText ? totalText.textContent.replace(/[^0-9.-]/g, '') : 0) || 0;
+
+    // Validar fecha entrega
+    if (!fechaEntrega) {
+      if (alerta) {
+        alerta.textContent = 'Selecciona la fecha de entrega.';
+        alerta.style.display = 'block';
+      }
+      return;
+    }
+    const hoy = new Date().toISOString().split('T')[0];
+    if (fechaEntrega <= hoy) {
+      if (alerta) {
+        alerta.textContent = 'La fecha de entrega debe ser futura.';
+        alerta.style.display = 'block';
+      }
+      return;
+    }
     
     // Validar abono
     const validacion = validarAbono(total, abono);
@@ -761,6 +834,7 @@ if (btnGuardar) {
           cliente_id: clienteId,
           cliente_nombre: nombreCliente,
           cliente_telefono: telefonoCliente,
+          fecha_entrega: fechaEntrega,
           items: items,
           abono: abono
         })

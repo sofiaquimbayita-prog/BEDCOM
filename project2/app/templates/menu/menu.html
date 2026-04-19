@@ -44,8 +44,21 @@
                     <div class="menu-icon-badge"><i class="fa-solid fa-truck"></i></div>
                     <div class="menu-card-content">
                         <h3>LOGÍSTICA Y PLANEACIÓN</h3>
-                        <p class="muted">Producción y programación</p>
+                        <p class="muted">Producción, despachos y programación</p>
                     </div> 
+                </article>
+            </a>
+            <a href="{% url 'despacho_list' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/despacho.png' %}" alt="Módulo Despachos" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                    <div class="menu-card-content">
+                        <h3>DESPACHOS</h3>
+                        <p class="muted">Gestión de entregas</p>
+                    </div>
                 </article>
             </a>
             <a href="{% url 'gestion' %}" class="menu-card-link">

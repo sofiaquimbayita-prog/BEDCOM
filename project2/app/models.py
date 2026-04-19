@@ -334,20 +334,60 @@ class supervision(models.Model):
 
 
 class despacho(models.Model):
-    fecha = models.DateField()
-    estado_entrega = models.CharField(max_length=50, default="En proceso")
-    pedido = models.ForeignKey(
-        pedido, on_delete=models.CASCADE, related_name='despachos')
+    PENDIENTE = 'pendiente'
+    EN_RUTA = 'en_ruta'
+    ENTREGADO = 'entregado'
+    FALLIDO = 'fallido'
+    
+    ESTADO_CHOICES = [
+        (PENDIENTE, 'Pendiente'),
+        (EN_RUTA, 'En Ruta'),
+        (ENTREGADO, 'Entregado'),
+        (FALLIDO, 'Fallido'),
+    ]
+    
+    pedido = models.OneToOneField(
+        pedido, on_delete=models.CASCADE, related_name='despacho',
+        limit_choices_to={'estado': 'Pendiente'})
+    
+    estado = models.CharField(
+        max_length=20, choices=ESTADO_CHOICES, default=PENDIENTE)
+    
+    fecha_despacho = models.DateTimeField(auto_now_add=True)
+    fecha_entrega_real = models.DateTimeField(null=True, blank=True)
+    
+    direccion_entrega = models.CharField(max_length=200)
+    telefono_contacto = models.CharField(max_length=15)
+    observaciones = models.TextField(blank=True, null=True)
+    
+    responsable = models.CharField(max_length=100, blank=True, null=True)
     supervision = models.ForeignKey(
         supervision, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return f"despacho pedido #{self.pedido.id} - estado: {self.estado_entrega}"
 
     class Meta:
         verbose_name = "Despacho"
         verbose_name_plural = "Despachos"
         db_table = "despacho"
+        ordering = ['-fecha_despacho']
+
+    def __str__(self):
+        return f"Despacho #{self.id} - Pedido #{self.pedido.id} ({self.get_estado_display()})"
+
+    def save(self, *args, **kwargs):
+        # Copiar datos del cliente al crear
+        if not self.pk and not self.direccion_entrega:
+            self.direccion_entrega = self.pedido.cliente.direccion
+            self.telefono_contacto = self.pedido.cliente.telefono
+        super().save(*args, **kwargs)
+
+    def puede_transitar_a(self, nuevo_estado):
+        transiciones = {
+            self.PENDIENTE: [self.EN_RUTA, self.FALLIDO],
+            self.EN_RUTA: [self.ENTREGADO, self.FALLIDO],
+            self.ENTREGADO: [],
+            self.FALLIDO: [],
+        }
+        return nuevo_estado in transiciones.get(self.estado, [])
 # --- MODELOS DE CALENDARIO ---
 
 

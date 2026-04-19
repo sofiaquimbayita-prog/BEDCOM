@@ -1,7 +1,14 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido,clientes
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido,clientes, despacho
 from app.views.respaldos.views import modal_respaldos
+from app.views.despacho.views import (
+    DespachoListView,
+    DespachoCreateView,
+    DespachoUpdateEstadoView,
+    DespachoDetailView,
+    DespachosPorFechaView
+)
 
 #app_name = 'vista'
 urlpatterns = [
@@ -129,6 +136,13 @@ urlpatterns = [
     path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
     path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
     path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
+
+# --- DESPACHO ---
+path('despacho/', despacho.DespachoListView.as_view(), name='despacho_list'),
+path('despacho/crear/', despacho.DespachoCreateView.as_view(), name='despacho_crear'),
+path('despacho/estado/<int:pk>/', despacho.DespachoUpdateEstadoView.as_view(), name='despacho_estado'),
+path('despacho/detalle/<int:pk>/', despacho.DespachoDetailView.as_view(), name='despacho_detalle'),
+path('despacho/por-fecha/', despacho.DespachosPorFechaView.as_view(), name='despacho_por_fecha'),
 
 # --- CLIENTES ---
 path('clientes/', clientes.ClienteListView.as_view(), name='clientes_list'),

@@ -49,11 +49,11 @@
 
 .toolbar { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
 .toolbar-left  { display:flex; align-items:center; }
-.toolbar-right { display:flex; align-items:center; }
+.toolbar-right { display:flex; align-items:center; margin-right: 12px; }
 
 .btn-agregar {
   background:var(--color-superficie); color:var(--color-texto); border:none;
-  padding:12px 20px; border-radius:var(--borde-md); font-size:15px;
+  padding:12px 20px; margin: 0 8px 0 12px; border-radius:var(--borde-md); font-size:15px;
   display:inline-flex; align-items:center; gap:10px; cursor:pointer;
   transition:all var(--transicion-normal); position:relative; overflow:hidden; text-decoration:none;
 }
@@ -143,8 +143,8 @@ input:checked + .slider::before { transform:translateX(20px); }
 .btn-cerrar--ver:hover    { color:var(--color-ver); }
 
 /* 6. CAMPOS DE FORMULARIO */
-.form-grupo { margin-bottom:14px; text-align:left; }
-.form-grupo label { display:block !important; color:var(--color-texto-muted) !important; font-weight:500 !important; margin-bottom:5px !important; font-size:0.82rem; }
+.form-grupo { margin-bottom:12px; text-align:left; }
+.form-grupo label { display:block; width: 100%; text-align: left; color:var(--color-texto-muted); font-weight:500; margin-bottom:5px; font-size:0.82rem; line-height: 1.2; padding: 0; }
 .form-input,
 .form-select-ped { width:100% !important; padding:11px !important; background:var(--color-superficie-input) !important; border:1px solid var(--color-borde) !important; border-radius:var(--borde-md) !important; color:var(--color-texto) !important; font-family:inherit; font-size:0.92rem; outline:none; transition:border-color var(--transicion-rapida),box-shadow var(--transicion-rapida); }
 .form-input:focus,
@@ -154,7 +154,42 @@ input:checked + .slider::before { transform:translateX(20px); }
 
 .form-alerta { display:none; background:var(--color-inactivar-glow); border:1px solid var(--color-inactivar-brd); color:#fca5a5; padding:10px 14px; border-radius:var(--borde-md); font-size:0.85rem; margin-bottom:14px; }
 
-.divicion   { display:grid; grid-template-columns:1fr 1fr;     gap:0 20px; }
+.divicion.abono-divicion   { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.abono-divicion .form-grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.abono-divicion .input-group {
+  display: flex;
+  align-items: center;
+}
+
+.abono-divicion .form-input {
+  height: 44px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.abono-divicion label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-texto);
+}
+
+.abono-divicion small {
+  font-size: 0.75rem;
+  color: var(--color-advertencia);
+  font-weight: 500;
+}
+.divicion:not(.abono-divicion)   { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; align-items: end; }
 .divicion-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px; }
 
 .form-botones { display:flex; gap:12px; justify-content:flex-end; margin-top:24px; padding-top:16px; border-top:1px solid var(--color-borde); }
@@ -167,7 +202,8 @@ input:checked + .slider::before { transform:translateX(20px); }
 .btn-guardar--editar:hover { box-shadow:0 4px 14px var(--color-editar-glow); }
 
 /* 7. SECCIÓN CLIENTE */
-.cliente-seccion { background:rgba(56,189,248,0.04); border:1px solid var(--acento-glow-border); border-radius:var(--borde-lg); padding:16px 18px; margin-bottom:16px; position:relative; }
+
+.cliente-seccion { background:rgba(56,189,248,0.04); border:1px solid var(--acento-glow-border); border-radius:var(--borde-lg); padding:14px 16px; margin-bottom:12px; position:relative; }
 .cliente-seccion-titulo { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-acento); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
 
 .ped-sugerencias { position:absolute; top:calc(100% + 2px); left:0; right:0; background:var(--color-superficie-dark); border:1px solid var(--color-borde); border-radius:var(--borde-md); box-shadow:var(--sombra-xl); z-index:500; overflow:hidden; max-height:200px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--color-borde) transparent; }
@@ -184,6 +220,14 @@ input:checked + .slider::before { transform:translateX(20px); }
 .items-tabla tbody tr:last-child { border-bottom:none; }
 .items-tabla tbody tr:hover { background:rgba(255,255,255,0.02); }
 .items-tabla td { padding:10px; vertical-align:middle; }
+.ped-table-w-stock { width: 12%; }
+.ped-table-w-price { width: 14%; }
+.ped-table-w-qty { width: 10%; }
+.ped-table-w-notes { width: 25%; }
+.ped-table-w-action { width: 8%; }
+.fecha-entrega-section { margin-bottom: 20px; }
+#fechaEntregaInput { margin-bottom: 5px; }
+#fechaEntregaInput:focus { border-color: var(--color-acento) !important; box-shadow: 0 0 0 2px var(--acento-glow); }
 .items-tabla .form-input,
 .items-tabla .form-select-ped { padding:8px 10px !important; font-size:0.85rem; }
 
@@ -193,7 +237,7 @@ input:checked + .slider::before { transform:translateX(20px); }
 .btn-quitar-fila { border:none; padding:8px; border-radius:50%; cursor:pointer; font-size:14px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.08); color:#94a3b8; width:34px; height:34px; }
 .btn-quitar-fila:hover { background:rgba(239,68,68,0.2); color:#ef4444; transform:scale(1.1); box-shadow:0 4px 15px rgba(239,68,68,0.3); }
 
-.btn-agregar-fila { background:rgba(16,185,129,0.1); color:var(--color-exito); border:1px dashed rgba(16,185,129,0.4); padding:9px 18px; border-radius:var(--borde-md); font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background var(--transicion-rapida),border-color var(--transicion-rapida); }
+.btn-agregar-fila { background:rgba(16,185,129,0.1); color:var(--color-exito); border:1px dashed rgba(16,185,129,0.4); padding:9px 18px; margin: 12px 20px; border-radius:var(--borde-md); font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background var(--transicion-rapida),border-color var(--transicion-rapida); }
 .btn-agregar-fila:hover { background:rgba(16,185,129,0.18); border-color:rgba(16,185,129,0.7); }
 
 /* 9. RESUMEN TOTAL */
