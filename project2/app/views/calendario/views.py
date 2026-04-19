@@ -3,7 +3,8 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import date, datetime
-from ...models import calendario, CategoriaEvento, historial_acciones, usuario
+from ...models import calendario, historial_acciones, usuario
+from collections import Counter
 from ...forms import calendarioForm
 
 
@@ -12,7 +13,16 @@ class CalendarioView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categorias'] = CategoriaEvento.objects.filter(estado=True)
+        COLORES_CAT = {
+            'produccion': '#3498db',
+            'logistica': '#e67e22',
+            'inventario': '#9b59b6',
+            'admin': '#34495e'
+        }
+        context['categorias'] = [
+            {'id': choice[0], 'nombre': choice[1], 'color': COLORES_CAT[choice[0]]}
+            for choice in calendario.CategoriaCalendario.choices
+        ]
         return context
 
 
@@ -39,11 +49,14 @@ class EventoDataView(View):
                 ev.estado = calendario.ESTADO_COMPLETADO
                 ev.save(update_fields=['estado'])
 
-        eventos = (
-            calendario.objects
-            .select_related('categoria')
-            .exclude(estado=calendario.ESTADO_ELIMINADO)
-        )
+        eventos = calendario.objects.exclude(estado=calendario.ESTADO_ELIMINADO)
+
+        COLORES_CAT = {
+            'produccion': '#3498db',
+            'logistica': '#e67e22',
+            'inventario': '#9b59b6',
+            'admin': '#34495e'
+        }
 
         data = [{
             'id':              e.id,
@@ -51,9 +64,9 @@ class EventoDataView(View):
             'fecha':           e.fecha.strftime('%Y-%m-%d'),
             'fecha_display':   e.fecha.strftime('%d de %b %Y'),
             'hora':            e.hora.strftime('%H:%M'),
-            'categoria':       e.categoria.nombre,
-            'categoria_id':    e.categoria.id,
-            'categoria_color': e.categoria.color,
+            'categoria':       e.get_categoria_display(),
+            'categoria_id':    e.categoria,
+            'categoria_color': COLORES_CAT[e.categoria],
             'descripcion':     e.descripcion or '',
             'estado':          e.estado,
             'modo_completado': e.modo_completado,
@@ -69,19 +82,20 @@ class EventosPorFechaView(View):
         except ValueError:
             fecha = date.today()
 
-        eventos = (
-            calendario.objects
-            .select_related('categoria')
-            .filter(fecha=fecha)
-            .exclude(estado=calendario.ESTADO_ELIMINADO)
-            .order_by('hora')
-        )
+        eventos = calendario.objects.filter(fecha=fecha).exclude(estado=calendario.ESTADO_ELIMINADO).order_by('hora')
+
+        COLORES_CAT = {
+            'produccion': '#3498db',
+            'logistica': '#e67e22',
+            'inventario': '#9b59b6',
+            'admin': '#34495e'
+        }
         data = [{
             'id':              e.id,
             'titulo':          e.titulo,
             'hora':            e.hora.strftime('%H:%M'),
-            'categoria':       e.categoria.nombre,
-            'categoria_color': e.categoria.color,
+            'categoria':       e.get_categoria_display(),
+            'categoria_color': COLORES_CAT[e.categoria],
             'estado':          e.estado,
             'modo_completado': e.modo_completado,
         } for e in eventos]
@@ -90,33 +104,44 @@ class EventosPorFechaView(View):
 
 class EventoCategoriaStatsView(View):
     def get(self, request):
-        from django.db.models import Count
-        cats = (
-            CategoriaEvento.objects
-            .filter(estado=True)
-            .annotate(total=Count(
-                'calendario',
-                filter=~__import__('django.db.models', fromlist=['Q']).Q(
-                    calendario__estado=calendario.ESTADO_ELIMINADO
-                )
-            ))
-            .values('id', 'nombre', 'color', 'total')
-        )
-        return JsonResponse({'data': list(cats)})
+        COLORES_CAT = {
+            'produccion': '#3498db',
+            'logistica': '#e67e22',
+            'inventario': '#9b59b6',
+            'admin': '#34495e'
+        }
+        eventos = calendario.objects.exclude(estado=calendario.ESTADO_ELIMINADO)
+        cat_counts = Counter(e.categoria for e in eventos)
+        data = [
+            {
+                'id': k,
+                'nombre': calendario.CategoriaCalendario(k).label,
+                'color': COLORES_CAT[k],
+                'total': cat_counts.get(k, 0)
+            }
+            for k in calendario.CategoriaCalendario
+        ]
+        return JsonResponse({'data': data})
 
 
 class EventoDetailView(View):
     def get(self, request, pk):
         evento = get_object_or_404(calendario, id=pk)
+        COLORES_CAT = {
+            'produccion': '#3498db',
+            'logistica': '#e67e22',
+            'inventario': '#9b59b6',
+            'admin': '#34495e'
+        }
         return JsonResponse({
             'id':               evento.id,
             'titulo':           evento.titulo,
             'fecha':            evento.fecha.strftime('%Y-%m-%d'),
             'fecha_display':    evento.fecha.strftime('%d de %b %Y'),
             'hora':             evento.hora.strftime('%H:%M'),
-            'categoria':        evento.categoria.id,
-            'categoria_nombre': evento.categoria.nombre,
-            'categoria_color':  evento.categoria.color,
+            'categoria':        evento.categoria,
+            'categoria_nombre': evento.get_categoria_display(),
+            'categoria_color':  COLORES_CAT[evento.categoria],
             'descripcion':      evento.descripcion or '',
             'estado':           evento.estado,
             'modo_completado':  evento.modo_completado,

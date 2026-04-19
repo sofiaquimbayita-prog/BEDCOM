@@ -216,7 +216,7 @@ class ProveedorCreateView(View):
             estado=True,
         )
         return JsonResponse({
-            'success': True,
-            'proveedor_id':     nuevo.id,
-            'proveedor_nombre': nuevo.nombre,
+            'status': 'success',
+            'id': nuevo.id,
+            'nombre': nuevo.nombre,
         })

@@ -351,19 +351,7 @@ class despacho(models.Model):
 # --- MODELOS DE CALENDARIO ---
 
 
-class CategoriaEvento(models.Model):
-    nombre = models.CharField(max_length=50, unique=True)
-    color = models.CharField(max_length=7, default='#3498db')
-    descripcion = models.TextField(blank=True)
-    estado = models.BooleanField(default=True)
 
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Categoría de Evento"
-        verbose_name_plural = "Categorías de Eventos"
-        db_table = "categoria_evento"
 
 
 class calendario(models.Model):
@@ -389,7 +377,17 @@ class calendario(models.Model):
     titulo = models.CharField(max_length=100)
     fecha = models.DateField()
     hora = models.TimeField()
-    categoria = models.ForeignKey(CategoriaEvento, on_delete=models.PROTECT)
+    class CategoriaCalendario(models.TextChoices):
+        PRODUCCION = 'produccion', 'Producción'
+        LOGISTICA = 'logistica', 'Logística'
+        INVENTARIO = 'inventario', 'Inventario'
+        ADMIN = 'admin', 'Gestión / Administración'
+
+    categoria = models.CharField(
+        max_length=20,
+        choices=CategoriaCalendario.choices,
+        default=CategoriaCalendario.PRODUCCION
+    )
     descripcion = models.TextField(blank=True, null=True)
     modo_completado = models.CharField(
         max_length=15,

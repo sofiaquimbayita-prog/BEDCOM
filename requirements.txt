@@ -1,0 +1,9 @@
+Django
+whitenoise
+django-axes
+django-widget-tweaks
+WeasyPrint
+openpyxl
+Pillow
+gunicorn
+mysqlclient
