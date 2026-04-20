@@ -78,6 +78,7 @@
               data-nombre="{{ c.nombre }}"
               data-telefono="{{ c.telefono }}"
               data-direccion="{{ c.direccion }}"
+              data-email="{{ c.email|default:'' }}"
               data-estado="{{ c.estado }}">
                 <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
                 <td>

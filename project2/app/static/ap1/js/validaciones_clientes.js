@@ -12,6 +12,7 @@ class ClienteValidator {
         this.setupNombreValidation();
         this.setupTelefonoValidation();
         this.setupDireccionValidation();
+        this.setupEmailValidation();
         this.setupPagoMontoValidation();
     }
 
@@ -149,6 +150,31 @@ class ClienteValidator {
                 this.showError('direccion-error', ' Dirección válida');
                 direccionInput.classList.add('input-success');
                 direccionInput.classList.remove('input-error');
+            }
+        });
+    }
+
+    setupEmailValidation() {
+        const emailInput = document.getElementById('fEmail');
+        if (!emailInput) return;
+
+        const errorDiv = this.createErrorElement('email-error');
+        emailInput.parentNode.appendChild(errorDiv);
+
+        emailInput.addEventListener('input', (e) => {
+            const valor = e.target.value.trim();
+            
+            if (valor.length === 0) {
+                this.showError('email-error', '');
+                emailInput.classList.remove('input-error', 'input-success');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+                this.showError('email-error', ' Formato de correo inválido');
+                emailInput.classList.add('input-error');
+                emailInput.classList.remove('input-success');
+            } else {
+                this.showError('email-error', ' Correo válido');
+                emailInput.classList.add('input-success');
+                emailInput.classList.remove('input-error');
             }
         });
     }

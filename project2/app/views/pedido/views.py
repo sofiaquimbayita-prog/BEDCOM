@@ -4,6 +4,19 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
 from django.utils import timezone
+from datetime import datetime
+
+def safe_date_str(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value).strftime('%Y-%m-%d')
+        except:
+            return None
+    if hasattr(value, 'strftime'):
+        return value.strftime('%Y-%m-%d')
+    return str(value)
 
 from ...models import pedido, detalle_pedido, producto, cliente, pago
 
@@ -51,7 +64,7 @@ def _pedido_to_dict(obj):
         'estado': obj.estado,
         'total': str(obj.total),
         # BUG CORREGIDO: clave 'fecha_entrega' estaba duplicada
-        'fecha_entrega': obj.fecha_entrega.isoformat() if obj.fecha_entrega else None,
+'fecha_entrega': safe_date_str(obj.fecha_entrega),
         'abono': str(obj.abono or 0),
         'cliente_id': obj.cliente.id,
         'cliente_nombre': obj.cliente.nombre,

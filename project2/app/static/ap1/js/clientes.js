@@ -113,7 +113,7 @@ function configurarModalCrear() {
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--agregar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar';
   document.getElementById('btnGuardarTexto').textContent= 'Guardar Cliente';
-  ['fNombre','fTelefono','fDireccion'].forEach(id => {
+  ['fNombre','fTelefono','fDireccion','fEmail'].forEach(id => {
     document.getElementById(id).className = 'form-input';
   });
 }
@@ -123,7 +123,7 @@ function configurarModalEditar(id) {
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--editar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar btn-guardar--editar';
   document.getElementById('btnGuardarTexto').textContent= 'Actualizar Cliente';
-  ['fNombre','fTelefono','fDireccion'].forEach(id => {
+  ['fNombre','fTelefono','fDireccion','fEmail'].forEach(id => {
     document.getElementById(id).className = 'form-input editar';
   });
 }
@@ -131,7 +131,7 @@ function configurarModalEditar(id) {
 document.getElementById('btnNuevoCliente').addEventListener('click', () => {
   modoEdicion = false; clienteEditandoId = null;
   configurarModalCrear();
-  ['fNombre','fTelefono','fDireccion'].forEach(id => document.getElementById(id).value = '');
+  ['fNombre','fTelefono','fDireccion','fEmail'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('formAlerta').style.display = 'none';
   openModal('modalForm');
 });
@@ -144,6 +144,7 @@ document.querySelectorAll('.edit-btn').forEach(btn => {
     document.getElementById('fNombre').value    = tr.dataset.nombre    || '';
     document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
     document.getElementById('fDireccion').value = tr.dataset.direccion || '';
+    document.getElementById('fEmail').value     = tr.dataset.email     || '';
     document.getElementById('formAlerta').style.display = 'none';
     openModal('modalForm');
   });
@@ -163,6 +164,7 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const nombre    = document.getElementById('fNombre').value.trim();
   const telefono  = document.getElementById('fTelefono').value.trim();
   const direccion = document.getElementById('fDireccion').value.trim();
+  const email     = document.getElementById('fEmail').value.trim();
 
   if (!nombre) { alerta.textContent = 'El nombre es obligatorio.'; alerta.style.display = 'block'; return; }
 
@@ -173,7 +175,7 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const res    = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-    body: JSON.stringify({ nombre, telefono, direccion })
+    body: JSON.stringify({ nombre, telefono, direccion, email })
   });
   const data = await res.json();
 

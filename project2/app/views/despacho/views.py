@@ -4,6 +4,31 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
+from datetime import datetime
+
+def safe_date_str(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value).strftime('%Y-%m-%d')
+        except:
+            return None
+    if hasattr(value, 'strftime'):
+        return value.strftime('%Y-%m-%d')
+    return str(value)
+
+def safe_datetime_str(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            return datetime.fromisoformat(value).strftime('%Y-%m-%dT%H:%M:%S')
+        except:
+            return None
+    if hasattr(value, 'strftime'):
+        return value.strftime('%Y-%m-%dT%H:%M:%S')
+    return str(value)
 
 from ...models import despacho, pedido, cliente, detalle_pedido, producto
 
@@ -19,10 +44,11 @@ def _despacho_to_dict(obj):
         'direccion_entrega': obj.direccion_entrega,
         'telefono_contacto': obj.telefono_contacto,
         'estado': obj.estado,
-        'fecha_despacho': obj.fecha_despacho.isoformat() if obj.fecha_despacho else None,
-        'fecha_entrega_real': obj.fecha_entrega_real.isoformat() if obj.fecha_entrega_real else None,
-        'observaciones': obj.observaciones or '',
+'fecha_despacho': safe_datetime_str(obj.fecha_despacho),
+'fecha_entrega_real': safe_datetime_str(obj.fecha_entrega_real),
+'observaciones': obj.observaciones or '',
         'responsable': obj.responsable or '',
+'fecha_entrega': safe_date_str(obj.pedido.fecha_entrega),
         'productos': [
             {
                 'nombre': d.producto.nombre,
@@ -176,7 +202,7 @@ class DespachosPorFechaView(View):
             {
                 'id': d.id,
                 'estado': d.estado,
-                'fecha_despacho': d.fecha_despacho.isoformat()
+'fecha_despacho': safe_datetime_str(d.fecha_despacho),
             }
             for d in qs.order_by('-fecha_despacho')[:50]
         ]
