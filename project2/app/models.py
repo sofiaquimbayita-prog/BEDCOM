@@ -381,13 +381,8 @@ class despacho(models.Model):
         super().save(*args, **kwargs)
 
     def puede_transitar_a(self, nuevo_estado):
-        transiciones = {
-            self.PENDIENTE: [self.EN_RUTA, self.FALLIDO],
-            self.EN_RUTA: [self.ENTREGADO, self.FALLIDO],
-            self.ENTREGADO: [],
-            self.FALLIDO: [],
-        }
-        return nuevo_estado in transiciones.get(self.estado, [])
+        # Modificado: permite cambiar a cualquier estado en cualquier momento
+        return True
 # --- MODELOS DE CALENDARIO ---
 
 

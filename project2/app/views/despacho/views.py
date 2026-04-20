@@ -43,15 +43,29 @@ class DespachoListView(ListView):
     template_name = 'despacho/despacho_list.html'
     context_object_name = 'despachos'
 
+    def get_queryset(self):
+        return (
+            despacho.objects
+            .select_related('pedido__cliente')
+            .order_by('-fecha_despacho')
+        )
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['pedidos_pendientes'] = pedido.objects.filter(
-            estado='Pendiente', despacho__isnull=True).count()
+            estado='Pendiente', despacho__isnull=True
+        ).count()
+
+        # Counts para tarjetas KPI
+        ctx['total_despachos'] = despacho.objects.count()
+        ctx['pendientes']      = despacho.objects.filter(estado='pendiente').count()
+        ctx['en_ruta']         = despacho.objects.filter(estado='en_ruta').count()
+        ctx['fallidos']        = despacho.objects.filter(estado='fallido').count()
         return ctx
 
 
 # ─────────────────────────────────────────────
-# API: Crear despacho (solo desde pedido Pendiente sin despacho activo)
+# API: Crear despacho
 # ─────────────────────────────────────────────
 class DespachoCreateView(View):
     def post(self, request, *args, **kwargs):
@@ -64,18 +78,22 @@ class DespachoCreateView(View):
 
             pedido_obj = get_object_or_404(pedido, pk=pedido_id)
 
-            # Validaciones
             if pedido_obj.estado != 'Pendiente':
-                return JsonResponse({'ok': False, 'error': 'Solo pedidos Pendientes.'})
-            
-            if hasattr(pedido_obj, 'despacho'):
-                return JsonResponse({'ok': False, 'error': 'Ya tiene despacho activo.'})
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Solo pedidos en estado Pendiente pueden despacharse.'
+                })
+
+            # FIX: usar .filter().exists() en lugar de hasattr + acceso directo,
+            # que puede lanzar RelatedObjectDoesNotExist en relaciones OneToOne.
+            if despacho.objects.filter(pedido=pedido_obj).exists():
+                return JsonResponse({
+                    'ok': False,
+                    'error': 'Este pedido ya tiene un despacho activo.'
+                })
 
             with transaction.atomic():
-                despacho_obj = despacho.objects.create(
-                    pedido=pedido_obj,
-                    # Copia automática via save()
-                )
+                despacho_obj = despacho.objects.create(pedido=pedido_obj)
 
             return JsonResponse({
                 'ok': True,
@@ -83,6 +101,8 @@ class DespachoCreateView(View):
                 'despacho': _despacho_to_dict(despacho_obj)
             })
 
+        except json.JSONDecodeError:
+            return JsonResponse({'ok': False, 'error': 'Cuerpo de la solicitud inválido.'})
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
@@ -94,16 +114,21 @@ class DespachoUpdateEstadoView(View):
     def post(self, request, pk, *args, **kwargs):
         try:
             obj = get_object_or_404(despacho, pk=pk)
+
+            # Acepta tanto FormData (request.POST) como JSON body
             nuevo_estado = request.POST.get('nuevo_estado')
+            if not nuevo_estado:
+                try:
+                    body = json.loads(request.body)
+                    nuevo_estado = body.get('nuevo_estado')
+                except (json.JSONDecodeError, ValueError):
+                    pass
 
             if not nuevo_estado:
-                return JsonResponse({'ok': False, 'error': 'Nuevo estado requerido.'})
-
-            if not obj.puede_transitar_a(nuevo_estado):
-                return JsonResponse({'ok': False, 'error': f'Transición inválida desde {obj.get_estado_display()}.'})
+                return JsonResponse({'ok': False, 'error': 'El nuevo estado es requerido.'})
 
             with transaction.atomic():
-                if nuevo_estado == obj.ENTREGADO:
+                if nuevo_estado == despacho.ENTREGADO:
                     obj.fecha_entrega_real = timezone.now()
                     obj.pedido.estado = 'Completado'
                     obj.pedido.save()
@@ -113,7 +138,7 @@ class DespachoUpdateEstadoView(View):
 
             return JsonResponse({
                 'ok': True,
-                'message': f'Despacho #{obj.id} actualizado a {obj.get_estado_display()}.',
+                'message': f'Despacho #{obj.id} actualizado a "{obj.get_estado_display()}".',
                 'despacho': _despacho_to_dict(obj)
             })
 
@@ -126,7 +151,10 @@ class DespachoUpdateEstadoView(View):
 # ─────────────────────────────────────────────
 class DespachoDetailView(View):
     def get(self, request, pk, *args, **kwargs):
-        obj = get_object_or_404(despacho, pk=pk)
+        obj = get_object_or_404(
+            despacho.objects.select_related('pedido__cliente'),
+            pk=pk
+        )
         return JsonResponse({'ok': True, 'despacho': _despacho_to_dict(obj)})
 
 
@@ -136,7 +164,7 @@ class DespachoDetailView(View):
 class DespachosPorFechaView(View):
     def get(self, request, *args, **kwargs):
         fecha_inicio = request.GET.get('fecha_inicio')
-        fecha_fin = request.GET.get('fecha_fin')
+        fecha_fin    = request.GET.get('fecha_fin')
 
         qs = despacho.objects.all()
         if fecha_inicio:
@@ -144,8 +172,13 @@ class DespachosPorFechaView(View):
         if fecha_fin:
             qs = qs.filter(fecha_despacho__date__lte=fecha_fin)
 
-        data = [{'id': d.id, 'estado': d.estado, 'fecha_despacho': d.fecha_despacho.isoformat()}
-                for d in qs.order_by('-fecha_despacho')[:50]]
+        data = [
+            {
+                'id': d.id,
+                'estado': d.estado,
+                'fecha_despacho': d.fecha_despacho.isoformat()
+            }
+            for d in qs.order_by('-fecha_despacho')[:50]
+        ]
 
         return JsonResponse({'ok': True, 'despachos': data})
-

@@ -115,9 +115,13 @@ input:checked + .slider::before { transform:translateX(20px); }
 
 /* 4. BOTONES ACCIÓN (círculos) */
 .icons { display:flex; justify-content:center; gap:8px; }
-.view-btn, .edit-btn { border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; background:rgba(255,255,255,0.08); color:#94a3b8; width:40px; height:40px; }
+.view-btn, .edit-btn, .btn-despacho, .btn-despacho-ver { border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; background:rgba(255,255,255,0.08); color:#94a3b8; width:40px; height:40px; }
 .view-btn:hover { color:#a78bfa; transform:scale(1.1); box-shadow:0 4px 15px rgba(167,139,250,0.35); background:rgba(167,139,250,0.12); }
 .edit-btn:hover { background:rgba(251,191,36,0.2); color:#fbbf24; transform:scale(1.1); box-shadow:0 4px 15px rgba(251,191,36,0.3); }
+.btn-despacho { color: #3b82f6; background: rgba(59,130,246,0.12); }
+.btn-despacho:hover { color: #1d4ed8; transform: scale(1.1); box-shadow: 0 4px 15px rgba(59,130,246,0.4); background: rgba(59,130,246,0.2); }
+.btn-despacho-ver { color: #10b981; background: rgba(16,185,129,0.12); }
+.btn-despacho-ver:hover { color: #059669; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16,185,129,0.4); background: rgba(16,185,129,0.2); }
 
 /* 5. MODAL BASE */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:10000; justify-content:center; align-items:center; }
@@ -154,7 +158,41 @@ input:checked + .slider::before { transform:translateX(20px); }
 
 .form-alerta { display:none; background:var(--color-inactivar-glow); border:1px solid var(--color-inactivar-brd); color:#fca5a5; padding:10px 14px; border-radius:var(--borde-md); font-size:0.85rem; margin-bottom:14px; }
 
-.divicion.abono-divicion   { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items: center; }
+.divicion.abono-divicion   { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.abono-divicion .form-grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.abono-divicion .input-group {
+  display: flex;
+  align-items: center;
+}
+
+.abono-divicion .form-input {
+  height: 44px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.abono-divicion label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-texto);
+}
+
+.abono-divicion small {
+  font-size: 0.75rem;
+  color: var(--color-advertencia);
+  font-weight: 500;
+}
 .divicion:not(.abono-divicion)   { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; align-items: end; }
 .divicion-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px; }
 

@@ -1,0 +1,133 @@
+/* ════════════════════════════════════════════════════
+   MÓDULO DE DESPACHO — Extensión del sistema base
+   ════════════════════════════════════════════════════ */
+
+/* ── KPI Cards ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--borde-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--sombra-lg); }
+.kpi-icon {
+  width: 46px; height: 46px;
+  border-radius: var(--borde-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.kpi-icon--total    { background: rgba(81,129,211,0.15); color: var(--color-principal); }
+.kpi-icon--pendiente{ background: rgba(245,158,11,0.15); color: #f59e0b; }
+.kpi-icon--en_ruta  { background: rgba(56,189,248,0.15); color: #38bdf8; }
+.kpi-icon--fallido  { background: rgba(239,68,68,0.15); color: #ef4444; }
+.kpi-value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+.kpi-label { font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-muted); margin-top: 3px; }
+
+/* ── Tabla despachos ─────── */
+#tablaDespachos { width: 100% !important; color: var(--color-texto); min-width: 600px; }
+
+#tablaDespachos tbody tr:hover { background: var(--acento-glow) !important; cursor: pointer; }
+#tablaDespachos tbody tr:hover td { color: var(--color-acento) !important; }
+
+/* ── Badges de estado exclusivos de despacho ─────────── */
+.badge-en_ruta   { background: rgba(56,189,248,0.15);  color: #38bdf8; border: 1px solid rgba(56,189,248,0.35); }
+.badge-entregado { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.35); }
+.badge-fallido   { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.35);  }
+.badge-pendiente { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.35); }
+
+/* ── Select de cambio de estado en la tabla ──────────── */
+.estado-select {
+  background: var(--color-superficie-input);
+  border: 1px solid var(--color-borde);
+  border-radius: 20px;
+  color: var(--color-texto);
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border var(--transicion-rapida);
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+  min-width: 110px;
+}
+.estado-select:focus { outline: none; border-color: var(--color-acento); }
+
+/* colores dinámicos según estado actual */
+.estado-select[data-estado-actual="pendiente"] { border-color: rgba(245,158,11,0.5); color: #f59e0b; }
+.estado-select[data-estado-actual="en_ruta"]   { border-color: rgba(56,189,248,0.5);  color: #38bdf8; }
+.estado-select[data-estado-actual="entregado"] { border-color: rgba(16,185,129,0.5); color: #10b981; }
+.estado-select[data-estado-actual="fallido"]   { border-color: rgba(239,68,68,0.5);  color: #ef4444; }
+
+/* ── Botón ver (ojo) ─────────────────────────────────── */
+.btn-ver {
+  border: none;
+  padding: 9px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+  width: 38px;
+  height: 38px;
+}
+.btn-ver:hover {
+  color: #a78bfa;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(167,139,250,0.35);
+  background: rgba(167,139,250,0.12);
+}
+
+/* ── Modal detalle: info-grid / info-card ────────────── */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.info-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--borde-lg);
+  padding: 16px 18px;
+}
+.info-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-acento);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--acento-glow-border);
+}
+.info-card p {
+  font-size: 0.9rem;
+  color: var(--color-texto-oscuro);
+  margin-bottom: 7px;
+  line-height: 1.5;
+}
+.info-card p strong { color: var(--color-texto-muted); font-weight: 600; margin-right: 4px; }
+
+@media (max-width: 640px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
