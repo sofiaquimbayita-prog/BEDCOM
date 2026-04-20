@@ -74,7 +74,7 @@ class ReporteVentasView(View):
         pendientes = despacho.objects.filter(estado_entrega="En proceso").count()
 
         context = {
-            'titulo_pagina': 'GESTIÓN DE REPORTES - BEDCOM',
+            'titulo_pagina': 'Gestión de Reportes',
             'total_ventas': total_ventas,
             'utilidad_neta': utilidad_neta,
             'margen': round(margen, 1),

@@ -44,7 +44,7 @@ class producto_list_view(ListView):
         
         # Filtrar solo categorías de tipo producto
         context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
-        context['titulo_pagina'] = 'GESTIÓN DE PRODUCTOS - BEDCOM'
+        context['titulo_pagina'] = 'Gestión de Productos'
         
         return context
     

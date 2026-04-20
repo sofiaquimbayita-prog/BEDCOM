@@ -87,6 +87,7 @@ class PedidoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['titulo_pagina'] = 'PEDIDOS'
         ctx['clientes'] = cliente.objects.filter(estado=True).order_by('nombre')
         ctx['productos'] = producto.objects.filter(estado=True).order_by('nombre').values(
             'id', 'nombre', 'precio', 'stock'

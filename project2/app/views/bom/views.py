@@ -29,7 +29,7 @@ class BomListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'ESTRUCTURA DE PRODUCTOS (BOM)'
+        context['titulo_pagina'] = 'Gestión BOM - Estructura de Productos'
         
         # Obtener todas las estructuras BOM agrupadas por producto
         # Esto permite mostrar una fila por receta (producto) con sus ingredientes

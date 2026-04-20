@@ -18,6 +18,7 @@ class MonitoreoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'MONITOREO'
         
         # 1. CARGAR HISTORIAL (Renderizado inicial)
         # Obtenemos las últimas 50 acciones, ordenadas de la más reciente a la más antigua

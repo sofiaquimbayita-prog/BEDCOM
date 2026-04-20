@@ -11,7 +11,7 @@ class LogisticaListView(ListView):
         context = super().get_context_data(**kwargs)
         
         # Título para el header
-        context['titulo_pagina'] = 'LOGÍSTICA Y PLANEACIÓN - BEDCOM'
+        context['titulo_pagina'] = 'INVENTARIO'
         context['icono_modulo'] = 'fas fa-truck'
 
         return context

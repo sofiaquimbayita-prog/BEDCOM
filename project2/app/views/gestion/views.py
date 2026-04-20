@@ -11,7 +11,7 @@ class GestionListView(ListView):
         context = super().get_context_data(**kwargs)
         
         # Título para el header
-        context['titulo_pagina'] = 'GESTIÓN DE DATOS - BEDCOM'
+        context['titulo_pagina'] = 'GESTION DE DATOS'
         context['icono_modulo'] = 'fas fa-database'
 
         return context

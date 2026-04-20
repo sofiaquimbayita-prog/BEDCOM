@@ -30,14 +30,12 @@
 {% endif %}
 {% endblock %}
 
-{% block content %}
-
-
-
-<link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/entrada_p.css' %}">
+{% endblock %}
 
+{% block content %}
 <main class="entradas-productos">
     <div class="toolbar">
         <div class="toolbar-left">

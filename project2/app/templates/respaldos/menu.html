@@ -1,8 +1,14 @@
+{% extends "includes/base.html" %}
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
+{% block title %}Respaldos{% endblock %}
+{% block header_title %}Respaldos{% endblock %}
 
-{% block body %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
+{% endblock %}
+
+{% block content %}
 <div class="container-fluid mt-4">
 
     <h2 class="mb-4">
@@ -11,9 +17,8 @@
 
     <div class="stats-container">
 
-        <!-- ESTADO CONEXION -->
         <div class="stat-card purple">
-            <span class="stat-label">ESTADO DE CONEXIÓN</span>
+            <span class="stat-label">ESTADO DE CONEXION</span>
 
             {% if mysql_conectado %}
                 <span class="stat-value text-success">Conectado</span>
@@ -22,9 +27,7 @@
             {% endif %}
         </div>
 
-        <!-- DESCARGAR RESPALDO -->
         <div class="stat-card blue">
-
             <span class="stat-label">DESCARGAR RESPALDO</span>
             <span class="stat-value small">Backup completo</span>
 
@@ -43,9 +46,7 @@
 
         </div>
 
-        <!-- RESTAURAR -->
         <div class="stat-card green">
-
             <span class="stat-label">RESTAURAR BD</span>
             <span class="stat-value small">Subir archivo SQL</span>
 
@@ -68,12 +69,11 @@
 
     </div>
 
-    <!-- INFO -->
     <div class="row justify-content-center mt-4">
         <div class="col-md-8">
             <div class="card info-card">
                 <div class="card-header bg-info text-white">
-                    <h6><i class="bi bi-info-circle"></i> Información</h6>
+                    <h6><i class="bi bi-info-circle"></i> Informacion</h6>
                 </div>
 
                 <div class="card-body">
@@ -84,7 +84,7 @@
                                 <li>MySQL instalado localmente</li>
                                 <li>xxxxxxxxxxxxxxxx</li>
                                 <li>xxxxxxxxxxxxxxxx</li>
-                                <li>Usuario y contraseña configurados</li>
+                                <li>Usuario y contrasena configurados</li>
                             </ul>
                         </div>
 
@@ -107,15 +107,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-
+{% block scripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'ap1/js/respaldos.js' %}"></script>
-
-{% endblock %}
-
-{% block modals %}
-    {% include 'respaldos/modal_generar.html' %}
-    {% include 'respaldos/modal_view.html' %}
-    {% include 'respaldos/modal_delete.html' %}
 {% endblock %}

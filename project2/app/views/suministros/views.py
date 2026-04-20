@@ -7,6 +7,6 @@ class SuministrosListView(ListView):
     context_object_name = 'productos'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'SUMINISTROS - BEDCOM'
+        context['titulo_pagina'] = 'SUMINISTROS'
         context['icono_modulo'] = 'fas fa-shopping-cart'
         return context

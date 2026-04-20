@@ -51,6 +51,7 @@ class ClienteListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['titulo_pagina'] = 'CLIENTES'
         # Estadísticas rápidas para las tarjetas del dashboard
         ctx['total_clientes']  = cliente.objects.count()
         ctx['activos']         = cliente.objects.filter(estado=True).count()

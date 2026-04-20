@@ -127,7 +127,7 @@ class RespaldoListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = "Gestión de Respaldos"
+        context['titulo_pagina'] = "Respaldos"
         context['icono_modulo'] = "fas fa-database"
         context['respaldos_activos'] = getattr(self, 'context_activos', respaldo.objects.filter(estado=True))
         context['mysql_conectado'] = verificar_db()
@@ -221,7 +221,7 @@ class RespaldoCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = "Gestión de Respaldos"
+        context['titulo_pagina'] = "Respaldos"
         context['icono_modulo'] = "fas fa-database"
         return context
 

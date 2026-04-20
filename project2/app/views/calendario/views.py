@@ -12,6 +12,7 @@ class CalendarioView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['titulo_pagina'] = 'AGENDA BEDCOM'
         context['categorias'] = CategoriaEvento.objects.filter(estado=True)
         return context
 
