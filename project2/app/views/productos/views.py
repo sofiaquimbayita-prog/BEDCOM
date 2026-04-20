@@ -145,9 +145,16 @@ class producto_create_view(SuccessMessageMixin, CreateView):
 
 
 # --- VISTA DE EDICIÓN (MODIFICAR) ---
-# @method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class producto_update_view(SuccessMessageMixin, UpdateView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     # Se agrega 'imagen' para permitir actualizar fotos del catálogo
     fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
     template_name = 'productos/modal_edit.html'
@@ -246,6 +253,13 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
 @method_decorator(login_required, name='dispatch')
 class producto_delete_view(DeleteView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):
@@ -280,6 +294,13 @@ class producto_delete_view(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class producto_activate_view(SuccessMessageMixin, DeleteView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):

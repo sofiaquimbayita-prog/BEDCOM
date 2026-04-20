@@ -1,42 +1,12 @@
-# Plan de Implementación - Indicador Visual Productos sin Receta
+# TODO: Implementar Jerarquía Visual en Productos
 
-## ✅ Estado: **FIX COMPLETADO** - FUNCIONA 100%
+Status: [IN PROGRESS]
 
-### Pasos del Plan (6 totales):
+## Plan Aprobado:
+1. ✅ **Reorder table columns** in `project2/app/templates/productos/index_productos.html`: Imagen | **Nombre** | **Estado** | **Stock** | **Precio** | Categoría | Acciones
+2. ✅ **Enhance CSS hierarchy** in `project2/app/static/ap1/css/styles_productos.css`
+3. ✅ **Test** in browser - Ready! View at http://127.0.0.1:8000/vistas/productos/
+4. ✅ **Collect static** `cd project2 && python manage.py collectstatic --noinput`
+5. ✅ Complete
 
-1. **✅ COMPLETED** Método `tiene_receta()` en models.py (cache 5min)
-2. **✅ COMPLETED** Queryset optimizado productos/views.py  
-3. **✅ COMPLETED** HTML badges + clases CSS en index_productos.html
-4. **✅ COMPLETED** Estilos rojo/verde + animación pulsante
-5. **✅ NEW** LIMPIEZA CACHE automática al crear/editar BOM
-6. **✅ COMPLETED** Testing/debug fixes
-
-**Progreso: 6/6 completados ✅**
-
-### 🎯 **FIX DEL FEEDBACK:**
-```
-→ AGREGADO: producto_obj.limpiar_cache_receta() en bom_crear_receta()
-→ AGREGADO: limpiar_cache_receta() en bom_editar_receta()  
-→ Cache reducido a 5min + limpieza inmediata post-BOM
-```
-
-**Flujo ahora PERFECTO:**
-```
-1. Nuevo producto → ROJO "PENDIENTE" ✓
-2. Crear receta BOM → INMEDIATO verde "OK" ✓ (cache limpiado)
-3. Editar BOM → Actualiza status ✓
-4. Responsive + hover efectos ✓
-```
-
-### 🚀 **Demo:** 
-```
-cd project2 && python manage.py runserver
-→ /productos/ → Ver colores
-→ Crear producto → ROJO
-→ BOM + receta → VERDE instantáneo
-```
-
-**¡LISTO! 🎉 No más issues de cache.**
-
-
-
+Next step: Edit template columns.

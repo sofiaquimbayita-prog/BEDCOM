@@ -119,24 +119,143 @@ header {
   color: white !important;
 }
 
-#tablaProductos tbody td:nth-child(6) {
-    color: #385ef8;
-    font-weight: bold;
+/* ================================================== 
+   JERARQUÍA VISUAL ENHANCED - Nombre > Estado > Stock > Precio > Receta
+   ================================================== */
+
+/* Columna 1: Imagen - Compacta */
+#tablaProductos td:nth-child(1) {
+    width: 70px;
+    padding: 8px 4px;
 }
 
-#tablaProductos tr:has(.activate-btn) td:nth-child(6) {
+/* Columna 2: Nombre - MÁXIMA PRIORIDAD */
+#tablaProductos td:nth-child(2) {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: #ffffff;
+    padding: 12px 8px;
+}
+
+/* Columna 3: Estado - SEGUNDA PRIORIDAD */
+#tablaProductos td:nth-child(3) {
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+/* Columna 4: Stock - TERCERA PRIORIDAD */
+#tablaProductos td:nth-child(4) {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+/* Columna 5: Precio - CUARTA PRIORIDAD */
+#tablaProductos td:nth-child(5) {
+    font-size: 1.1em;
+    font-weight: 800;
+}
+
+/* Fila inactiva - gris con opacidad */
+#tablaProductos tr.inactive {
+    background-color: rgba(128, 128, 128, 0.15);
+    opacity: 0.7;
+}
+
+/* Estado del producto - SEGUNDA PRIORIDAD */
+.status-badge {
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 0.95em;
+}
+
+.status-active {
+    color: #2ecc71;
+}
+
+.status-inactive {
     color: #e74c3c;
 }
 
-#tablaProductos td:nth-child(6) {
-    display: table-cell;
-    text-align: center;
+/* Stock - TERCERA PRIORIDAD */
+#tablaProductos td:nth-child(3) {
+    font-weight: 600;
+    font-size: 0.95em;
 }
 
-/* Precio en la tabla */
-#tablaProductos td:nth-child(4) {
-    color: #385ef8;
-    font-weight: bold;
+.badge {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    font-size: 0.9em;
+}
+
+.stock-low {
+    color: #e74c3c;
+}
+
+.stock-medium {
+    color: #f39c12;
+}
+
+.stock-high {
+    color: #2ecc71;
+}
+
+/* Precio - CUARTA PRIORIDAD (destacado) */
+.price-highlight {
+    color: #f39c12;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+
+/* Receta - QUINTA PRIORIDAD (discreta) */
+.recipe-badge {
+    font-size: 0.65em;
+    padding: 2px 6px;
+    display: inline-block;
+    color: inherit;
+    font-weight: 500;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+.recipe-complete {
+    color: #2ecc71;
+}
+
+.recipe-pending {
+    color: #f39c12;
+}
+
+/* Acciones - botones visibles */
+.acciones button {
+    background-color: transparent;
+    border: none;
+    color: #38bdf8;
+    cursor: pointer;
+    padding: 6px 8px;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.acciones button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #00bfff;
+    transform: scale(1.1);
+}
+
+.acciones button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#tablaProductos td {
+    vertical-align: middle;
 }
 
 /* ==================================================
@@ -677,128 +796,62 @@ input:-webkit-autofill {
 }
 
 /* ==================================================
-   ESTILOS LINDOS PARA PRODUCTOS SIN RECETA ✨
+   PRODUCTOS SIN RECETA - Estilos limpios y sutiles
    ================================================== */
 .pending-recipe {
-    background: linear-gradient(135deg, #fef3f2 0%, #ffeef0 100%) !important;
-    border-left: 6px solid #f87171 !important;
+    background-color: transparent !important;
+    border-left: none !important;
     position: relative;
-    box-shadow: inset 0 0 20px rgba(248, 113, 113, 0.1) !important;
-}
-
-.pending-recipe::before {
-    content: '⚠';
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    opacity: 0.3;
-    z-index: 0;
+    box-shadow: none !important;
 }
 
 .pending-recipe:hover {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
-    border-left-color: #ef4444 !important;
-    transform: scale(1.01);
-    box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.2), 0 8px 25px rgba(239, 68, 68, 0.15) !important;
+    background-color: transparent !important;
+    border-left-color: transparent !important;
+    transform: none;
+    box-shadow: none !important;
 }
 
+/* Badge de receta - discreto y sutil */
 .recipe-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 25px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-top: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    backdrop-filter: blur(10px);
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75em;
+    font-weight: normal;
+    margin-top: 2px;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: none;
+    backdrop-filter: none;
+    background-color: transparent;
+    color: inherit;
 }
 
 .recipe-pending {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
-    color: #fff;
-    animation: pulse-glow 1.8s ease-in-out infinite;
+    color: #f39c12;
+    background-color: transparent;
+    animation: none;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .recipe-pending::after {
     content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-    animation: shine 3s infinite;
+    display: none;
 }
 
 .recipe-complete {
-    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    color: #2ecc71;
+    background-color: transparent;
+    box-shadow: none;
 }
 
-@keyframes pulse-glow {
-    0%, 100% { 
-        box-shadow: 0 0 5px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
-        transform: scale(1);
-    }
-    50% { 
-        box-shadow: 0 0 20px rgba(239, 68, 68, 1), 0 0 40px rgba(239, 68, 68, 0.6);
-        transform: scale(1.03);
-    }
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-/* DataTable enhancements */
-#tablaProductos tbody tr.pending-recipe td {
-    position: relative;
-}
-
-#tablaProductos tbody tr.pending-recipe:hover td {
-    color: #7f1d1d !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-#tablaProductos tbody tr.pending-recipe:hover {
-    background: linear-gradient(135deg, #fecdd3 0%, #fed7d7 100%) !important;
-}
-
-/* Badge stock premium para pending */
-.pending-recipe .badge.bg-danger {
-    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-    border: 2px solid #991b1b !important;
-    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4);
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-3px); }
-    60% { transform: translateY(-2px); }
-}
-
-/* Responsive mejoras */
+/* Responsive */
 @media (max-width: 768px) {
     .recipe-badge {
-        font-size: 10px;
-        padding: 5px 10px;
-        display: inline-flex;
-        margin-top: 4px;
-    }
-    
-    .pending-recipe::before {
-        font-size: 16px;
+        font-size: 0.7em;
+        padding: 2px 4px;
     }
 }
 
