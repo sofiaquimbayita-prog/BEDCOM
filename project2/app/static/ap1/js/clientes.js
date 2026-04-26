@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function () {
     pageLength: 15,
   });
 
-  // Ocultar inactivos por defecto
   ocultarInactivos();
   cargarDeudas();
 });
@@ -83,32 +82,201 @@ function showToast(msg, tipo = 'success') {
   setTimeout(() => el.remove(), 4000);
 }
 
-/* ─── MODAL VER ─── */
-document.querySelectorAll('.view-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const res  = await fetch(URL_OBTENER(btn.dataset.id));
+/* ══════════════════════════════════════════════════════════════════════
+   DELEGACIÓN DE EVENTOS — un único listener en la tabla captura clics
+   de TODAS las páginas de DataTables, incluyendo las que se renderizan
+   después de que el script se ejecutó por primera vez.
+   Antes: querySelectorAll('.view-btn').forEach(btn => btn.addEventListener(...))
+           → solo asignaba eventos a los botones del DOM inicial (página 1).
+   Ahora: document.getElementById('tablaClientes').addEventListener('click', ...)
+           → intercepta cualquier clic dentro de la tabla sin importar la página.
+══════════════════════════════════════════════════════════════════════ */
+document.getElementById('tablaClientes').addEventListener('click', async function (e) {
+
+  /* closest() sube por el árbol hasta encontrar el botón real,
+     incluso si el usuario hizo clic en el <i> del icono interior */
+  const btn = e.target.closest('.view-btn, .edit-btn, .historial-btn, .pago-btn, .toggle-btn');
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  /* ─── MODAL VER ─── */
+  if (btn.classList.contains('view-btn')) {
+    const res  = await fetch(URL_OBTENER(id));
     const data = await res.json();
     if (!data.ok) { showToast(data.error, 'error'); return; }
-    const c = data.cliente;
+    const c     = data.cliente;
     const deuda = parseFloat(c.deuda);
-    document.getElementById('verInfoCliente').innerHTML = `
+      document.getElementById('verInfoCliente').innerHTML = `
       <div class="ver-campo"><span class="ver-label">Nombre</span><span class="ver-valor">${c.nombre}</span></div>
       <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${c.telefono}</span></div>
+      <div class="ver-campo"><span class="ver-label">Correo electrónico</span><span class="ver-valor">${c.email || '<span style="color:var(--color-texto-muted)">No registrado</span>'}</span></div>
       <div class="ver-campo"><span class="ver-label">Dirección</span><span class="ver-valor">${c.direccion}</span></div>
-      <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${c.estado ? 'activo' : 'inactivo'}">${c.estado ? 'Activo' : 'Inactivo'}</span></div>
+      <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${c.estado ? 'activo' : 'inactivo'}">${c.estado ? 'Activo' : 'Inactivo'}</span></span></div>
       <div class="ver-campo ver-campo--destacado" style="${deuda > 0 ? 'background:var(--color-deuda-glow);border-color:var(--color-deuda-brd)' : ''}">
         <span class="ver-label">Deuda Pendiente</span>
         <span class="ver-valor ver-valor--monto" style="color:${deuda > 0 ? 'var(--color-deuda)' : 'var(--color-exito)'}">$${deuda.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
       </div>`;
     openModal('modalVer');
-  });
+    return;
+  }
+
+  /* ─── MODAL EDITAR ─── */
+  if (btn.classList.contains('edit-btn')) {
+    const tr = btn.closest('tr');
+    modoEdicion       = true;
+    clienteEditandoId = id;
+    configurarModalEditar(id);
+    document.getElementById('fNombre').value    = tr.dataset.nombre    || '';
+    document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
+    document.getElementById('fDireccion').value = tr.dataset.direccion || '';
+    document.getElementById('fEmail').value     = tr.dataset.email     || '';
+    document.getElementById('formAlerta').style.display = 'none';
+    openModal('modalForm');
+    return;
+  }
+
+  /* ─── MODAL HISTORIAL DE PEDIDOS ─── */
+  if (btn.classList.contains('historial-btn')) {
+    document.getElementById('histPedidosList').innerHTML =
+      '<div class="historial-vacio"><i class="fas fa-spinner fa-spin"></i><p>Cargando historial…</p></div>';
+    openModal('modalHistorial');
+
+    const res  = await fetch(URL_HISTORIAL(id));
+    const data = await res.json();
+    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorial'); return; }
+
+    const c = data.cliente;
+    document.getElementById('histCliAvatar').textContent      = c.nombre.charAt(0).toUpperCase();
+    document.getElementById('histCliNombre').textContent      = c.nombre;
+    document.getElementById('histTotalPedidos').textContent   = data.total_pedidos;
+
+    const totalFacturado = data.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
+    document.getElementById('histTotalFacturado').textContent = `$${totalFacturado.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+    document.getElementById('histDeudaTotal').textContent     = `$${parseFloat(data.deuda_total).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+
+    if (!data.pedidos.length) {
+      document.getElementById('histPedidosList').innerHTML =
+        '<div class="historial-vacio"><i class="fas fa-shopping-bag"></i><p>Este cliente no tiene pedidos registrados.</p></div>';
+      return;
+    }
+
+    document.getElementById('histPedidosList').innerHTML = data.pedidos.map(p => {
+      const pendiente  = parseFloat(p.pendiente);
+      const badgeClass = p.estado === 'Completado' ? 'badge-completado'
+                       : p.estado === 'Anulado'    ? 'badge-anulado'
+                       : 'badge-pendiente';
+      
+      // Tabla de productos del pedido
+      const detallesHtml = p.detalles && p.detalles.length
+        ? `<div class="pedido-detalles-tabla-wrap">
+            <table class="pedido-detalles-tabla">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th style="text-align:center;width:70px">Cant.</th>
+                  <th style="text-align:right;width:100px">P. Unit.</th>
+                  <th style="text-align:right;width:100px">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${p.detalles.map(d => `
+                  <tr>
+                    <td>
+                      <div style="font-weight:600">${d.producto}</div>
+                      ${d.observaciones ? `<div style="font-size:0.75rem;color:var(--color-texto-muted);margin-top:2px">${d.observaciones}</div>` : ''}
+                    </td>
+                    <td style="text-align:center">${d.cantidad}</td>
+                    <td style="text-align:right">$${parseFloat(d.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+                    <td style="text-align:right;color:var(--color-exito);font-weight:600">$${parseFloat(d.sub_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+           </div>`
+        : '<div style="font-size:0.82rem;color:var(--color-texto-muted);padding:8px 0">Sin productos registrados</div>';
+      
+      // Resumen de totales del pedido
+      const totalesHtml = `<div class="pedido-totales">
+        <div class="pedido-total-row">
+          <span>Total pedido:</span>
+          <span class="pedido-total-valor">$${parseFloat(p.total).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+        </div>
+        <div class="pedido-total-row">
+          <span>Pagado:</span>
+          <span style="color:var(--color-exito)">$${parseFloat(p.pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+        </div>
+        ${pendiente > 0 && p.estado !== 'Anulado'
+          ? `<div class="pedido-total-row">
+               <span>Pendiente:</span>
+               <span style="color:var(--color-deuda);font-weight:700">$${pendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+             </div>`
+          : ''}
+      </div>`;
+      
+      return `
+        <div class="historial-pedido">
+          <div class="historial-row">
+            <div>
+              <span class="historial-id">#${p.id}</span>
+              <span class="historial-fecha" style="margin-left:8px">${p.fecha}</span>
+              <span style="margin-left:10px;font-size:0.78rem;color:var(--color-texto-muted)"><i class="fas fa-box" style="font-size:0.65rem;margin-right:3px"></i>${p.cantidad_productos} producto${p.cantidad_productos !== 1 ? 's' : ''}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="badge-estado ${badgeClass}">${p.estado}</span>
+            </div>
+          </div>
+          ${detallesHtml}
+          ${totalesHtml}
+        </div>`;
+    }).join('');
+    return;
+  }
+
+  /* ─── MODAL HISTORIAL DE PAGOS ─── */
+  if (btn.classList.contains('pago-btn')) {
+    document.getElementById('histPagosBody').innerHTML =
+      '<tr><td colspan="4" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i> Cargando pagos…</td></tr>';
+    openModal('modalHistorialPagos');
+
+    const res  = await fetch(URL_HISTORIAL_PAGOS(id));
+    const data = await res.json();
+    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorialPagos'); return; }
+
+    const c = data.cliente;
+    document.getElementById('histPagosCliAvatar').textContent   = c.nombre.charAt(0).toUpperCase();
+    document.getElementById('histPagosCliNombre').textContent   = c.nombre;
+    document.getElementById('histPagosTotalPagos').textContent  = data.total_pagos;
+    document.getElementById('histPagosTotalPagado').textContent = `$${parseFloat(data.total_pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+
+    if (!data.pagos.length) {
+      document.getElementById('histPagosBody').innerHTML =
+        '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--color-texto-muted)"><i class="fas fa-info-circle"></i> Este cliente no tiene pagos registrados.</td></tr>';
+      return;
+    }
+
+    document.getElementById('histPagosBody').innerHTML = data.pagos.map(p => `
+      <tr>
+        <td>${p.fecha}</td>
+        <td><strong>#${p.pedido_id}</strong></td>
+        <td>$${parseFloat(p.pedido_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+        <td style="color:var(--color-exito);font-weight:700">$${parseFloat(p.monto).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+      </tr>
+    `).join('');
+    return;
+  }
+
+  /* ─── TOGGLE ESTADO (activar / inactivar) — ahora manejado por modales ─── */
+  if (btn.classList.contains('toggle-btn')) {
+    return;
+  }
 });
 
 /* ─── MODAL CREAR ─── */
 let modoEdicion = false, clienteEditandoId = null;
 
 function configurarModalCrear() {
-  document.getElementById('modalFormHeader').className = 'modal-header modal-header--agregar';
+  document.getElementById('modalFormHeader').className  = 'modal-header modal-header--agregar';
   document.getElementById('formModalTitulo').innerHTML  = '<i class="fas fa-user-plus"></i> Nuevo Cliente';
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--agregar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar';
@@ -118,7 +286,7 @@ function configurarModalCrear() {
   });
 }
 function configurarModalEditar(id) {
-  document.getElementById('modalFormHeader').className = 'modal-header modal-header--editar';
+  document.getElementById('modalFormHeader').className  = 'modal-header modal-header--editar';
   document.getElementById('formModalTitulo').innerHTML  = `<i class="fas fa-user-edit"></i> Editar Cliente #${id}`;
   document.getElementById('formModalTitulo').className  = 'modal-titulo modal-titulo--editar';
   document.getElementById('btnGuardarCliente').className= 'btn-guardar btn-guardar--editar';
@@ -134,20 +302,6 @@ document.getElementById('btnNuevoCliente').addEventListener('click', () => {
   ['fNombre','fTelefono','fDireccion','fEmail'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('formAlerta').style.display = 'none';
   openModal('modalForm');
-});
-
-document.querySelectorAll('.edit-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tr    = btn.closest('tr');
-    modoEdicion = true; clienteEditandoId = btn.dataset.id;
-    configurarModalEditar(btn.dataset.id);
-    document.getElementById('fNombre').value    = tr.dataset.nombre    || '';
-    document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
-    document.getElementById('fDireccion').value = tr.dataset.direccion || '';
-    document.getElementById('fEmail').value     = tr.dataset.email     || '';
-    document.getElementById('formAlerta').style.display = 'none';
-    openModal('modalForm');
-  });
 });
 
 /* ─── Guardar cliente ─── */
@@ -171,8 +325,8 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const btn = document.getElementById('btnGuardarCliente');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
 
-  const url    = modoEdicion ? URL_EDITAR(clienteEditandoId) : URL_CREAR;
-  const res    = await fetch(url, {
+  const url = modoEdicion ? URL_EDITAR(clienteEditandoId) : URL_CREAR;
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
     body: JSON.stringify({ nombre, telefono, direccion, email })
@@ -193,101 +347,84 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   }
 });
 
-/* ─── Toggle estado (activar / inactivar) ─── */
-document.querySelectorAll('.toggle-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const estado = btn.dataset.estado === 'True';
-    const accion = estado ? 'inactivar' : 'activar';
-    if (!confirm(`¿Desea ${accion} este cliente?`)) return;
-
-    const res  = await fetch(URL_TOGGLE(btn.dataset.id), {
-      method: 'POST', headers: { 'X-CSRFToken': CSRF_TOKEN }
-    });
-    const data = await res.json();
-    if (data.ok) { showToast(data.message); setTimeout(() => location.reload(), 1200); }
-    else showToast(data.error, 'error');
-  });
-});
-
-/* ─── MODAL HISTORIAL DE PEDIDOS ─── */
-document.querySelectorAll('.historial-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    document.getElementById('histPedidosList').innerHTML = '<div class="historial-vacio"><i class="fas fa-spinner fa-spin"></i><p>Cargando historial…</p></div>';
-    openModal('modalHistorial');
-
-    const res  = await fetch(URL_HISTORIAL(btn.dataset.id));
-    const data = await res.json();
-    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorial'); return; }
-
-    const c = data.cliente;
-    document.getElementById('histCliAvatar').textContent = c.nombre.charAt(0).toUpperCase();
-    document.getElementById('histTotalPedidos').textContent = data.total_pedidos;
-
-    const totalFacturado = data.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
-    document.getElementById('histTotalFacturado').textContent = `$${totalFacturado.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
-    document.getElementById('histDeudaTotal').textContent = `$${parseFloat(data.deuda_total).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
-
-    if (!data.pedidos.length) {
-      document.getElementById('histPedidosList').innerHTML = `
-        <div class="historial-vacio"><i class="fas fa-shopping-bag"></i><p>Este cliente no tiene pedidos registrados.</p></div>`;
-      return;
-    }
-
-    document.getElementById('histPedidosList').innerHTML = data.pedidos.map(p => {
-      const pendiente = parseFloat(p.pendiente);
-      const badgeClass = p.estado === 'Completado' ? 'badge-completado' : p.estado === 'Anulado' ? 'badge-anulado' : 'badge-pendiente';
-      return `
-        <div class="historial-pedido">
-          <div class="historial-row">
-            <div>
-              <span class="historial-id">#${p.id}</span>
-              <span class="historial-fecha" style="margin-left:8px">${p.fecha}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <span class="badge-estado ${badgeClass}">${p.estado}</span>
-              <span class="historial-monto">$${parseFloat(p.total).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
-            </div>
-          ${pendiente > 0 && p.estado !== 'Anulado' ? `<div class="historial-pendiente"><i class="fas fa-exclamation-circle"></i> Pendiente: $${pendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}</div>` : ''}
-        </div>`;
-    }).join('');
-  });
-});
-
-/* ─── MODAL HISTORIAL DE PAGOS ─── */
-document.querySelectorAll('.pagos-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    document.getElementById('histPagosBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i> Cargando pagos…</td></tr>';
-    openModal('modalHistorialPagos');
-
-    const res = await fetch(URL_HISTORIAL_PAGOS(btn.dataset.id));
-    const data = await res.json();
-    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorialPagos'); return; }
-
-    const c = data.cliente;
-    document.getElementById('histPagosCliAvatar').textContent = c.nombre.charAt(0).toUpperCase();
-    document.getElementById('histPagosCliNombre').textContent = c.nombre;
-    document.getElementById('histPagosTotalPagos').textContent = data.total_pagos;
-    document.getElementById('histPagosTotalPagado').textContent = `$${parseFloat(data.total_pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
-
-    if (!data.pagos.length) {
-      document.getElementById('histPagosBody').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--color-texto-muted)"><i class="fas fa-info-circle"></i> Este cliente no tiene pagos registrados.</td></tr>';
-      return;
-    }
-
-    document.getElementById('histPagosBody').innerHTML = data.pagos.map(p => `
-      <tr>
-        <td>${p.fecha}</td>
-        <td><strong>#${p.pedido_id}</strong></td>
-        <td>$${parseFloat(p.pedido_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-        <td style="color:var(--color-exito);font-weight:700">$${parseFloat(p.monto).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-      </tr>
-    `).join('');
-  });
-});
-
 /* ─── Cerrar modales con ESC ─── */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['modalVer','modalForm','modalHistorial','modalHistorialPagos'].forEach(id => closeModal(id));
+    ['modalVer','modalForm','modalHistorial','modalHistorialPagos','modalInactivar','modalActivar'].forEach(id => closeModal(id));
+  }
+});
+
+/* ════════════════════════════════════════════════════════════════
+   MODALES INACTIVAR / ACTIVAR CLIENTE
+   ════════════════════════════════════════════════════════════════ */
+function abrirModalInactivar(id, nombre) {
+  document.getElementById('inactivar-nombre').textContent = nombre;
+  document.getElementById('formInactivar').action = URL_TOGGLE(id);
+  openModal('modalInactivar');
+}
+
+function abrirModalActivar(id, nombre) {
+  document.getElementById('activar-nombre').textContent = nombre;
+  document.getElementById('formActivar').action = URL_TOGGLE(id);
+  openModal('modalActivar');
+}
+
+/* ─── Submit Inactivar vía fetch ─── */
+document.getElementById('formInactivar').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando…';
+
+  try {
+    const res = await fetch(this.action, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN }
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    if (data.ok) {
+      closeModal('modalInactivar');
+      showToast(data.message);
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast(data.error, 'error');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    showToast('Error de conexión', 'error');
+  }
+});
+
+/* ─── Submit Activar vía fetch ─── */
+document.getElementById('formActivar').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando…';
+
+  try {
+    const res = await fetch(this.action, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN }
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    if (data.ok) {
+      closeModal('modalActivar');
+      showToast(data.message);
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast(data.error, 'error');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    showToast('Error de conexión', 'error');
   }
 });

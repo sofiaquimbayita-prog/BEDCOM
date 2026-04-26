@@ -1,4 +1,3 @@
-
 <!-- MODAL — HISTORIAL DE PEDIDOS -->
 <div class="modal" id="modalHistorial">
   <div class="modal-contenido modal-contenido--xl">
@@ -9,8 +8,9 @@
       <button class="btn-cerrar" data-close="modalHistorial">&times;</button>
     </div>
 
-    <!-- Card cliente -->
-<div class="cli-card" id="histCliCard">
+    <!-- Card cliente — FIX: agregado para mostrar nombre (histCliAvatar + histCliNombre
+         son referenciados en clientes.js pero no existían en el HTML original) -->
+    <div class="cli-card">
       <div class="cli-avatar" id="histCliAvatar">?</div>
       <span id="histCliNombre"></span>
     </div>
@@ -40,4 +40,3 @@
     </div>
   </div>
 </div>
-

@@ -10,48 +10,79 @@
 
   <!-- ══ KPI CARDS ══ -->
   <div class="kpi-grid">
+
     <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--total"><i class="fas fa-users"></i></div>
+      <div class="kpi-icon kpi-icon--total">
+        <i class="fas fa-users"></i>
+      </div>
       <div>
         <div class="kpi-value">{{ total_clientes }}</div>
         <div class="kpi-label">Total Clientes</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--activo"><i class="fas fa-user-check"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-exito)">{{ activos }}</div>
-        <div class="kpi-label">Activos</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--inactivo"><i class="fas fa-user-slash"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-inactivar)">{{ inactivos }}</div>
-        <div class="kpi-label">Inactivos</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-icon--deuda"><i class="fas fa-file-invoice-dollar"></i></div>
-      <div>
-        <div class="kpi-value" style="color:var(--color-deuda)">{{ con_deuda }}</div>
-        <div class="kpi-label">Con Deuda</div>
+      </div>
     </div>
 
-  <!-- ══ Toolbar ══ -->
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon--activo">
+        <i class="fas fa-user-check"></i>
+      </div>
+      <div>
+        <div class="kpi-value" style="color:var(--color-exito)">
+          {{ activos }}
+        </div>
+        <div class="kpi-label">Activos</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon--inactivo">
+        <i class="fas fa-user-slash"></i>
+      </div>
+      <div>
+        <div class="kpi-value" style="color:var(--color-inactivar)">
+          {{ inactivos }}
+        </div>
+        <div class="kpi-label">Inactivos</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon--deuda">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
+      <div>
+        <div class="kpi-value" style="color:var(--color-deuda)">
+          {{ con_deuda }}
+        </div>
+        <div class="kpi-label">Con Deuda</div>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIN KPI -->
+
+  <!-- ══ TOOLBAR ══ -->
   <div class="toolbar">
+
     <div class="toolbar-left">
-      <label class="switch-container" title="Mostrar clientes inactivos">
+      <div class="switch-container">
         <span class="switch-text">Mostrar Inactivos</span>
         <label class="switch-control">
           <input type="checkbox" id="toggleInactivos">
           <span class="slider"></span>
         </label>
+      </div>
     </div>
+
     <div class="toolbar-right">
       <button class="btn-agregar" id="btnNuevoCliente">
         <i class="fas fa-user-plus"></i> Nuevo Cliente
       </button>
     </div>
 
-  <!-- ══ Tabla ══ -->
+  </div>
+  <!-- FIN TOOLBAR -->
+
+  <!-- ══ TABLA ══ -->
   <div class="container-tabla">
     <table id="tablaClientes" class="display">
       <thead>
@@ -64,44 +95,80 @@
           <th class="no-sort">Acciones</th>
         </tr>
       </thead>
+
       <tbody>
         {% for c in clientes %}
-        <tr data-inactivo="{% if not c.estado %}true{% else %}false{% endif %}"
-              data-id="{{ c.id }}"
-              data-nombre="{{ c.nombre }}"
-              data-telefono="{{ c.telefono }}"
-              data-direccion="{{ c.direccion }}"
-              data-email="{{ c.email|default:'' }}"
-              data-estado="{{ c.estado }}">
-                <td><strong style="color:var(--color-acento)">#{{ c.id }}</strong></td>
-                <td>
-                <span style="font-weight:600">{{ c.nombre }}</span>
-                </td>
-                <td>{{ c.telefono }}</td>
-          <td class="td-deuda" data-id="{{ c.id }}">
-            <span style="color:var(--color-texto-muted);font-size:0.8rem">Cargando…</span>
+        <tr 
+          data-inactivo="{% if not c.estado %}true{% else %}false{% endif %}"
+          data-id="{{ c.id }}"
+          data-nombre="{{ c.nombre }}"
+          data-telefono="{{ c.telefono }}"
+          data-direccion="{{ c.direccion }}"
+          data-email="{{ c.email|default:'' }}"
+          data-estado="{{ c.estado }}"
+        >
+
+          <td>
+            <strong style="color:var(--color-acento)">#{{ c.id }}</strong>
           </td>
+
+          <td>
+            <span style="font-weight:600">{{ c.nombre }}</span>
+          </td>
+
+          <td>{{ c.telefono }}</td>
+
+          <td class="td-deuda" data-id="{{ c.id }}">
+            <span style="color:var(--color-texto-muted);font-size:0.8rem">
+              Cargando…
+            </span>
+          </td>
+
           <td>
             {% if c.estado %}
-              <span class="badge-estado badge-activo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Activo</span>
+              <span class="badge-estado badge-activo">
+                <i class="fas fa-circle" style="font-size:0.5rem"></i> Activo
+              </span>
             {% else %}
-              <span class="badge-estado badge-inactivo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Inactivo</span>
+              <span class="badge-estado badge-inactivo">
+                <i class="fas fa-circle" style="font-size:0.5rem"></i> Inactivo
+              </span>
             {% endif %}
           </td>
+
           <td>
             <div class="icons">
-              <button class="view-btn"     data-id="{{ c.id }}" title="Ver detalle"><i class="fas fa-eye"></i></button>
-              <button class="historial-btn" data-id="{{ c.id }}" title="Historial de pedidos"><i class="fas fa-history"></i></button>
-              <button class="pagos-btn"     data-id="{{ c.id }}" title="Historial de pagos"><i class="fas fa-money-bill-wave"></i></button>
-              <button class="edit-btn"     data-id="{{ c.id }}" title="Editar cliente"><i class="fas fa-edit"></i></button>
-              <button class="toggle-btn {% if c.estado %}inactivar{% endif %}"
-                      data-id="{{ c.id }}"
-                      data-estado="{{ c.estado }}"
-                      title="{% if c.estado %}Inactivar{% else %}Activar{% endif %}">
+
+              <button class="view-btn" data-id="{{ c.id }}" title="Ver detalle">
+                <i class="fas fa-eye"></i>
+              </button>
+
+              <button class="historial-btn" data-id="{{ c.id }}" title="Historial de pedidos">
+                <i class="fas fa-receipt"></i>
+              </button>
+
+              <button class="pago-btn" data-id="{{ c.id }}" title="Historial de pagos">
+                <i class="fas fa-money-bill-wave"></i>
+              </button>
+
+              <button class="edit-btn" data-id="{{ c.id }}" title="Editar cliente">
+                <i class="fas fa-edit"></i>
+              </button>
+
+              <button 
+                class="toggle-btn {% if c.estado %}inactivar{% endif %}"
+                data-id="{{ c.id }}"
+                data-nombre="{{ c.nombre }}"
+                data-estado="{{ c.estado }}"
+                title="{% if c.estado %}Inactivar{% else %}Activar{% endif %}"
+                onclick="event.stopPropagation(); {% if c.estado %}abrirModalInactivar({{ c.id }}, '{{ c.nombre|escapejs }}'){% else %}abrirModalActivar({{ c.id }}, '{{ c.nombre|escapejs }}'){% endif %};"
+              >
                 <i class="fas {% if c.estado %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
               </button>
+
             </div>
           </td>
+
         </tr>
         {% endfor %}
       </tbody>
@@ -114,6 +181,14 @@
 {% include 'clientes/modals/modal_form.html' %}
 {% include 'clientes/modals/modal_historial.html' %}
 {% include 'clientes/modals/modal_historial_pagos.html' %}
+
+<div id="modalInactivar" class="modal">
+    {% include "clientes/modals/modal_inactivar.html" %}
+</div>
+
+<div id="modalActivar" class="modal">
+    {% include "clientes/modals/modal_activar.html" %}
+</div>
 
 <script src="{% static 'ap1/js/validaciones_clientes.js' %}"></script>
 <script src="{% static 'ap1/js/clientes.js' %}"></script>

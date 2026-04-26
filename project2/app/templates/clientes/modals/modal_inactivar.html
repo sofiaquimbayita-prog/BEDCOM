@@ -1,0 +1,43 @@
+<div class="modal-contenido modal-contenido--inactivar">
+
+    <div class="modal-header modal-header--inactivar">
+        <h3 class="modal-titulo modal-titulo--inactivar">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>Inactivar Cliente</span>
+        </h3>
+        <button type="button" class="btn-cerrar btn-cerrar--inactivar" data-close="modalInactivar">&times;</button>
+    </div>
+
+    <!-- Tarjeta de vista previa del cliente -->
+    <div class="inactivar-preview">
+        <div class="inactivar-preview-icono">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="inactivar-preview-info">
+            <span class="inactivar-preview-nombre" id="inactivar-nombre">—</span>
+            <span class="inactivar-preview-categoria">Cliente</span>
+        </div>
+        <span class="badge-estado badge-activo">Activo</span>
+    </div>
+
+    <!-- Mensaje de advertencia -->
+    <div class="inactivar-aviso inactivar-aviso--danger">
+        <i class="fas fa-triangle-exclamation"></i>
+        <p>El cliente dejará de aparecer en la lista principal. Podrás reactivarlo cuando lo necesites.</p>
+    </div>
+
+    <div class="form-botones">
+        <button type="button" class="btn-cancelar" data-close="modalInactivar">
+            <i class="fas fa-xmark"></i> Cancelar
+        </button>
+        <form id="formInactivar" method="POST" style="display:inline; flex:1;">
+            {% csrf_token %}
+            <button type="submit" class="btn-modal-inactivar">
+                <i class="fas fa-ban"></i>
+                <span>Inactivar</span>
+            </button>
+        </form>
+    </div>
+
+</div>
+

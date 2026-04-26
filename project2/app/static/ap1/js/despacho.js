@@ -71,10 +71,7 @@ $(document).ready(function () {
               <span class="badge-estado badge-${d.estado}">${estadoLabel}</span>
             </p>
             <p><strong>Fecha despacho:</strong> ${fmtFecha(d.fecha_despacho)}</p>
-            <p><strong>Fecha entrega programada:</strong> ${fmtFecha(d.fecha_entrega)}</p>
-            ${d.fecha_entrega_real
-              ? `<p><strong>Entrega real:</strong> ${fmtFecha(d.fecha_entrega_real)}</p>`
-              : ''}
+            <p><strong>Fecha de despacho programada:</strong> ${fmtFecha(d.fecha_entrega)}</p>
             ${d.observaciones
               ? `<p><strong>Observaciones:</strong> ${d.observaciones}</p>`
               : ''}

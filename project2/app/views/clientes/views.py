@@ -202,12 +202,23 @@ class ClientePagosHistorialView(View):
 class ClienteHistorialView(View):
     def get(self, request, pk, *args, **kwargs):
         obj     = get_object_or_404(cliente, pk=pk)
-        pedidos = pedido.objects.filter(cliente=obj).order_by('-fecha').select_related('cliente')
+        pedidos = pedido.objects.filter(cliente=obj).order_by('-fecha').select_related('cliente').prefetch_related('detalles__producto')
 
         pedidos_list = []
         for p in pedidos:
-            # saldo_pendiente usa pedido.abono → coherente con la vista de pedidos
             pendiente = p.saldo_pendiente
+            
+            # Detalles del pedido (productos)
+            detalles_list = []
+            for d in p.detalles.all():
+                detalles_list.append({
+                    'producto':      d.producto.nombre,
+                    'cantidad':      d.cantidad,
+                    'precio_unitario': str(d.precio_unitario),
+                    'sub_total':     str(d.sub_total),
+                    'observaciones': d.observaciones or '',
+                })
+            
             pedidos_list.append({
                 'id':        p.id,
                 'fecha':     p.fecha.strftime('%d/%m/%Y %H:%M'),
@@ -215,6 +226,8 @@ class ClienteHistorialView(View):
                 'total':     str(p.total),
                 'pagado':    str(p.abono or Decimal('0')),
                 'pendiente': str(max(pendiente, Decimal('0'))),
+                'detalles':  detalles_list,
+                'cantidad_productos': len(detalles_list),
             })
 
         deuda_total = _calcular_deuda(obj)

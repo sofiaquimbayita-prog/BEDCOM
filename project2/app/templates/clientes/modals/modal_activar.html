@@ -1,0 +1,43 @@
+<div class="modal-contenido modal-contenido--activar">
+
+    <div class="modal-header modal-header--activar">
+        <h3 class="modal-titulo modal-titulo--activar">
+            <i class="fas fa-check-circle"></i>
+            <span>Reactivar Cliente</span>
+        </h3>
+        <button type="button" class="btn-cerrar btn-cerrar--activar" data-close="modalActivar">&times;</button>
+    </div>
+
+    <!-- Tarjeta de vista previa del cliente -->
+    <div class="inactivar-preview">
+        <div class="inactivar-preview-icono" style="background:rgba(34,197,94,0.12);border-color:var(--color-activar-brd);color:var(--color-exito);">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="inactivar-preview-info">
+            <span class="inactivar-preview-nombre" id="activar-nombre">—</span>
+            <span class="inactivar-preview-categoria">Cliente</span>
+        </div>
+        <span class="badge-estado badge-inactivo">Inactivo</span>
+    </div>
+
+    <!-- Mensaje informativo -->
+    <div class="inactivar-aviso inactivar-aviso--success">
+        <i class="fas fa-circle-info"></i>
+        <p>El cliente volverá a aparecer en la lista principal y podrás gestionarlo normalmente.</p>
+    </div>
+
+    <div class="form-botones">
+        <button type="button" class="btn-cancelar" data-close="modalActivar">
+            <i class="fas fa-xmark"></i> Cancelar
+        </button>
+        <form id="formActivar" method="POST" style="display:inline; flex:1;">
+            {% csrf_token %}
+            <button type="submit" class="btn-activar-confirm">
+                <i class="fas fa-user-check"></i>
+                <span>Reactivar</span>
+            </button>
+        </form>
+    </div>
+
+</div>
+

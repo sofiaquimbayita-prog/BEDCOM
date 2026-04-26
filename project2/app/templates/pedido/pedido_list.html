@@ -66,11 +66,11 @@
               </button>
               {% if p.estado == "Pendiente" and p.despacho %}
               <button type="button" class="btn-despacho-ver" data-despacho-id="{{ p.despacho.id }}" title="Ver en despachos">
-                <i class="fas fa-truck" style="color: #10b981;"></i>
+                <i class="fas fa-truck"></i>
               </button>
               {% elif p.estado == "Pendiente" %}
               <button type="button" class="btn-despacho" data-id="{{ p.id }}" title="Enviar a despacho">
-                <i class="fas fa-truck" style="color: #3b82f6;"></i>
+                <i class="fas fa-truck"></i>
               </button>
               {% endif %}
               <button type="button" class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
@@ -78,7 +78,7 @@
               </button>
               {% if p.estado == "Pendiente" and p.saldo_pendiente > 0 %}
               <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}" data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
-                <i class="fas fa-money-bill-wave" style="color: #10b981;"></i>
+                <i class="fas fa-money-bill-wave"></i>
               </button>
               {% endif %}
             </div>
