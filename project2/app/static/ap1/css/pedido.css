@@ -29,6 +29,8 @@
   --color-exito:            #10b981;
   --color-error:            #ef4444;
   --color-advertencia:      #f59e0b;
+  --color-deuda:            #f59e0b;
+  --color-deuda-brd:        rgba(245,158,11,0.35);
   --borde-sm:  6px;
   --borde-md:  8px;
   --borde-lg:  12px;
@@ -122,6 +124,8 @@ input:checked + .slider::before { transform:translateX(20px); }
 .btn-despacho:hover { color: #1d4ed8; transform: scale(1.1); box-shadow: 0 4px 15px rgba(59,130,246,0.4); background: rgba(59,130,246,0.2); }
 .btn-despacho-ver { color: #10b981; background: rgba(16,185,129,0.12); }
 .btn-despacho-ver:hover { color: #059669; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16,185,129,0.4); background: rgba(16,185,129,0.2); }
+.btn-pagar { color: #10b981; background: rgba(16,185,129,0.12); border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; width:40px; height:40px; }
+.btn-pagar:hover { color: #059669; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16,185,129,0.4); background: rgba(16,185,129,0.25); }
 
 /* 5. MODAL BASE */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:10000; justify-content:center; align-items:center; }
@@ -137,9 +141,11 @@ input:checked + .slider::before { transform:translateX(20px); }
 .modal-header--agregar { border-bottom-color:var(--acento-glow-border); }
 .modal-header--editar  { border-bottom-color:var(--color-editar-glow-brd); }
 .modal-header--ver     { border-bottom-color:var(--color-ver-glow-brd); }
+.modal-header--pago    { border-bottom-color:rgba(16,185,129,0.35); }
 .modal-titulo--agregar { color:var(--color-acento); }
 .modal-titulo--editar  { color:var(--color-editar); }
 .modal-titulo--ver     { color:var(--color-ver); }
+.modal-titulo--pago    { color:var(--color-exito); }
 
 .btn-cerrar { background:transparent; border:none; color:var(--color-texto-muted); font-size:1.6rem; cursor:pointer; line-height:1; padding:0 4px; transition:color var(--transicion-rapida); flex-shrink:0; }
 .btn-cerrar:hover         { color:var(--color-acento); }
@@ -204,6 +210,8 @@ input:checked + .slider::before { transform:translateX(20px); }
 .btn-guardar:disabled { opacity:0.55; cursor:not-allowed; transform:none; }
 .btn-guardar--editar { background:var(--color-editar); color:#000; }
 .btn-guardar--editar:hover { box-shadow:0 4px 14px var(--color-editar-glow); }
+.btn-guardar--pago { background:var(--color-exito); color:#fff; }
+.btn-guardar--pago:hover { box-shadow:0 4px 14px rgba(16,185,129,0.4); filter:brightness(1.1); }
 
 /* 7. SECCIÓN CLIENTE */
 

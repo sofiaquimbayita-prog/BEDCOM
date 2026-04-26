@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 from django.db import transaction
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
@@ -20,25 +20,29 @@ def _cliente_to_dict(obj):
         'direccion': obj.direccion,
         'email':     obj.email or '',
         'estado':    obj.estado,
-        }
+    }
 
 
 # ─────────────────────────────────────────────
 # HELPER: calcular deuda de un cliente
-# deuda = suma de pedidos Pendiente - pagos realizados
+#
+# FIX: Antes usaba registros de la tabla `pago`, pero el abono inicial
+# del pedido se guarda en pedido.abono y NO crea un registro pago
+# (hasta que PedidoCreateView lo crea explícitamente).
+# Ahora se usa pedido.abono directamente, que es la misma fuente
+# que usa saldo_pendiente en el modelo → coherencia total.
 # ─────────────────────────────────────────────
 def _calcular_deuda(cli):
-    total_pedidos = pedido.objects.filter(
+    result = pedido.objects.filter(
         cliente=cli,
         estado__in=['Pendiente', 'Completado']
-    ).aggregate(t=Sum('total'))['t'] or Decimal('0')
-
-    total_pagado = pago.objects.filter(
-        pedido__cliente=cli,
-        estado=True
-    ).aggregate(t=Sum('monto'))['t'] or Decimal('0')
-
-    return max(total_pedidos - total_pagado, Decimal('0'))
+    ).aggregate(
+        total_pedidos=Sum('total'),
+        total_abonado=Sum('abono')
+    )
+    total    = result['total_pedidos']  or Decimal('0')
+    abonado  = result['total_abonado']  or Decimal('0')
+    return max(total - abonado, Decimal('0'))
 
 
 # ─────────────────────────────────────────────
@@ -52,13 +56,10 @@ class ClienteListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # Estadísticas rápidas para las tarjetas del dashboard
         ctx['total_clientes']  = cliente.objects.count()
         ctx['activos']         = cliente.objects.filter(estado=True).count()
-        ctx['inactivos']       = cliente.objects.filter(estado=False).count()
-        ctx['con_deuda']       = sum(
-            1 for c in cliente.objects.filter(estado=True) if _calcular_deuda(c) > 0
-        )
+        ctx['inactivos']= cliente.objects.filter(estado=False).count()
+        ctx['con_deuda']= sum(1 for c in cliente.objects.filter(estado=True) if _calcular_deuda(c) > 0)
         return ctx
 
 
@@ -79,14 +80,15 @@ class ClienteDetailView(View):
 class ClienteCreateView(View):
     def post(self, request, *args, **kwargs):
         try:
-            data    = json.loads(request.body)
-            nombre  = data.get('nombre', '').strip()
-            telefono = data.get('telefono', '').strip()
+            data      = json.loads(request.body)
+            nombre    = data.get('nombre', '').strip()
+            telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
-            email    = data.get('email', '').strip() or None
-            
+            email     = data.get('email', '').strip() or None
+
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
+
             with transaction.atomic():
                 obj = cliente.objects.create(
                     nombre=nombre,
@@ -112,16 +114,16 @@ class ClienteCreateView(View):
 class ClienteUpdateView(View):
     def post(self, request, pk, *args, **kwargs):
         try:
-            data    = json.loads(request.body)
-            obj     = get_object_or_404(cliente, pk=pk)
-            nombre  = data.get('nombre', '').strip()
-            telefono = data.get('telefono', '').strip()
+            data      = json.loads(request.body)
+            obj       = get_object_or_404(cliente, pk=pk)
+            nombre    = data.get('nombre', '').strip()
+            telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
-            email    = data.get('email', '').strip() or None
-            
+            email     = data.get('email', '').strip() or None
+
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
-            
+
             with transaction.atomic():
                 obj.nombre    = nombre
                 obj.telefono  = telefono or '—'
@@ -159,39 +161,77 @@ class ClienteToggleEstadoView(View):
 
 
 # ─────────────────────────────────────────────
+# API: historial de pagos de un cliente
+#
+# FIX: ahora muestra tanto el abono inicial (registrado como pago
+# en PedidoCreateView) como los pagos adicionales.
+# Los registros `pago` son la fuente única de verdad para el historial.
+# ─────────────────────────────────────────────
+class ClientePagosHistorialView(View):
+    def get(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(cliente, pk=pk)
+        pagos_list = pago.objects.filter(
+            pedido__cliente=obj,
+            estado=True
+        ).select_related('pedido').order_by('-fecha_pago')
+
+        pagos_data   = []
+        total_pagado = Decimal('0')
+        for p_item in pagos_list:
+            pagos_data.append({
+                'id':           p_item.id,
+                'fecha':        p_item.fecha_pago.strftime('%d/%m/%Y'),
+                'monto':        str(p_item.monto),
+                'pedido_id':    p_item.pedido.id,
+                'pedido_total': str(p_item.pedido.total),
+            })
+            total_pagado += p_item.monto
+
+        return JsonResponse({
+            'ok':          True,
+            'cliente':     _cliente_to_dict(obj),
+            'pagos':       pagos_data,
+            'total_pagado': str(total_pagado),
+            'total_pagos':  len(pagos_data),
+        })
+
+
+# ─────────────────────────────────────────────
 # API: historial de pedidos de un cliente
 # ─────────────────────────────────────────────
 class ClienteHistorialView(View):
     def get(self, request, pk, *args, **kwargs):
-        obj = get_object_or_404(cliente, pk=pk)
+        obj     = get_object_or_404(cliente, pk=pk)
         pedidos = pedido.objects.filter(cliente=obj).order_by('-fecha').select_related('cliente')
 
         pedidos_list = []
         for p in pedidos:
-            pagos_pedido = pago.objects.filter(pedido=p, estado=True).aggregate(t=Sum('monto'))['t'] or Decimal('0')
-            pendiente = max(p.total - pagos_pedido, Decimal('0'))
+            # saldo_pendiente usa pedido.abono → coherente con la vista de pedidos
+            pendiente = p.saldo_pendiente
             pedidos_list.append({
                 'id':        p.id,
                 'fecha':     p.fecha.strftime('%d/%m/%Y %H:%M'),
                 'estado':    p.estado,
                 'total':     str(p.total),
-                'pagado':    str(pagos_pedido),
-                'pendiente': str(pendiente),
+                'pagado':    str(p.abono or Decimal('0')),
+                'pendiente': str(max(pendiente, Decimal('0'))),
             })
 
         deuda_total = _calcular_deuda(obj)
 
         return JsonResponse({
-            'ok':         True,
-            'cliente':    _cliente_to_dict(obj),
-            'pedidos':    pedidos_list,
-            'deuda_total': str(deuda_total),
+            'ok':            True,
+            'cliente':       _cliente_to_dict(obj),
+            'pedidos':       pedidos_list,
+            'deuda_total':   str(deuda_total),
             'total_pedidos': len(pedidos_list),
         })
 
 
 # ─────────────────────────────────────────────
 # API: registrar un pago a un pedido del cliente
+# (endpoint legacy — los pagos ahora se hacen desde la vista de Pedidos)
+# Se mantiene por compatibilidad pero delega la lógica correcta.
 # ─────────────────────────────────────────────
 class ClientePagoView(View):
     def post(self, request, *args, **kwargs):
@@ -209,32 +249,29 @@ class ClientePagoView(View):
 
             with transaction.atomic():
                 p = get_object_or_404(pedido, pk=pedido_id)
+                saldo_pendiente = p.saldo_pendiente
 
-                # Calcular cuánto falta pagar en este pedido
-                pagado_ya = pago.objects.filter(pedido=p, estado=True).aggregate(t=Sum('monto'))['t'] or Decimal('0')
-                pendiente = p.total - pagado_ya
-
-                if monto > pendiente:
+                if monto > saldo_pendiente:
                     return JsonResponse({
                         'ok': False,
-                        'error': f'El monto ingresado (${monto}) supera el saldo pendiente (${pendiente:.2f}).'
+                        'error': f'El monto ingresado (${monto}) supera el saldo pendiente (${saldo_pendiente:.2f}).'
                     })
 
-                nuevo_pago = pago.objects.create(pedido=p, monto=monto)
+                # FIX: crear registro pago Y actualizar abono (coherencia)
+                pago.objects.create(pedido=p, monto=monto)
+                p.abono = (p.abono or Decimal('0')) + monto
 
                 # Si el pedido queda saldado, marcarlo como Completado
-                pagado_total = pagado_ya + monto
-                if pagado_total >= p.total and p.estado == 'Pendiente':
+                if p.saldo_pendiente <= 0 and p.estado == 'Pendiente':
                     p.estado = 'Completado'
-                    p.save()
+                p.save()
 
             deuda_nueva = _calcular_deuda(p.cliente)
 
             return JsonResponse({
-                'ok':        True,
-                'message':   f'Pago de ${monto:.2f} registrado en el pedido #{p.id}.',
+                'ok':          True,
+                'message':     f'Pago de ${monto:.2f} registrado en el pedido #{p.id}.',
                 'deuda_nueva': str(deuda_nueva),
-                'pago_id':   nuevo_pago.id,
             })
 
         except Exception as e:
@@ -249,7 +286,7 @@ class ClienteDataView(View):
         clientes = cliente.objects.all().order_by('nombre')
         data = []
         for c in clientes:
-            deuda = _calcular_deuda(c)
+            deuda         = _calcular_deuda(c)
             total_pedidos = pedido.objects.filter(cliente=c).count()
             data.append({
                 **_cliente_to_dict(c),

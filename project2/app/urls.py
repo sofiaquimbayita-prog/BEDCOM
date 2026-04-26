@@ -151,5 +151,6 @@ urlpatterns = [
     path('clientes/editar/<int:pk>/', clientes.ClienteUpdateView.as_view(), name='clientes_editar'),
     path('clientes/toggle/<int:pk>/', clientes.ClienteToggleEstadoView.as_view(), name='clientes_toggle'),
     path('clientes/historial/<int:pk>/', clientes.ClienteHistorialView.as_view(), name='clientes_historial'),
+    path('clientes/historial-pagos/<int:pk>/', clientes.ClientePagosHistorialView.as_view(), name='clientes_historial_pagos'),
     path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
 ]

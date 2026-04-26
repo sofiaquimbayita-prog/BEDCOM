@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -25,19 +26,10 @@ from ...models import pedido, detalle_pedido, producto, cliente, pago
 # HELPER: resolver cliente desde los datos enviados
 # ─────────────────────────────────────────────
 def _resolver_cliente(data):
-    """
-    Busca el cliente por el ID enviado desde el frontend.
-    Si por alguna razón no viene el ID, intenta buscar por nombre
-    y lo crea si no existe.
-    """
-    # BUG CORREGIDO: antes se usaba get_or_create() sin campo de búsqueda,
-    # lo que causaba MultipleObjectsReturned con más de un cliente en BD.
-    # Ahora se usa directamente el cliente_id que envía el frontend.
     cli_id = data.get('cliente_id')
     if cli_id:
         return get_object_or_404(cliente, pk=cli_id)
 
-    # Fallback: crear/obtener por nombre (solo si no viene ID)
     nombre   = data.get('cliente_nombre', '').strip()
     telefono = data.get('cliente_telefono', '').strip() or '—'
     obj, creado = cliente.objects.get_or_create(
@@ -63,8 +55,7 @@ def _pedido_to_dict(obj):
         'fecha': obj.fecha.strftime('%d/%m/%Y %H:%M'),
         'estado': obj.estado,
         'total': str(obj.total),
-        # BUG CORREGIDO: clave 'fecha_entrega' estaba duplicada
-'fecha_entrega': safe_date_str(obj.fecha_entrega),
+        'fecha_entrega': safe_date_str(obj.fecha_entrega),
         'abono': str(obj.abono or 0),
         'cliente_id': obj.cliente.id,
         'cliente_nombre': obj.cliente.nombre,
@@ -105,7 +96,6 @@ class PedidoListView(ListView):
         ctx['productos'] = producto.objects.filter(estado=True).order_by('nombre').values(
             'id', 'nombre', 'precio', 'stock'
         )
-        # BUG CORREGIDO: el template usa min="{{ today }}" pero la vista no lo pasaba
         ctx['today'] = timezone.now().date().isoformat()
         return ctx
 
@@ -141,7 +131,8 @@ class PedidoCreateView(View):
                     })
 
                 fecha_entrega = data.get('fecha_entrega')
-                abono = float(data.get('abono', 0))
+                abono = Decimal(str(data.get('abono', 0)))
+
                 nuevo_pedido = pedido.objects.create(
                     cliente=cli,
                     total=0,
@@ -149,7 +140,7 @@ class PedidoCreateView(View):
                     fecha_entrega=fecha_entrega if fecha_entrega else None
                 )
 
-                total = 0
+                total = Decimal('0')
                 for item in items:
                     prod = get_object_or_404(producto, pk=item['producto_id'])
                     cantidad = int(item['cantidad'])
@@ -178,6 +169,11 @@ class PedidoCreateView(View):
                 nuevo_pedido.total = total
                 nuevo_pedido.save()
 
+                # Registrar el abono inicial como registro pago
+                # para que aparezca en el historial de pagos del cliente
+                if abono > 0:
+                    pago.objects.create(pedido=nuevo_pedido, monto=abono)
+
             return JsonResponse({
                 'ok': True,
                 'message': f'Pedido #{nuevo_pedido.id} creado con éxito.',
@@ -203,10 +199,22 @@ class PedidoUpdateView(View):
             with transaction.atomic():
                 obj_pedido = get_object_or_404(pedido, pk=pk)
                 fecha_entrega = data.get('fecha_entrega')
-                abono = float(data.get('abono', 0))
-                obj_pedido.abono = abono
+                abono_nuevo = Decimal(str(data.get('abono', 0)))
+                abono_anterior = obj_pedido.abono or Decimal('0')
+
+                obj_pedido.abono = abono_nuevo
                 if fecha_entrega:
                     obj_pedido.fecha_entrega = fecha_entrega
+
+                # ✅ BUG CORREGIDO: si el abono cambió, actualizar también el
+                # primer registro en la tabla pago para mantener el historial sincronizado.
+                if abono_nuevo != abono_anterior:
+                    primer_pago = obj_pedido.pago_set.order_by('fecha_pago').first()
+                    if primer_pago:
+                        primer_pago.monto = abono_nuevo
+                        primer_pago.save()
+                    elif abono_nuevo > 0:
+                        pago.objects.create(pedido=obj_pedido, monto=abono_nuevo)
 
                 # Restaurar stock de los detalles actuales
                 for d in obj_pedido.detalles.select_related('producto').all():
@@ -218,7 +226,7 @@ class PedidoUpdateView(View):
                 cli = _resolver_cliente(data)
                 obj_pedido.cliente = cli
 
-                total = 0
+                total = Decimal('0')
                 for item in items:
                     prod = get_object_or_404(producto, pk=item['producto_id'])
                     cantidad = int(item['cantidad'])
@@ -270,8 +278,6 @@ class PedidoStateChangeView(View):
                 return JsonResponse({'ok': False, 'error': 'Debe enviar el nuevo estado.'})
 
             with transaction.atomic():
-                # BUG CORREGIDO: se usaba detalle_pedido_set que no existe.
-                # El related_name correcto definido en el modelo es 'detalles'.
                 if nuevo_estado == 'Anulado' and obj_pedido.estado != 'Anulado':
                     obj_pedido.estado = 'Anulado'
                     obj_pedido.save()
@@ -312,7 +318,7 @@ class PagoUpdateView(View):
     def post(self, request, pk, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            monto = float(data.get('monto', 0))
+            monto = Decimal(str(data.get('monto', 0)))
 
             if monto <= 0:
                 return JsonResponse({'ok': False, 'error': 'El monto debe ser mayor a 0.'})
@@ -327,13 +333,24 @@ class PagoUpdateView(View):
                 })
 
             with transaction.atomic():
+                # Crear registro en tabla pago (para historial)
                 pago.objects.create(pedido=obj_pedido, monto=monto)
-                obj_pedido.abono += monto
+
+                # Actualizar abono en pedido
+                obj_pedido.abono = (obj_pedido.abono or Decimal('0')) + monto
                 obj_pedido.save()
+
+                # ✅ BUG CORREGIDO: recalcular saldo_pendiente DESPUÉS de guardar
+                # para que la propiedad refleje el nuevo valor en BD, no el valor
+                # anterior en memoria que causaba que el estado no se actualizara.
+                obj_pedido.refresh_from_db()
+                if obj_pedido.saldo_pendiente <= 0 and obj_pedido.estado == 'Pendiente':
+                    obj_pedido.estado = 'Completado'
+                    obj_pedido.save()
 
             return JsonResponse({
                 'ok': True,
-                'message': f'Abono agregado. Nuevo saldo: ${obj_pedido.saldo_pendiente}',
+                'message': f'Pago de ${monto} registrado. Nuevo saldo: ${obj_pedido.saldo_pendiente}',
                 'pedido': _pedido_to_dict(obj_pedido)
             })
 

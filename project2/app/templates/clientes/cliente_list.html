@@ -15,30 +15,25 @@
       <div>
         <div class="kpi-value">{{ total_clientes }}</div>
         <div class="kpi-label">Total Clientes</div>
-      </div>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon kpi-icon--activo"><i class="fas fa-user-check"></i></div>
       <div>
         <div class="kpi-value" style="color:var(--color-exito)">{{ activos }}</div>
         <div class="kpi-label">Activos</div>
-      </div>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon kpi-icon--inactivo"><i class="fas fa-user-slash"></i></div>
       <div>
         <div class="kpi-value" style="color:var(--color-inactivar)">{{ inactivos }}</div>
         <div class="kpi-label">Inactivos</div>
-      </div>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon kpi-icon--deuda"><i class="fas fa-file-invoice-dollar"></i></div>
       <div>
         <div class="kpi-value" style="color:var(--color-deuda)">{{ con_deuda }}</div>
         <div class="kpi-label">Con Deuda</div>
-      </div>
     </div>
-  </div>
 
   <!-- ══ Toolbar ══ -->
   <div class="toolbar">
@@ -49,14 +44,12 @@
           <input type="checkbox" id="toggleInactivos">
           <span class="slider"></span>
         </label>
-      </label>
     </div>
     <div class="toolbar-right">
       <button class="btn-agregar" id="btnNuevoCliente">
         <i class="fas fa-user-plus"></i> Nuevo Cliente
       </button>
     </div>
-  </div>
 
   <!-- ══ Tabla ══ -->
   <div class="container-tabla">
@@ -99,6 +92,7 @@
             <div class="icons">
               <button class="view-btn"     data-id="{{ c.id }}" title="Ver detalle"><i class="fas fa-eye"></i></button>
               <button class="historial-btn" data-id="{{ c.id }}" title="Historial de pedidos"><i class="fas fa-history"></i></button>
+              <button class="pagos-btn"     data-id="{{ c.id }}" title="Historial de pagos"><i class="fas fa-money-bill-wave"></i></button>
               <button class="edit-btn"     data-id="{{ c.id }}" title="Editar cliente"><i class="fas fa-edit"></i></button>
               <button class="toggle-btn {% if c.estado %}inactivar{% endif %}"
                       data-id="{{ c.id }}"
@@ -119,10 +113,9 @@
 {% include 'clientes/modals/modal_ver.html' %}
 {% include 'clientes/modals/modal_form.html' %}
 {% include 'clientes/modals/modal_historial.html' %}
-{% include 'clientes/modals/modal_pago.html' %}
+{% include 'clientes/modals/modal_historial_pagos.html' %}
 
 <script src="{% static 'ap1/js/validaciones_clientes.js' %}"></script>
 <script src="{% static 'ap1/js/clientes.js' %}"></script>
-
 
 {% endblock %}

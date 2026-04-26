@@ -1,0 +1,46 @@
+<!-- MODAL — HISTORIAL DE PAGOS -->
+<div class="modal" id="modalHistorialPagos">
+  <div class="modal-contenido modal-contenido--xl">
+    <div class="modal-header modal-header--historial">
+      <h2 class="modal-titulo modal-titulo--historial">
+        <i class="fas fa-money-bill-wave"></i> Historial de Pagos
+      </h2>
+      <button class="btn-cerrar" data-close="modalHistorialPagos">&times;</button>
+    </div>
+
+    <!-- Card cliente -->
+    <div class="cli-card" id="histPagosCliCard">
+      <div class="cli-avatar" id="histPagosCliAvatar">?</div>
+      <span id="histPagosCliNombre"></span>
+    </div>
+
+    <!-- Resumen -->
+    <div class="deuda-resumen" id="histPagosResumen">
+      <div class="deuda-item">
+        <div class="deuda-valor" id="histPagosTotalPagos">0</div>
+        <div class="deuda-label">Pagos Registrados</div>
+      <div class="deuda-item deuda-item--alert">
+        <div class="deuda-valor deuda-valor--alert" id="histPagosTotalPagado">$0</div>
+        <div class="deuda-label">Total Pagado</div>
+    </div>
+
+    <!-- Tabla de pagos -->
+    <div class="seccion-titulo"><i class="fas fa-list"></i> Pagos Realizados</div>
+    <div class="items-tabla-wrap">
+      <table class="items-tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Pedido #</th>
+            <th>Total Pedido</th>
+            <th>Monto Pagado</th>
+          </tr>
+        </thead>
+        <tbody id="histPagosBody"></tbody>
+      </table>
+    </div>
+
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalHistorialPagos">Cerrar</button>
+    </div>
+</div>

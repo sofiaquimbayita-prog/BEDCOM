@@ -11,16 +11,16 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="toolbar-left">
-      <label class="switch-container" title="Mostrar pedidos anulados">
+      <div class="switch-container" title="Mostrar pedidos anulados">
         <span class="switch-text">Mostrar Anulados</span>
         <label class="switch-control">
           <input type="checkbox" id="toggleAnulados">
           <span class="slider"></span>
         </label>
-      </label>
-    </div>
+      </div>
+    </div><!-- ✅ BUG CORREGIDO: faltaba cerrar toolbar-left -->
     <div class="toolbar-right">
-      <button class="btn-agregar" id="btnNuevoPedido">
+      <button type="button" class="btn-agregar" id="btnNuevoPedido">
         <i class="fas fa-plus"></i> Nuevo Pedido
       </button>
     </div>
@@ -55,27 +55,32 @@
                     data-id="{{ p.id }}" data-estado-actual="{{ p.estado }}">
               <option value="Pendiente"  {% if p.estado == "Pendiente"  %}selected{% endif %}>Pendiente</option>
               <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>Completado</option>
-              {# BUG CORREGIDO: faltaba la 'A' de Anulado #}
               <option value="Anulado"    {% if p.estado == "Anulado"    %}selected{% endif %}>Anulado</option>
             </select>
           </td>
           <td>
             <div class="icons">
-              <button class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
+              <!-- ✅ BUG CORREGIDO: todos los botones de la tabla tienen type="button" -->
+              <button type="button" class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
                 <i class="fas fa-eye"></i>
               </button>
               {% if p.estado == "Pendiente" and p.despacho %}
-              <button class="btn-despacho-ver" data-despacho-id="{{ p.despacho.id }}" title="Ver en despachos">
+              <button type="button" class="btn-despacho-ver" data-despacho-id="{{ p.despacho.id }}" title="Ver en despachos">
                 <i class="fas fa-truck" style="color: #10b981;"></i>
               </button>
               {% elif p.estado == "Pendiente" %}
-              <button class="btn-despacho" data-id="{{ p.id }}" title="Enviar a despacho">
+              <button type="button" class="btn-despacho" data-id="{{ p.id }}" title="Enviar a despacho">
                 <i class="fas fa-truck" style="color: #3b82f6;"></i>
               </button>
               {% endif %}
-              <button class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
+              <button type="button" class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
+              {% if p.estado == "Pendiente" and p.saldo_pendiente > 0 %}
+              <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}" data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
+                <i class="fas fa-money-bill-wave" style="color: #10b981;"></i>
+              </button>
+              {% endif %}
             </div>
           </td>
         </tr>
@@ -95,7 +100,7 @@
       <h2 class="modal-titulo modal-titulo--ver">
         <i class="fas fa-eye"></i> <span id="verTitulo">Detalle del Pedido</span>
       </h2>
-      <button class="btn-cerrar btn-cerrar--ver" data-close="modalVer">&times;</button>
+      <button type="button" class="btn-cerrar btn-cerrar--ver" data-close="modalVer">&times;</button>
     </div>
 
     <!-- Info cliente -->
@@ -124,8 +129,8 @@
     </div>
 
     <div class="form-botones">
-      <button class="btn-cancelar" data-close="modalVer">Cerrar</button>
-      <button class="btn-guardar" onclick="window.print()" style="background:var(--color-ver);color:#fff;">
+      <button type="button" class="btn-cancelar" data-close="modalVer">Cerrar</button>
+      <button type="button" class="btn-guardar" onclick="window.print()" style="background:var(--color-ver);color:#fff;">
         <i class="fas fa-print"></i> Imprimir
       </button>
     </div>
@@ -142,7 +147,7 @@
       <h2 class="modal-titulo" id="formModalTitulo">
         <i class="fas fa-cart-plus"></i> Registrar Pedido
       </h2>
-      <button class="btn-cerrar" id="btnCerrarForm" data-close="modalForm">&times;</button>
+      <button type="button" class="btn-cerrar" id="btnCerrarForm" data-close="modalForm">&times;</button>
     </div>
 
     <div class="form-alerta" id="formAlerta"></div>
@@ -214,10 +219,10 @@
           <input type="text" id="formTotalDisplay" class="form-input" readonly
                  style="font-weight: bold; color: var(--color-exito);">
         </div>
-      </div>
+      </div><!-- ✅ BUG CORREGIDO: faltaba cerrar div.abono-divicion -->
     </div>
 
-    {# BUG CORREGIDO: elemento formTotal que usa el JS para leer el total al guardar #}
+    {# Elemento oculto que usa el JS para leer el total al guardar #}
     <span id="formTotal" style="display:none">$0.00</span>
 
     <!-- Resumen total -->
@@ -227,9 +232,57 @@
     </div>
 
     <div class="form-botones">
-      <button class="btn-cancelar" data-close="modalForm">Cancelar</button>
-      <button class="btn-guardar" id="btnGuardarPedido">
+      <button type="button" class="btn-cancelar" data-close="modalForm">Cancelar</button>
+      <button type="button" class="btn-guardar" id="btnGuardarPedido">
         <i class="fas fa-save"></i> <span id="btnGuardarTexto">Guardar Pedido</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — REGISTRAR PAGO
+══════════════════════════════ -->
+<div class="modal" id="modalPago">
+  <div class="modal-contenido">
+    <div class="modal-header modal-header--pago">
+      <h2 class="modal-titulo modal-titulo--pago">
+        <i class="fas fa-money-bill-wave"></i> Registrar Pago
+      </h2>
+      <button type="button" class="btn-cerrar" data-close="modalPago">&times;</button>
+    </div>
+
+    <div class="form-alerta" id="pagoAlerta"></div>
+
+    <div class="ver-grid" style="margin-bottom:16px">
+      <div class="ver-campo">
+        <span class="ver-label">Pedido</span>
+        <span class="ver-valor" id="pagoIdPedido">—</span>
+      </div>
+      <div class="ver-campo">
+        <span class="ver-label">Total del pedido</span>
+        <span class="ver-valor" id="pagoTotalPedido">$0</span>
+      </div>
+      <div class="ver-campo">
+        <span class="ver-label">Ya pagado</span>
+        <span class="ver-valor" style="color:var(--color-exito)" id="pagoPagado">$0</span>
+      </div>
+      <div class="ver-campo ver-campo--destacado deuda-item--alert" style="border-radius:var(--borde-md);padding:11px 14px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--color-deuda-brd)">
+        <span class="ver-label" style="color:var(--color-deuda)">Saldo Pendiente</span>
+        <span class="ver-valor ver-valor--monto" id="pagoPendiente">$0</span>
+      </div>
+    </div>
+
+    <div class="form-grupo">
+      <label>Monto a pagar <span style="color:var(--color-error)">*</span></label>
+      <input type="number" id="pagoMonto" class="form-input pago-focus" placeholder="0.00" min="0.01" step="0.01">
+    </div>
+
+    <div class="form-botones">
+      <button type="button" class="btn-cancelar" data-close="modalPago">Cancelar</button>
+      <button type="button" class="btn-guardar btn-guardar--pago" id="btnGuardarPago">
+        <i class="fas fa-check"></i> <span id="btnPagoTexto">Confirmar Pago</span>
       </button>
     </div>
   </div>
@@ -259,9 +312,11 @@ const URL_CREAR       = "{% url 'crear_pedido' %}";
 const URL_VER_BASE    = "{% url 'pedido_detalle' 0 %}".replace('/0/', '/__PK__/');
 const URL_EDITAR_BASE = "{% url 'editar_pedido'  0 %}".replace('/0/', '/__PK__/');
 const URL_ESTADO_BASE = "{% url 'cambiar_estado' 0 %}".replace('/0/', '/__PK__/');
+const URL_PAGO_BASE   = "{% url 'pedido_pago' 0 %}".replace('/0/', '/__PK__/');
 const URL_VER    = pk => URL_VER_BASE.replace('__PK__', pk);
 const URL_EDITAR = pk => URL_EDITAR_BASE.replace('__PK__', pk);
 const URL_ESTADO = pk => URL_ESTADO_BASE.replace('__PK__', pk);
+const URL_PAGO   = pk => URL_PAGO_BASE.replace('__PK__', pk);
 const URL_DESPACHO = "{% url 'despacho_crear' %}";
 </script>
 

@@ -6,6 +6,7 @@ from .views import (
     ClienteUpdateView,
     ClienteToggleEstadoView,
     ClienteHistorialView,
+    ClientePagosHistorialView,
     ClientePagoView,
     ClienteDataView
 )
