@@ -119,24 +119,143 @@ header {
   color: white !important;
 }
 
-#tablaProductos tbody td:nth-child(6) {
-    color: #385ef8;
-    font-weight: bold;
+/* ================================================== 
+   JERARQUÍA VISUAL ENHANCED - Nombre > Estado > Stock > Precio > Receta
+   ================================================== */
+
+/* Columna 1: Imagen - Compacta */
+#tablaProductos td:nth-child(1) {
+    width: 70px;
+    padding: 8px 4px;
 }
 
-#tablaProductos tr:has(.activate-btn) td:nth-child(6) {
+/* Columna 2: Nombre - MÁXIMA PRIORIDAD */
+#tablaProductos td:nth-child(2) {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: #ffffff;
+    padding: 12px 8px;
+}
+
+/* Columna 3: Estado - SEGUNDA PRIORIDAD */
+#tablaProductos td:nth-child(3) {
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+/* Columna 4: Stock - TERCERA PRIORIDAD */
+#tablaProductos td:nth-child(4) {
+    font-size: 1em;
+    font-weight: 600;
+}
+
+/* Columna 5: Precio - CUARTA PRIORIDAD */
+#tablaProductos td:nth-child(5) {
+    font-size: 1.1em;
+    font-weight: 800;
+}
+
+/* Fila inactiva - gris con opacidad */
+#tablaProductos tr.inactive {
+    background-color: rgba(128, 128, 128, 0.15);
+    opacity: 0.7;
+}
+
+/* Estado del producto - SEGUNDA PRIORIDAD */
+.status-badge {
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 0.95em;
+}
+
+.status-active {
+    color: #2ecc71;
+}
+
+.status-inactive {
     color: #e74c3c;
 }
 
-#tablaProductos td:nth-child(6) {
-    display: table-cell;
-    text-align: center;
+/* Stock - TERCERA PRIORIDAD */
+#tablaProductos td:nth-child(3) {
+    font-weight: 600;
+    font-size: 0.95em;
 }
 
-/* Precio en la tabla */
-#tablaProductos td:nth-child(4) {
-    color: #385ef8;
-    font-weight: bold;
+.badge {
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    font-size: 0.9em;
+}
+
+.stock-low {
+    color: #e74c3c;
+}
+
+.stock-medium {
+    color: #f39c12;
+}
+
+.stock-high {
+    color: #2ecc71;
+}
+
+/* Precio - CUARTA PRIORIDAD (destacado) */
+.price-highlight {
+    color: #f39c12;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+
+/* Receta - QUINTA PRIORIDAD (discreta) */
+.recipe-badge {
+    font-size: 0.65em;
+    padding: 2px 6px;
+    display: inline-block;
+    color: inherit;
+    font-weight: 500;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+.recipe-complete {
+    color: #2ecc71;
+}
+
+.recipe-pending {
+    color: #f39c12;
+}
+
+/* Acciones - botones visibles */
+.acciones button {
+    background-color: transparent;
+    border: none;
+    color: #38bdf8;
+    cursor: pointer;
+    padding: 6px 8px;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.acciones button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #00bfff;
+    transform: scale(1.1);
+}
+
+.acciones button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#tablaProductos td {
+    vertical-align: middle;
 }
 
 /* ==================================================
@@ -675,6 +794,68 @@ input:-webkit-autofill {
 .btn-delete:active {
     transform: translateY(0);
 }
+
+/* ==================================================
+   PRODUCTOS SIN RECETA - Estilos limpios y sutiles
+   ================================================== */
+.pending-recipe {
+    background-color: transparent !important;
+    border-left: none !important;
+    position: relative;
+    box-shadow: none !important;
+}
+
+.pending-recipe:hover {
+    background-color: transparent !important;
+    border-left-color: transparent !important;
+    transform: none;
+    box-shadow: none !important;
+}
+
+/* Badge de receta - discreto y sutil */
+.recipe-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75em;
+    font-weight: normal;
+    margin-top: 2px;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: none;
+    backdrop-filter: none;
+    background-color: transparent;
+    color: inherit;
+}
+
+.recipe-pending {
+    color: #f39c12;
+    background-color: transparent;
+    animation: none;
+    position: relative;
+    overflow: visible;
+}
+
+.recipe-pending::after {
+    content: '';
+    display: none;
+}
+
+.recipe-complete {
+    color: #2ecc71;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .recipe-badge {
+        font-size: 0.7em;
+        padding: 2px 4px;
+    }
+}
+
+
 
 /* ==================================================
    TOOLBAR Y SWITCH

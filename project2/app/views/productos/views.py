@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.safestring import mark_safe
 
 # Importación de tus modelos
-from ...models import producto, categoria, reporte, usuario, historial_acciones
+from ...models import producto, categoria, bom, reporte, usuario, historial_acciones
 
 
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
@@ -31,13 +31,14 @@ class producto_list_view(ListView):
         """
         mostrar_inactivos = self.request.GET.get('mostrar_inactivos', 'false').lower() == 'true'
         
-        queryset = producto.objects.select_related('categoria')
+        queryset = producto.objects.select_related('categoria').prefetch_related('bom_set')
         
         if mostrar_inactivos:
             queryset = queryset.filter(estado=False)
         else:
             queryset = queryset.filter(estado=True)
         return queryset.order_by('-id')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,9 +86,9 @@ class producto_create_view(SuccessMessageMixin, CreateView):
             return redirect('productos')
         
         # Validación de stock: Si es 0, mostrar advertencia pero permitir crear
-        warning_message = None
+        warning_message_stock = None
         if form.cleaned_data['stock'] == 0:
-            warning_message = "El stock inicial es 0. Considera agregar stock para tener disponibilidad."
+            warning_message_stock = "El stock inicial es 0. Considera agregar stock vía Entradas."
         elif form.cleaned_data['stock'] < 0:
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': {'stock': ['El stock inicial no puede ser negativo.']}})
@@ -107,6 +108,12 @@ class producto_create_view(SuccessMessageMixin, CreateView):
         # Guardar el producto
         self.object = form.save()
 
+        # NUEVA VALIDACIÓN: Verificar si tiene receta BOM
+        has_receta = bom.objects.filter(producto=self.object).exists()
+        warning_message = None
+        if not has_receta:
+            warning_message = mark_safe(f'Producto "<strong>{self.object.nombre}</strong>" creado exitosamente. <a href="/vistas/bom/" class="alert-link" target="_blank">Crear Receta (BOM) ahora</a> para poder usarlo en entradas/salidas.')
+
         # REGISTRAR ACCIÓN EN HISTORIAL
         if self.request.user.is_authenticated:
             try:
@@ -123,7 +130,7 @@ class producto_create_view(SuccessMessageMixin, CreateView):
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             response = {'success': True, 'message': 'Producto creado correctamente'}
             if warning_message:
-                response['warning'] = warning_message
+                response['warning'] = str(warning_message)  # Convert to string for JSON
             return JsonResponse(response)
         
         # Mensaje para request normal
@@ -144,9 +151,16 @@ class producto_create_view(SuccessMessageMixin, CreateView):
 
 
 # --- VISTA DE EDICIÓN (MODIFICAR) ---
-# @method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class producto_update_view(SuccessMessageMixin, UpdateView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     # Se agrega 'imagen' para permitir actualizar fotos del catálogo
     fields = ['nombre', 'descripcion', 'precio', 'stock', 'categoria', 'imagen']
     template_name = 'productos/modal_edit.html'
@@ -245,6 +259,13 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
 @method_decorator(login_required, name='dispatch')
 class producto_delete_view(DeleteView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):
@@ -279,6 +300,13 @@ class producto_delete_view(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class producto_activate_view(SuccessMessageMixin, DeleteView):
     model = producto
+    
+    def dispatch(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.tiene_receta():
+            messages.error(self.request, "Este producto no tiene receta. Por favor cree una para usar.")
+            return redirect('productos')
+        return super().dispatch(*args, **kwargs)
     success_url = reverse_lazy('productos')
 
     def post(self, request, *args, **kwargs):

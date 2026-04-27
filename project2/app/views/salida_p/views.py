@@ -1,3 +1,4 @@
+from django.db.models import Q, Exists, OuterRef
 from django.views import View
 from django.views.generic import TemplateView
 from django.http import JsonResponse
@@ -5,9 +6,11 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+
 from django.contrib.auth.decorators import login_required
-from app.models import producto, salida_producto, usuario, historial_acciones
+from app.models import producto, salida_producto, usuario, historial_acciones, detalle_pedido, pedido, bom
 from app.forms import SalidaProductoForm
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SalidaProductoCreateView(View):
@@ -16,15 +19,26 @@ class SalidaProductoCreateView(View):
         
         form = SalidaProductoForm(request.POST)
 
+
         if form.is_valid():
             salida = form.save(commit=False)
             producto_obj = salida.id_producto
+
+            # Check pendiente (redundante con form, pero safety)
+
+            if producto_obj.has_pendidos():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No se genera salida de producto pendiente'
+                })
+
 
             if salida.cantidad > producto_obj.stock:
                 return JsonResponse({
                     'success': False,
                     'message': f'No hay suficiente stock. Stock disponible: {producto_obj.stock}'
                 })
+
 
             if salida.cantidad <= 0:
                 return JsonResponse({
@@ -151,7 +165,16 @@ class SalidaProductoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Salida de Productos - BEDCOM"
-        context['productos'] = producto.objects.filter(estado=True)
+        
+        # Filtrar productos activos que no están pendientes
+        productos_activos = producto.objects.filter(estado=True)
+        productos_filtrados = []
+        
+        for prod in productos_activos:
+            if not prod.has_pendidos():
+                productos_filtrados.append(prod)
+        
+        context['productos'] = productos_filtrados
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()
 

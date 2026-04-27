@@ -325,12 +325,9 @@ $('#toggleInactivos').on('change', function() {
     // Force reload with new URL to fetch fresh data from backend
     window.location.href = url.toString();
 });
-
-
-
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
     $(document).on('submit', '#formAddProducto', function(e) {
-        e.preventDefault(); // Prevenir submit normal
+    e.preventDefault(); // Prevenir submit normal
         
         limpiarErrores(this);
         
@@ -622,7 +619,19 @@ $('#toggleInactivos').on('change', function() {
 /* ==================================================
    ABRIR MODAL PARA EDITAR (AJAX)
    ================================================== */
+function bloquearSinReceta(button) {
+    const row = button.closest('tr');
+    if (row && row.classList.contains('pending-recipe')) {
+        alert("Este producto no tiene receta. Por favor cree una para usar.");
+        return true; // blocked
+    }
+    return false; // allowed
+}
+
 function abrirModalEditar(id) {
+    const button = event.target.closest('button');
+    if (bloquearSinReceta(button)) return;
+    
     var modal = document.getElementById('modalEdit');
     modal.style.display = 'flex';
     modal.innerHTML = '<div class="modal-content"><div style="color:white; padding:20px; text-align:center;"><i class="fas fa-spinner fa-spin"></i> Cargando datos del producto...</div></div>';
@@ -696,6 +705,9 @@ function abrirModalEditar(id) {
    FUNCIÓN PARA ELIMINAR PRODUCTO
    ================================================== */
 function abrirModalEliminar(id, nombre, urlImagen) {
+    const button = event.target.closest('button');
+    if (bloquearSinReceta(button)) return;
+    
     var modal = document.getElementById('modalDelete');
     var txtNombre = document.getElementById('nombreProductoEliminar');
     var imgModal = document.getElementById('imgEliminar');
@@ -723,6 +735,8 @@ function abrirModalEliminar(id, nombre, urlImagen) {
 }
 
 function abrirModalVer(nombre, descripcion, imagen, precio, stock, categoria) {
+    const button = event.target.closest('button');
+    if (bloquearSinReceta(button)) return;
     var modal = document.getElementById('modalView');
 
     document.getElementById('viewNombre').textContent = nombre;
@@ -741,6 +755,9 @@ function abrirModalVer(nombre, descripcion, imagen, precio, stock, categoria) {
    FUNCIÓN PARA ACTIVAR PRODUCTO
    ================================================== */
 function abrirModalActivar(id, nombre, urlImagen) {
+    const button = event.target.closest('button');
+    if (bloquearSinReceta(button)) return;
+    
     var modal = document.getElementById('modalActivar');
     var txtNombre = document.getElementById('nombreProductoActivar');
     var imgModal = document.getElementById('imgActivar');

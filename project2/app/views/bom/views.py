@@ -13,7 +13,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-from app.models import bom, producto, insumo, historial_acciones
+from app.models import bom, producto, insumo, categoria, historial_acciones
 
 
 @method_decorator(login_required, name='dispatch')
@@ -54,6 +54,9 @@ class BomListView(ListView):
         
         # Obtener todos los insumos para los selects (sin filtro de estado para mostrar todos)
         context['insumos'] = insumo.objects.all().order_by('nombre')
+        
+        # CATEGORÍAS para nuevo producto
+        context['categorias'] = categoria.objects.filter(estado=True).order_by('nombre')
         
         # Obtener lista de productos que ya tienen receta (para validación JS)
         context['productos_con_receta'] = list(producto.objects.filter(
@@ -102,69 +105,91 @@ class BomCreateView(SuccessMessageMixin, CreateView):
 
 @login_required
 def bom_crear_receta(request):
-    """API para crear una receta completa (múltiples insumos para un producto)"""
-    print("=== BOM CREAR RECETA HIT ===")
+    """API para crear una receta completa (múltiples insumos para un producto)
+    Soporta creación de nuevo producto + BOM"""
     logger.info("BOM crear recipe view called")
     if request.method != 'POST':
-        print("Not POST")
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
     
     try:
         data = json.loads(request.body)
         producto_id = data.get('producto_id')
         insumos = data.get('insumos', [])
-        print(f"Producto ID: {producto_id}")
-        print(f"N° insumos: {len(insumos)}")
-        print(f"Data: {data}")
-        logger.info(f"BOM crear: producto_id={producto_id}, num_insumos={len(insumos)}")
+        producto_data = data.get('producto_data')  # Nuevo: {nombre, categoria_id}
+        
+        logger.info(f"BOM crear: producto_id={producto_id}, nuevo_producto={bool(producto_data)}, insumos={len(insumos)}")
+        
+        # Caso 1: Nuevo producto
+        if producto_data:
+            from app.forms import BomProductoForm
+            form = BomProductoForm(producto_data)
+            if form.is_valid():
+                producto_obj = form.save()
+                producto_id = producto_obj.id
+                logger.info(f"Nuevo producto creado: {producto_obj.nombre} (ID: {producto_id})")
+            else:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Datos del producto inválidos',
+                    'errors': form.errors
+                })
         
         if not producto_id:
-            print("No producto_id")
             return JsonResponse({'success': False, 'error': 'Producto no especificado'})
         
         if not insumos:
-            print("No insumos")
             return JsonResponse({'success': False, 'error': 'Debe agregar al menos un insumo'})
         
-        # Verificar que el producto existe
+        # Verificar/obtener producto
         try:
             producto_obj = producto.objects.get(id=producto_id)
-            print(f"Producto encontrado: {producto_obj.nombre}")
         except producto.DoesNotExist:
-            print("Producto not found")
             return JsonResponse({'success': False, 'error': 'Producto no encontrado'})
         
-        # Crear las relaciones BOM
+        # Eliminar BOM existente para este producto (recrear limpia)
+        bom.objects.filter(producto=producto_obj).delete()
+        
+        # Crear nuevas BOM
         created_count = 0
         errors = []
-        
         for item in insumos:
             insumo_id = item.get('insumo_id')
             cantidad = item.get('cantidad')
             unidad_medida = item.get('unidad_medida')
-            print(f"Processing insumo: {insumo_id}, cant: {cantidad}, um: {unidad_medida}")
             
-            if not insumo_id or not cantidad or not unidad_medida:
-                errors.append(f"Datos incompletos para un insumo")
-                continue
-            
-            # Verificar si ya existe la relación (mismo producto e insumo)
-            if bom.objects.filter(producto_id=producto_id, insumo_id=insumo_id).exists():
-                errors.append(f"El insumo ya está registrado para este producto")
-                continue
-            
-            # Crear la relación BOM
-            bom_obj = bom.objects.create(
-                producto=producto_obj,
-                insumo_id=insumo_id,
-                cantidad=cantidad,
-                unidad_medida=unidad_medida
+            try:
+                insumo_obj = insumo.objects.get(id=insumo_id)
+                bom.objects.create(
+                    producto=producto_obj,
+                    insumo=insumo_obj,
+                    cantidad=cantidad,
+                    unidad_medida=unidad_medida
+                )
+                created_count += 1
+            except insumo.DoesNotExist:
+                errors.append(f"Insumo ID {insumo_id} no existe")
+        
+        # Historial
+        if request.user.is_authenticated:
+            action_desc = f'Creó/Actualizó receta para "{producto_obj.nombre}"' + (f' (nuevo producto)' if producto_data else '')
+            historial_acciones.objects.create(
+                modulo='bom',
+                tipo_accion='crear',
+                descripcion=action_desc,
+                usuario=request.user
             )
-            print(f"BOM created ID: {bom_obj.id}")
-            created_count += 1
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Receta creada/actualizada con {created_count} insumos{" para nuevo producto " + producto_obj.nombre if producto_data else ""}',
+            'producto_id': producto_id
+        })
         
         print(f"Total created: {created_count}, errors: {errors}")
         if created_count > 0:
+            # LIMPIAR CACHE DEL PRODUCTO
+            producto_obj.limpiar_cache_receta()
+            
             # REGISTRAR ACCIÓN EN HISTORIAL
             if request.user.is_authenticated:
                 try:
@@ -188,13 +213,13 @@ def bom_crear_receta(request):
             })
             
     except json.JSONDecodeError as e:
-        print(f"JSON error: {e}")
+        logger.error(f"JSON error: {e}")
         return JsonResponse({'success': False, 'error': 'Datos JSON inválidos'})
     except Exception as e:
-        print(f"FATAL ERROR: {str(e)}")
-        print(f"Traceback: {e}")
         logger.error(f"BOM crear error: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'})
+
+
 
 
 @login_required
@@ -246,6 +271,9 @@ def bom_editar_receta(request):
             created_count += 1
         
         if created_count > 0:
+            # LIMPIAR CACHE DEL PRODUCTO
+            producto_obj.limpiar_cache_receta()
+            
             # REGISTRAR ACCIÓN EN HISTORIAL
             if request.user.is_authenticated:
                 try:
@@ -273,6 +301,8 @@ def bom_editar_receta(request):
     except Exception as e:
         logger.error(f"BOM editar error: {str(e)}", exc_info=True)
         return JsonResponse({'success': False, 'error': str(e)})
+
+
 
 
 @method_decorator(login_required, name='dispatch')

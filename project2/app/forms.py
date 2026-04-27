@@ -280,6 +280,8 @@ class EntradaForm(forms.ModelForm):
             raise forms.ValidationError('Debe seleccionar un producto.')
         if not producto.estado:
             raise forms.ValidationError('El producto seleccionado está inactivo.')
+        if not bom.objects.filter(producto=producto).exists():
+            raise forms.ValidationError('Este producto requiere una <strong>receta (BOM)</strong> creada primero. <a href="/vistas/bom/" target="_blank">Ir a BOM</a>')
         return producto
 
     def clean_cantidad(self):
@@ -377,13 +379,35 @@ class SalidaProductoForm(forms.ModelForm):
             }),
         }
 
+
     def clean_id_producto(self):
         producto = self.cleaned_data.get('id_producto')
         if not producto:
             raise forms.ValidationError('Debe seleccionar un producto.')
         if not producto.estado:
             raise forms.ValidationError('El producto seleccionado está inactivo.')
+        if not bom.objects.filter(producto=producto).exists():
+            raise forms.ValidationError('Este producto requiere una <strong>receta (BOM)</strong> creada primero. <a href="/vistas/bom/" target="_blank">Ir a BOM</a>')
         return producto
+
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('id_producto')
+        cantidad = cleaned_data.get('cantidad')
+
+        # Validar stock si hay producto y cantidad
+        if producto and cantidad:
+            if cantidad > producto.stock:
+                self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
+
+
+        # Validar si producto está pendiente (BOM o pedidos)
+        if producto and producto.has_pendidos():
+            raise forms.ValidationError('No se genera salida de producto pendiente')
+
+
+        return cleaned_data
+
 
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
@@ -424,18 +448,6 @@ class SalidaProductoForm(forms.ModelForm):
         if len(responsable) > 100:
             raise forms.ValidationError('El nombre del responsable no puede superar los 100 caracteres.')
         return responsable
-
-    def clean(self):
-        cleaned_data = super().clean()
-        producto = cleaned_data.get('id_producto')
-        cantidad = cleaned_data.get('cantidad')
-
-        # Validar stock si hay producto y cantidad
-        if producto and cantidad:
-            if cantidad > producto.stock:
-                self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
-
-        return cleaned_data
 
 
 
