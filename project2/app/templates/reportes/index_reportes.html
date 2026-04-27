@@ -66,6 +66,54 @@
             <a href="{% url 'proveedores_excel' %}" class="dropdown-item">
                 <i class="fas fa-file-excel"></i> Excel Proveedores
             </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">BOM / Recetas</div>
+            <a href="{% url 'bom_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF BOM/Recetas
+            </a>
+            <a href="{% url 'bom_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel BOM/Recetas
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Inventario</div>
+            <a href="{% url 'inventario_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Inventario
+            </a>
+            <a href="{% url 'inventario_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Inventario
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Clientes</div>
+            <a href="{% url 'clientes_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Clientes
+            </a>
+            <a href="{% url 'clientes_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Clientes
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Pedidos</div>
+            <a href="{% url 'pedidos_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Pedidos
+            </a>
+            <a href="{% url 'pedidos_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Pedidos
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Entradas</div>
+            <a href="{% url 'entradas_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Entradas
+            </a>
+            <a href="{% url 'entradas_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Entradas
+            </a>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section">Salidas</div>
+            <a href="{% url 'salidas_pdf' %}" class="dropdown-item">
+                <i class="fas fa-file-pdf"></i> PDF Salidas
+            </a>
+            <a href="{% url 'salidas_excel' %}" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Excel Salidas
+            </a>
         </div>
     </div>
 </div>
@@ -168,9 +216,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dropdownToggle && dropdownExport) {
         dropdownToggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             dropdownExport.classList.toggle('open');
         });
         
+        // Evitar que clics dentro del menú cierren el dropdown inmediatamente
+        const dropdownMenu = dropdownExport.querySelector('.dropdown-menu');
+        if (dropdownMenu) {
+            dropdownMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
         // Cerrar dropdown al hacer clic fuera
         document.addEventListener('click', function(e) {
             if (!dropdownExport.contains(e.target)) {

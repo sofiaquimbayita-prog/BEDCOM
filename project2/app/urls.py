@@ -50,6 +50,18 @@ urlpatterns = [
     path('reportes/productos/excel/', reportes.ExportarProductosExcel.as_view(), name='productos_excel'),
     path('reportes/proveedores/pdf/', reportes.ExportarProveedoresPDF.as_view(), name='proveedores_pdf'),
     path('reportes/proveedores/excel/', reportes.ExportarProveedoresExcel.as_view(), name='proveedores_excel'),
+    path('reportes/bom/pdf/', reportes.ExportarBOMPDF.as_view(), name='bom_pdf'),
+    path('reportes/bom/excel/', reportes.ExportarBOMExcel.as_view(), name='bom_excel'),
+    path('reportes/inventario/pdf/', reportes.ExportarInventarioPDF.as_view(), name='inventario_pdf'),
+    path('reportes/inventario/excel/', reportes.ExportarInventarioExcel.as_view(), name='inventario_excel'),
+    path('reportes/clientes/pdf/', reportes.ExportarClientesPDF.as_view(), name='clientes_pdf'),
+    path('reportes/clientes/excel/', reportes.ExportarClientesExcel.as_view(), name='clientes_excel'),
+    path('reportes/pedidos/pdf/', reportes.ExportarPedidosPDF.as_view(), name='pedidos_pdf'),
+    path('reportes/pedidos/excel/', reportes.ExportarPedidosExcel.as_view(), name='pedidos_excel'),
+    path('reportes/entradas/pdf/', reportes.ExportarEntradasPDF.as_view(), name='entradas_pdf'),
+    path('reportes/entradas/excel/', reportes.ExportarEntradasExcel.as_view(), name='entradas_excel'),
+    path('reportes/salidas/pdf/', reportes.ExportarSalidasPDF.as_view(), name='salidas_pdf'),
+    path('reportes/salidas/excel/', reportes.ExportarSalidasExcel.as_view(), name='salidas_excel'),
 
     # --- INSUMOS ---
     path('insumos/', insumos.InsumoListView.as_view(), name='insumos'),
