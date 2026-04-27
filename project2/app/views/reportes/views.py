@@ -71,7 +71,7 @@ class ReporteVentasView(View):
         insumos_criticos = insumo.objects.filter(cantidad__lt=5).count()
         # Despachos que NO están terminados (incluye los que tengan "0" o "En proceso")
         # Para que sea más exacto, contamos lo que diga "En proceso"
-        pendientes = despacho.objects.filter(estado_entrega="En proceso").count()
+        pendientes = despacho.objects.filter(estado="En proceso").count()
 
         context = {
             'titulo_pagina': 'GESTIÓN DE REPORTES - BEDCOM',
