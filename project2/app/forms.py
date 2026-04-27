@@ -445,18 +445,6 @@ class SalidaProductoForm(forms.ModelForm):
             raise forms.ValidationError('El nombre del responsable no puede superar los 100 caracteres.')
         return responsable
 
-    def clean(self):
-        cleaned_data = super().clean()
-        producto = cleaned_data.get('id_producto')
-        cantidad = cleaned_data.get('cantidad')
-
-        # Validar stock si hay producto y cantidad
-        if producto and cantidad:
-            if cantidad > producto.stock:
-                self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
-
-        return cleaned_data
-
 
 
 class PedidoForm(forms.ModelForm):
