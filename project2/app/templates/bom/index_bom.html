@@ -110,12 +110,17 @@
             
             <div class="form-group">
                 <label>PRODUCTO</label>
-                <select name="producto" id="recetaProducto" required>
-                    <option value="" disabled selected>Seleccione un producto</option>
-                    {% for p in productos %}
-                    <option value="{{ p.id }}">{{ p.nombre }}</option>
-                    {% endfor %}
-                </select>
+                <div style="position: relative;">
+                    <select name="producto" id="recetaProducto" required>
+                        <option value="" disabled selected>Seleccione un producto</option>
+                        {% for p in productos %}
+                        <option value="{{ p.id }}">{{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" onclick="abrirModal('BOM_AGREGAR_PRODUCTO')" class="btn-nuevo-producto" title="Crear nuevo producto">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="form-group">

@@ -127,12 +127,35 @@ ul { list-style: none; margin: 0; padding: 0; }
 .is-salida { background: #60d7cf; }
 
 /* Menu layout */
-.menu-layout { display: flex; align-items: flex-start; justify-content: space-between; gap: 10rem; }
+.menu-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.menu-layout::-webkit-scrollbar {
+  height: 8px;
+}
+.menu-layout::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.18);
+  border-radius: 999px;
+}
 .menu-grid { flex: 1; }
 .grid.menu-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
 
 /* Menu card */
-.menu-card-link { display: block; text-decoration: none; color: inherit; }
+.menu-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-width: 260px;
+}
 .menu-card {
   background: var(--card);
   border-radius: var(--radius);

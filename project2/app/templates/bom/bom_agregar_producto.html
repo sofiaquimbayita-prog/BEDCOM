@@ -1,0 +1,65 @@
+{% load static %}
+<div id="BOM_AGREGAR_PRODUCTO" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-box-open"></i> Crear Nuevo Producto</h2>
+            <button class="close-modal" onclick="cerrarModal('BOM_AGREGAR_PRODUCTO')">&times;</button>
+        </div>
+        
+        <form id="formAddProductoBom" method="POST" action="{% url 'crear_producto' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>NOMBRE DEL PRODUCTO</label>
+                <input type="text" name="nombre" id="inputNombreBom" placeholder="Ej: Capitoneado Plano" required>
+                <span class="error-msg" id="errorNombreBom"></span>
+            </div>
+
+            <div class="form-group">
+                <label>DESCRIPCIÓN</label>
+                <textarea name="descripcion" id="inputDescripcionBom" rows="3" placeholder="Descripción del producto para BOM..."></textarea>
+                <span class="error-msg" id="errorDescripcionBom"></span>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>PRECIO</label>
+                    <input type="number" name="precio" id="inputPrecioBom" step="0.01" min="0" placeholder="0.00">
+                    <span class="error-msg" id="errorPrecioBom"></span>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>STOCK INICIAL</label>
+                    <input type="number" name="stock" id="inputStockBom" min="0" placeholder="0">
+                    <span class="error-msg" id="errorStockBom"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>CATEGORÍA</label>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <select name="categoria" id="inputCategoriaBom" style="flex: 1;" required>
+                        <option value="" disabled selected>Seleccione categoría</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn-quick-add" onclick="abrirModalQuickCategoria('inputCategoriaBom')" title="Agregar nueva categoría" style="padding: 10px 14px; background: #385ef8; color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <span class="error-msg" id="errorCategoriaBom"></span>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-image"></i> FOTO DEL PRODUCTO (opcional)</label>
+                <input type="file" name="imagen" accept="image/*" class="form-control">
+                <small style="color: gray;">Foto para catálogo (opcional para BOM).</small>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('BOM_AGREGAR_PRODUCTO')">Cancelar</button>
+                <button type="submit" id="btnGuardarBom" class="btn-save">Crear Producto</button>
+            </div>
+        </form>
+    </div>
+</div>
