@@ -20,14 +20,15 @@
         <p class="date">Generado el: {{ now }}</p>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                {% for columna in columnas %}
-                    <th>{{ columna|upper }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    {% for columna in columnas %}
+                        <th>{{ columna|upper }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
         <tbody>
             {% for fila in datos %}
             <tr>
@@ -43,7 +44,8 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+        </table>
+    </div>
 
     <div class="footer">
         <div class="summary">

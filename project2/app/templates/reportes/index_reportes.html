@@ -17,29 +17,32 @@
 
 <!-- Contenedor principal con el dropdown a la derecha -->
 <div class="reportes-header">
-    <h1 class="page-title">Módulo de Reportes</h1>
-    
-    <!-- Dropdown de Exportación -->
-    <div class="dropdown-export">
-        <button class="dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-download"></i> Exportar Reportes
-            <i class="fas fa-chevron-down"></i>
-        </button>
+    <div class="report-header-title">
+        <h1 class="page-title">Módulo de Reportes</h1>
+    </div>
+    <div class="report-header-actions">
+        <input id="reportSearchInput" type="search" placeholder="Buscar opción de exportación..." aria-label="Buscar opciones de exportación">
+        <!-- Dropdown de Exportación -->
+        <div class="dropdown-export">
+            <button class="dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Abrir menú de exportación">
+                <i class="fas fa-download" title="Exportar reportes"></i> Exportar Reportes
+                <i class="fas fa-chevron-down"></i>
+            </button>
         <div class="dropdown-menu" aria-labelledby="exportDropdown">
             <!-- Sección de Estadísticas Generales -->
             <div class="dropdown-section" style="background-color: #2ecc71; color: white; font-weight: bold;">Estadísticas Generales</div>
-            <a href="{% url 'estadisticas_pdf' %}" class="dropdown-item">
+            <a href="{% url 'estadisticas_pdf' %}" class="dropdown-item" title="Exportar estadísticas como PDF">
                 <i class="fas fa-file-pdf"></i> PDF Estadísticas
             </a>
-            <a href="{% url 'estadisticas_excel' %}" class="dropdown-item">
+            <a href="{% url 'estadisticas_excel' %}" class="dropdown-item" title="Exportar estadísticas como Excel">
                 <i class="fas fa-file-excel"></i> Excel Estadísticas
             </a>
             <div class="dropdown-divider"></div>
             <div class="dropdown-section">Categorías</div>
-            <a href="{% url 'categorias_pdf' %}" class="dropdown-item">
+            <a href="{% url 'categorias_pdf' %}" class="dropdown-item" title="Exportar categorías como PDF">
                 <i class="fas fa-file-pdf"></i> PDF Categorías
             </a>
-            <a href="{% url 'categorias_excel' %}" class="dropdown-item">
+            <a href="{% url 'categorias_excel' %}" class="dropdown-item" title="Exportar categorías como Excel">
                 <i class="fas fa-file-excel"></i> Excel Categorías
             </a>
             <div class="dropdown-divider"></div>
@@ -122,7 +125,7 @@
     <div class="report-card">
         <div class="card-header">
             <h2>Resumen de Ventas</h2>
-            <i class="fas fa-shopping-cart"></i>
+            <i class="fas fa-shopping-cart" title="Resumen de ventas"></i>
         </div>
         <div class="sales-data">
             <div class="data-item">
@@ -131,7 +134,7 @@
             </div>
             <div class="data-item">
                 <span class="label">Total ingresos:</span>
-                <span class="value highlight">${{ total_ventas }}</span>
+                <span class="value highlight">{{ total_ventas }}</span>
             </div>
             <div class="data-item">
                 <span class="label">Estado del sistema:</span>
@@ -143,7 +146,7 @@
     <div class="report-card">
         <div class="card-header">
             <h2>Logística y Despachos</h2>
-            <i class="fas fa-truck"></i>
+            <i class="fas fa-truck" title="Estado de logística"></i>
         </div>
         <div class="sales-data">
             <div class="alert {% if pendientes > 5 %}critica{% endif %}">
@@ -162,7 +165,7 @@
     <div class="report-card">
         <div class="card-header">
             <h2>Alertas de Stock</h2>
-            <i class="fas fa-exclamation-triangle"></i>
+            <i class="fas fa-exclamation-triangle" title="Alertas de inventario"></i>
         </div>
         <div class="alert critica">
             <div class="alert-info">
@@ -178,7 +181,7 @@
     <div class="chart-card">
         <div class="card-header">
             <h2>Distribución de Ventas</h2>
-            <i class="fas fa-chart-pie"></i>
+            <i class="fas fa-chart-pie" title="Gráfico de ventas"></i>
         </div>
         <div class="chart-actions">
             <button class="chart-type-btn active" data-chart="salesChart" data-type="doughnut">Dona</button>
@@ -192,7 +195,7 @@
     <div class="chart-card">
         <div class="card-header">
             <h2>Evolución de Ingresos</h2>
-            <i class="fas fa-chart-line"></i>
+            <i class="fas fa-chart-line" title="Gráfico de ingresos"></i>
         </div>
         <div class="chart-actions">
             <button class="chart-type-btn active" data-chart="monthlyChart" data-type="line">Línea</button>
@@ -212,6 +215,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const dropdownToggle = document.querySelector('.dropdown-toggle');
     const dropdownExport = document.querySelector('.dropdown-export');
+    const searchInput = document.getElementById('reportSearchInput');
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
     
     if (dropdownToggle && dropdownExport) {
         dropdownToggle.addEventListener('click', function(e) {
@@ -233,6 +238,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!dropdownExport.contains(e.target)) {
                 dropdownExport.classList.remove('open');
             }
+        });
+    }
+
+    if (searchInput && dropdownItems.length) {
+        searchInput.addEventListener('input', function() {
+            const value = this.value.trim().toLowerCase();
+            dropdownItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(value) ? 'flex' : 'none';
+            });
+        });
+
+        dropdownItems.forEach(item => {
+            const itemText = item.textContent.trim().replace(/\s+/g, ' ');
+            item.title = `Exportar ${itemText}`;
         });
     }
 });

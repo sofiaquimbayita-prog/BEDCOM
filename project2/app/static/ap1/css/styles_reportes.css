@@ -174,8 +174,37 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
     padding: 20px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.report-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.report-header-actions input[type="search"] {
+    padding: 10px 14px;
+    border-radius: var(--borde-md);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-texto);
+    min-width: 240px;
+    transition: border-color var(--transicion-normal), background var(--transicion-normal);
+}
+
+.report-header-actions input[type="search"]::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.report-header-actions input[type="search"]:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: var(--color-principal);
 }
 
 .page-title {

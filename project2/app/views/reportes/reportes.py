@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.views import View as DjangoView
 from django.conf import settings
@@ -6,6 +7,26 @@ from app.utils import exportar_pdf, exportar_excel, exportar_pdf_estadisticas
 from django.db.models import Sum, F, FloatField
 from django.db.models.functions import ExtractMonth, Cast
 from datetime import datetime
+
+
+def clean_text(value):
+    if value is None:
+        return ""
+    text = str(value).replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
+    text = re.sub(r'\s{2,}', ' ', text).strip()
+    text = re.sub(r'(.)\1{2,}', r'\1\1', text)
+    return text
+
+
+def format_currency_co(value):
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return clean_text(value)
+    formatted = f"{amount:,.2f}"
+    formatted = formatted.replace(',', 'X').replace('.', ',').replace('X', '.')
+    return f"${formatted}"
+
 
 # ====== VISTAS PARA EXPORTAR REPORTES ======
 
@@ -697,11 +718,11 @@ class ExportarEstadisticasPDF(DjangoView):
         
         # Crear estadísticas como lista de tuplas
         estadisticas = [
-            ('Total de Ventas', f'${total_ventas:,.2f}'),
-            ('Total de Gastos', f'${total_gastos:,.2f}'),
-            ('Utilidad Neta', f'${utilidad_neta:,.2f}'),
-            ('Margen de Ganancia', f'{margen:.1f}%'),
-            ('Producto Más Vendido', producto_top),
+            ('Total de Ventas', format_currency_co(total_ventas)),
+            ('Total de Gastos', format_currency_co(total_gastos)),
+            ('Utilidad Neta', format_currency_co(utilidad_neta)),
+            ('Margen de Ganancia', f'{round(margen, 1)}%'),
+            ('Producto Más Vendido', clean_text(producto_top)),
             ('Total de Productos', str(total_productos)),
             ('Productos Activos', str(productos_activos)),
             ('Total de Categorías', str(total_categorias)),
@@ -782,11 +803,11 @@ class ExportarEstadisticasExcel(DjangoView):
         
         # Datos para Excel
         datos = [
-            ('Total de Ventas', f'${total_ventas:,.2f}'),
-            ('Total de Gastos', f'${total_gastos:,.2f}'),
-            ('Utilidad Neta', f'${utilidad_neta:,.2f}'),
-            ('Margen de Ganancia', f'{margen:.1f}%'),
-            ('Producto Más Vendido', producto_top),
+            ('Total de Ventas', format_currency_co(total_ventas)),
+            ('Total de Gastos', format_currency_co(total_gastos)),
+            ('Utilidad Neta', format_currency_co(utilidad_neta)),
+            ('Margen de Ganancia', f'{round(margen, 1)}%'),
+            ('Producto Más Vendido', clean_text(producto_top)),
             ('Total de Productos', str(total_productos)),
             ('Productos Activos', str(productos_activos)),
             ('Total de Categorías', str(total_categorias)),

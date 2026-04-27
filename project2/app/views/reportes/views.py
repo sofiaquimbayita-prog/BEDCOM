@@ -1,4 +1,5 @@
 import json
+import re
 from django.shortcuts import render
 from django.db.models import Sum, F, FloatField, Count
 from django.db.models.functions import ExtractMonth, Cast
@@ -9,6 +10,27 @@ from django.utils import timezone
 
 # IMPORTACIÓN CORREGIDA: Apuntamos a la raíz de la app para encontrar los modelos
 from app.models import pedido, detalle_pedido, despacho, compra, insumo, historial_acciones
+
+
+def clean_text(value):
+    if value is None:
+        return ""
+    text = str(value).replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
+    text = re.sub(r'\s{2,}', ' ', text).strip()
+    text = re.sub(r'(.)\1{2,}', r'\1\1', text)
+    return text
+
+
+def format_currency_co(value):
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return clean_text(value)
+
+    formatted = f"{amount:,.2f}"
+    formatted = formatted.replace(',', 'X').replace('.', ',').replace('X', '.')
+    return f"${formatted}"
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -26,11 +48,11 @@ class ReporteVentasView(View):
         producto_top_query = detalle_pedido.objects.values('producto__nombre').annotate(
             total_vendido=Sum('cantidad')
         ).order_by('-total_vendido').first()
-        producto_top = producto_top_query['producto__nombre'] if producto_top_query else "N/A"
+        producto_top = clean_text(producto_top_query['producto__nombre']) if producto_top_query else "N/A"
 
         # 3. DATOS GRÁFICA DONA (Distribución por productos)
         productos_data = detalle_pedido.objects.values('producto__nombre').annotate(unidades=Sum('cantidad'))
-        js_products = [item['producto__nombre'] for item in productos_data]
+        js_products = [clean_text(item['producto__nombre']) for item in productos_data]
         js_units = [item['unidades'] for item in productos_data]
 
         # 4. EVOLUCIÓN MENSUAL (Ventas vs Gastos - Versión compatible con SQLite)
@@ -75,9 +97,9 @@ class ReporteVentasView(View):
 
         context = {
             'titulo_pagina': 'GESTIÓN DE REPORTES - BEDCOM',
-            'total_ventas': total_ventas,
-            'utilidad_neta': utilidad_neta,
-            'margen': round(margen, 1),
+            'total_ventas': format_currency_co(total_ventas),
+            'utilidad_neta': format_currency_co(utilidad_neta),
+            'margen': f"{round(margen, 1)}%",
             'producto_top': producto_top,
             'insumos_criticos': insumos_criticos,
             'pendientes': pendientes,
