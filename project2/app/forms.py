@@ -377,6 +377,7 @@ class SalidaProductoForm(forms.ModelForm):
             }),
         }
 
+
     def clean_id_producto(self):
         producto = self.cleaned_data.get('id_producto')
         if not producto:
@@ -384,6 +385,25 @@ class SalidaProductoForm(forms.ModelForm):
         if not producto.estado:
             raise forms.ValidationError('El producto seleccionado está inactivo.')
         return producto
+
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('id_producto')
+        cantidad = cleaned_data.get('cantidad')
+
+        # Validar stock si hay producto y cantidad
+        if producto and cantidad:
+            if cantidad > producto.stock:
+                self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
+
+
+        # Validar si producto está pendiente (BOM o pedidos)
+        if producto and producto.has_pendidos():
+            raise forms.ValidationError('No se genera salida de producto pendiente')
+
+
+        return cleaned_data
+
 
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')

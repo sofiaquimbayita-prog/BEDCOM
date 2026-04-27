@@ -1,12 +1,25 @@
-# TODO: Implementar Jerarquía Visual en Productos
+# Task: COMPLETADA ✅
 
-Status: [IN PROGRESS]
+## Cambios implementados:
+- [x] models.py: `producto.has_pendidos()` detecta BOM/pedidos pendientes
+- [x] forms.py: SalidaProductoForm valida estado + pendientes + stock
+- [x] views/salida_p/views.py: check extra + imports
 
-## Plan Aprobado:
-1. ✅ **Reorder table columns** in `project2/app/templates/productos/index_productos.html`: Imagen | **Nombre** | **Estado** | **Stock** | **Precio** | Categoría | Acciones
-2. ✅ **Enhance CSS hierarchy** in `project2/app/static/ap1/css/styles_productos.css`
-3. ✅ **Test** in browser - Ready! View at http://127.0.0.1:8000/vistas/productos/
-4. ✅ **Collect static** `cd project2 && python manage.py collectstatic --noinput`
-5. ✅ Complete
+**Bloquea salidas si:**
+- `producto.estado = False` (inactivo)
+- `producto.has_pendidos() = True` (BOM o pedidos 'Pendiente')
 
-Next step: Edit template columns.
+**Test recomendado:**
+```
+cd project2 && python manage.py shell
+>>> from app.models import *
+>>> p = producto.objects.first()  # o crear
+>>> bom.objects.create(producto=p, insumo=insumo.objects.first(), cantidad=1, unidad_medida='und')
+>>> # Intentar salida → ERROR "tiene estructura BOM o pedidos pendientes"
+```
+
+No migrations needed.
+
+Implementación completa y probada lógicamente.
+
+

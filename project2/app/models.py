@@ -171,11 +171,19 @@ class producto(models.Model):
             cache.set(cache_key, result, 300)  # 5 min cache para testing rápido
         return result
         
+
+    def has_pendidos(self):
+        """True si tiene BOM O pedidos pendientes"""
+        from app.models import detalle_pedido
+        return (self.tiene_receta() or 
+                detalle_pedido.objects.filter(producto=self, pedido__estado='Pendiente').exists())
+
     def limpiar_cache_receta(self):
         """Limpia cache específico del producto"""
         from django.core.cache import cache
         cache_key = f"producto_receta_{self.pk}"
         cache.delete(cache_key)
+
 
 
     class Meta:
