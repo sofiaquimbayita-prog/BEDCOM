@@ -710,7 +710,9 @@ class ExportarEstadisticasPDF(DjangoView):
         pedidos_pendientes = pedido.objects.filter(estado='Pendiente').count()
         
         # 10. Despachos en proceso
-        despachos_proceso = despacho.objects.filter(estado_entrega='En proceso').count()
+        despachos_proceso = despacho.objects.filter(
+            estado__in=[despacho.PENDIENTE, despacho.EN_RUTA]
+        ).count()
         
         # Preparar datos para el PDF
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
@@ -794,7 +796,9 @@ class ExportarEstadisticasExcel(DjangoView):
         pedidos_pendientes = pedido.objects.filter(estado='Pendiente').count()
         
         # 10. Despachos en proceso
-        despachos_proceso = despacho.objects.filter(estado_entrega='En proceso').count()
+        despachos_proceso = despacho.objects.filter(
+            estado__in=[despacho.PENDIENTE, despacho.EN_RUTA]
+        ).count()
         
         nombre_archivo = f'Reporte_Estadisticas_{datetime.now().strftime("%d_%m_%Y")}'
         

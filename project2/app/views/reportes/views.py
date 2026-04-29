@@ -91,9 +91,10 @@ class ReporteVentasView(View):
         # 6. ALERTAS Y LOGÍSTICA
         # Insumos con cantidad menor a 5
         insumos_criticos = insumo.objects.filter(cantidad__lt=5).count()
-        # Despachos que NO están terminados (incluye los que tengan "0" o "En proceso")
-        # Para que sea más exacto, contamos lo que diga "En proceso"
-        pendientes = despacho.objects.filter(estado="En proceso").count()
+        # Despachos que todavia requieren gestion.
+        pendientes = despacho.objects.filter(
+            estado__in=[despacho.PENDIENTE, despacho.EN_RUTA]
+        ).count()
 
         context = {
             'titulo_pagina': 'GESTIÓN DE REPORTES - BEDCOM',
