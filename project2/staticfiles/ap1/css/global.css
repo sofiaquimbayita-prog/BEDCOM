@@ -1,39 +1,44 @@
 :root {
-  /* INTEGRA FLUID RESPONSIVE SYSTEM */
+  /* FULL FLUID RESPONSIVE SYSTEM - SYNC menu.css */
   --bp-xl: 1200px;
   --bp-lg: 992px;
   --bp-md: 768px;
   --bp-sm: 576px;
   --bp-xs: 380px;
+
+  /* SPACING */
   --pad-xs: clamp(0.75rem, 2vw, 1rem);
   --pad-sm: clamp(1rem, 3vw, 1.5rem);
   --pad-md: clamp(1.5rem, 4vw, 2.5rem);
+  --pad-lg: clamp(2rem, 5vw, 3rem);
+
+  /* TYPO */
   --fs-xs: clamp(0.8rem, 2vw, 0.875rem);
   --fs-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --fs-md: clamp(1rem, 3vw, 1.125rem);
+  --fs-lg: clamp(1.125rem, 4vw, 1.5rem);
+  --fs-xl: clamp(1.5rem, 5vw, 2rem);
 
-  --fondo:url("../img/fondo.jpg");
+  /* LAYOUT */
+  --container-max: clamp(1000px, 95vw, 1400px);
+  --topbar-h: clamp(64px, 12vh, 80px);
+  --gap-sm: clamp(1rem, 3vw, 1.5rem);
+  --gap-lg: clamp(1.5rem, 4vw, 2rem);
 
+  --fondo: url("../img/fondo.jpg");
   --bg: #0b1220;
   --card: #1b2537cc;
   --card-hover: #374b72cc;
   --text: #e9eef7;
   --muted: #a9b3c7;
-  --brand: #5cc8ff;
+  --brand: #0317ccb4;
   --ok: #2ecc71;
-  --warn: #ffb020;
+  --warn: #f1c40f;
   --info: #5fa8ff;
   --accent: #6c5ce7;
-  --danger: #4ea3a5;
-  --espacio-sm: 8px;
-  --espacio-md: 16px;
-  --borde-md: 8px;
-  --borde-lg: 12px;
-  --transicion-rapida: 0.2s ease;
-  --fuente-sm: 14px;
-  --sombra-lg: 0 15px 35px rgba(0, 0, 0, 0.45);
-  --sombra-md: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --danger: #e74c3c;
+  --radius: 8px;
   --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  --radius: 18px;
 
   /* Variables específicas de login */
   --fondo-login: url('../img/fondo.jpg');
@@ -68,13 +73,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 body {
   height: 100vh;
- background: 
-    var(--fondo-login);
+  background: var(--fondo-login);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -83,8 +87,8 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 20px;
-  color: var(--color-texto);
+  padding: var(--pad-sm);
+  color: var(--text);
 }
 /* ================================ */
 /* ESTILOS PARA BOTÓN DE IDIOMA */
@@ -92,31 +96,35 @@ body {
 
 .idioma-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: var(--pad-sm);
+  right: var(--pad-sm);
   z-index: 1000;
 }
 
 .boton-idioma {
+  /* Touch target 44px+ */
+  width: clamp(44px, 12vw, 52px);
+  height: clamp(44px, 12vw, 52px);
   /* Apariencia de botón azul redondeado */
   background: var(--color-botones);
   color: var(--color-texto-botones);
   border: none;
-  border-radius: 25px;
-  padding: 10px 20px;
+  border-radius: var(--radius);
+  padding: var(--pad-xs);
   cursor: pointer;
   transition: all 0.3s ease;
   
   /* Tipografía y alineación */
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: var(--fs-sm);
   font-weight: bold;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: var(--pad-xs);
   
   /* Efectos visuales */
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: var(--shadow);
 }
 
 .boton-idioma:hover {
@@ -135,15 +143,15 @@ body {
 
 .ayuda-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: var(--pad-sm);
+  right: var(--pad-sm);
   z-index: 1000;
 }
 
 .boton-ayuda {
-  /* Círculo con icono */
-  width: 50px;
-  height: 50px;
+  /* Touch target 44px+ */
+  width: clamp(44px, 12vw, 52px);
+  height: clamp(44px, 12vw, 52px);
   background: var(--color-botones);
   color: var(--color-texto-botones);
   border: none;
@@ -157,7 +165,7 @@ body {
   justify-content: center;
   
   /* Efectos visuales */
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: var(--shadow);
 }
 
 .boton-ayuda:hover {
@@ -205,31 +213,31 @@ body {
   }
 }
 .titulo {
-  padding: 10px 50px;
-  color: var(--color-texto);
-  border-radius: 30px;
+  padding: var(--pad-sm) var(--pad-md);
+  color: var(--text);
+  border-radius: var(--radius);
   background-color: var(--color-fondo-titulo);
-  margin-bottom: 20px;
-  font-size: var(--tamaño-titulo);
+  margin-bottom: var(--pad-md);
+  font-size: var(--fs-xl);
   text-align: center;
 }
 
 .contenedor {
   text-align: center;
   background: var(--card);
-  padding: 40px;
-  border-radius: 10px;
+  padding: var(--pad-lg);
+  border-radius: var(--radius);
   border: 1px solid var(--color-borde);
-  max-width: 400px;
+  max-width: clamp(350px, 90vw, 450px);
   width: 100%;
-  color: var(--color-texto);
+  color: var(--text);
 }
 
 .formulario {
   border: 1px solid var(--color-borde);
-  padding: 20px;
+  padding: var(--pad-md);
   background: var(--color-fondo-formulario);
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 
 .formulario form input {
