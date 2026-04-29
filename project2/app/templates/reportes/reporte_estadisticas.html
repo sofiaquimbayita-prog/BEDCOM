@@ -238,8 +238,8 @@
             {% for metric, value in estadisticas %}
                 {% if forloop.counter <= 4 %}
                 <div class="stats-card">
-                    <div class="stats-label">{{ metric|trim }}</div>
-                    <div class="stats-value {% if forloop.first %}highlight{% endif %}">{{ value|trim }}</div>
+                    <div class="stats-label">{{ metric|default:"N/A" }}</div>
+                    <div class="stats-value {% if forloop.first %}highlight{% endif %}">{{ value|default:"N/A" }}</div>
                 </div>
                 {% endif %}
             {% endfor %}
@@ -252,8 +252,8 @@
             {% for metric, value in estadisticas %}
                 {% if forloop.counter > 4 and forloop.counter <= 12 %}
                 <div class="stats-card">
-                    <div class="stats-label">{{ metric|trim }}</div>
-                    <div class="stats-value {% if 'Crítico' in metric %}warning{% endif %}">{{ value|trim }}</div>
+                    <div class="stats-label">{{ metric|default:"N/A" }}</div>
+                    <div class="stats-value {% if 'Crítico' in metric %}warning{% endif %}">{{ value|default:"N/A" }}</div>
                 </div>
                 {% endif %}
             {% endfor %}
@@ -266,8 +266,8 @@
             {% for metric, value in estadisticas %}
                 {% if forloop.counter > 12 %}
                 <div class="stats-card">
-                    <div class="stats-label">{{ metric|trim }}</div>
-                    <div class="stats-value {% if 'Proceso' in metric %}info{% endif %}">{{ value|trim }}</div>
+                    <div class="stats-label">{{ metric|default:"N/A" }}</div>
+                    <div class="stats-value {% if 'Proceso' in metric %}info{% endif %}">{{ value|default:"N/A" }}</div>
                 </div>
                 {% endif %}
             {% endfor %}
