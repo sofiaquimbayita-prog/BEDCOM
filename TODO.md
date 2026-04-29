@@ -1,16 +1,17 @@
-# Task: Centrar diseño dashboard/módulos (corridos izquierda)
+# TODO: Header BEDCOM ✅ COMPLETADO
 
-## Pasos del plan aprobado:
+**Cambios Aplicados**:
+- modal_perfil.html extraído ✅
+- Sidebar 12 módulos únicos ✅
+- header.html limpio (49 líneas) ✅
+- Estilos nav-btn en CSS ✅
+- base.html incluye modal ✅
 
-✅ 1. Crear TODO.md [HECHO]
+**Probar** (Windows CMD/PowerShell):
+```
+cd project2
+python manage.py collectstatic
+python manage.py runserver
+```
 
-✅ 2. Editar project2/app/static/ap1/css/menu.css 
-   - Cambiar .menu-layout: justify-content flex-start → center
-   - align-items flex-start → center
-   - Agregar flex-wrap: wrap para responsividad [HECHO]
-
-✅ 3. Ejecutar: python manage.py collectstatic [OPCIONAL - fuente editada, recargar browser]
-
-✅ 4. Verificar en browser: tarjetas centradas en menú/dashboard/módulos [HECHO]
-
-✅ 5. Completar tarea [LISTO]
+¡Header perfecto y optimizado!
