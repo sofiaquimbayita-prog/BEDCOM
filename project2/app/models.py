@@ -464,6 +464,7 @@ class salida_producto(models.Model):
 
 
 # --- MODELO DE HISTORIAL DE ACCIONES (LOG) ---
+
 class historial_acciones(models.Model):
     TIPO_ACCION_CHOICES = [
         ('crear', 'Crear'),
@@ -493,6 +494,7 @@ class historial_acciones(models.Model):
         ('reportes', 'Reportes'),
         ('respaldos', 'Respaldos'),
         ('sistema', 'Sistema'),
+        ('notificaciones', 'Notificaciones'),
     ]
 
     fecha = models.DateTimeField(auto_now_add=True)
@@ -513,33 +515,57 @@ class historial_acciones(models.Model):
         db_table = "historial_acciones"
         ordering = ['-fecha']
 
+
+# =====================================================
+# NUEVO MODELO: NOTIFICACIONES COMPLETAS
+# =====================================================
 class Notificacion(models.Model):
-    TIPO_PRODUCTO_BAJO = 'producto_bajo'
-    TIPO_EVENTO_HOY = 'evento_hoy'
-    TIPO_EVENTO_MANANA = 'evento_manana'
-    TIPO_EVENTO_VENCIDO = 'evento_vencido'
-
+    # Tipos específicos del requerimiento
     TIPO_CHOICES = [
-        (TIPO_PRODUCTO_BAJO, 'Producto bajo stock'),
-        (TIPO_EVENTO_HOY, 'Evento hoy'),
-        (TIPO_EVENTO_MANANA, 'Evento mañana'),
-        (TIPO_EVENTO_VENCIDO, 'Evento vencido'),
+        ('bajo_stock_insumo', 'Bajo stock insumo'),
+        ('bajo_stock_producto', 'Bajo stock producto'),
+        ('calendario_hoy', 'Evento Calendario HOY'),
+        ('calendario_manana', 'Evento Calendario MAÑANA'),
+        ('pendido_despacho', 'Despacho pendiente'),
+        ('sin_bom', 'Producto sin receta BOM'),
+        ('reporte_generado', 'Reporte generado'),
+        ('despacho_completado', 'Despacho completado'),
+        ('pago_pendiente', 'Pedido pago pendiente'),
     ]
-
-    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
-    titulo = models.CharField(max_length=100)  # Nombre producto/evento
-    mensaje = models.CharField(max_length=200)  # Detalle
-    fecha_notificacion = models.DateTimeField(auto_now_add=True)
+    
+    tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    titulo = models.CharField(max_length=100)
+    mensaje = models.TextField()
     leida = models.BooleanField(default=False)
-    relacionada_id = models.PositiveIntegerField(null=True, blank=True)  # ID producto/calendario
-    relacionada_tipo = models.CharField(max_length=20, null=True, blank=True)  # 'producto' or 'calendario'
-
-    def __str__(self):
-        return f"{self.get_tipo_display()} - {self.titulo}"
-
+    fecha_notif = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey('usuario', on_delete=models.CASCADE, related_name='notificaciones')
+    target_id = models.PositiveIntegerField(null=True, blank=True, help_text="ID del modelo relacionado")
+    data_json = models.JSONField(default=dict, blank=True, help_text="Datos extra: {producto_id:1, stock:3}")
+    
     class Meta:
         verbose_name = "Notificación"
         verbose_name_plural = "Notificaciones"
         db_table = "notificaciones"
-        ordering = ['-fecha_notificacion']
+        ordering = ['-fecha_notif']
+        indexes = [models.Index(fields=['leida', 'fecha_notif'])]
+    
+    def __str__(self):
+        return f"{self.titulo} ({self.user.username}) - {self.fecha_notif.strftime('%d/%m %H:%M')}"
+    
+    @property
+    def relacionada(self):
+        """Retorna objeto relacionado basado en tipo"""
+        from django.apps import apps
+        if not self.target_id:
+            return None
+        tipo_map = {
+            'bajo_stock_producto': 'app.producto',
+            'bajo_stock_insumo': 'app.insumo',
+            'pendido_despacho': 'app.despacho',
+            'pago_pendiente': 'app.pedido',
+            'sin_bom': 'app.producto',
+        }
+        model_name = tipo_map.get(self.tipo, 'app.producto')
+        model = apps.get_model(*model_name.split('.'))
+        return model.objects.filter(id=self.target_id).first()
 

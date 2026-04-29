@@ -338,26 +338,12 @@
     margin-top: 6px;
 }
 
-/* Bottom Grid */
-.bottom-grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 24px;
-}
+    grid-template-columns: 1fr 1fr;\n    align-items: stretch;\n    min-height: 400px;
 
-@media(max-width: 1100px) {
-    .bottom-grid { grid-template-columns: 1fr; }
-}
+@media(max-width: 1100px) {\n    .bottom-grid { \n        grid-template-columns: 1fr;\n    }\n}
 
 /* Panel Styles */
-.panel {
-    background: var(--mon-surface);
-    border: 1px solid var(--mon-border);
-    border-radius: var(--mon-radius);
-    backdrop-filter: none;
-    overflow: hidden;
-    animation: fadeUp 0.5s 0.25s ease both;
-}
+.panel {\n    background: var(--mon-surface);\n    border: 1px solid var(--mon-border);\n    border-radius: var(--mon-radius);\n    height: 100%;\n    backdrop-filter: none;\n    overflow: hidden;\n    animation: fadeUp 0.5s 0.25s ease both;\n}
 
 .panel-header {
     display: flex;

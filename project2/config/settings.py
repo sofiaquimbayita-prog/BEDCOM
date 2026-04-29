@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     
     'usuarios',
     'widget_tweaks',
+    'webpush'
 ]
 AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
 
@@ -160,3 +161,13 @@ LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
+
+
+#-------------------------------------------------------------------------------------
+# 11. NOTIFICIONES PUSH (WEBPUSH)
+#-------------------------------------------------------------------------------------
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": "BLjn-B3mEGtJrzWJro80zJPp2vBkD7kbqs9Lmk6dFm776AzHz-itrdZEAH23UDE1r9Ncy34o14XUE3E4QzxTR50",
+    "VAPID_PRIVATE_KEY": "3vNfCBBg7NEK0II_mlty6WjkpXSt-_8f9aKjRBHh7W4",
+    "VAPID_ADMIN_EMAIL": "porprobar221@gmail.com"
+}

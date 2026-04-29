@@ -14,7 +14,7 @@ urlpatterns = [
     # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
     path('api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial_alias'),
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis_alias'),
-    path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones_alias'),
+
 
     # --- ENTRADA DE PRODUCTOS ---
     path('entrada_p/', entrada_p.EntradaListView.as_view(), name='entrada_p'),
@@ -83,7 +83,12 @@ urlpatterns = [
     path('monitoreo/', monitoreo.MonitoreoView.as_view(), name='monitoreo'),
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
     path('monitoreo/api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial'),
+    path('monitoreo/test-notif/', monitoreo.test_notificacion, name='test_notif'),
+    # --- NUEVAS URLs NOTIFICACIONES - PASO 3 ---
     path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
+    path('monitoreo/api/notif-read/<int:pk>/', monitoreo.api_mark_read, name='api_mark_read'),
+    path('monitoreo/api/check-triggers/', monitoreo.api_check_triggers, name='api_check_triggers'),
+
 
     # --- PROVEEDORES ---
     path('proveedores/', proveedores.ProveedorListView.as_view(), name='proveedores_list'),
