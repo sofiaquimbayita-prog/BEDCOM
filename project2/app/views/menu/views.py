@@ -33,7 +33,7 @@ def get_perfil(request):
                 'telefono': usuario_obj.telefono or '',
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
-                'foto_perfil': usuario_obj.foto_perfil.url if usuario_obj.foto_perfil else None
+                'foto_perfil': usuario_obj.foto_usua.url if usuario_obj.foto_usua else None
             }
         })
     except usuario.DoesNotExist:
@@ -88,7 +88,7 @@ def update_perfil(request):
         
         # Foto perfil
         if 'foto_perfil' in request.FILES:
-            usuario_obj.foto_perfil = request.FILES['foto_perfil']
+            usuario_obj.foto_usua = request.FILES['foto_perfil']
         
         usuario_obj.save()
         
@@ -103,7 +103,7 @@ def update_perfil(request):
                 'telefono': usuario_obj.telefono,
                 'rol': usuario_obj.rol,
                 'estado': usuario_obj.estado,
-                'foto_perfil': usuario_obj.foto_perfil.url if usuario_obj.foto_perfil else None
+                'foto_perfil': usuario_obj.foto_usua.url if usuario_obj.foto_usua else None
             },
             'message': 'Perfil actualizado correctamente'
         })

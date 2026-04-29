@@ -1,9 +1,1 @@
-# TODO: Implement AI Provider Listing Fix
-
-## Plan Breakdown
-1. [ ] Create TODO.md with steps (current)
-2. ✅ Edit project2/ia/services.py: Update provider loop to numbered/bold/full format
-3. ✅ Edit project2/ia/services.py: Update prompt rule 2 and example
-4. ✅ Test in Django shell (run manually: cd /d project2 && python manage.py shell, then: from ia.services import consultar_bd_con_ia; print(consultar_bd_con_ia("lista proveedores", [])) )
-5. ✅ Task complete - refined prompt for perfect line break formatting (lower temp, strict rule, real data example)
-
+# TODO: Fix abrirModalIA not defined - COMPLETED\n\nSteps completed:\n1. ✅ Understood issue via search_files and read_files\n2. ✅ Created edit plan and got approval\n3. ✅ Edited project2/app/static/ap1/js/script_ia.js with missing functions: abrirModalIA, cerrarModalIA, enviarConsultaIA, escucharVoz (adapted for modal IDs)\n4. ✅ Ran `cd project2; python manage.py collectstatic --noinput` (1 file copied, static updated)\n5. ✅ Verified backend endpoint in ia/views.py exists and matches\n6. ✅ Functions now defined globally, modal should work without ReferenceError\n\nReload your Django development server and test the IA floating button on any page (e.g., menu). No further issues expected.

@@ -1,9 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-# --- MODELOS BASE ---
-
-
 class categoria(models.Model):
     TIPO_PRODUCTO = 'producto'
     TIPO_INSUMO = 'insumo'
@@ -201,7 +198,6 @@ class garantia (models.Model):
     id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
 
     def __str__(self):
-        # Corregido: El campo 'duracion_meses' no existe. Retorna info básica.
         return f"Garantia para producto {self.id_producto_id}"
 
     class Meta:

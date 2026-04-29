@@ -11,10 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --------------------------------------------------------------------------
 SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g'
 
-# IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
+# IMPORTANTE: DEBUG = True para desarrollo. Cámbialo a False en producción.
 DEBUG = True 
 
-# Dominios permitidos para acceder al servidor
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 # --------------------------------------------------------------------------
@@ -30,21 +29,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'app',
-    
     'axes',
-    
     'usuarios',
     'ia',
     'widget_tweaks',
 ]
-AUTH_USER_MODEL = 'app.usuario'  # Uncomment after migrations if needed
+
+AUTH_USER_MODEL = 'app.usuario' 
 
 # --------------------------------------------------------------------------
 # 4. MIDDLEWARE (EL ORDEN ES CRÍTICO AQUÍ)
 # --------------------------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Para servir CSS/JS en DEBUG=False
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,7 +52,7 @@ MIDDLEWARE = [
     
     # Middlewares personalizados
     'app.middleware.AuthenticationRedirectMiddleware',
-    'axes.middleware.AxesMiddleware',  # Vigilante de fuerza bruta
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -81,7 +79,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # --------------------------------------------------------------------------
-# 6. BASE DE DATOS
+# 6. BASE DE DATOS (MYSQL - BEDCOM)
 # --------------------------------------------------------------------------
 DATABASES = {
     'default': {
@@ -98,27 +96,22 @@ DATABASES = {
 # 7. AUTENTICACIÓN Y BLOQUEO
 # --------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesBackend',                 # Verifica bloqueos antes que nada
-    'app.backends.EmailBackend',                # Login por Email
-    'django.contrib.auth.backends.ModelBackend', # Login por Username (respaldo)
+    'axes.backends.AxesBackend',
+    'app.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Configuración de Django-Axes
-AXES_FAILURE_LIMIT = 3               # Intentos permitidos
-AXES_COOLOFF_TIME = 0.5             # Horas que dura el bloqueo
-AXES_RESET_ON_SUCCESS = True         # Limpia fallos si el usuario entra bien
+AXES_FAILURE_LIMIT = 3
+AXES_COOLOFF_TIME = 0.5
+AXES_RESET_ON_SUCCESS = True
 
 # --------------------------------------------------------------------------
 # 8. ARCHIVOS ESTÁTICOS (CSS, JS, IMÁGENES)
 # --------------------------------------------------------------------------
 STATIC_URL = 'static/'
-
-# Carpeta donde están tus archivos originales
 STATICFILES_DIRS = [
     BASE_DIR / 'app' / 'static',
 ]
-
-# Carpeta donde WhiteNoise servirá los archivos en producción
 STATIC_ROOT = BASE_DIR / 'staticfiles' 
 
 STORAGES = {
@@ -136,20 +129,17 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Configuración para enviar correos reales
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'porprobar221@gmail.com'
-EMAIL_HOST_PASSWORD = 'fitnkymdfulxiceg'  
+EMAIL_HOST_PASSWORD = 'fitnkymdfulxiceg' 
 DEFAULT_FROM_EMAIL = 'Sistema BEDCOM <porprobar221@gmail.com>'
 
-# Redirecciones
 LOGIN_REDIRECT_URL = 'menu'  
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login:login'
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -160,3 +150,17 @@ LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# --------------------------------------------------------------------------
+# 11. CONFIGURACIÓN LUNA IA (PIPER - VOZ DE DANIELA)
+# --------------------------------------------------------------------------
+# Basado en tu estructura: media/piper/
+PIPER_BASE_DIR = MEDIA_ROOT / 'piper'
+
+PIPER_CONFIG = {
+    'EXE': PIPER_BASE_DIR / 'piper.exe',
+    'MODEL': PIPER_BASE_DIR / 'es_AR-daniela-high.onnx',
+}
+
+# Carpeta para guardar audios generados temporalmente
+LUNA_VOICES_DIR = MEDIA_ROOT / 'luna_voces'
