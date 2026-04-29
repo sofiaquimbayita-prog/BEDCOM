@@ -1,4 +1,3 @@
-from django.db.models import Q, Exists, OuterRef
 from django.views import View
 from django.views.generic import TemplateView
 from django.http import JsonResponse
@@ -6,9 +5,10 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from django.db import transaction
 
 from django.contrib.auth.decorators import login_required
-from app.models import producto, salida_producto, usuario, historial_acciones, detalle_pedido, pedido, bom
+from app.models import producto, salida_producto, usuario, historial_acciones, bom, insumo
 from app.forms import SalidaProductoForm
 
 
@@ -22,23 +22,6 @@ class SalidaProductoCreateView(View):
 
         if form.is_valid():
             salida = form.save(commit=False)
-            producto_obj = salida.id_producto
-
-            # Check pendiente (redundante con form, pero safety)
-
-            if producto_obj.has_pendidos():
-                return JsonResponse({
-                    'success': False,
-                    'message': 'No se genera salida de producto pendiente'
-                })
-
-
-            if salida.cantidad > producto_obj.stock:
-                return JsonResponse({
-                    'success': False,
-                    'message': f'No hay suficiente stock. Stock disponible: {producto_obj.stock}'
-                })
-
 
             if salida.cantidad <= 0:
                 return JsonResponse({
@@ -68,9 +51,58 @@ class SalidaProductoCreateView(View):
             responsable_nombre = str(salida.responsable)
             salida.responsable = responsable_nombre
 
-            producto_obj.stock -= salida.cantidad
-            producto_obj.save()
-            salida.save()
+            with transaction.atomic():
+                producto_obj = producto.objects.select_for_update().get(pk=salida.id_producto_id)
+                recetas = list(bom.objects.filter(producto=producto_obj).select_related('insumo'))
+
+                if not recetas:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Este producto requiere una receta (BOM) antes de registrar salidas'
+                    })
+
+                if salida.cantidad > producto_obj.stock:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'No hay suficiente stock. Stock disponible: {producto_obj.stock}'
+                    })
+
+                insumos_bloqueados = {
+                    item.id: item
+                    for item in insumo.objects.select_for_update().filter(
+                        id__in=[receta.insumo_id for receta in recetas]
+                    )
+                }
+                errores_insumos = []
+
+                for receta in recetas:
+                    insumo_obj = insumos_bloqueados[receta.insumo_id]
+                    cantidad_necesaria = receta.cantidad * salida.cantidad
+
+                    if insumo_obj.cantidad < cantidad_necesaria:
+                        errores_insumos.append(
+                            f"No hay suficiente stock de '{insumo_obj.nombre}'. "
+                            f"Se necesitan {cantidad_necesaria} {receta.unidad_medida}, "
+                            f"pero solo hay {insumo_obj.cantidad}."
+                        )
+
+                if errores_insumos:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Stock insuficiente de insumos',
+                        'errors': {'insumos': errores_insumos}
+                    })
+
+                producto_obj.stock -= salida.cantidad
+                producto_obj.save()
+
+                for receta in recetas:
+                    insumo_obj = insumos_bloqueados[receta.insumo_id]
+                    insumo_obj.cantidad -= receta.cantidad * salida.cantidad
+                    insumo_obj.save()
+
+                salida.id_producto = producto_obj
+                salida.save()
 
             # REGISTRO HISTORIAL - AGREGADO
             if request.user.is_authenticated:
@@ -100,20 +132,34 @@ class SalidaProductoCreateView(View):
 class SalidaProductoAnularView(View):
     def post(self, request, pk):
         try:
-            salida = salida_producto.objects.get(pk=pk)
+            with transaction.atomic():
+                salida = salida_producto.objects.select_for_update().select_related('id_producto').get(pk=pk)
 
-            if not salida.estado:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Esta salida ya está anulada'
-                })
+                if not salida.estado:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Esta salida ya está anulada'
+                    })
 
-            producto_obj = salida.id_producto
-            producto_obj.stock += salida.cantidad
-            producto_obj.save()
+                producto_obj = producto.objects.select_for_update().get(pk=salida.id_producto_id)
+                recetas = list(bom.objects.filter(producto=producto_obj).select_related('insumo'))
+                insumos_bloqueados = {
+                    item.id: item
+                    for item in insumo.objects.select_for_update().filter(
+                        id__in=[receta.insumo_id for receta in recetas]
+                    )
+                }
 
-            salida.estado = False
-            salida.save()
+                producto_obj.stock += salida.cantidad
+                producto_obj.save()
+
+                for receta in recetas:
+                    insumo_obj = insumos_bloqueados[receta.insumo_id]
+                    insumo_obj.cantidad += receta.cantidad * salida.cantidad
+                    insumo_obj.save()
+
+                salida.estado = False
+                salida.save()
 
             # REGISTRO HISTORIAL - AGREGADO
             if request.user.is_authenticated:
@@ -166,15 +212,8 @@ class SalidaProductoView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Salida de Productos - BEDCOM"
         
-        # Filtrar productos activos que no están pendientes
-        productos_activos = producto.objects.filter(estado=True)
-        productos_filtrados = []
-        
-        for prod in productos_activos:
-            if not prod.has_pendidos():
-                productos_filtrados.append(prod)
-        
-        context['productos'] = productos_filtrados
+        # Mostrar todos los productos activos en el selector de salida.
+        context['productos'] = producto.objects.filter(estado=True).order_by('nombre')
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()
 
