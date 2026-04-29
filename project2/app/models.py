@@ -162,10 +162,36 @@ class producto(models.Model):
     def __str__(self):
         return self.nombre
 
+    def tiene_receta(self):
+        """Verifica si el producto tiene receta BOM (cached)"""
+        from django.core.cache import cache
+        cache_key = f"producto_receta_{self.pk}"
+        result = cache.get(cache_key)
+        if result is None:
+            result = bom.objects.filter(producto_id=self.pk).exists()
+            cache.set(cache_key, result, 300)  # 5 min cache para testing rápido
+        return result
+        
+
+    def has_pendidos(self):
+        """True si tiene BOM O pedidos pendientes"""
+        from app.models import detalle_pedido
+        return (self.tiene_receta() or 
+                detalle_pedido.objects.filter(producto=self, pedido__estado='Pendiente').exists())
+
+    def limpiar_cache_receta(self):
+        """Limpia cache específico del producto"""
+        from django.core.cache import cache
+        cache_key = f"producto_receta_{self.pk}"
+        cache.delete(cache_key)
+
+
+
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
         db_table = "productos"
+
 
 
 # --- MODELO DE ENTRADA DE PRODUCTOS ---

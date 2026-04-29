@@ -11,6 +11,21 @@ from django.template.loader import render_to_string
 from datetime import datetime
 import io
 import base64
+import re
+
+# ====== UTILIDADES COMPARTIDAS ======
+def sanitize_value(value):
+    """Limpia texto para evitar saltos de línea y caracteres de escape en exportes."""
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        text = value.replace('\\r', ' ').replace('\\n', ' ').replace('\\t', ' ')
+        text = text.replace('\r', ' ').replace('\n', ' ').replace('\t', ' ')
+        text = re.sub(r'\\s{2,}', ' ', text).strip()
+        text = re.sub(r'(.)\\1{2,}', r'\\1\\1', text)
+        return text
+    return value
+
 
 # ====== EXPORTACIÓN A PDF ======
 def exportar_pdf(titulo, columnas, datos, nombre_archivo, contexto_extra=None):
@@ -24,7 +39,7 @@ def exportar_pdf(titulo, columnas, datos, nombre_archivo, contexto_extra=None):
     contexto = {
         'titulo': titulo,
         'columnas': columnas,
-        'datos': datos,
+        'datos': [[sanitize_value(valor) if isinstance(valor, str) else valor for valor in fila] for fila in datos],
         'now': fecha_actual,
     }
     
@@ -76,7 +91,12 @@ def exportar_excel(titulo, columnas, datos, nombre_archivo):
         cell.alignment = alignment
 
     # Escribir datos
-    for row_num, fila in enumerate(datos, 4):
+    safe_datos = [
+        [sanitize_value(valor) if isinstance(valor, str) else valor for valor in fila]
+        for fila in datos
+    ]
+
+    for row_num, fila in enumerate(safe_datos, 4):
         for col_num, valor in enumerate(fila, 1):
             cell = ws.cell(row=row_num, column=col_num, value=valor)
             cell.alignment = Alignment(horizontal="left")
@@ -110,6 +130,14 @@ def exportar_pdf_estadisticas(titulo, estadisticas, nombre_archivo, contexto_ext
     
     if contexto_extra:
         contexto.update(contexto_extra)
+
+    contexto['estadisticas'] = [
+        (
+            sanitize_value(metric) if isinstance(metric, str) else metric,
+            sanitize_value(value) if isinstance(value, str) else value,
+        )
+        for metric, value in estadisticas
+    ]
     
     # Generar HTML desde el template especializado para estadísticas
     html_string = render_to_string('reportes/reporte_estadisticas.html', contexto)

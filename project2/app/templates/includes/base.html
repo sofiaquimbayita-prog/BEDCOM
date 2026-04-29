@@ -28,10 +28,12 @@
     {# Envolvemos el header en un bloque para que sea accesible #}
     {% block header %}
         {% include 'includes/header.html' %} 
+        {% include 'includes/modal_perfil.html' %}
     {% endblock %}
 
     <!-- Module Navigation Sidebar -->
     <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
+
         
         <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
@@ -55,10 +57,6 @@
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>CALENDARIO</span>
             </a>
-            <a href="{% url 'categorias' %}" class="sidebar-module-item" title="Gestión de categorías">
-                <i class="fa-solid fa-tags"></i>
-                <span>CATEGORÍAS</span>
-            </a>
             <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
                 <i class="fa-solid fa-plus-circle"></i>
                 <span>ENTRADA PRODUCTOS</span>
@@ -66,14 +64,6 @@
             <a href="{% url 'inventario' %}" class="sidebar-module-item" title="Existencias">
                 <i class="fa-solid fa-warehouse"></i>
                 <span>EXISTENCIAS</span>
-            </a>
-            <a href="{% url 'insumos' %}" class="sidebar-module-item" title="Entradas y stock">
-                <i class="fa-solid fa-box-open"></i>
-                <span>INSUMOS</span>
-            </a>
-            <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
-                <i class="fa-solid fa-bed"></i>
-                <span>PRODUCTOS</span>
             </a>
             <a href="{% url 'proveedores_list' %}" class="sidebar-module-item" title="Contactos & pagos">
                 <i class="fa-solid fa-truck-field"></i>

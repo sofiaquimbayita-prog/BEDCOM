@@ -31,7 +31,6 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
 
 <main class="bom-gestion">
@@ -111,12 +110,17 @@
             
             <div class="form-group">
                 <label>PRODUCTO</label>
-                <select name="producto" id="recetaProducto" required>
-                    <option value="" disabled selected>Seleccione un producto</option>
-                    {% for p in productos %}
-                    <option value="{{ p.id }}">{{ p.nombre }}</option>
-                    {% endfor %}
-                </select>
+                <div style="position: relative;">
+                    <select name="producto" id="recetaProducto" required>
+                        <option value="" disabled selected>Seleccione un producto</option>
+                        {% for p in productos %}
+                        <option value="{{ p.id }}">{{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" onclick="abrirModal('BOM_AGREGAR_PRODUCTO')" class="btn-nuevo-producto" title="Crear nuevo producto">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -328,7 +332,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     // Inicializar la lista de productos con receta desde el template Django
     var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};

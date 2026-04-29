@@ -26,11 +26,38 @@ function abrirModalSalida() {
                 var stockInput = document.getElementById('stockDisponible');
                 var selectedOption = productoSelect.options[productoSelect.selectedIndex];
                 var stock = selectedOption.getAttribute('data-stock');
+                var pendiente = selectedOption.getAttribute('data-pendiente') === 'true';
 
                 if (stock && stock !== "null" && stock !== "") {
                     if (stockInput) stockInput.value = stock + " unidades";
                 } else {
                     if (stockInput) stockInput.value = "";
+                }
+
+                // Verificar si el producto está pendiente
+                var btnSave = document.querySelector('.btn-save');
+                var errorProducto = document.getElementById('errorProducto');
+                
+                if (pendiente) {
+                    if (errorProducto) {
+                        errorProducto.textContent = 'No se puede generar salida de un producto pendiente';
+                        errorProducto.style.display = 'block';
+                    }
+                    if (btnSave) {
+                        btnSave.disabled = true;
+                        btnSave.style.opacity = '0.5';
+                        btnSave.title = 'Producto pendiente - no se puede registrar salida';
+                    }
+                } else {
+                    if (errorProducto) {
+                        errorProducto.textContent = '';
+                        errorProducto.style.display = 'none';
+                    }
+                    if (btnSave) {
+                        btnSave.disabled = false;
+                        btnSave.style.opacity = '1';
+                        btnSave.title = '';
+                    }
                 }
             };
         }
