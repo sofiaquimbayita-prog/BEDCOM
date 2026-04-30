@@ -214,7 +214,7 @@ def api_check_triggers(request):
     )
     for ev in eventos_manana:
         Notificacion.objects.get_or_create(
-            user=user, tipo='calendario_manana', target_id=ev.id,
+            user=user, tipo='calendario_manaña', target_id=ev.id,
             defaults={
                 'titulo': f"Evento MAÑANA: {ev.titulo}",
                 'mensaje': f"Preparar: {ev.titulo} - {ev.hora}",

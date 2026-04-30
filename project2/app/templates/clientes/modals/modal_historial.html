@@ -15,27 +15,64 @@
       <span id="histCliNombre"></span>
     </div>
 
-    <!-- Resumen deuda -->
-    <div class="deuda-resumen" id="histDeudaResumen">
-      <div class="deuda-item">
-        <div class="deuda-valor" id="histTotalPedidos">0</div>
-        <div class="deuda-label">Pedidos</div>
+    <div style="display:flex; gap:20px; border-bottom:1px solid #ddd; margin-bottom:15px; padding-bottom:5px;">
+      <button id="tabPedidos" style="background:none; border:none; padding:5px 10px; font-weight:bold; color:var(--color-primario); border-bottom:2px solid var(--color-primario); cursor:pointer;">Pedidos</button>
+      <button id="tabPagos" style="background:none; border:none; padding:5px 10px; font-weight:bold; color:#777; cursor:pointer;">Pagos</button>
+    </div>
+
+    <!-- Pestaña Pedidos -->
+    <div id="contentPedidos">
+      <!-- Resumen deuda -->
+      <div class="deuda-resumen" id="histDeudaResumen">
+        <div class="deuda-item">
+          <div class="deuda-valor" id="histTotalPedidos">0</div>
+          <div class="deuda-label">Pedidos</div>
+        </div>
+        <div class="deuda-item">
+          <div class="deuda-valor" id="histTotalFacturado">$0</div>
+          <div class="deuda-label">Total Facturado</div>
+        </div>
+        <div class="deuda-item deuda-item--alert" id="histDeudaCard">
+          <div class="deuda-valor deuda-valor--alert" id="histDeudaTotal">$0</div>
+          <div class="deuda-label">Deuda Pendiente</div>
+        </div>
       </div>
-      <div class="deuda-item">
-        <div class="deuda-valor" id="histTotalFacturado">$0</div>
-        <div class="deuda-label">Total Facturado</div>
+      <!-- Lista de pedidos -->
+      <div class="seccion-titulo"><i class="fas fa-list"></i> Pedidos Registrados</div>
+      <div id="histPedidosList"></div>
+    </div>
+
+    <!-- Pestaña Pagos -->
+    <div id="contentPagos" style="display:none;">
+      <!-- Resumen Pagos -->
+      <div class="deuda-resumen">
+        <div class="deuda-item">
+          <div class="deuda-valor" id="histPagosTotalPagos">0</div>
+          <div class="deuda-label">Pagos Registrados</div>
+        </div>
+        <div class="deuda-item deuda-item--alert">
+          <div class="deuda-valor deuda-valor--alert" id="histPagosTotalPagado">$0</div>
+          <div class="deuda-label">Total Pagado</div>
+        </div>
       </div>
-      <div class="deuda-item deuda-item--alert" id="histDeudaCard">
-        <div class="deuda-valor deuda-valor--alert" id="histDeudaTotal">$0</div>
-        <div class="deuda-label">Deuda Pendiente</div>
+      <!-- Tabla de pagos -->
+      <div class="seccion-titulo"><i class="fas fa-list"></i> Pagos Realizados</div>
+      <div class="items-tabla-wrap">
+        <table class="items-tabla">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Pedido #</th>
+              <th>Total Pedido</th>
+              <th>Monto Pagado</th>
+            </tr>
+          </thead>
+          <tbody id="histPagosBody"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Lista de pedidos -->
-    <div class="seccion-titulo"><i class="fas fa-list"></i> Pedidos Registrados</div>
-    <div id="histPedidosList"></div>
-
-    <div class="form-botones">
+    <div class="form-botones" style="margin-top:20px;">
       <button class="btn-cancelar" data-close="modalHistorial">Cerrar</button>
     </div>
   </div>

@@ -37,10 +37,64 @@
         
         <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
-            <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
-                <i class="fa-solid fa-sitemap"></i>
-                <span>BOM/RECETAS</span>
-            
+            <!-- DASHBOARDS PRINCIPALES -->
+            <div class="sidebar-group-title">DASHBOARDS</div>
+            <a href="{% url 'menu' %}" class="sidebar-module-item" title="Menú Principal">
+                <i class="fa-solid fa-house"></i>
+                <span>MENÚ PRINCIPAL</span>
+            </a>
+            <a href="{% url 'logistica' %}" class="sidebar-module-item" title="Logística y Planeación">
+                <i class="fa-solid fa-truck-fast"></i>
+                <span>LOGÍSTICA Y PLANEACIÓN</span>
+            </a>
+            <a href="{% url 'suministros' %}" class="sidebar-module-item" title="Suministros">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>SUMINISTROS</span>
+            </a>
+            <a href="{% url 'gestion' %}" class="sidebar-module-item" title="Gestión de Datos">
+                <i class="fa-solid fa-database"></i>
+                <span>GESTIÓN DE DATOS</span>
+            </a>
+
+            <!-- LOGÍSTICA Y PLANEACIÓN -->
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-group-title">LOGÍSTICA</div>
+            <a href="{% url 'salida_producto' %}" class="sidebar-module-item" title="Movimientos">
+                <i class="fa-solid fa-file-export"></i>
+                <span>SALIDA DE PRODUCTOS</span>
+            </a>
+            <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
+                <i class="fa-solid fa-file-import"></i>
+                <span>ENTRADA PRODUCTOS</span>
+            </a>
+            <a href="{% url 'calendario' %}" class="sidebar-module-item" title="Fechas y reservas">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>CALENDARIO</span>
+            </a>
+            <a href="{% url 'clientes_list' %}" class="sidebar-module-item" title="Gestión de clientes">
+                <i class="fa-solid fa-users"></i>
+                <span>CLIENTES</span>
+            </a>
+            <a href="{% url 'pedido_list' %}" class="sidebar-module-item" title="Gestión de pedidos">
+                <i class="fa-solid fa-list-check"></i>
+                <span>PEDIDOS</span>
+            </a>
+            <a href="{% url 'despacho_list' %}" class="sidebar-module-item" title="Control entregas">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>DESPACHOS</span>
+            </a>
+            <a href="{% url 'garantias_list' %}" class="sidebar-module-item" title="Post-venta y reparaciones">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span>GARANTÍAS</span>
+            </a>
+
+            <!-- SUMINISTROS -->
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-group-title">SUMINISTROS</div>
+            <a href="{% url 'inventario' %}" class="sidebar-module-item" title="Existencias">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>EXISTENCIAS</span>
+            </a>
             <a href="{% url 'productos' %}" class="sidebar-module-item" title="Catálogo y precios">
                 <i class="fa-solid fa-bed"></i>
                 <span>PRODUCTOS</span>
@@ -53,22 +107,18 @@
                 <i class="fa-solid fa-box-open"></i>
                 <span>INSUMOS</span>
             </a>
-            <a href="{% url 'calendario' %}" class="sidebar-module-item" title="Fechas y reservas">
-                <i class="fa-solid fa-calendar-check"></i>
-                <span>CALENDARIO</span>
-            </a>
-            <a href="{% url 'entrada_p' %}" class="sidebar-module-item" title="Entradas de productos">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span>ENTRADA PRODUCTOS</span>
-            </a>
-            <a href="{% url 'inventario' %}" class="sidebar-module-item" title="Existencias">
-                <i class="fa-solid fa-warehouse"></i>
-                <span>EXISTENCIAS</span>
-            </a>
             <a href="{% url 'proveedores_list' %}" class="sidebar-module-item" title="Contactos & pagos">
                 <i class="fa-solid fa-truck-field"></i>
                 <span>PROVEEDORES</span>
             </a>
+            <a href="{% url 'bom_list' %}" class="sidebar-module-item" title="Estructuras de productos">
+                <i class="fa-solid fa-sitemap"></i>
+                <span>BOM/RECETAS</span>
+            </a>
+
+            <!-- GESTIÓN DE DATOS -->
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-group-title">GESTIÓN</div>
             <a href="{% url 'reportes' %}" class="sidebar-module-item" title="Gráficos y KPIs">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>REPORTES</span>
@@ -77,18 +127,10 @@
                 <i class="fa-solid fa-cloud-arrow-up"></i>
                 <span>RESPALDOS</span>
             </a>
-            <a href="{% url 'salida_producto' %}" class="sidebar-module-item" title="Movimientos">
-                <i class="fa-solid fa-file-export"></i>
-                <span>SALIDA DE PRODUCTOS</span>
-            </a>
             <a href="{% url 'monitoreo' %}" class="sidebar-module-item" title="Dashboard en tiempo real">
                 <i class="fa-solid fa-desktop"></i>
                 <span>MONITOREO</span>
             </a>
-            
-            <!-- Nuevos módulos agregados -->
-            
-
         </nav>
     </div>
 

@@ -10,7 +10,7 @@
   max-height: 70vh;
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(12px);
-  z-index: 10007 !important;
+  z-index: 10010 !important;
   display: none;
   flex-direction: column;
   border-radius: 12px;

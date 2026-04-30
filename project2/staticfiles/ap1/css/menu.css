@@ -204,8 +204,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* Menu feed */
 .menu-feed { color: var(--muted); font-size: 12px; display: flex; flex-direction: column; gap: 12px; }
 
-/* Perfil */
-.perfil-container { order: 0; position: relative; display: inline-block; z-index: 11; }
+/* Perfil y Nav */
+.nav-section { display: flex; align-items: center; }
+.perfil-container { order: 0; position: relative; display: flex; align-items: center; gap: 8px; z-index: 11; }
 .perfil-container .dropdown-glass { left: 0; }
 .avatar-btn { background: none; border: none; cursor: pointer; padding: 0; }
 .avatar-img { width: 32px; height: 32px; border-radius: 50%; }
@@ -451,7 +452,6 @@ ul { list-style: none; margin: 0; padding: 0; }
   .title-section {
     flex: 1 !important;
     min-width: 0 !important;
-    order: 1 !important;
     padding: 0 20px !important;
     text-align: center !important;
   }
@@ -507,7 +507,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 .title-section {
   flex: 1;
   min-width: 0;
-  order: 1;
   padding: 0 20px;
   text-align: center;
 }
@@ -668,11 +667,10 @@ ul { list-style: none; margin: 0; padding: 0; }
   .topbar-modern { padding: var(--pad-sm) var(--pad-xs); }
   
   /* Hide only non-essential nav if present */
-  .nav-btn { display: none !important; }
+  .nav-btn, .home-btn { display: none !important; }
   
   /* Title full flex with tight padding */
   .title-section { 
-    order: 1; 
     padding: 0 var(--pad-xs); 
     gap: 4px;
   }
@@ -740,6 +738,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sidebar-user-name { font-size: 15px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-user-role { font-size: 12px; color: var(--muted); }
 .sidebar-divider { height: 1px; background: rgba(255,255,255,.08); margin: 12px 0; }
+.sidebar-group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin: 12px 0 4px 14px;
+  font-weight: 700;
+}
 .sidebar-menu { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .sidebar-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: var(--text); font-size: 14px; transition: all .2s ease; text-decoration: none; }
 .sidebar-menu-item:hover { background: rgba(255,255,255,.08); }

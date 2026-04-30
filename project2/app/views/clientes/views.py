@@ -19,6 +19,7 @@ def _cliente_to_dict(obj):
         'telefono':  obj.telefono,
         'direccion': obj.direccion,
         'email':     obj.email or '',
+        'es_especial': obj.es_especial,
         'estado':    obj.estado,
     }
 
@@ -85,6 +86,7 @@ class ClienteCreateView(View):
             telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
             email     = data.get('email', '').strip() or None
+            es_especial = bool(data.get('es_especial', False))
 
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
@@ -95,6 +97,7 @@ class ClienteCreateView(View):
                     telefono=telefono or '—',
                     direccion=direccion or '—',
                     email=email,
+                    es_especial=es_especial,
                     estado=True
                 )
 
@@ -120,6 +123,7 @@ class ClienteUpdateView(View):
             telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
             email     = data.get('email', '').strip() or None
+            es_especial = bool(data.get('es_especial', False))
 
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
@@ -129,6 +133,7 @@ class ClienteUpdateView(View):
                 obj.telefono  = telefono or '—'
                 obj.direccion = direccion or '—'
                 obj.email     = email
+                obj.es_especial = es_especial
                 obj.save()
 
             return JsonResponse({

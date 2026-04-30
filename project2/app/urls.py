@@ -9,6 +9,12 @@ from app.views.despacho.views import (
     DespachoDetailView,
     DespachosPorFechaView
 )
+from app.views.garantias.views import (
+    GarantiaListView,
+    GarantiaCreateView,
+    GarantiaUpdateEstadoView,
+    GarantiaDetailView,
+)
 
 urlpatterns = [
     # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
@@ -170,4 +176,10 @@ urlpatterns = [
     path('clientes/historial/<int:pk>/', clientes.ClienteHistorialView.as_view(), name='clientes_historial'),
     path('clientes/historial-pagos/<int:pk>/', clientes.ClientePagosHistorialView.as_view(), name='clientes_historial_pagos'),
     path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
+
+    # --- GARANTIAS ---
+    path('garantias/', GarantiaListView.as_view(), name='garantias_list'),
+    path('garantias/crear/', GarantiaCreateView.as_view(), name='garantias_crear'),
+    path('garantias/estado/<int:pk>/', GarantiaUpdateEstadoView.as_view(), name='garantias_estado'),
+    path('garantias/detalle/<int:pk>/', GarantiaDetailView.as_view(), name='garantias_detalle'),
 ]

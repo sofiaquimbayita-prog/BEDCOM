@@ -64,15 +64,6 @@
               <button type="button" class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
                 <i class="fas fa-eye"></i>
               </button>
-              {% if p.estado == "Pendiente" and p.despacho %}
-              <button type="button" class="btn-despacho-ver" data-despacho-id="{{ p.despacho.id }}" title="Ver en despachos">
-                <i class="fas fa-truck"></i>
-              </button>
-              {% elif p.estado == "Pendiente" %}
-              <button type="button" class="btn-despacho" data-id="{{ p.id }}" title="Enviar a despacho">
-                <i class="fas fa-truck"></i>
-              </button>
-              {% endif %}
               <button type="button" class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
@@ -184,10 +175,11 @@
         <thead>
           <tr>
             <th>Producto <span style="color:var(--color-error)">*</span></th>
+            <th class="ped-table-w-custom">Personalizado</th>
             <th class="ped-table-w-stock">Stock</th>
             <th class="ped-table-w-price">Precio</th>
             <th class="ped-table-w-qty">Cant.</th>
-            <th class="ped-table-w-notes">Notas</th>
+            <th class="ped-table-w-notes">Notas / Especificaciones</th>
             <th class="text-center ped-table-w-action">—</th>
           </tr>
         </thead>

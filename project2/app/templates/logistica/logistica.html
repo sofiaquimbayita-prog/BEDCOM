@@ -19,7 +19,17 @@
   width: 100%;
 }
 
+@media (max-width: 992px) {
+  .logistica-grid {
+      grid-template-columns: repeat(2, 1fr);
+  }
+}
 
+@media (max-width: 576px) {
+  .logistica-grid {
+      grid-template-columns: 1fr;
+  }
+}
 </style>
 {% endblock %}
 
@@ -104,6 +114,20 @@
                     <div class="menu-card-content">
                         <h3>DESPACHOS</h3>
                         <p class="muted">Control entregas</p>
+                    </div>
+                </article>
+            </a>
+            
+            <a href="{% url 'garantias_list' %}" class="menu-card-link">
+                <article class="menu-card">
+                    <div class="menu-card-image">
+                        <img src="{% static 'ap1/img/fondo.jpg' %}" alt="Garantías">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="menu-icon-badge"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="menu-card-content">
+                        <h3>GARANTÍAS</h3>
+                        <p class="muted">Servicio post-venta</p>
                     </div>
                 </article>
             </a>

@@ -236,7 +236,7 @@ $(document).ready(function () {
             { data: 'unidad' },
             {
                 data: 'precio',
-                render: v => `<span class="precio-celda">$${parseFloat(v).toLocaleString('es-CO', { minimumFractionDigits: 2 })}</span>`,
+                render: v => `<span class="precio-celda">$${parseFloat(v).toLocaleString('es-CO', { minimumFractionDigits: 0 })}</span>`,
             },
             { data: 'proveedor' },
             {
@@ -338,7 +338,7 @@ $(document).ready(function () {
                 $('#ver-proveedor').text(data.proveedor_nombre || '—');
                 $('#ver-cantidad').text(data.cantidad);
                 $('#ver-unidad').text(UNIDADES_LABEL[data.unidad_medida] || data.unidad_medida);
-                $('#ver-precio').text(`$${parseFloat(data.precio).toLocaleString('es-CO', { minimumFractionDigits: 2 })}`);
+                $('#ver-precio').text(`$${parseFloat(data.precio).toLocaleString('es-CO', { minimumFractionDigits: 0 })}`);
                 const desc = (data.descripcion || '').trim();
                 $('#ver-descripcion').text(desc || 'Sin descripción registrada.');
                 $('#ver-descripcion-bloque').toggleClass('ver-sin-descripcion', !desc);

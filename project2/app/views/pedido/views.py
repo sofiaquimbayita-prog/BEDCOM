@@ -62,12 +62,14 @@ def _pedido_to_dict(obj):
         'cliente_telefono': obj.cliente.telefono,
         'detalles': [
             {
-                'producto_id': d.producto.id,
-                'producto_nombre': d.producto.nombre,
+                'producto_id': d.producto.id if d.producto else None,
+                'producto_nombre': d.producto.nombre if d.producto else 'Producto Personalizado',
                 'cantidad': d.cantidad,
                 'precio_unitario': str(d.precio_unitario),
                 'sub_total': str(d.sub_total),
                 'observaciones': d.observaciones or '',
+                'es_personalizado': d.es_personalizado,
+                'especificaciones': d.especificaciones or '',
             }
             for d in obj.detalles.select_related('producto').all()
         ],
@@ -142,14 +144,24 @@ class PedidoCreateView(View):
 
                 total = Decimal('0')
                 for item in items:
-                    prod = get_object_or_404(producto, pk=item['producto_id'])
+                    prod_id = item.get('producto_id')
                     cantidad = int(item['cantidad'])
-                    precio_unit = prod.precio
-
-                    if prod.stock < cantidad:
-                        raise Exception(
-                            f"Stock insuficiente para «{prod.nombre}» (disponible: {prod.stock})"
-                        )
+                    es_personalizado = item.get('es_personalizado') in [True, 'true', '1']
+                    especificaciones = item.get('especificaciones', '')
+                    
+                    if prod_id:
+                        prod = get_object_or_404(producto, pk=prod_id)
+                        precio_unit = prod.precio
+                        if not es_personalizado:
+                            if prod.stock < cantidad:
+                                raise Exception(f"Stock insuficiente para «{prod.nombre}»")
+                            prod.stock -= cantidad
+                            prod.save()
+                    else:
+                        if not es_personalizado:
+                            raise Exception("Debe especificar un producto del catálogo o marcarlo como personalizado.")
+                        prod = None
+                        precio_unit = Decimal(str(item.get('precio_unitario', 0)))
 
                     sub = precio_unit * cantidad
                     total += sub
@@ -160,13 +172,19 @@ class PedidoCreateView(View):
                         cantidad=cantidad,
                         precio_unitario=precio_unit,
                         sub_total=sub,
-                        observaciones=item.get('observaciones', '')
+                        observaciones=item.get('observaciones', ''),
+                        es_personalizado=es_personalizado,
+                        especificaciones=especificaciones
                     )
 
-                    prod.stock -= cantidad
-                    prod.save()
-
                 nuevo_pedido.total = total
+                
+                # Estado logic based on abono
+                if nuevo_pedido.abono >= total:
+                    nuevo_pedido.estado = 'Listo para Despacho'
+                elif nuevo_pedido.abono >= (total * Decimal('0.5')):
+                    nuevo_pedido.estado = 'En Fabricación'
+
                 nuevo_pedido.save()
 
                 # Registrar el abono inicial como registro pago
@@ -216,10 +234,11 @@ class PedidoUpdateView(View):
                     elif abono_nuevo > 0:
                         pago.objects.create(pedido=obj_pedido, monto=abono_nuevo)
 
-                # Restaurar stock de los detalles actuales
+                # Restaurar stock de los detalles actuales (solo si no eran personalizados)
                 for d in obj_pedido.detalles.select_related('producto').all():
-                    d.producto.stock += d.cantidad
-                    d.producto.save()
+                    if d.producto and not d.es_personalizado:
+                        d.producto.stock += d.cantidad
+                        d.producto.save()
 
                 obj_pedido.detalles.all().delete()
 
@@ -228,14 +247,24 @@ class PedidoUpdateView(View):
 
                 total = Decimal('0')
                 for item in items:
-                    prod = get_object_or_404(producto, pk=item['producto_id'])
+                    prod_id = item.get('producto_id')
                     cantidad = int(item['cantidad'])
-                    precio_unit = prod.precio
-
-                    if prod.stock < cantidad:
-                        raise Exception(
-                            f"Stock insuficiente para «{prod.nombre}» (disponible: {prod.stock})"
-                        )
+                    es_personalizado = item.get('es_personalizado') in [True, 'true', '1']
+                    especificaciones = item.get('especificaciones', '')
+                    
+                    if prod_id:
+                        prod = get_object_or_404(producto, pk=prod_id)
+                        precio_unit = prod.precio
+                        if not es_personalizado:
+                            if prod.stock < cantidad:
+                                raise Exception(f"Stock insuficiente para «{prod.nombre}»")
+                            prod.stock -= cantidad
+                            prod.save()
+                    else:
+                        if not es_personalizado:
+                            raise Exception("Debe especificar un producto del catálogo o marcarlo como personalizado.")
+                        prod = None
+                        precio_unit = Decimal(str(item.get('precio_unitario', 0)))
 
                     sub = precio_unit * cantidad
                     total += sub
@@ -246,13 +275,22 @@ class PedidoUpdateView(View):
                         cantidad=cantidad,
                         precio_unitario=precio_unit,
                         sub_total=sub,
-                        observaciones=item.get('observaciones', '')
+                        observaciones=item.get('observaciones', ''),
+                        es_personalizado=es_personalizado,
+                        especificaciones=especificaciones
                     )
 
-                    prod.stock -= cantidad
-                    prod.save()
-
                 obj_pedido.total = total
+                
+                # Update status if pending
+                if obj_pedido.estado in ['Pendiente', 'En Fabricación']:
+                    if obj_pedido.abono >= total:
+                        obj_pedido.estado = 'Listo para Despacho'
+                    elif obj_pedido.abono >= (total * Decimal('0.5')):
+                        obj_pedido.estado = 'En Fabricación'
+                    elif obj_pedido.abono < (total * Decimal('0.5')):
+                        obj_pedido.estado = 'Pendiente'
+                        
                 obj_pedido.save()
 
             return JsonResponse({
@@ -341,12 +379,14 @@ class PagoUpdateView(View):
                 obj_pedido.save()
 
                 # ✅ BUG CORREGIDO: recalcular saldo_pendiente DESPUÉS de guardar
-                # para que la propiedad refleje el nuevo valor en BD, no el valor
-                # anterior en memoria que causaba que el estado no se actualizara.
                 obj_pedido.refresh_from_db()
-                if obj_pedido.saldo_pendiente <= 0 and obj_pedido.estado == 'Pendiente':
-                    obj_pedido.estado = 'Completado'
-                    obj_pedido.save()
+                if obj_pedido.saldo_pendiente <= 0:
+                    if obj_pedido.estado in ['Pendiente', 'En Fabricación']:
+                        obj_pedido.estado = 'Listo para Despacho'
+                elif obj_pedido.abono >= (obj_pedido.total * Decimal('0.5')):
+                    if obj_pedido.estado == 'Pendiente':
+                        obj_pedido.estado = 'En Fabricación'
+                obj_pedido.save()
 
             return JsonResponse({
                 'ok': True,

@@ -338,12 +338,45 @@
     margin-top: 6px;
 }
 
-    grid-template-columns: 1fr 1fr;\n    align-items: stretch;\n    min-height: 400px;
+.bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: start; /* start evita que se estiren en altura desigual */
+}
 
-@media(max-width: 1100px) {\n    .bottom-grid { \n        grid-template-columns: 1fr;\n    }\n}
+/* Pantalla mediana: una columna, apiladas */
+@media (max-width: 1100px) {
+    .bottom-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Móvil: mismo comportamiento, ajuste de gap */
+@media (max-width: 600px) {
+    .bottom-grid {
+        gap: 16px;
+    }
+}
+
+/* Paneles dentro del grid ocupan el ancho completo de su celda */
+.notif-panel,
+.tabla-panel {
+    width: 100%;
+    min-width: 0; /* evita desbordamiento en grid */
+}
 
 /* Panel Styles */
-.panel {\n    background: var(--mon-surface);\n    border: 1px solid var(--mon-border);\n    border-radius: var(--mon-radius);\n    height: 100%;\n    backdrop-filter: none;\n    overflow: hidden;\n    animation: fadeUp 0.5s 0.25s ease both;\n}
+.panel {
+        background: var(--mon-surface);
+        border: 1px solid var(--mon-border);
+        border-radius: var(--mon-radius);
+        height: 100%;
+        backdrop-filter: none;
+        overflow: hidden;
+        animation: fadeUp 0.5s 0.25s ease both;
+}
 
 .panel-header {
     display: flex;
@@ -548,6 +581,70 @@
     font-size: 14px;
     color: var(--mon-text);
     border-bottom: 1px solid var(--mon-border);
+}
+
+/* Notification table buttons - matching productos style */
+.btn-small {
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 40px;
+  height: 40px;
+}
+
+.btn-small:hover {
+  color: #38bdf8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.btn-small.danger {
+  color: #94a3b8;
+}
+
+.btn-small.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-small.reopen:hover {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-check-now {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mon-border);
+  color: var(--mon-text);
+  padding: 8px 16px;
+  border-radius: var(--mon-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-check-now:hover {
+  background: var(--mon-primary);
+  border-color: var(--mon-primary);
+  color: white;
+  transform: translateY(-1px);
 }
 
 .table-wrap tbody tr:hover {

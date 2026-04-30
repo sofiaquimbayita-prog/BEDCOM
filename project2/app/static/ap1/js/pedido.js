@@ -87,33 +87,6 @@ $(document).on('change', '.ped-estado-select', async function(){
   }
 });
 
-// 2. Botón enviar a despacho
-$(document).on('click', '.btn-despacho', async function(){
-  const pk=this.dataset.id;
-  if(!confirm('¿Enviar pedido #'+pk+' a despachos?'))return;
-  try{
-    const res=await fetch(URL_DESPACHO,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
-      body:JSON.stringify({pedido_id:pk})
-    });
-    const data=await res.json();
-    if(data.ok){
-      showToast(data.message);
-      $(this).replaceWith(`<button type="button" class="btn-despacho-ver" data-despacho-id="${data.despacho.id}" title="Ver en despachos"><i class="fas fa-truck" style="color:#10b981;"></i></button>`);
-      window.location.href='/vistas/despacho/';
-    }else{
-      showToast(data.error,'error');
-    }
-  }catch(e){showToast('Error de conexión','error');}
-});
-
-// 3. Botón ver despacho
-$(document).on('click', '.btn-despacho-ver', function(){
-  window.location.href='/vistas/despacho/';
-});
-
-// 4. Botón VER detalle
 $(document).on('click', '.btn-ver', async function(){
   try{
     const res=await fetch(URL_VER(this.dataset.id));
@@ -127,15 +100,15 @@ $(document).on('click', '.btn-ver', async function(){
       <div class="ver-campo"><span class="ver-label">Fecha Creación</span><span class="ver-valor">${p.fecha}</span></div>
       <div class="ver-campo"><span class="ver-label">Fecha Entrega</span><span class="ver-valor">${p.fecha_entrega?new Date(p.fecha_entrega+'T00:00').toLocaleDateString('es-CO'):'—'}</span></div>
       <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
-      <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono||0).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></div>
-      <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></div>`;
+      <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono||0).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></div>
+      <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></div>`;
     document.getElementById('verDetallesBody').innerHTML=p.detalles.map(d=>`
-      <tr><td>${d.producto_nombre}</td><td>${d.cantidad}</td>
-      <td><span class="precio-display">$${parseFloat(d.precio_unitario).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></td>
-      <td><span class="precio-display">$${parseFloat(d.sub_total).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></td>
-      <td style="color:var(--color-texto-muted);font-size:0.85rem">${d.observaciones||'—'}</td></tr>
+      <tr><td>${d.producto_nombre} ${d.es_personalizado ? '<span class="badge-estado badge-pendiente">Personalizado</span>' : ''}</td><td>${d.cantidad}</td>
+      <td><span class="precio-display">$${parseFloat(d.precio_unitario).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></td>
+      <td><span class="precio-display">$${parseFloat(d.sub_total).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></td>
+      <td style="color:var(--color-texto-muted);font-size:0.85rem">${d.especificaciones||d.observaciones||'—'}</td></tr>
     `).join('');
-    document.getElementById('verTotal').textContent=`$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+    document.getElementById('verTotal').textContent=`$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:0})}`;
     openModal('modalVer');
   }catch(e){showToast('Error al cargar detalle','error');}
 });
@@ -181,9 +154,9 @@ $(document).on('click', '.btn-pagar', function(e){
   pedidoPagoPendiente = parseFloat($(this).data('saldo')) || 0;
 
   document.getElementById('pagoIdPedido').textContent = `Pedido #${pedidoPagoId}`;
-  document.getElementById('pagoTotalPedido').textContent = `$${total.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
-  document.getElementById('pagoPagado').textContent = `$${abono.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
-  document.getElementById('pagoPendiente').textContent = `$${pedidoPagoPendiente.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
+  document.getElementById('pagoTotalPedido').textContent = `$${total.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+  document.getElementById('pagoPagado').textContent = `$${abono.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+  document.getElementById('pagoPendiente').textContent = `$${pedidoPagoPendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
   document.getElementById('pagoMonto').value = pedidoPagoPendiente.toFixed(2);
   document.getElementById('pagoAlerta').style.display = 'none';
 
@@ -244,7 +217,7 @@ $(document).on('click', '#btnGuardarPago', async function(){
 
 function validarAbono(total, abono){
   const minimo = total * 0.5;
-  if(abono < minimo) return {valido:false, mensaje:`El abono debe ser al menos el 50% del total (mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:2})})`};
+  if(abono < minimo) return {valido:false, mensaje:`El abono debe ser al menos el 50% del total (mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:0})})`};
   if(abono > total) return {valido:false, mensaje:'El abono no puede ser mayor al total del pedido.'};
   return {valido:true, mensaje:''};
 }
@@ -257,12 +230,17 @@ function validarPedidoCompleto(items, total, abono, clienteId){
   const duplicados = productosIds.filter((id,index)=>productosIds.indexOf(id)!==index);
   if(duplicados.length>0) errores.push('No puede agregar el mismo producto múltiples veces');
   for(const item of items){
-    const producto = PRODUCTOS_DATA.find(p=>p.id == item.producto_id);
-    if(!producto){ errores.push(`Producto ID ${item.producto_id} no existe`); }
-    else if(producto.stock < item.cantidad){ errores.push(`Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}`); }
+    if(item.es_personalizado) {
+        if(!item.especificaciones) errores.push('Un producto personalizado requiere especificaciones.');
+        if(item.precio_unitario <= 0) errores.push('Un producto personalizado requiere un precio mayor a 0.');
+    } else {
+        const producto = PRODUCTOS_DATA.find(p=>p.id == item.producto_id);
+        if(!producto){ errores.push(`Producto ID ${item.producto_id} no existe`); }
+        else if(producto.stock < item.cantidad){ errores.push(`Stock insuficiente para "${producto.nombre}". Disponible: ${producto.stock}`); }
+    }
   }
   const minimoAbono = total * 0.5;
-  if(abono < minimoAbono) errores.push(`El abono debe ser al menos el 50% del total (mínimo $${minimoAbono.toLocaleString('es-CO',{minimumFractionDigits:2})})`);
+  if(abono < minimoAbono) errores.push(`El abono debe ser al menos el 50% del total (mínimo $${minimoAbono.toLocaleString('es-CO',{minimumFractionDigits:0})})`);
   if(abono > total) errores.push('El abono no puede ser mayor al total del pedido');
   return errores;
 }
@@ -311,7 +289,7 @@ function validarAbonoEnTiempoReal(){
     const helpText = document.getElementById('abonoHelp');
     if(abono > 0 && abono < minimo){
       this.style.borderColor = 'var(--color-error)';
-      if(helpText){ helpText.style.color = 'var(--color-error)'; helpText.textContent = `El abono debe ser mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:2})}`; }
+      if(helpText){ helpText.style.color = 'var(--color-error)'; helpText.textContent = `El abono debe ser mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:0})}`; }
     } else {
       this.style.borderColor = '';
       if(helpText){ helpText.style.color = 'var(--color-texto-muted)'; helpText.textContent = 'El abono debe ser al menos el 50% del total del pedido'; }
@@ -343,27 +321,54 @@ function buildOpts(selId=''){
 
 function crearFila(item={}){
   const tr = document.createElement('tr');
+  const isCustom = item.es_personalizado ? 'checked' : '';
+  const isCustomBool = item.es_personalizado === true;
   tr.innerHTML = `
-    <td><select class="form-select-ped sel-producto">${buildOpts(item.producto_id||'')}</select></td>
-    <td><span class="stock-badge">—</span></td>
-    <td><span class="precio-display">—</span></td>
+    <td><select class="form-select-ped sel-producto" ${isCustomBool ? 'disabled' : ''}>${buildOpts(item.producto_id||'')}</select></td>
+    <td style="text-align:center"><input type="checkbox" class="chk-personalizado form-check-input" ${isCustom}></td>
+    <td><span class="stock-badge">${isCustomBool ? '—' : ''}</span></td>
+    <td><input type="number" class="form-input inp-precio" value="${item.precio_unitario||0}" ${isCustomBool ? '' : 'readonly'} step="0.01" style="width:90px"></td>
     <td><input type="number" class="form-input inp-cantidad" value="${item.cantidad||1}" min="1" style="width:70px"></td>
-    <td><input type="text" class="form-input inp-notas" placeholder="Color, talla…" value="${item.observaciones||''}"></td>
+    <td><input type="text" class="form-input inp-notas" placeholder="Especificaciones/Notas" value="${item.especificaciones||item.observaciones||''}"></td>
     <td style="text-align:center"><button type="button" class="btn-quitar-fila"><i class="fas fa-trash-alt"></i></button></td>
   `;
-  if(item.producto_id){
+  
+  if(!isCustomBool && item.producto_id){
     const prod = PRODUCTOS_DATA.find(p=>p.id == item.producto_id);
     if(prod){
       tr.querySelector('.stock-badge').textContent = prod.stock;
-      tr.querySelector('.precio-display').textContent = `$${parseFloat(prod.precio).toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+      tr.querySelector('.inp-precio').value = prod.precio;
     }
   }
-  tr.querySelector('.sel-producto').addEventListener('change', function(){
-    const opt = this.options[this.selectedIndex];
-    tr.querySelector('.stock-badge').textContent = opt.dataset.stock || '—';
-    tr.querySelector('.precio-display').textContent = opt.dataset.precio ? `$${parseFloat(opt.dataset.precio).toLocaleString('es-CO',{minimumFractionDigits:2})}` : '—';
+
+  const chkPers = tr.querySelector('.chk-personalizado');
+  const selProd = tr.querySelector('.sel-producto');
+  const inpPrecio = tr.querySelector('.inp-precio');
+  const stockBadge = tr.querySelector('.stock-badge');
+
+  chkPers.addEventListener('change', function() {
+    if(this.checked) {
+      selProd.disabled = true;
+      selProd.value = '';
+      inpPrecio.readOnly = false;
+      stockBadge.textContent = '—';
+    } else {
+      selProd.disabled = false;
+      inpPrecio.readOnly = true;
+      selProd.dispatchEvent(new Event('change'));
+    }
     recalcular();
   });
+
+  selProd.addEventListener('change', function(){
+    if(chkPers.checked) return;
+    const opt = this.options[this.selectedIndex];
+    stockBadge.textContent = opt.dataset.stock || '—';
+    inpPrecio.value = opt.dataset.precio || 0;
+    recalcular();
+  });
+  
+  tr.querySelector('.inp-precio').addEventListener('input', recalcular);
   tr.querySelector('.inp-cantidad').addEventListener('input', recalcular);
   tr.querySelector('.btn-quitar-fila').addEventListener('click', () => { tr.remove(); recalcular(); });
   return tr;
@@ -372,14 +377,20 @@ function crearFila(item={}){
 function recalcular(){
   let t = 0;
   document.querySelectorAll('#formItemsBody tr').forEach(tr => {
-    const sel = tr.querySelector('.sel-producto');
+    const chk = tr.querySelector('.chk-personalizado').checked;
     const cant = parseInt(tr.querySelector('.inp-cantidad').value) || 0;
-    if(sel && sel.value){
-      const p = PRODUCTOS_DATA.find(p=>p.id == sel.value);
-      if(p) t += p.precio * cant;
+    if(chk) {
+      const precio = parseFloat(tr.querySelector('.inp-precio').value) || 0;
+      t += precio * cant;
+    } else {
+      const sel = tr.querySelector('.sel-producto');
+      if(sel && sel.value){
+        const p = PRODUCTOS_DATA.find(p=>p.id == sel.value);
+        if(p) t += p.precio * cant;
+      }
     }
   });
-  const formatted = `$${t.toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+  const formatted = `$${t.toLocaleString('es-CO',{minimumFractionDigits:0})}`;
   const formTotal = document.getElementById('formTotal');
   if(formTotal) formTotal.textContent = formatted;
   const formTotalDisplay = document.getElementById('formTotalDisplay');
@@ -468,13 +479,29 @@ if(btnGuardar){
     if(!validacion.valido){ if(alerta){ alerta.textContent = validacion.mensaje; alerta.style.display = 'block'; } return; }
     const items = [];
     document.querySelectorAll('#formItemsBody tr').forEach(tr => {
+      const chk = tr.querySelector('.chk-personalizado').checked;
       const sel = tr.querySelector('.sel-producto');
       const cant = tr.querySelector('.inp-cantidad');
+      const precio = tr.querySelector('.inp-precio');
       const nota = tr.querySelector('.inp-notas');
-      if(!sel || !sel.value) return;
       const cantidad = parseInt(cant ? cant.value : 0);
       if(!cantidad || cantidad < 1) return;
-      items.push({producto_id: sel.value, cantidad: cantidad, observaciones: nota ? nota.value.trim() : ''});
+      
+      if(chk) {
+        items.push({
+           es_personalizado: true,
+           precio_unitario: parseFloat(precio.value) || 0,
+           cantidad: cantidad,
+           especificaciones: nota ? nota.value.trim() : ''
+        });
+      } else {
+        if(!sel || !sel.value) return;
+        items.push({
+           producto_id: sel.value,
+           cantidad: cantidad,
+           observaciones: nota ? nota.value.trim() : ''
+        });
+      }
     });
     if(!items.length){ if(alerta){ alerta.textContent = 'Agrega al menos un producto válido.'; alerta.style.display = 'block'; } return; }
     const errores = validarPedidoCompleto(items, total, abono, clienteId);

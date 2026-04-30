@@ -1,10 +1,13 @@
 import json
 from django.db import transaction
+from django.db.models import Sum, Q, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
 from datetime import datetime
+from collections import defaultdict
+from ...models import despacho, pedido, cliente, detalle_pedido, producto, Notificacion, usuario
 
 def safe_date_str(value):
     if value is None:
@@ -51,13 +54,16 @@ def _despacho_to_dict(obj):
 'fecha_entrega': safe_date_str(obj.pedido.fecha_entrega),
         'productos': [
             {
-                'nombre': d.producto.nombre,
+                'nombre': d.producto.nombre if d.producto else 'Producto Personalizado',
                 'cantidad': d.cantidad,
                 'precio_unitario': str(d.precio_unitario),
                 'sub_total': str(d.sub_total),
             }
             for d in obj.pedido.detalles.select_related('producto').all()
-        ]
+        ],
+        'empresa_transporte': obj.empresa_transporte or '',
+        'numero_guia': obj.numero_guia or '',
+        'costo_envio': str(obj.costo_envio)
     }
 
 
@@ -78,9 +84,11 @@ class DespachoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['pedidos_pendientes'] = pedido.objects.filter(
-            estado='Pendiente', despacho__isnull=True
-        ).count()
+        ped_disp = pedido.objects.filter(
+            estado__in=['Pendiente', 'En Fabricación', 'Listo para Despacho'], despacho__isnull=True
+        ).select_related('cliente')
+        ctx['pedidos_pendientes'] = ped_disp.count()
+        ctx['pedidos_disponibles'] = ped_disp
 
         # Counts para tarjetas KPI
         ctx['total_despachos'] = despacho.objects.count()
@@ -104,11 +112,27 @@ class DespachoCreateView(View):
 
             pedido_obj = get_object_or_404(pedido, pk=pedido_id)
 
-            if pedido_obj.estado != 'Pendiente':
+            if pedido_obj.estado not in ['Pendiente', 'En Fabricación', 'Listo para Despacho']:
                 return JsonResponse({
                     'ok': False,
-                    'error': 'Solo pedidos en estado Pendiente pueden despacharse.'
+                    'error': 'El pedido no está en un estado válido para despacharse.'
                 })
+                
+            from decimal import Decimal
+            
+            # Validación de Pagos
+            if not pedido_obj.cliente.es_especial:
+                if pedido_obj.saldo_pendiente > 0:
+                    return JsonResponse({
+                        'ok': False,
+                        'error': f'El pedido de un cliente NORMAL requiere pago del 100% para despachar (Faltan ${pedido_obj.saldo_pendiente}).'
+                    })
+            else:
+                if pedido_obj.abono < (pedido_obj.total * Decimal('0.5')):
+                    return JsonResponse({
+                        'ok': False,
+                        'error': 'El pedido de un cliente ESPECIAL requiere al menos 50% de abono para despachar.'
+                    })
 
             # FIX: usar .filter().exists() en lugar de hasattr + acceso directo,
             # que puede lanzar RelatedObjectDoesNotExist en relaciones OneToOne.
@@ -119,7 +143,38 @@ class DespachoCreateView(View):
                 })
 
             with transaction.atomic():
-                despacho_obj = despacho.objects.create(pedido=pedido_obj)
+                empresa_transporte = data.get('empresa_transporte', '')
+                numero_guia = data.get('numero_guia', '')
+                try:
+                    costo_envio = Decimal(str(data.get('costo_envio', 0)))
+                except:
+                    costo_envio = Decimal('0')
+
+                despacho_obj = despacho.objects.create(
+                    pedido=pedido_obj,
+                    empresa_transporte=empresa_transporte,
+                    numero_guia=numero_guia,
+                    costo_envio=costo_envio,
+                    responsable=data.get('responsable', '')
+                )
+                
+                if pedido_obj.cliente.es_especial and pedido_obj.saldo_pendiente > 0:
+                    import datetime
+                    pedido_obj.fecha_limite_pago = timezone.now().date() + datetime.timedelta(days=90)
+                
+                pedido_obj.estado = 'Despachado'
+                pedido_obj.save()
+
+                # Generar Notificación
+                admin_user = usuario.objects.first()
+                if admin_user:
+                    Notificacion.objects.create(
+                        user=admin_user,
+                        tipo='despacho_completado',
+                        titulo='Nuevo Despacho',
+                        mensaje=f'Despacho #{despacho_obj.id} registrado para Pedido #{pedido_obj.id}.',
+                        target_id=despacho_obj.id
+                    )
 
             return JsonResponse({
                 'ok': True,

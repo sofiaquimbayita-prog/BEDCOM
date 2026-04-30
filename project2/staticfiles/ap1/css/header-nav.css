@@ -195,3 +195,14 @@
 
 /* Utilidad */
 .oculto { display: none !important; }
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .nav-btn, .home-btn { display: none !important; }
+}
+
+@media (max-width: 576px) {
+  .form-grid-row {
+      grid-template-columns: 1fr;
+  }
+}

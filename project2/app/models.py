@@ -69,6 +69,7 @@ class cliente(models.Model):
     telefono = models.CharField(max_length=15)
     direccion = models.CharField(max_length=200)
     email = models.EmailField(max_length=150, blank=True, null=True)
+    es_especial = models.BooleanField(default=False, verbose_name="Cliente Especial (Plazo extendido)")
     estado = models.BooleanField(default=True)
 
     def __str__(self):
@@ -220,19 +221,27 @@ class entrada(models.Model):
         ordering = ['-fecha']
 
 
-class garantia (models.Model):
-    fecha = models.DateField()
-    descripcion = models.TextField()
+class garantia(models.Model):
+    ESTADO_CHOICES = [
+        ('recibida', 'Recibida'),
+        ('en_reparacion', 'En Reparación'),
+        ('reparada', 'Reparada'),
+        ('entregada', 'Entregada al cliente')
+    ]
+    from django.utils.timezone import now
+    fecha_solicitud = models.DateField(default=now)
+    pedido = models.ForeignKey('pedido', on_delete=models.CASCADE, null=True, blank=True)
+    producto = models.ForeignKey('producto', on_delete=models.CASCADE, null=True, blank=True)
+    descripcion_falla = models.TextField(blank=True, null=True)
+    estado_reparacion = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='recibida')
     estado = models.BooleanField(default=True)
-    id_producto = models.ForeignKey('producto', on_delete=models.CASCADE)
 
     def __str__(self):
-        # Corregido: El campo 'duracion_meses' no existe. Retorna info básica.
-        return f"Garantia para producto {self.id_producto_id}"
+        return f"Garantía #{self.id} - {self.producto.nombre if self.producto else 'Desconocido'}"
 
     class Meta:
-        verbose_name = "Garantia"
-        verbose_name_plural = "Garantias"
+        verbose_name = "Garantía"
+        verbose_name_plural = "Garantías"
         db_table = "garantias"
 
 
@@ -305,6 +314,7 @@ class compra(models.Model):
 class pedido(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     fecha_entrega = models.DateField(null=True, blank=True, verbose_name="Fecha de entrega") 
+    fecha_limite_pago = models.DateField(null=True, blank=True, verbose_name="Fecha límite de pago")
     estado = models.CharField(max_length=20, default="Pendiente")
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     abono = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True, blank=True)  # NUEVO CAMPO
@@ -329,7 +339,9 @@ class detalle_pedido(models.Model):
     sub_total = models.DecimalField(max_digits=10, decimal_places=2)
     pedido = models.ForeignKey(
         pedido, related_name='detalles', on_delete=models.CASCADE)
-    producto = models.ForeignKey(producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(producto, on_delete=models.CASCADE, null=True, blank=True)
+    es_personalizado = models.BooleanField(default=False, verbose_name="Es personalizado")
+    especificaciones = models.TextField(blank=True, null=True, verbose_name="Especificaciones del cliente")
     observaciones = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -388,6 +400,9 @@ class despacho(models.Model):
     observaciones = models.TextField(blank=True, null=True)
     
     responsable = models.CharField(max_length=100, blank=True, null=True)
+    empresa_transporte = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transportadora")
+    numero_guia = models.CharField(max_length=100, blank=True, null=True, verbose_name="Número de Guía")
+    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     supervision = models.ForeignKey(
         supervision, on_delete=models.CASCADE, null=True, blank=True)
 
@@ -551,12 +566,13 @@ class Notificacion(models.Model):
         ('bajo_stock_insumo', 'Bajo stock insumo'),
         ('bajo_stock_producto', 'Bajo stock producto'),
         ('calendario_hoy', 'Evento Calendario HOY'),
-        ('calendario_manana', 'Evento Calendario MAÑANA'),
+        ('calendario_manaña', 'Evento Calendario MAÑANA'),
         ('pendido_despacho', 'Despacho pendiente'),
         ('sin_bom', 'Producto sin receta BOM'),
         ('reporte_generado', 'Reporte generado'),
         ('despacho_completado', 'Despacho completado'),
         ('pago_pendiente', 'Pedido pago pendiente'),
+        ('garantia_nueva', 'Nueva Garantía Registrada'),
     ]
     
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
