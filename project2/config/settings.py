@@ -163,15 +163,10 @@ WEBPUSH_SETTINGS = {
 }
 
 # --------------------------------------------------------------------------
-# 11. CONFIGURACIÓN LUNA IA (PIPER - VOZ DE DANIELA)
+# 11. CONFIGURACIÓN LUNA IA (EDGE TTS)
 # --------------------------------------------------------------------------
-# Basado en tu estructura: media/piper/
-PIPER_BASE_DIR = MEDIA_ROOT / 'piper'
-
-PIPER_CONFIG = {
-    'EXE': PIPER_BASE_DIR / 'piper.exe',
-    'MODEL': PIPER_BASE_DIR / 'es_AR-daniela-high.onnx',
-}
+# Voz por defecto para Edge TTS
+EDGE_TTS_VOICE = "es-CO-DanielaNeural"
 
 # Carpeta para guardar audios generados temporalmente
-LUNA_VOICES_DIR = MEDIA_ROOT / 'luna_voces'
+LUNA_VOICES_DIR = MEDIA_ROOT / 'voces_ia'

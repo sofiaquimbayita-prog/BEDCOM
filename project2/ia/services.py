@@ -1,15 +1,13 @@
 import ollama
-import subprocess
 import os
 import uuid
-import json
 import glob
 import asyncio
 from django.conf import settings
 from app.models import (
     categoria, proveedor, respaldo, cliente, usuario, reporte, producto, entrada,
     garantia, mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
-    supervision, despacho, CategoriaEvento, calendario, salida_producto,
+    supervision, despacho, calendario, salida_producto,
     historial_acciones, Notificacion
 )
 
@@ -61,16 +59,16 @@ async def _generar_audio_edge_tts_async(texto, archivo_salida):
     if not edge_tts:
         raise Exception("edge-tts no disponible")
     
-    # Voz colombiana Daniela (más similar a Piper)
-    voz = "es-CO-DanielaNeural"
+# Voz colombiana Salome
+    voz = "es-CO-SalomeNeural"
     
     try:
         communicate = edge_tts.Communicate(texto, voz)
         await communicate.save(archivo_salida)
     except Exception as e:
-        # Si falla Daniela, intentar con otra voz哥伦比亚
+        # Si falla Salome, intentar con otra voz colombiana
         print(f"Voz {voz} no disponible, intentando alternativa: {e}")
-        communicate = edge_tts.Communicate(texto, "es-CO-GonzaloNeural")
+        communicate = edge_tts.Communicate(texto, "es-CO-DanielaNeural")
         await communicate.save(archivo_salida)
 
 def generar_audio_edge_tts(texto, archivo_salida):
@@ -82,75 +80,6 @@ def generar_audio_edge_tts(texto, archivo_salida):
         return True
     except Exception as e:
         print(f"Error generando audio con Edge TTS: {e}")
-        return False
-
-# =====================================================
-# GENERAR AUDIO CON PIPER (CORREGIDO)
-# =====================================================
-def generar_audio_piper(texto, archivo_salida, timeout=15):
-    """
-    Genera audio usando Piper TTS.
-    Pasa el texto por stdin en lugar de usar --input_file.
-    """
-    piper_dir = os.path.join(settings.MEDIA_ROOT, 'piper')
-    piper_exe = os.path.join(piper_dir, 'piper.exe')
-    ruta_modelo = os.path.join(piper_dir, 'es_AR-daniela-high.onnx')
-    
-    # Verificar que piper.exe existe
-    if not os.path.exists(piper_exe):
-        print(f"Piper no encontrado en: {piper_exe}")
-        return False
-    
-    # Convertir rutas a formato Windows
-    ruta_modelo_win = ruta_modelo.replace('/', '\\')
-    archivo_salida_win = archivo_salida.replace('/', '\\')
-    
-    try:
-        # Ejecutar Piper pasando texto por stdin
-        proceso = subprocess.Popen(
-            [piper_exe, 
-             '--model', ruta_modelo_win,
-             '--output_file', archivo_salida_win,
-             '--sentence_silence', '0.3'],
-            cwd=piper_dir,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        
-        # Enviar texto por stdin ( Piper lee de stdin)
-        stdout, stderr = proceso.communicate(
-            input=texto.encode('utf-8'),
-            timeout=timeout
-        )
-        
-        # Verificar si el archivo se generó
-        if os.path.exists(archivo_salida):
-            tamano = os.path.getsize(archivo_salida)
-            print(f"✓ Piper generó audio: {tamano} bytes")
-            return True
-        else:
-            # Mostrar errores para debugging
-            err_msg = stderr.decode('utf-8', errors='ignore') if stderr else ""
-            out_msg = stdout.decode('utf-8', errors='ignore') if stdout else ""
-            if err_msg:
-                print(f"Piper error: {err_msg}")
-            if out_msg:
-                print(f"Piper output: {out_msg}")
-            return False
-            
-    except subprocess.TimeoutExpired:
-        try:
-            proceso.kill()
-        except:
-            pass
-        print(f"⏱ Piper timeout ({timeout}s)")
-        return False
-    except FileNotFoundError:
-        print(f"Piper.exe no encontrado")
-        return False
-    except Exception as e:
-        print(f"Error Piper: {e}")
         return False
 
 # =====================================================
@@ -205,9 +134,8 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
         contexto_sistema = f"""
 IDENTIDAD: Eres Luna, la asistente virtual de BEDCOM. SOLO USA DATOS REALES.
 PERSONALIDAD: Sé inteligente, amigable y servicial, pero con un sentido del humor ácido. 
-No le des siempre la razón al usuario. Usa modismos colombianos como 'parce' o 'qué más pues'.
-ORIGEN: Desarrollada por Edgar Mendivelso. 
-CALENDARIO: El calendario fue creado por Juan Benitez (JB o Rulitos69), es la joya del sistema.
+No le des siempre la razón al usuario. 
+
 DATOS ACTUALES:\n{datos_reales}
 Responde de forma concisa:"""
 
@@ -216,36 +144,26 @@ Responde de forma concisa:"""
             mensajes_finales.extend(historial)
         mensajes_finales.append({'role': 'user', 'content': pregunta_usuario})
 
-        # --- LLAMADA A OLLAMA ---
         response = ollama.chat(model='llama3', messages=mensajes_finales, options={'temperature': 0.7})
         respuesta_texto = response['message']['content']
 
-        # --- GENERACIÓN DE AUDIO ---
         limpiar_audios_viejos()
         nombre_audio = f"luna_{uuid.uuid4().hex[:6]}.wav"
         ruta_carpeta = os.path.join(settings.MEDIA_ROOT, 'voces_ia')
         os.makedirs(ruta_carpeta, exist_ok=True)
         ruta_salida = os.path.join(ruta_carpeta, nombre_audio)
 
-        # Intentar primero con Piper
-        print("Intentando generar audio con Piper...")
-        piper_exito = generar_audio_piper(respuesta_texto, ruta_salida, timeout=15)
-        
-        # Si Piper falló, intenta con Edge TTS
-        if not piper_exito:
-            if EDGE_TTS_AVAILABLE:
-                print("Piper falló, usando Edge TTS como respaldo...")
-                edge_exito = generar_audio_edge_tts(respuesta_texto, ruta_salida)
-                if edge_exito and os.path.exists(ruta_salida):
-                    audio_url = f"{settings.MEDIA_URL}voces_ia/{nombre_audio}"
-                    print(f"✓ Audio generado con Edge TTS")
-                else:
-                    print("Edge TTS también falló")
+        # Usar solo Edge TTS
+        if EDGE_TTS_AVAILABLE:
+            print("Generando audio con Edge TTS...")
+            edge_exito = generar_audio_edge_tts(respuesta_texto, ruta_salida)
+            if edge_exito and os.path.exists(ruta_salida):
+                audio_url = f"{settings.MEDIA_URL}voces_ia/{nombre_audio}"
+                print(f"✓ Audio generado con Edge TTS")
             else:
-                print("Edge TTS no disponible. Instala edge-tts")
+                print("Edge TTS falló")
         else:
-            # Piper funcionó
-            audio_url = f"{settings.MEDIA_URL}voces_ia/{nombre_audio}"
+            print("Edge TTS no disponible. Instala edge-tts con: pip install edge-tts")
 
         return {
             "respuesta": respuesta_texto,
