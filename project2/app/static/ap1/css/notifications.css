@@ -1,0 +1,252 @@
+/* NOTIFICATIONS MODAL - Campaign notifications as centered modal box */
+
+/* Modal Overlay - Bottom-left dropdown style under bell */
+.notif-modal {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: auto;
+  width: 380px;
+  max-height: 70vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 10010 !important;
+  display: none;
+  flex-direction: column;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.notif-modal.show {
+  display: flex;
+}
+
+.notif-modal::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: #0f172a;
+  transform: rotate(45deg);
+  border: 1px solid #334155;
+  z-index: 1;
+}
+
+.notif-modal.show {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal Content - Recuadro centered box matching app theme */
+.notif-modal-contenido {
+  background: #0f172a !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  border: 1px solid #334155;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.notif-modal-contenido::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notif-modal-contenido::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+.notif-modal-contenido::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+.notif-modal-contenido::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Modal Header */
+.notif-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #334155;
+}
+
+.notif-modal-titulo {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-modal-titulo i {
+  color: #facc15;
+}
+
+.notif-modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.notif-modal-close:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Modal Body - List */
+.notif-modal-body {
+  padding: 0 24px;
+  max-height: 400px;
+}
+
+.notif-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notif-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #1e293b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notif-item:hover {
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.notif-item.unread {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+
+
+.notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-titulo {
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.notif-mensaje {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-tiempo {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+/* Modal Footer */
+.notif-modal-footer {
+  padding: 16px 24px 24px;
+  border-top: 1px solid #334155;
+}
+
+.notif-ver-todas {
+  display: inline-block;
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.notif-ver-todas:hover {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.notif-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Badge on bell */
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .notif-modal-contenido {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+  }
+  
+  .notif-modal-header {
+    padding: 16px 20px 12px;
+  }
+  
+  .notif-modal-body {
+    padding: 0 20px;
+  }
+}
+

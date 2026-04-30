@@ -57,7 +57,8 @@ $(document).ready(function () {
        UTILS
      */
     function getCsrf() {
-        if (typeof CSRF_TOKEN !== 'undefined') return CSRF_TOKEN;
+        if (typeof CSRF_TOKEN !== 'undefined' && CSRF_TOKEN) return CSRF_TOKEN;
+        if (typeof cfg !== 'undefined' && cfg.csrf) return cfg.csrf;
         let v = null;
         document.cookie.split(';').forEach(c => {
             const t = c.trim();
@@ -77,14 +78,17 @@ $(document).ready(function () {
 
     function url(nombre) {
         if (typeof URLS !== 'undefined' && URLS[nombre]) return URLS[nombre];
+        const config = (document.getElementById('js-config') || {}).dataset || {};
         const mapa = {
-            eventosData:   typeof EVENTOS_DATA_URL    !== 'undefined' ? EVENTOS_DATA_URL    : '',
-            crearEvento:   typeof CREAR_EVENTO_URL    !== 'undefined' ? CREAR_EVENTO_URL    : '',
-            editarBase:    typeof EDITAR_EVENTO_BASE  !== 'undefined' ? EDITAR_EVENTO_BASE  : '',
-            obtenerBase:   typeof OBTENER_EVENTO_BASE !== 'undefined' ? OBTENER_EVENTO_BASE : '',
-            cambiarEstado: typeof CAMBIAR_ESTADO_BASE !== 'undefined' ? CAMBIAR_ESTADO_BASE : '',
-            inactivarBase: typeof INACTIVAR_EVENTO_BASE !== 'undefined' ? INACTIVAR_EVENTO_BASE : '',
-            restaurarBase: typeof RESTAURAR_EVENTO_BASE !== 'undefined' ? RESTAURAR_EVENTO_BASE : '',
+            eventosData:   config.urlEventosData || '',
+            crearEvento:   config.urlCrearEvento || '',
+            editarBase:    (config.urlEditarBase || '').replace('/0/', '/'),
+            obtenerBase:   (config.urlObtenerBase || '').replace('/0/', '/'),
+            cambiarEstado: (config.urlEstadoBase || '').replace('/0/', '/'),
+            completarBase: (config.urlCompletarBase || '').replace('/0/', '/'),
+            eliminarBase:  (config.urlEliminarBase || '').replace('/0/', '/'),
+            inactivarBase: (config.urlInactivarBase || '').replace('/0/', '/'),
+            restaurarBase: (config.urlRestaurarBase || '').replace('/0/', '/'),
         };
         return mapa[nombre] || '';
     }

@@ -105,6 +105,7 @@
           data-telefono="{{ c.telefono }}"
           data-direccion="{{ c.direccion }}"
           data-email="{{ c.email|default:'' }}"
+          data-es_especial="{{ c.es_especial|yesno:'True,False' }}"
           data-estado="{{ c.estado }}"
         >
 
@@ -143,12 +144,8 @@
                 <i class="fas fa-eye"></i>
               </button>
 
-              <button class="historial-btn" data-id="{{ c.id }}" title="Historial de pedidos">
+              <button class="historial-btn" data-id="{{ c.id }}" title="Historial completo">
                 <i class="fas fa-receipt"></i>
-              </button>
-
-              <button class="pago-btn" data-id="{{ c.id }}" title="Historial de pagos">
-                <i class="fas fa-money-bill-wave"></i>
               </button>
 
               <button class="edit-btn" data-id="{{ c.id }}" title="Editar cliente">
@@ -161,7 +158,6 @@
                 data-nombre="{{ c.nombre }}"
                 data-estado="{{ c.estado }}"
                 title="{% if c.estado %}Inactivar{% else %}Activar{% endif %}"
-                onclick="event.stopPropagation(); {% if c.estado %}abrirModalInactivar({{ c.id }}, '{{ c.nombre|escapejs }}'){% else %}abrirModalActivar({{ c.id }}, '{{ c.nombre|escapejs }}'){% endif %};"
               >
                 <i class="fas {% if c.estado %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
               </button>

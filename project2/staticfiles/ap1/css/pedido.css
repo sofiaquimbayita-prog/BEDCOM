@@ -117,15 +117,15 @@ input:checked + .slider::before { transform:translateX(20px); }
 
 /* 4. BOTONES ACCIÓN (círculos) */
 .icons { display:flex; justify-content:center; gap:8px; }
-.view-btn, .edit-btn, .btn-despacho, .btn-despacho-ver { border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; background:rgba(255,255,255,0.08); color:#94a3b8; width:40px; height:40px; }
-.view-btn:hover { color:#a78bfa; transform:scale(1.1); box-shadow:0 4px 15px rgba(167,139,250,0.35); background:rgba(167,139,250,0.12); }
-.edit-btn:hover { background:rgba(251,191,36,0.2); color:#fbbf24; transform:scale(1.1); box-shadow:0 4px 15px rgba(251,191,36,0.3); }
-.btn-despacho { color: #3b82f6; background: rgba(59,130,246,0.12); }
-.btn-despacho:hover { color: #1d4ed8; transform: scale(1.1); box-shadow: 0 4px 15px rgba(59,130,246,0.4); background: rgba(59,130,246,0.2); }
-.btn-despacho-ver { color: #10b981; background: rgba(16,185,129,0.12); }
-.btn-despacho-ver:hover { color: #059669; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16,185,129,0.4); background: rgba(16,185,129,0.2); }
-.btn-pagar { color: #10b981; background: rgba(16,185,129,0.12); border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; width:40px; height:40px; }
-.btn-pagar:hover { color: #059669; transform: scale(1.1); box-shadow: 0 4px 15px rgba(16,185,129,0.4); background: rgba(16,185,129,0.25); }
+.view-btn, .edit-btn, .btn-despacho, .btn-despacho-ver, .btn-pagar { border:none; padding:10px; border-radius:50%; cursor:pointer; font-size:16px; transition:all 0.3s ease; display:inline-flex; align-items:center; justify-content:center; margin:2px; background:rgba(255,255,255,0.08); color:#94a3b8; width:40px; height:40px; }
+.view-btn:hover     { color:#38bdf8; transform:scale(1.1); box-shadow:0 4px 15px rgba(56,189,248,0.35); }
+.edit-btn:hover     { color:#fbbf24; transform:scale(1.1); box-shadow:0 4px 15px rgba(251,191,36,0.3); }
+.btn-despacho       { color:#3b82f6; }
+.btn-despacho:hover { color:#1d4ed8; transform:scale(1.1); box-shadow:0 4px 15px rgba(59,130,246,0.4); }
+.btn-despacho-ver   { color:#10b981; }
+.btn-despacho-ver:hover { color:#059669; transform:scale(1.1); box-shadow:0 4px 15px rgba(16,185,129,0.4); }
+.btn-pagar          { color:#10b981; }
+.btn-pagar:hover    { color:#059669; transform:scale(1.1); box-shadow:0 4px 15px rgba(16,185,129,0.4); }
 
 /* 5. MODAL BASE */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:10000; justify-content:center; align-items:center; }

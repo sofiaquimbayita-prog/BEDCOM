@@ -1,0 +1,252 @@
+<div id="notificaciones-section" class="panel notif-panel">
+    <div class="panel-header">
+        <span class="panel-title"><i class="fas fa-bell"></i> Notificaciones ({{ unread_count|default:0 }})</span>
+        <div class="panel-actions">
+            <button onclick="checkTriggersNow()" class="btn-check-now" title="Verificar triggers ahora">
+                <i class="fas fa-bolt"></i> Verificar Ahora
+            </button>
+            <span id="check-status" class="status-ok"></span>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table id="notifTable" class="display nowrap">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<script>
+let notifTable;
+
+// Get CSRF Token helper (from menu.js pattern)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function initNotifTable() {
+    const tableEl = document.getElementById('notifTable');
+    if (!tableEl) {
+        console.error('Notif table element not found');
+        return;
+    }
+    
+    notifTable = $('#notifTable').DataTable({
+        ajax: '/vistas/monitoreo/api/notificaciones/',
+        columns: [
+            { data: 'titulo', orderable: true },
+            { data: 'tipo', orderable: true },
+            { data: 'fecha_notif', render: data => new Date(data).toLocaleString('es-CO') },
+            { data: 'leida', render: data => data ? '<span class="status-leida">Leída</span>' : '<span class="status-nueva">Nueva</span>' },
+            { 
+                orderable: false,
+                render: (data, type, row) => {
+                    let btnHTML = row.leida ? 
+                        `<button class="btn-small reopen" onclick="reopenNotif(${row.id})" title="Reabrir"><i class="fas fa-undo"></i></button>` :
+                        `<button class="btn-small danger" onclick="markRead(${row.id})" title="Marcar como leída"><i class="fas fa-eye"></i></button>`;
+                    
+                    btnHTML += ` <button class="btn-small action" onclick="redirigirNotif('${row.tipo}')" title="Ir al módulo"><i class="fas fa-external-link-alt"></i></button>`;
+                    return btnHTML;
+                }
+            }
+        ],
+        pageLength: 25,
+        order: [[2, 'desc']],
+        columnDefs: [
+            { targets: [0,1], width: '25%' },
+            { targets: [3], width: '15%' },
+            { targets: [4], width: '15%', orderable: false }
+        ],
+        language: {
+            "lengthMenu": "Mostrar _MENU_ entradas",
+            "decimal": ",",
+            "thousands": ".",
+            "emptyTable": "No hay notificaciones",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ notificaciones",
+            "infoEmpty": "Mostrando 0 a 0 de 0 notificaciones",
+            "infoFiltered": "(filtrado de _MAX_ total notificaciones)",
+            "infoPostFix": "",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron notificaciones coincidentes",
+            "paginate": {
+                "first": "Primera",
+                "last": "Última",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "aria": {
+                "sortAscending": ": activar para ordenar la columna ascendente",
+                "sortDescending": ": activar para ordenar la columna descendente"
+            }
+        },
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todas"]],
+        dom: '<"top"l>frtip', // Organized: length | filter | table | info+paging
+        drawCallback: function() { 
+            attachNotifListeners(); 
+            if (typeof window.updateGlobalBadge === 'function') {
+                fetch('/vistas/monitoreo/api/notificaciones/')
+                    .then(res => res.json())
+                    .then(window.updateGlobalBadge)
+                    .catch(console.error);
+            }
+            updateNotifBadge(); 
+        }
+    });
+}
+
+function updateNotifBadge() {
+    fetch('/vistas/monitoreo/api/notificaciones/')
+        .then(response => {
+            if (!response.ok) throw new Error('API failed');
+            return response.json();
+        })
+        .then(data => {
+            const badgeEl = document.querySelector('#notificaciones-section .panel-title');
+            if (badgeEl) {
+                const count = data.count || 0;
+                badgeEl.innerHTML = '<i class="fas fa-bell"></i> Notificaciones ' + 
+                    (count > 0 ? `<span class="badge-count">${count}</span>` : '');
+            }
+        })
+        .catch(err => console.error('Badge update error:', err));
+}
+
+function checkTriggersNow() {
+    const statusEl = document.getElementById('check-status');
+    if (!statusEl) {
+        console.error('Check status element not found');
+        return;
+    }
+    
+    statusEl.textContent = 'Verificando...';
+    statusEl.className = 'status-loading';
+    
+    fetch('/vistas/monitoreo/api/check-triggers/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showToast(`✅ ${data.nuevas || 0} nuevas notificaciones generadas`);
+            if (notifTable) notifTable.ajax.reload();
+            statusEl.textContent = `${data.nuevas || 0} nuevas`;
+            statusEl.className = (data.nuevas || 0) > 0 ? 'status-new' : 'status-ok';
+            setTimeout(() => { 
+                statusEl.textContent = ''; 
+                statusEl.className = 'status-ok';
+            }, 4000);
+        } else {
+            throw new Error(data.error || 'Respuesta inválida');
+        }
+    })
+    .catch(error => {
+        console.error('Check triggers error:', error);
+        showNotifError('Error verificando triggers: ' + error.message);
+        statusEl.textContent = 'Error';
+        statusEl.className = 'status-error';
+        setTimeout(() => { 
+            statusEl.textContent = ''; 
+            statusEl.className = 'status-ok';
+        }, 4000);
+    });
+}
+
+function markRead(id) {
+    if (!notifTable) return;
+    
+    fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(() => notifTable.ajax.reload())
+    .catch(err => console.error('Mark read error:', err));
+}
+
+function redirigirNotif(tipo) {
+    let urlDestino = '/vistas/monitoreo/'; // fallback
+    switch(tipo) {
+        case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
+        case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
+        case 'calendario_hoy':
+        case 'calendario_manaña': urlDestino = '/vistas/calendario/'; break;
+        case 'pendido_despacho': urlDestino = '/vistas/despacho/'; break;
+        case 'sin_bom': urlDestino = '/vistas/bom/'; break;
+        case 'pago_pendiente': urlDestino = '/vistas/pedido/'; break;
+        case 'garantia_nueva': urlDestino = '/vistas/garantias/'; break;
+        case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
+    }
+    window.location.href = urlDestino;
+}
+
+function reopenNotif(id) {
+    console.log('Reopen notif:', id); // Future implementation
+}
+
+function attachNotifListeners() {
+    // Row click handlers if needed
+    console.log('Notif listeners attached');
+}
+
+// Init on DOM ready + 500ms delay for DataTables
+setTimeout(() => {
+    initNotifTable();
+}, 500);
+
+// Auto refresh every 30s
+setInterval(() => {
+    if (notifTable) {
+        notifTable.ajax.reload(null, false); // No reset paging
+        // Global sync after reload
+        if (typeof window.updateGlobalBadge === 'function') {
+            fetch('/vistas/monitoreo/api/notificaciones/')
+                .then(res => res.json())
+                .then(window.updateGlobalBadge)
+                .catch(console.error);
+        }
+    }
+}, 30000);
+
+// Global toast/error helpers (if not defined elsewhere)
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'message success fixed-toast';
+    toast.innerHTML = `<i class="fas fa-check"></i> ${msg} <button onclick="this.parentElement.remove()">×</button>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+function showNotifError(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'message error fixed-toast';
+    toast.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg} <button onclick="this.parentElement.remove()">×</button>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+</script>

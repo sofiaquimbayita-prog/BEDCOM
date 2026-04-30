@@ -116,7 +116,8 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
       <div class="ver-campo ver-campo--destacado" style="${deuda > 0 ? 'background:var(--color-deuda-glow);border-color:var(--color-deuda-brd)' : ''}">
         <span class="ver-label">Deuda Pendiente</span>
         <span class="ver-valor ver-valor--monto" style="color:${deuda > 0 ? 'var(--color-deuda)' : 'var(--color-exito)'}">$${deuda.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
-      </div>`;
+      </div>
+      <div class="ver-campo"><span class="ver-label">Cliente Especial</span><span class="ver-valor"><span class="badge-estado badge-${c.es_especial ? 'activo' : 'inactivo'}">${c.es_especial ? 'Sí' : 'No'}</span></span></div>`;
     openModal('modalVer');
     return;
   }
@@ -131,143 +132,154 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
     document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
     document.getElementById('fDireccion').value = tr.dataset.direccion || '';
     document.getElementById('fEmail').value     = tr.dataset.email     || '';
+    document.getElementById('fEsEspecial').checked = (tr.dataset.es_especial === 'True' || tr.dataset.es_especial === 'true');
     document.getElementById('formAlerta').style.display = 'none';
     openModal('modalForm');
     return;
   }
 
-  /* ─── MODAL HISTORIAL DE PEDIDOS ─── */
+  /* ─── MODAL HISTORIAL COMPLETO (Pedidos y Pagos) ─── */
   if (btn.classList.contains('historial-btn')) {
     document.getElementById('histPedidosList').innerHTML =
-      '<div class="historial-vacio"><i class="fas fa-spinner fa-spin"></i><p>Cargando historial…</p></div>';
-    openModal('modalHistorial');
-
-    const res  = await fetch(URL_HISTORIAL(id));
-    const data = await res.json();
-    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorial'); return; }
-
-    const c = data.cliente;
-    document.getElementById('histCliAvatar').textContent      = c.nombre.charAt(0).toUpperCase();
-    document.getElementById('histCliNombre').textContent      = c.nombre;
-    document.getElementById('histTotalPedidos').textContent   = data.total_pedidos;
-
-    const totalFacturado = data.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
-    document.getElementById('histTotalFacturado').textContent = `$${totalFacturado.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
-    document.getElementById('histDeudaTotal').textContent     = `$${parseFloat(data.deuda_total).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
-
-    if (!data.pedidos.length) {
-      document.getElementById('histPedidosList').innerHTML =
-        '<div class="historial-vacio"><i class="fas fa-shopping-bag"></i><p>Este cliente no tiene pedidos registrados.</p></div>';
-      return;
-    }
-
-    document.getElementById('histPedidosList').innerHTML = data.pedidos.map(p => {
-      const pendiente  = parseFloat(p.pendiente);
-      const badgeClass = p.estado === 'Completado' ? 'badge-completado'
-                       : p.estado === 'Anulado'    ? 'badge-anulado'
-                       : 'badge-pendiente';
-      
-      // Tabla de productos del pedido
-      const detallesHtml = p.detalles && p.detalles.length
-        ? `<div class="pedido-detalles-tabla-wrap">
-            <table class="pedido-detalles-tabla">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th style="text-align:center;width:70px">Cant.</th>
-                  <th style="text-align:right;width:100px">P. Unit.</th>
-                  <th style="text-align:right;width:100px">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${p.detalles.map(d => `
-                  <tr>
-                    <td>
-                      <div style="font-weight:600">${d.producto}</div>
-                      ${d.observaciones ? `<div style="font-size:0.75rem;color:var(--color-texto-muted);margin-top:2px">${d.observaciones}</div>` : ''}
-                    </td>
-                    <td style="text-align:center">${d.cantidad}</td>
-                    <td style="text-align:right">$${parseFloat(d.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-                    <td style="text-align:right;color:var(--color-exito);font-weight:600">$${parseFloat(d.sub_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-           </div>`
-        : '<div style="font-size:0.82rem;color:var(--color-texto-muted);padding:8px 0">Sin productos registrados</div>';
-      
-      // Resumen de totales del pedido
-      const totalesHtml = `<div class="pedido-totales">
-        <div class="pedido-total-row">
-          <span>Total pedido:</span>
-          <span class="pedido-total-valor">$${parseFloat(p.total).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
-        </div>
-        <div class="pedido-total-row">
-          <span>Pagado:</span>
-          <span style="color:var(--color-exito)">$${parseFloat(p.pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
-        </div>
-        ${pendiente > 0 && p.estado !== 'Anulado'
-          ? `<div class="pedido-total-row">
-               <span>Pendiente:</span>
-               <span style="color:var(--color-deuda);font-weight:700">$${pendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
-             </div>`
-          : ''}
-      </div>`;
-      
-      return `
-        <div class="historial-pedido">
-          <div class="historial-row">
-            <div>
-              <span class="historial-id">#${p.id}</span>
-              <span class="historial-fecha" style="margin-left:8px">${p.fecha}</span>
-              <span style="margin-left:10px;font-size:0.78rem;color:var(--color-texto-muted)"><i class="fas fa-box" style="font-size:0.65rem;margin-right:3px"></i>${p.cantidad_productos} producto${p.cantidad_productos !== 1 ? 's' : ''}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <span class="badge-estado ${badgeClass}">${p.estado}</span>
-            </div>
-          </div>
-          ${detallesHtml}
-          ${totalesHtml}
-        </div>`;
-    }).join('');
-    return;
-  }
-
-  /* ─── MODAL HISTORIAL DE PAGOS ─── */
-  if (btn.classList.contains('pago-btn')) {
+      '<div class="historial-vacio"><i class="fas fa-spinner fa-spin"></i><p>Cargando pedidos…</p></div>';
     document.getElementById('histPagosBody').innerHTML =
       '<tr><td colspan="4" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i> Cargando pagos…</td></tr>';
-    openModal('modalHistorialPagos');
+    
+    // Reset tabs
+    document.getElementById('contentPedidos').style.display = 'block';
+    document.getElementById('contentPagos').style.display = 'none';
+    document.getElementById('tabPedidos').style.color = 'var(--color-primario)';
+    document.getElementById('tabPedidos').style.borderBottom = '2px solid var(--color-primario)';
+    document.getElementById('tabPagos').style.color = '#777';
+    document.getElementById('tabPagos').style.borderBottom = 'none';
 
-    const res  = await fetch(URL_HISTORIAL_PAGOS(id));
-    const data = await res.json();
-    if (!data.ok) { showToast(data.error, 'error'); closeModal('modalHistorialPagos'); return; }
+    openModal('modalHistorial');
 
-    const c = data.cliente;
-    document.getElementById('histPagosCliAvatar').textContent   = c.nombre.charAt(0).toUpperCase();
-    document.getElementById('histPagosCliNombre').textContent   = c.nombre;
-    document.getElementById('histPagosTotalPagos').textContent  = data.total_pagos;
-    document.getElementById('histPagosTotalPagado').textContent = `$${parseFloat(data.total_pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+    // Fetch ambos
+    Promise.all([
+      fetch(URL_HISTORIAL(id)).then(r => r.json()),
+      fetch(URL_HISTORIAL_PAGOS(id)).then(r => r.json())
+    ]).then(([dataPed, dataPag]) => {
+      if (!dataPed.ok || !dataPag.ok) {
+        showToast('Error cargando historiales', 'error');
+        closeModal('modalHistorial');
+        return;
+      }
 
-    if (!data.pagos.length) {
-      document.getElementById('histPagosBody').innerHTML =
-        '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--color-texto-muted)"><i class="fas fa-info-circle"></i> Este cliente no tiene pagos registrados.</td></tr>';
-      return;
-    }
+      const c = dataPed.cliente;
+      document.getElementById('histCliAvatar').textContent      = c.nombre.charAt(0).toUpperCase();
+      document.getElementById('histCliNombre').textContent      = c.nombre;
+      
+      // Pedidos
+      document.getElementById('histTotalPedidos').textContent   = dataPed.total_pedidos;
+      const totalFacturado = dataPed.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
+      document.getElementById('histTotalFacturado').textContent = `$${totalFacturado.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+      document.getElementById('histDeudaTotal').textContent     = `$${parseFloat(dataPed.deuda_total).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
 
-    document.getElementById('histPagosBody').innerHTML = data.pagos.map(p => `
-      <tr>
-        <td>${p.fecha}</td>
-        <td><strong>#${p.pedido_id}</strong></td>
-        <td>$${parseFloat(p.pedido_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-        <td style="color:var(--color-exito);font-weight:700">$${parseFloat(p.monto).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
-      </tr>
-    `).join('');
+      if (!dataPed.pedidos.length) {
+        document.getElementById('histPedidosList').innerHTML =
+          '<div class="historial-vacio"><i class="fas fa-shopping-bag"></i><p>Este cliente no tiene pedidos registrados.</p></div>';
+      } else {
+        document.getElementById('histPedidosList').innerHTML = dataPed.pedidos.map(p => {
+          const pendiente  = parseFloat(p.pendiente);
+          const badgeClass = p.estado === 'Completado' ? 'badge-completado'
+                           : p.estado === 'Anulado'    ? 'badge-anulado'
+                           : 'badge-pendiente';
+          
+          const detallesHtml = p.detalles && p.detalles.length
+            ? `<div class="pedido-detalles-tabla-wrap">
+                <table class="pedido-detalles-tabla">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th style="text-align:center;width:70px">Cant.</th>
+                      <th style="text-align:right;width:100px">P. Unit.</th>
+                      <th style="text-align:right;width:100px">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${p.detalles.map(d => `
+                      <tr>
+                        <td>
+                          <div style="font-weight:600">${d.producto}</div>
+                          ${d.observaciones ? `<div style="font-size:0.75rem;color:var(--color-texto-muted);margin-top:2px">${d.observaciones}</div>` : ''}
+                        </td>
+                        <td style="text-align:center">${d.cantidad}</td>
+                        <td style="text-align:right">$${parseFloat(d.precio_unitario).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+                        <td style="text-align:right;color:var(--color-exito);font-weight:600">$${parseFloat(d.sub_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+               </div>`
+            : '<div style="font-size:0.82rem;color:var(--color-texto-muted);padding:8px 0">Sin productos registrados</div>';
+          
+          const totalesHtml = `<div class="pedido-totales">
+            <div class="pedido-total-row">
+              <span>Total pedido:</span>
+              <span class="pedido-total-valor">$${parseFloat(p.total).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+            </div>
+            <div class="pedido-total-row">
+              <span>Pagado:</span>
+              <span style="color:var(--color-exito)">$${parseFloat(p.pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+            </div>
+            ${pendiente > 0 && p.estado !== 'Anulado'
+              ? `<div class="pedido-total-row">
+                   <span>Pendiente:</span>
+                   <span style="color:var(--color-deuda);font-weight:700">$${pendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>
+                 </div>`
+              : ''}
+          </div>`;
+          
+          return `
+            <div class="historial-pedido">
+              <div class="historial-row">
+                <div>
+                  <span class="historial-id">#${p.id}</span>
+                  <span class="historial-fecha" style="margin-left:8px">${p.fecha}</span>
+                  <span style="margin-left:10px;font-size:0.78rem;color:var(--color-texto-muted)"><i class="fas fa-box" style="font-size:0.65rem;margin-right:3px"></i>${p.cantidad_productos} producto${p.cantidad_productos !== 1 ? 's' : ''}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <span class="badge-estado ${badgeClass}">${p.estado}</span>
+                </div>
+              </div>
+              ${detallesHtml}
+              ${totalesHtml}
+            </div>`;
+        }).join('');
+      }
+
+      // Pagos
+      document.getElementById('histPagosTotalPagos').textContent  = dataPag.total_pagos;
+      document.getElementById('histPagosTotalPagado').textContent = `$${parseFloat(dataPag.total_pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+
+      if (!dataPag.pagos.length) {
+        document.getElementById('histPagosBody').innerHTML =
+          '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--color-texto-muted)"><i class="fas fa-info-circle"></i> Este cliente no tiene pagos registrados.</td></tr>';
+      } else {
+        document.getElementById('histPagosBody').innerHTML = dataPag.pagos.map(p => `
+          <tr>
+            <td>${p.fecha}</td>
+            <td><strong>#${p.pedido_id}</strong></td>
+            <td>$${parseFloat(p.pedido_total).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+            <td style="color:var(--color-exito);font-weight:700">$${parseFloat(p.monto).toLocaleString('es-CO', {minimumFractionDigits:0})}</td>
+          </tr>
+        `).join('');
+      }
+    });
     return;
   }
 
-  /* ─── TOGGLE ESTADO (activar / inactivar) — ahora manejado por modales ─── */
+  /* ─── TOGGLE ESTADO (activar / inactivar) ─── */
   if (btn.classList.contains('toggle-btn')) {
+    e.stopPropagation();
+    const isActivo = btn.dataset.estado === 'True';
+    const nombre = btn.dataset.nombre;
+    if (isActivo) {
+      abrirModalInactivar(id, nombre);
+    } else {
+      abrirModalActivar(id, nombre);
+    }
     return;
   }
 });
@@ -300,6 +312,7 @@ document.getElementById('btnNuevoCliente').addEventListener('click', () => {
   modoEdicion = false; clienteEditandoId = null;
   configurarModalCrear();
   ['fNombre','fTelefono','fDireccion','fEmail'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fEsEspecial').checked = false;
   document.getElementById('formAlerta').style.display = 'none';
   openModal('modalForm');
 });
@@ -319,6 +332,7 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const telefono  = document.getElementById('fTelefono').value.trim();
   const direccion = document.getElementById('fDireccion').value.trim();
   const email     = document.getElementById('fEmail').value.trim();
+  const es_especial = document.getElementById('fEsEspecial').checked;
 
   if (!nombre) { alerta.textContent = 'El nombre es obligatorio.'; alerta.style.display = 'block'; return; }
 
@@ -329,7 +343,7 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-    body: JSON.stringify({ nombre, telefono, direccion, email })
+    body: JSON.stringify({ nombre, telefono, direccion, email, es_especial })
   });
   const data = await res.json();
 
@@ -427,4 +441,23 @@ document.getElementById('formActivar').addEventListener('submit', async function
     btn.innerHTML = originalHtml;
     showToast('Error de conexión', 'error');
   }
+});
+
+/* ─── Tabs para Modal Historial ─── */
+document.getElementById('tabPedidos')?.addEventListener('click', function() {
+  document.getElementById('contentPedidos').style.display = 'block';
+  document.getElementById('contentPagos').style.display = 'none';
+  this.style.color = 'var(--color-primario)';
+  this.style.borderBottom = '2px solid var(--color-primario)';
+  document.getElementById('tabPagos').style.color = '#777';
+  document.getElementById('tabPagos').style.borderBottom = 'none';
+});
+
+document.getElementById('tabPagos')?.addEventListener('click', function() {
+  document.getElementById('contentPagos').style.display = 'block';
+  document.getElementById('contentPedidos').style.display = 'none';
+  this.style.color = 'var(--color-primario)';
+  this.style.borderBottom = '2px solid var(--color-primario)';
+  document.getElementById('tabPedidos').style.color = '#777';
+  document.getElementById('tabPedidos').style.borderBottom = 'none';
 });

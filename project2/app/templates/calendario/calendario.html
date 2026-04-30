@@ -108,19 +108,17 @@
 <!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>
 
-<script>
-  const URLS = {
-    eventosData:      "{% url 'eventos_data' %}",
-    eventosPorFecha:  "{% url 'eventos_por_fecha' %}",
-    categoriasStats:  "{% url 'categorias_stats' %}",
-    crearEvento:      "{% url 'crear_evento' %}",
-    editarBase:       "{% url 'editar_evento' 0 %}".replace('/0/', '/'),
-    obtenerBase:      "{% url 'obtener_evento' 0 %}".replace('/0/', '/'),
-    completarBase:    "{% url 'completar_evento' 0 %}".replace('/0/', '/'),
-    eliminarBase:     "{% url 'eliminar_evento' 0 %}".replace('/0/', '/'),
-  };
-  const CSRF_TOKEN = "{{ csrf_token }}";
-</script>
+<div id="js-config"
+     data-csrf="{{ csrf_token }}"
+     data-url-eventos-data="{% url 'eventos_data' %}"
+     data-url-eventos-por-fecha="{% url 'eventos_por_fecha' %}"
+     data-url-categorias-stats="{% url 'categorias_stats' %}"
+     data-url-crear-evento="{% url 'crear_evento' %}"
+     data-url-editar-base="{% url 'editar_evento' 0 %}"
+     data-url-obtener-base="{% url 'obtener_evento' 0 %}"
+     data-url-completar-base="{% url 'completar_evento' 0 %}"
+     data-url-eliminar-base="{% url 'eliminar_evento' 0 %}"
+     style="display:none;"></div>
 
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>

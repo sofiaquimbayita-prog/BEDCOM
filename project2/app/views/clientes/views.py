@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
 
-from ...models import cliente, pedido, pago
+from ...models import cliente, pedido, pago, historial_acciones
 
 
 # ─────────────────────────────────────────────
@@ -19,6 +19,7 @@ def _cliente_to_dict(obj):
         'telefono':  obj.telefono,
         'direccion': obj.direccion,
         'email':     obj.email or '',
+        'es_especial': obj.es_especial,
         'estado':    obj.estado,
     }
 
@@ -85,6 +86,7 @@ class ClienteCreateView(View):
             telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
             email     = data.get('email', '').strip() or None
+            es_especial = bool(data.get('es_especial', False))
 
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
@@ -95,7 +97,16 @@ class ClienteCreateView(View):
                     telefono=telefono or '—',
                     direccion=direccion or '—',
                     email=email,
+                    es_especial=es_especial,
                     estado=True
+                )
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='crear',
+                    descripcion=f'Creó el cliente "{obj.nombre}"',
+                    usuario=request.user
                 )
 
             return JsonResponse({
@@ -120,6 +131,7 @@ class ClienteUpdateView(View):
             telefono  = data.get('telefono', '').strip()
             direccion = data.get('direccion', '').strip()
             email     = data.get('email', '').strip() or None
+            es_especial = bool(data.get('es_especial', False))
 
             if not nombre:
                 return JsonResponse({'ok': False, 'error': 'El nombre es obligatorio.'})
@@ -129,7 +141,16 @@ class ClienteUpdateView(View):
                 obj.telefono  = telefono or '—'
                 obj.direccion = direccion or '—'
                 obj.email     = email
+                obj.es_especial = es_especial
                 obj.save()
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='editar',
+                    descripcion=f'Actualizó el cliente "{obj.nombre}"',
+                    usuario=request.user
+                )
 
             return JsonResponse({
                 'ok': True,
@@ -151,6 +172,14 @@ class ClienteToggleEstadoView(View):
             obj.estado = not obj.estado
             obj.save()
             accion = 'activado' if obj.estado else 'inactivado'
+            
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='activar' if obj.estado else 'inactivar',
+                    descripcion=f'Cambió estado de cliente "{obj.nombre}" a {accion}',
+                    usuario=request.user
+                )
             return JsonResponse({
                 'ok': True,
                 'message': f'Cliente "{obj.nombre}" {accion} correctamente.',
@@ -278,6 +307,14 @@ class ClientePagoView(View):
                 if p.saldo_pendiente <= 0 and p.estado == 'Pendiente':
                     p.estado = 'Completado'
                 p.save()
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='editar',
+                    descripcion=f'Registró pago de ${monto} al cliente "{p.cliente.nombre}" (Pedido #{p.id})',
+                    usuario=request.user
+                )
 
             deuda_nueva = _calcular_deuda(p.cliente)
 

@@ -71,12 +71,17 @@ $(document).ready(function () {
               <span class="badge-estado badge-${d.estado}">${estadoLabel}</span>
             </p>
             <p><strong>Fecha despacho:</strong> ${fmtFecha(d.fecha_despacho)}</p>
-            ${d.fecha_entrega_real
-              ? `<p><strong>Entrega real:</strong> ${fmtFecha(d.fecha_entrega_real)}</p>`
-              : ''}
+            <p><strong>Fecha de despacho programada:</strong> ${fmtFecha(d.fecha_entrega)}</p>
             ${d.observaciones
               ? `<p><strong>Observaciones:</strong> ${d.observaciones}</p>`
               : ''}
+          </div>
+          <div class="info-card">
+            <h4><i class="fas fa-truck-loading"></i> Transportadora</h4>
+            <p><strong>Empresa:</strong> ${d.empresa_transporte || 'Propia / Sin asignar'}</p>
+            <p><strong>No. Guía:</strong> ${d.numero_guia || '—'}</p>
+            <p><strong>Costo:</strong> $${parseFloat(d.costo_envio || 0).toLocaleString('es-CO')}</p>
+            <p><strong>Responsable:</strong> ${d.responsable || '—'}</p>
           </div>
         </div>
 
@@ -145,6 +150,57 @@ $(document).ready(function () {
     } catch {
       selectEl.value = estadoAnterior;
       showToast('Error de conexión con el servidor', 'error');
+    }
+  });
+
+  /* ── Crear Nuevo Despacho ───────────────────────────── */
+  $('#btnNuevoDespacho').on('click', function(){
+    $('#inpCrearPedidoId').val('');
+    $('#inpCrearEmpresa').val('');
+    $('#inpCrearGuia').val('');
+    $('#inpCrearCosto').val('0');
+    $('#modalCrearDespacho').addClass('mostrar');
+  });
+
+  $('#btnGuardarDespacho').on('click', async function(){
+    const pedido_id = $('#inpCrearPedidoId').val();
+    if (!pedido_id) {
+      showToast('Debe seleccionar un pedido', 'error');
+      return;
+    }
+
+    const empresa = $('#inpCrearEmpresa').val().trim();
+    const guia = $('#inpCrearGuia').val().trim();
+    const costo = parseFloat($('#inpCrearCosto').val()) || 0;
+
+    const btn = $(this);
+    const originalHtml = btn.html();
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+
+    try {
+      const res = await fetch('/vistas/despacho/crear/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+          pedido_id: pedido_id,
+          empresa_transporte: empresa,
+          numero_guia: guia,
+          costo_envio: costo
+        })
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        showToast(data.message);
+        $('#modalCrearDespacho').removeClass('mostrar');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showToast(data.error, 'error');
+        btn.prop('disabled', false).html(originalHtml);
+      }
+    } catch(e) {
+      showToast('Error de conexión con el servidor', 'error');
+      btn.prop('disabled', false).html(originalHtml);
     }
   });
 

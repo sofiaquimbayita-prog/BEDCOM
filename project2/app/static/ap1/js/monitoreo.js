@@ -1,95 +1,163 @@
-// ── DATOS SIMULADOS (reemplazar con fetch a Django) ──────────────────────────
+// monitoreo.js - BEDCOM Dashboard Animations & Safe DOM Ops
+// Fixed: Null safety, modern KPIs, historial compatibility
+
+// ── SAFE DOM SELECTOR ─────────────────────────────────────────────────────────
+function $(sel) { 
+    const el = document.querySelector(sel);
+    if (!el) console.warn(`DOM element not found: ${sel}`);
+    return el;
+ }
 
 // ── RELOJ EN TIEMPO REAL ──────────────────────────────────────────────────────
 function actualizarFecha() {
-    const el = document.getElementById("fecha-hora");
+    const el = $("#fecha-hora");
     if (!el) return;
     const ahora = new Date();
-    const opciones = { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" };
-    el.textContent = ahora.toLocaleString("es-CO", opciones);
+    el.textContent = ahora.toLocaleString("es-CO", { 
+        weekday: "short", day: "numeric", month: "short", 
+        hour: "2-digit", minute: "2-digit" 
+    });
 }
-actualizarFecha();
-setInterval(actualizarFecha, 1000);
 
-// ── CONTADOR ANIMADO ──────────────────────────────────────────────────────────
+// ── CONTADOR ANIMADO (KPI Numbers) ────────────────────────────────────────────
 function animarContador(el, target, duracion = 1200) {
+    // Extra null safety for textContent errors
+    if (!el) {
+        console.warn('animarContador: el is null');
+        return;
+    }
+    if (typeof el.textContent === 'undefined') {
+        console.warn('animarContador: el.textContent not writable');
+        return;
+    }
+    if (isNaN(target) || target < 0) {
+        console.warn('animarContador: invalid target', target);
+        el.textContent = '0';
+        return;
+    }
     const inicio = performance.now();
     const update = (ahora) => {
         const t = Math.min((ahora - inicio) / duracion, 1);
-        const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
-        el.textContent = Math.round(ease * target);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(ease * target).toLocaleString();
         if (t < 1) requestAnimationFrame(update);
-        else el.textContent = target;
     };
     requestAnimationFrame(update);
 }
 
 // ── BARRAS DE PROGRESO ────────────────────────────────────────────────────────
 function animarBarras() {
-    document.querySelectorAll(".kpi-bar").forEach(bar => {
-        const pct = bar.dataset.pct;
-        setTimeout(() => { bar.style.width = pct + "%"; }, 200);
+    document.querySelectorAll(".kpi-bar[data-pct]").forEach((bar, i) => {
+        if (!bar.dataset.pct) return;
+        setTimeout(() => { 
+            bar.style.width = bar.dataset.pct + "%"; 
+            bar.style.opacity = "1";
+        }, i * 100);
     });
 }
 
-// ── TABLA ─────────────────────────────────────────────────────────────────────
-function cargarTabla() {
-    const tbody = document.getElementById("tabla-body");
-    procesos.forEach((p, i) => {
-        const tr = document.createElement("tr");
-        tr.style.opacity = "0";
-        tr.style.transform = "translateY(10px)";
-        tr.style.transition = `opacity .4s ${i * 0.1 + 0.3}s, transform .4s ${i * 0.1 + 0.3}s`;
-
-        tr.innerHTML = `
-            <td><strong>${p.nombre}</strong></td>
-            <td><span class="estado ${p.estado}">${p.estado}</span></td>
-            <td>${p.responsable}</td>
-            <td>${p.fecha}</td>
-            <td>
-                <div class="row-progress-wrap">
-                    <div class="row-progress" style="background:${p.color}" data-pct="${p.progreso}"></div>
-                </div>
-            </td>
+// ── HISTORIAL TABLE from Inline PHP Var ──────────────────────────────────────
+function cargarHistorial(procesosData = window.procesos || []) {
+    const tbody = $("#historial-body");
+    if (!tbody) return;
+    
+    if (procesosData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:2rem;color:#94a3b8">No hay acciones recientes</td></tr>`;
+        return;
+    }
+    
+    // Sort newest first
+    procesosData.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    
+    let html = '';
+    procesosData.slice(0, 20).forEach((p, i) => {
+        html += `
+            <tr style="opacity:0;transform:translateY(10px);transition:opacity .4s ${i*.08}s,transform .4s ${i*.08}s">
+                <td>${p.modulo || 'General'}</td>
+                <td>${p.accion || p.descripcion || '-'}</td>
+                <td>${p.fecha}</td>
+                <td>${p.responsable || 'Sistema'}</td>
+            </tr>
         `;
-        tbody.appendChild(tr);
-
-        // fade in row
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                tr.style.opacity = "1";
-                tr.style.transform = "translateY(0)";
-            });
+    });
+    tbody.innerHTML = html;
+    
+    // Animate in rows (null-safe)
+    requestAnimationFrame(() => {
+        Array.from(tbody.children || []).forEach((tr, i) => {
+            if (tr) {
+                requestAnimationFrame(() => {
+                    tr.style.opacity = "1";
+                    tr.style.transform = "translateY(0)";
+                });
+            }
         });
     });
-
-    // animate row progress bars
-    setTimeout(() => {
-        document.querySelectorAll(".row-progress").forEach(bar => {
-            bar.style.width = bar.dataset.pct + "%";
-        });
-    }, 600);
 }
 
-// ── INICIALIZACIÓN ────────────────────────────────────────────────────────────
-function init() {
-    // contadores KPI
+// ── REFRESH BUTTON ANIMATIONS ─────────────────────────────────────────────────
+function animateRefreshLoading(show = true) {
+    const icon = $("#icon-refresh");
+    const text = $("#text-refresh");
+    if (!icon || !text) return;
+    
+    if (show) {
+        icon.classList.add('fa-spin');
+        text.textContent = 'Actualizando...';
+    } else {
+        icon.classList.remove('fa-spin');
+        text.textContent = 'Auto (60s)';
+    }
+}
+
+// ── INICIALIZACIÓN SAFE ───────────────────────────────────────────────────────
+function initMonitoreo() {
+    // 1. Animate KPI counters
     document.querySelectorAll(".kpi-value[data-target]").forEach((el, i) => {
-        const target = parseInt(el.dataset.target);
-        setTimeout(() => animarContador(el, target), i * 80 + 100);
+        const target = parseInt(el.dataset.target || 0);
+        setTimeout(() => animarContador(el, target), i * 120 + 200);
     });
-
-    // barras KPI
+    
+    // 2. Animate KPI bars
     animarBarras();
-
-    // tabla
-    cargarTabla();
+    
+    // 3. Load historial from inline data
+    if (typeof window.procesos !== 'undefined') {
+        cargarHistorial(window.procesos);
+    }
+    
+    // 4. Clock
+    actualizarFecha();
+    setInterval(actualizarFecha, 1000);
 }
 
-document.addEventListener("DOMContentLoaded", init);
+// ── AUTO REFRESH (every 60s) ──────────────────────────────────────────────────
+function setupAutoRefresh() {
+    setInterval(() => {
+        if (typeof actualizarHistorialAhora === 'function') {
+            actualizarHistorialAhora();
+        }
+    }, 60000);
+}
 
-// ── NAVEGACIÓN ────────────────────────────────────────────────────────────────
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+    initMonitoreo();
+    setupAutoRefresh();
+});
+
+// ── MODULE NAVIGATION ─────────────────────────────────────────────────────────
 function irModulo(modulo) {
-    if (modulo === "insumos")   window.location.href = "/insumos/";
-    if (modulo === "logistica") window.location.href = "/logistica/";
+    const urls = {
+        insumos: '/insumos/',
+        logistica: '/logistica/',
+        productos: '/productos/',
+        entrada_p: '/entrada_p/'
+    };
+    window.location.href = urls[modulo] || '/';
 }
+
+// ── EXPORTS for global access ─────────────────────────────────────────────────
+window.animarContador = animarContador;
+window.cargarHistorial = cargarHistorial;
+

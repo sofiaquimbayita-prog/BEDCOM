@@ -1,0 +1,164 @@
+{% extends "includes/base.html" %}
+{% load static %}
+
+{% block header_title %}GARANTÍAS{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+
+<div id="js-config"
+     data-csrf="{{ csrf_token }}"
+     data-url-crear="/vistas/garantias/crear/"
+     data-url-estado="/vistas/garantias/estado/"
+     data-url-detalle="/vistas/garantias/detalle/"
+     style="display:none;"></div>
+
+<main class="main-container">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon--total"><i class="fas fa-screwdriver-wrench"></i></div>
+      <div>
+        <div class="kpi-value">{{ total_garantias }}</div>
+        <div class="kpi-label">Total Garantías</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#fef3c7;color:#f59e0b"><i class="fas fa-inbox"></i></div>
+      <div>
+        <div class="kpi-value" style="color:#f59e0b">{{ recibidas }}</div>
+        <div class="kpi-label">Recibidas</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#e0f2fe;color:#38bdf8"><i class="fas fa-tools"></i></div>
+      <div>
+        <div class="kpi-value" style="color:#38bdf8">{{ en_reparacion }}</div>
+        <div class="kpi-label">En Reparación</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#dcfce7;color:#10b981"><i class="fas fa-check-double"></i></div>
+      <div>
+        <div class="kpi-value" style="color:#10b981">{{ entregadas }}</div>
+        <div class="kpi-label">Entregadas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar" style="margin-top:20px;">
+    <div class="toolbar-left"></div>
+    <div class="toolbar-right">
+      <button type="button" class="btn-agregar" id="btnNuevaGarantia">
+        <i class="fas fa-plus"></i> Ingresar Garantía
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="container-tabla">
+    <table id="tablaGarantias" class="display" style="width:100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha Solicitud</th>
+          <th>Pedido/Cliente</th>
+          <th>Producto</th>
+          <th>Problema</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in garantias %}
+        <tr>
+          <td><strong>#{{ g.id }}</strong></td>
+          <td>{{ g.fecha_solicitud|date:"d/m/Y" }}</td>
+          <td>{{ g.pedido.cliente.nombre|default:"N/A" }} (Ped #{{ g.pedido.id }})</td>
+          <td>{{ g.producto.nombre }}</td>
+          <td title="{{ g.descripcion_falla }}">{{ g.descripcion_falla|truncatechars:30 }}</td>
+          <td>
+            <select class="estado-select" data-id="{{ g.id }}" data-estado-actual="{{ g.estado_reparacion }}">
+              <option value="recibida"  {% if g.estado_reparacion == 'recibida'  %}selected{% endif %}>Recibida</option>
+              <option value="en_reparacion"    {% if g.estado_reparacion == 'en_reparacion'    %}selected{% endif %}>En Reparación</option>
+              <option value="reparada"  {% if g.estado_reparacion == 'reparada'  %}selected{% endif %}>Reparada</option>
+              <option value="entregada"    {% if g.estado_reparacion == 'entregada'    %}selected{% endif %}>Entregada</option>
+            </select>
+          </td>
+          <td>
+            <div class="icons">
+              <button class="btn-ver" data-id="{{ g.id }}" title="Ver detalle">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal Crear Garantia -->
+<div class="modal" id="modalCrear">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <h2 class="modal-titulo"><i class="fas fa-plus-circle"></i> Ingresar Garantía</h2>
+      <button class="btn-cerrar" data-close="modalCrear">&times;</button>
+    </div>
+    <div class="form-grupo">
+      <label>Pedido Asociado</label>
+      <select id="inpPedido" class="form-input">
+        <option value="">— Seleccionar (Opcional) —</option>
+        {% for p in pedidos %}
+        <option value="{{ p.id }}">#{{ p.id }} - {{ p.cliente.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-grupo">
+      <label>Producto a Reparar <span style="color:red">*</span></label>
+      <select id="inpProducto" class="form-input" required>
+        <option value="">— Seleccionar —</option>
+        {% for p in productos %}
+        <option value="{{ p.id }}">{{ p.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-grupo">
+      <label>Descripción de Falla/Reparación <span style="color:red">*</span></label>
+      <textarea id="inpDescripcion" class="form-input" rows="4" required></textarea>
+    </div>
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalCrear">Cancelar</button>
+      <button class="btn-guardar" id="btnGuardar"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle -->
+<div class="modal" id="modalDetalle">
+  <div class="modal-contenido">
+    <div class="modal-header modal-header--ver">
+      <h2 class="modal-titulo modal-titulo--ver" id="modalTitulo">
+        <i class="fas fa-screwdriver-wrench"></i> Detalle Garantía
+      </h2>
+      <button class="btn-cerrar btn-cerrar--ver" data-close="modalDetalle">&times;</button>
+    </div>
+    <div id="modalBody"></div>
+    <div class="form-botones">
+      <button class="btn-cancelar" data-close="modalDetalle"><i class="fas fa-times"></i> Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="messages" id="toastContainer"></div>
+
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ap1/js/garantias.js' %}"></script>
+
+{% endblock %}

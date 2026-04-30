@@ -24,6 +24,7 @@ urlpatterns = [
     path('vistas/', include('app.urls')),
     path('', include(('login.urls', 'login'), namespace='login')),
     path('usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
+    path('webpush/', include('webpush.urls')),
 ]
 
 # Serve media files during development

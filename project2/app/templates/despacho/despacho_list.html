@@ -8,14 +8,12 @@
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 
-{# ── Las constantes DEBEN ir ANTES del import de despacho.js ── #}
-<script>
-  const CSRF_TOKEN  = "{{ csrf_token }}";
-  const BASE_URL    = '/vistas/';
-  const URL_DETALLE = BASE_URL + 'despacho/detalle/';
-  const URL_ESTADO  = BASE_URL + 'despacho/estado/';
-  const PENDIENTES  = {{ pedidos_pendientes|default:0 }};
-</script>
+<div id="js-config"
+     data-csrf="{{ csrf_token }}"
+     data-url-detalle="{% url 'despacho_detalle' 0 %}"
+     data-url-estado="{% url 'despacho_estado' 0 %}"
+     data-pendientes="{{ pedidos_pendientes|default:0 }}"
+     style="display:none;"></div>
 
 <main class="main-container">
 
@@ -48,6 +46,15 @@
         <div class="kpi-value" style="color:#ef4444">{{ fallidos }}</div>
         <div class="kpi-label">Fallidos</div>
       </div>
+    </div>
+  </div>
+
+  <div class="toolbar" style="margin-top:20px;">
+    <div class="toolbar-left"></div>
+    <div class="toolbar-right">
+      <button type="button" class="btn-agregar" id="btnNuevoDespacho">
+        <i class="fas fa-plus"></i> Nuevo Despacho
+      </button>
     </div>
   </div>
 
@@ -115,6 +122,46 @@
       <button class="btn-cancelar" data-close="modalDetalle">
         <i class="fas fa-times"></i> Cerrar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Despacho -->
+<div class="modal" id="modalCrearDespacho">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <h2 class="modal-titulo"><i class="fas fa-truck-loading"></i> Crear Despacho</h2>
+      <button type="button" class="btn-cerrar" data-close="modalCrearDespacho">&times;</button>
+    </div>
+    
+    <div class="form-grupo">
+      <label>Seleccionar Pedido a Despachar <span style="color:var(--color-error)">*</span></label>
+      <select id="inpCrearPedidoId" class="form-input" required>
+        <option value="">— Seleccionar Pedido —</option>
+        {% for ped in pedidos_disponibles %}
+        <option value="{{ ped.id }}">Pedido #{{ ped.id }} - {{ ped.cliente.nombre }} - Saldo: ${{ ped.saldo_pendiente }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-grupo">
+      <label>Empresa Transportadora</label>
+      <input type="text" id="inpCrearEmpresa" class="form-input" placeholder="Ej. Servientrega, Inter Rapidísimo...">
+    </div>
+    
+    <div class="form-grupo">
+      <label>Número de Guía / Rastreo</label>
+      <input type="text" id="inpCrearGuia" class="form-input" placeholder="Opcional...">
+    </div>
+    
+    <div class="form-grupo">
+      <label>Costo de Envío</label>
+      <input type="number" id="inpCrearCosto" class="form-input" step="0.01" value="0" min="0">
+    </div>
+
+    <div class="form-botones">
+      <button type="button" class="btn-cancelar" data-close="modalCrearDespacho">Cancelar</button>
+      <button type="button" class="btn-guardar" id="btnGuardarDespacho"><i class="fas fa-check"></i> Enviar a Despacho</button>
     </div>
   </div>
 </div>

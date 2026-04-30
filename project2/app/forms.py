@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido,despacho
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido, despacho, garantia
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -460,27 +460,52 @@ class PedidoForm(forms.ModelForm):
         }
 
 class DetallePedidoForm(forms.ModelForm):
-    # Campo extra para las notas de personalización que mencionaste
-    notas_personalizacion = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Cambios específicos...'}), 
-        required=False
-    )
-
     class Meta:
         model = detalle_pedido
-        fields = ['producto', 'cantidad', 'precio_unitario']
+        fields = ['producto', 'cantidad', 'precio_unitario', 'es_personalizado', 'especificaciones']
         widgets = {
             'producto': forms.Select(attrs={'class': 'form-control'}),
             'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'es_personalizado': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'chk_personalizado'}),
+            'especificaciones': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Especificaciones del cliente...'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        es_personalizado = cleaned_data.get('es_personalizado')
+        producto = cleaned_data.get('producto')
+        especificaciones = cleaned_data.get('especificaciones')
+
+        if es_personalizado and not especificaciones:
+            self.add_error('especificaciones', 'Debe detallar las especificaciones para un producto personalizado.')
+        
+        if not es_personalizado and not producto:
+            self.add_error('producto', 'Debe seleccionar un producto del catálogo si no es personalizado.')
+
+        return cleaned_data
 
 
 class DespachoForm(forms.ModelForm):
     class Meta:
         model = despacho
-        fields = ['responsable', 'observaciones']
+        fields = ['responsable', 'empresa_transporte', 'numero_guia', 'costo_envio', 'observaciones']
         widgets = {
             'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'empresa_transporte': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej. Servientrega, Coordinadora...'}),
+            'numero_guia': forms.TextInput(attrs={'class': 'form-control'}),
+            'costo_envio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'observaciones': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+
+class GarantiaForm(forms.ModelForm):
+    class Meta:
+        model = garantia
+        fields = ['pedido', 'producto', 'descripcion_falla', 'estado_reparacion']
+        widgets = {
+            'pedido': forms.Select(attrs={'class': 'form-control select2'}),
+            'producto': forms.Select(attrs={'class': 'form-control select2'}),
+            'descripcion_falla': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Describa el problema...'}),
+            'estado_reparacion': forms.Select(attrs={'class': 'form-control'}),
         }
