@@ -8,13 +8,12 @@
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 
-<script>
-  const CSRF_TOKEN  = "{{ csrf_token }}";
-  const BASE_URL    = '/vistas/';
-  const URL_CREAR   = BASE_URL + 'garantias/crear/';
-  const URL_ESTADO  = BASE_URL + 'garantias/estado/';
-  const URL_DETALLE = BASE_URL + 'garantias/detalle/';
-</script>
+<div id="js-config"
+     data-csrf="{{ csrf_token }}"
+     data-url-crear="/vistas/garantias/crear/"
+     data-url-estado="/vistas/garantias/estado/"
+     data-url-detalle="/vistas/garantias/detalle/"
+     style="display:none;"></div>
 
 <main class="main-container">
 

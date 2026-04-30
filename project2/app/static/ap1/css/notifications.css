@@ -148,29 +148,14 @@
 }
 
 .notif-item.unread {
-  background: rgba(251, 191, 36, 0.1);
-  border-left: 3px solid #facc15;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .notif-item:last-child {
   border-bottom: none;
 }
 
-.notif-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(56, 189, 248, 0.2);
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
 
-.notif-item.unread .notif-icon {
-  background: rgba(251, 191, 36, 0.3);
-}
 
 .notif-content {
   flex: 1;

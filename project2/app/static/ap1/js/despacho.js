@@ -1,8 +1,15 @@
 /**
  * DESPACHOS JS
- * Requiere que el template defina ANTES de cargar este script:
- *   CSRF_TOKEN, URL_DETALLE, URL_ESTADO, PENDIENTES
  */
+
+let cfg = {};
+if (document.getElementById('js-config')) {
+  cfg = document.getElementById('js-config').dataset;
+}
+const CSRF_TOKEN = cfg.csrf || '';
+const URL_DETALLE = pk => (cfg.urlDetalle || '').replace('/0/', '/' + pk + '/');
+const URL_ESTADO = pk => (cfg.urlEstado || '').replace('/0/', '/' + pk + '/');
+const PENDIENTES = parseInt(cfg.pendientes || '0', 10);
 
 /* ── Toast ─────────────────────────────────────────── */
 function showToast(msg, tipo = 'success') {
@@ -39,7 +46,7 @@ $(document).ready(function () {
   $(document).on('click', '.btn-ver', async function () {
     const id = this.dataset.id;
     try {
-      const res  = await fetch(`${URL_DETALLE}${id}/`);
+      const res  = await fetch(URL_DETALLE(id));
       const data = await res.json();
 
       if (!data.ok) throw new Error(data.error);
@@ -77,8 +84,8 @@ $(document).ready(function () {
               : ''}
           </div>
           <div class="info-card">
-            <h4><i class="fas fa-truck-loading"></i> Transportadora</h4>
-            <p><strong>Empresa:</strong> ${d.empresa_transporte || 'Propia / Sin asignar'}</p>
+            <h4><i class="fas fa-truck-loading"></i> Datos del Distribuidor</h4>
+            <p><strong>Distribuidor:</strong> ${d.empresa_transporte || 'Propia / Sin asignar'}</p>
             <p><strong>No. Guía:</strong> ${d.numero_guia || '—'}</p>
             <p><strong>Costo:</strong> $${parseFloat(d.costo_envio || 0).toLocaleString('es-CO')}</p>
             <p><strong>Responsable:</strong> ${d.responsable || '—'}</p>
@@ -129,7 +136,7 @@ $(document).ready(function () {
     formData.append('nuevo_estado', nuevoEstado);
 
     try {
-      const res  = await fetch(`${URL_ESTADO}${pk}/`, { method: 'POST', body: formData });
+      const res  = await fetch(URL_ESTADO(pk), { method: 'POST', body: formData });
       const data = await res.json();
 
       if (data.ok) {

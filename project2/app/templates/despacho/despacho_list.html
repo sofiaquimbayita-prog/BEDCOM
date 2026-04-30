@@ -8,14 +8,12 @@
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 
-{# ── Las constantes DEBEN ir ANTES del import de despacho.js ── #}
-<script>
-  const CSRF_TOKEN  = "{{ csrf_token }}";
-  const BASE_URL    = '/vistas/';
-  const URL_DETALLE = BASE_URL + 'despacho/detalle/';
-  const URL_ESTADO  = BASE_URL + 'despacho/estado/';
-  const PENDIENTES  = {{ pedidos_pendientes|default:0 }};
-</script>
+<div id="js-config"
+     data-csrf="{{ csrf_token }}"
+     data-url-detalle="{% url 'despacho_detalle' 0 %}"
+     data-url-estado="{% url 'despacho_estado' 0 %}"
+     data-pendientes="{{ pedidos_pendientes|default:0 }}"
+     style="display:none;"></div>
 
 <main class="main-container">
 

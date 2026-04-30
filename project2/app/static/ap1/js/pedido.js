@@ -1,4 +1,25 @@
-/* pedido.js — Módulo de Pedidos (TODOS LOS BUGS CORREGIDOS) */
+/* pedido.js — Módulo de Pedidos */
+
+let cfg = {};
+if (document.getElementById('js-config')) {
+  cfg = document.getElementById('js-config').dataset;
+}
+const CSRF_TOKEN = cfg.csrf || '';
+const URL_CREAR = cfg.urlCrear || '';
+const URL_VER = pk => (cfg.urlVerBase || '').replace('/0/', '/' + pk + '/');
+const URL_EDITAR = pk => (cfg.urlEditarBase || '').replace('/0/', '/' + pk + '/');
+const URL_ESTADO = pk => (cfg.urlEstadoBase || '').replace('/0/', '/' + pk + '/');
+const URL_PAGO = pk => (cfg.urlPagoBase || '').replace('/0/', '/' + pk + '/');
+const URL_DESPACHO = cfg.urlDespacho || '';
+
+let PRODUCTOS_DATA = [];
+let CLIENTES_DATA = [];
+if (document.getElementById('productos-data')) {
+  PRODUCTOS_DATA = JSON.parse(document.getElementById('productos-data').textContent);
+}
+if (document.getElementById('clientes-data')) {
+  CLIENTES_DATA = JSON.parse(document.getElementById('clientes-data').textContent);
+}
 
 function showToast(msg, tipo='success'){
   const c=document.getElementById('toastContainer');

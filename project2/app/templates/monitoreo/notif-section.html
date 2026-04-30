@@ -58,9 +58,14 @@ function initNotifTable() {
             { data: 'leida', render: data => data ? '<span class="status-leida">Leída</span>' : '<span class="status-nueva">Nueva</span>' },
             { 
                 orderable: false,
-                render: (data, type, row) => row.leida ? 
-                    '<button class="btn-small reopen" onclick="reopenNotif('+row.id+')" title="Reabrir"><i class="fas fa-undo"></i></button>' :
-                    '<button class="btn-small danger" onclick="markRead('+row.id+')" title="Marcar como leída"><i class="fas fa-eye"></i></button>'
+                render: (data, type, row) => {
+                    let btnHTML = row.leida ? 
+                        `<button class="btn-small reopen" onclick="reopenNotif(${row.id})" title="Reabrir"><i class="fas fa-undo"></i></button>` :
+                        `<button class="btn-small danger" onclick="markRead(${row.id})" title="Marcar como leída"><i class="fas fa-eye"></i></button>`;
+                    
+                    btnHTML += ` <button class="btn-small action" onclick="redirigirNotif('${row.tipo}')" title="Ir al módulo"><i class="fas fa-external-link-alt"></i></button>`;
+                    return btnHTML;
+                }
             }
         ],
         pageLength: 25,
@@ -182,6 +187,22 @@ function markRead(id) {
     })
     .then(() => notifTable.ajax.reload())
     .catch(err => console.error('Mark read error:', err));
+}
+
+function redirigirNotif(tipo) {
+    let urlDestino = '/vistas/monitoreo/'; // fallback
+    switch(tipo) {
+        case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
+        case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
+        case 'calendario_hoy':
+        case 'calendario_manaña': urlDestino = '/vistas/calendario/'; break;
+        case 'pendido_despacho': urlDestino = '/vistas/despacho/'; break;
+        case 'sin_bom': urlDestino = '/vistas/bom/'; break;
+        case 'pago_pendiente': urlDestino = '/vistas/pedido/'; break;
+        case 'garantia_nueva': urlDestino = '/vistas/garantias/'; break;
+        case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
+    }
+    window.location.href = urlDestino;
 }
 
 function reopenNotif(id) {

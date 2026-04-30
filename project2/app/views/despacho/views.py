@@ -1,13 +1,17 @@
 import json
+import threading
 from django.db import transaction
 from django.db.models import Sum, Q, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
 from datetime import datetime
 from collections import defaultdict
-from ...models import despacho, pedido, cliente, detalle_pedido, producto, Notificacion, usuario
+from ...models import despacho, pedido, cliente, detalle_pedido, producto, Notificacion, usuario, historial_acciones
 
 def safe_date_str(value):
     if value is None:
@@ -165,16 +169,53 @@ class DespachoCreateView(View):
                 pedido_obj.estado = 'Despachado'
                 pedido_obj.save()
 
-                # Generar Notificación
-                admin_user = usuario.objects.first()
-                if admin_user:
-                    Notificacion.objects.create(
-                        user=admin_user,
-                        tipo='despacho_completado',
-                        titulo='Nuevo Despacho',
-                        mensaje=f'Despacho #{despacho_obj.id} registrado para Pedido #{pedido_obj.id}.',
-                        target_id=despacho_obj.id
+                # Generar Log Historial
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='despachos',
+                        tipo_accion='crear',
+                        descripcion=f'Creó despacho #{despacho_obj.id} para Pedido #{pedido_obj.id}',
+                        usuario=request.user
                     )
+
+                # Correo al Cliente (Asíncrono)
+                if getattr(pedido_obj.cliente, 'email', None):
+                    def send_despacho_email(desp_id, ped_id, c_nombre, c_email, transportadora, guia, fecha):
+                        try:
+                            mensaje = (
+                                f"Hola {c_nombre},\n\n"
+                                f"¡Tenemos buenas noticias! Tu pedido #{ped_id} ha sido despachado y está en camino.\n\n"
+                                f"Detalles del Despacho:\n"
+                                f"- Despacho #{desp_id}\n"
+                                f"- Transportadora: {transportadora or 'Entrega Directa'}\n"
+                                f"- Número de Guía: {guia or 'N/A'}\n"
+                                f"- Fecha de Despacho: {fecha.strftime('%d/%m/%Y %H:%M')}\n\n"
+                                f"¡Esperamos que disfrutes tus productos!\n\n"
+                                f"Atentamente,\nEl equipo de BEDCOM"
+                            )
+                            send_mail(
+                                subject=f'Tu pedido #{ped_id} ha sido despachado - BEDCOM',
+                                message=mensaje,
+                                from_email=settings.DEFAULT_FROM_EMAIL,
+                                recipient_list=[c_email],
+                                fail_silently=True
+                            )
+                        except Exception as e:
+                            print("Error enviando correo de despacho:", e)
+                    
+                    threading.Thread(
+                        target=send_despacho_email,
+                        args=(
+                            despacho_obj.id,
+                            pedido_obj.id,
+                            pedido_obj.cliente.nombre,
+                            pedido_obj.cliente.email,
+                            despacho_obj.empresa_transporte,
+                            despacho_obj.numero_guia,
+                            despacho_obj.fecha_despacho
+                        ),
+                        daemon=True
+                    ).start()  
 
             return JsonResponse({
                 'ok': True,
@@ -216,6 +257,14 @@ class DespachoUpdateEstadoView(View):
 
                 obj.estado = nuevo_estado
                 obj.save()
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='despachos',
+                    tipo_accion='editar',
+                    descripcion=f'Actualizó estado del despacho #{obj.id} a {nuevo_estado}',
+                    usuario=request.user
+                )
 
             return JsonResponse({
                 'ok': True,

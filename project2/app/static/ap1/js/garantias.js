@@ -1,3 +1,14 @@
+/* garantias.js — Módulo de Garantías */
+
+let cfg = {};
+if (document.getElementById('js-config')) {
+  cfg = document.getElementById('js-config').dataset;
+}
+const CSRF_TOKEN = cfg.csrf || '';
+const URL_CREAR = cfg.urlCrear || '';
+const URL_ESTADO = cfg.urlEstado || '';
+const URL_DETALLE = cfg.urlDetalle || '';
+
 /* ── Toast ─────────────────────────────────────────── */
 function showToast(msg, tipo = 'success') {
   const container = document.getElementById('toastContainer');

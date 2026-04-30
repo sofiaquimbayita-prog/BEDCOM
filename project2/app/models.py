@@ -536,6 +536,10 @@ class historial_acciones(models.Model):
         ('respaldos', 'Respaldos'),
         ('sistema', 'Sistema'),
         ('notificaciones', 'Notificaciones'),
+        ('pedidos', 'Pedidos'),
+        ('despachos', 'Despachos'),
+        ('garantias', 'Garantías'),
+        ('clientes', 'Clientes'),
     ]
 
     fecha = models.DateTimeField(auto_now_add=True)

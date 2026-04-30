@@ -118,20 +118,19 @@ function cargarNotificacionesModal(force=false) {
                 // Update modal list
                 const list = document.getElementById('notifListModal');  
                 if (list) {
-                    if ((data.notificaciones || []).length === 0) {
+                    const notifsArray = data.data || [];
+                    if (notifsArray.length === 0) {
                         list.innerHTML = '<li class="notif-empty">Sin notificaciones nuevas </li>';
                     } else {
                         let html = '';
-                        (data.notificaciones || []).forEach(n => {
+                        // Solo mostramos las últimas 5 en la campanita
+                        notifsArray.slice(0, 5).forEach(n => {
                             const tiempo = new Date(n.fecha_notif).toLocaleString('es-CO');
                             const unread = n.leida ? '' : 'unread';
                             html += `
-                                <li class="notif-item ${unread}" onclick="marcarLeidaModal(${n.id})">
-                                    <div class="notif-icon"></div>
+                                <li class="notif-item ${unread}" onclick="marcarLeidaYRedirigir(${n.id}, '${n.tipo}')">
                                     <div class="notif-content">
                                         <div class="notif-titulo">${n.titulo}</div>
-                                        <div class="notif-mensaje">${n.mensaje}</div>
-                                        <div class="notif-tiempo">${tiempo}</div>
                                     </div>
                                 </li>
                             `;
@@ -144,9 +143,48 @@ function cargarNotificacionesModal(force=false) {
         .catch(err => console.error('Notif error:', err));
 }
 
-function marcarLeidaModal(id) {
-    fetch(`/monitoreo/api/notif-read/${id}/`, {method: 'POST'})
-        .then(() => cargarNotificacionesModal(true));
+function marcarLeidaYRedirigir(id, tipo) {
+    let urlDestino = '/vistas/monitoreo/'; // fallback
+    switch(tipo) {
+        case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
+        case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
+        case 'calendario_hoy':
+        case 'calendario_manaña': urlDestino = '/vistas/calendario/'; break;
+        case 'pendido_despacho': urlDestino = '/vistas/despacho/'; break;
+        case 'sin_bom': urlDestino = '/vistas/bom/'; break;
+        case 'pago_pendiente': urlDestino = '/vistas/pedido/'; break;
+        case 'garantia_nueva': urlDestino = '/vistas/garantias/'; break;
+        case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
+    }
+
+    // Helper CSRF local
+    function getCookieLocal(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookieLocal('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    }).then(() => {
+        window.location.href = urlDestino;
+    }).catch(err => {
+        console.error('Error al marcar leída:', err);
+        window.location.href = urlDestino; // Redirigir de todos modos
+    });
 }
 
 // Event listeners

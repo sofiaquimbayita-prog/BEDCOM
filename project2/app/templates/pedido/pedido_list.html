@@ -49,18 +49,22 @@
           <td>{{ p.cliente.nombre }}</td>
           <td><span style="color:var(--color-exito);font-weight:700">${{ p.total }}</span></td>
           <td><span style="color:var(--color-advertencia);font-weight:700">${{ p.abono|default:"0" }}</span></td>
-          <td><span style="color:{% if p.saldo_pendiente > 0 %}#f59e0b{% else %}#10b981{% endif %};font-weight:700">${{ p.saldo_pendiente }}</span></td>
           <td>
-            <select class="ped-estado-select estado-{{ p.estado|lower }}"
-                    data-id="{{ p.id }}" data-estado-actual="{{ p.estado }}">
-              <option value="Pendiente"  {% if p.estado == "Pendiente"  %}selected{% endif %}>Pendiente</option>
+            <span class="saldo {% if p.saldo_pendiente > 0 %}pendiente{% else %}pagado{% endif %}">
+              ${{ p.saldo_pendiente|floatformat:0 }}
+            </span>
+          </td>
+          <td>
+            <select class="ped-estado-select estado-{{ p.estado|lower }}" data-id="{{ p.id }}"
+              data-estado-actual="{{ p.estado }}">
+              <option value="Pendiente" {% if p.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
               <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>Completado</option>
-              <option value="Anulado"    {% if p.estado == "Anulado"    %}selected{% endif %}>Anulado</option>
+              <option value="Anulado" {% if p.estado == "Anulado" %}selected{% endif %}>Anulado</option>
             </select>
           </td>
           <td>
             <div class="icons">
-              <!-- ✅ BUG CORREGIDO: todos los botones de la tabla tienen type="button" -->
+              <!-- BUG CORREGIDO: todos los botones de la tabla tienen type="button" -->
               <button type="button" class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
                 <i class="fas fa-eye"></i>
               </button>
@@ -68,7 +72,8 @@
                 <i class="fas fa-edit"></i>
               </button>
               {% if p.estado == "Pendiente" and p.saldo_pendiente > 0 %}
-              <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}" data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
+              <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}"
+                data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
                 <i class="fas fa-money-bill-wave"></i>
               </button>
               {% endif %}
@@ -121,7 +126,8 @@
 
     <div class="form-botones">
       <button type="button" class="btn-cancelar" data-close="modalVer">Cerrar</button>
-      <button type="button" class="btn-guardar" onclick="window.print()" style="background:var(--color-ver);color:#fff;">
+      <button type="button" class="btn-guardar" onclick="window.print()"
+        style="background:var(--color-ver);color:#fff;">
         <i class="fas fa-print"></i> Imprimir
       </button>
     </div>
@@ -200,16 +206,17 @@
           <label>Monto de abono <span style="color:var(--color-error)">*</span></label>
           <div class="input-group" style="display: flex; align-items: center;">
             <input type="number" id="abonoInput" class="form-input" step="0.01" min="0"
-                   style="border-radius: 0 var(--borde-md) var(--borde-md) 0;" placeholder="$0.00">
+              style="border-radius: 0 var(--borde-md) var(--borde-md) 0;" placeholder="$0.00">
           </div>
-          <small id="abonoHelp" style="color: var(--color-texto-muted); font-size: 0.7rem; display: block; margin-top: 5px;">
+          <small id="abonoHelp"
+            style="color: var(--color-texto-muted); font-size: 0.7rem; display: block; margin-top: 5px;">
             El abono debe ser al menos el 50% del total del pedido
           </small>
         </div>
         <div class="form-grupo">
           <label>Total del pedido</label>
           <input type="text" id="formTotalDisplay" class="form-input" readonly
-                 style="font-weight: bold; color: var(--color-exito);">
+            style="font-weight: bold; color: var(--color-exito);">
         </div>
       </div><!-- ✅ BUG CORREGIDO: faltaba cerrar div.abono-divicion -->
     </div>
@@ -260,7 +267,8 @@
         <span class="ver-label">Ya pagado</span>
         <span class="ver-valor" style="color:var(--color-exito)" id="pagoPagado">$0</span>
       </div>
-      <div class="ver-campo ver-campo--destacado deuda-item--alert" style="border-radius:var(--borde-md);padding:11px 14px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--color-deuda-brd)">
+      <div class="ver-campo ver-campo--destacado deuda-item--alert"
+        style="border-radius:var(--borde-md);padding:11px 14px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--color-deuda-brd)">
         <span class="ver-label" style="color:var(--color-deuda)">Saldo Pendiente</span>
         <span class="ver-valor ver-valor--monto" id="pagoPendiente">$0</span>
       </div>
@@ -288,29 +296,12 @@
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 
 {# Variables de Django que el JS externo necesita #}
-<script>
-const PRODUCTOS_DATA = [
-  {% for p in productos %}
-  { id:{{ p.id }}, nombre:"{{ p.nombre|escapejs }}", precio:parseFloat("{{ p.precio }}"), stock:{{ p.stock }} }{% if not forloop.last %},{% endif %}
-  {% endfor %}
-];
-const CLIENTES_DATA = [
-  {% for c in clientes %}
-  { id:{{ c.id }}, nombre:"{{ c.nombre|escapejs }}", telefono:"{{ c.telefono|escapejs }}", direccion:"{{ c.direccion|escapejs }}" }{% if not forloop.last %},{% endif %}
-  {% endfor %}
-];
-const CSRF_TOKEN      = "{{ csrf_token }}";
-const URL_CREAR       = "{% url 'crear_pedido' %}";
-const URL_VER_BASE    = "{% url 'pedido_detalle' 0 %}".replace('/0/', '/__PK__/');
-const URL_EDITAR_BASE = "{% url 'editar_pedido'  0 %}".replace('/0/', '/__PK__/');
-const URL_ESTADO_BASE = "{% url 'cambiar_estado' 0 %}".replace('/0/', '/__PK__/');
-const URL_PAGO_BASE   = "{% url 'pedido_pago' 0 %}".replace('/0/', '/__PK__/');
-const URL_VER    = pk => URL_VER_BASE.replace('__PK__', pk);
-const URL_EDITAR = pk => URL_EDITAR_BASE.replace('__PK__', pk);
-const URL_ESTADO = pk => URL_ESTADO_BASE.replace('__PK__', pk);
-const URL_PAGO   = pk => URL_PAGO_BASE.replace('__PK__', pk);
-const URL_DESPACHO = "{% url 'despacho_crear' %}";
-</script>
+{{ productos_json|json_script:"productos-data" }}
+{{ clientes_json|json_script:"clientes-data" }}
+<div id="js-config" data-csrf="{{ csrf_token }}" data-url-crear="{% url 'crear_pedido' %}"
+  data-url-ver-base="{% url 'pedido_detalle' 0 %}" data-url-editar-base="{% url 'editar_pedido' 0 %}"
+  data-url-estado-base="{% url 'cambiar_estado' 0 %}" data-url-pago-base="{% url 'pedido_pago' 0 %}"
+  data-url-despacho="{% url 'despacho_crear' %}" style="display:none;"></div>
 
 <script src="{% static 'ap1/js/pedido.js' %}"></script>
 {% endblock %}

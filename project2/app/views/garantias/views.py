@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
 
-from ...models import garantia, pedido, producto, Notificacion, usuario
+from ...models import garantia, pedido, producto, Notificacion, usuario, historial_acciones
 
 def _garantia_to_dict(obj):
     return {
@@ -70,6 +70,14 @@ class GarantiaCreateView(View):
                     target_id=gar.id
                 )
 
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='garantias',
+                    tipo_accion='crear',
+                    descripcion=f'Registró garantía #{gar.id} para {prod.nombre}',
+                    usuario=request.user
+                )
+
             return JsonResponse({
                 'ok': True,
                 'message': f'Garantía #{gar.id} registrada correctamente.',
@@ -90,6 +98,14 @@ class GarantiaUpdateEstadoView(View):
 
             gar.estado_reparacion = nuevo_estado
             gar.save()
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='garantias',
+                    tipo_accion='editar',
+                    descripcion=f'Cambió estado de garantía #{gar.id} a {gar.get_estado_reparacion_display()}',
+                    usuario=request.user
+                )
 
             return JsonResponse({
                 'ok': True,

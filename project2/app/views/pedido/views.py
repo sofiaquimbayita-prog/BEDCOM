@@ -1,4 +1,5 @@
 import json
+import threading
 from decimal import Decimal
 from django.db import transaction
 from django.http import JsonResponse
@@ -6,6 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
 from django.utils import timezone
 from datetime import datetime
+from django.core.mail import send_mail
+from django.conf import settings
 
 def safe_date_str(value):
     if value is None:
@@ -19,7 +22,7 @@ def safe_date_str(value):
         return value.strftime('%Y-%m-%d')
     return str(value)
 
-from ...models import pedido, detalle_pedido, producto, cliente, pago
+from ...models import pedido, detalle_pedido, producto, cliente, pago, Notificacion, usuario, historial_acciones
 
 
 # ─────────────────────────────────────────────
@@ -94,10 +97,22 @@ class PedidoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['clientes'] = cliente.objects.filter(estado=True).order_by('nombre')
-        ctx['productos'] = producto.objects.filter(estado=True).order_by('nombre').values(
-            'id', 'nombre', 'precio', 'stock'
-        )
+        
+        # Serialize clients to JSON
+        clientes_qs = cliente.objects.filter(estado=True).order_by('nombre')
+        ctx['clientes'] = clientes_qs
+        clientes_list = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono, 'direccion': c.direccion} for c in clientes_qs]
+        ctx['clientes_json'] = clientes_list
+        
+        # Serialize products to JSON
+        productos_qs = list(producto.objects.filter(estado=True).order_by('nombre').values('id', 'nombre', 'precio', 'stock'))
+        # Convert Decimals to float for JSON
+        for p in productos_qs:
+            if isinstance(p['precio'], Decimal):
+                p['precio'] = float(p['precio'])
+        ctx['productos'] = productos_qs
+        ctx['productos_json'] = productos_qs
+        
         ctx['today'] = timezone.now().date().isoformat()
         return ctx
 
@@ -191,6 +206,53 @@ class PedidoCreateView(View):
                 # para que aparezca en el historial de pagos del cliente
                 if abono > 0:
                     pago.objects.create(pedido=nuevo_pedido, monto=abono)
+
+            # --- HISTORIAL Y CORREOS ---
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='pedidos',
+                    tipo_accion='crear',
+                    descripcion=f'Creó el pedido #{nuevo_pedido.id} para {cli.nombre}',
+                    usuario=request.user
+                )
+
+            # 2. Correo al Cliente (Asíncrono)
+            if cli.email:
+                def send_pedido_email(pedido_id, c_nombre, c_email, p_total, p_abono, p_saldo):
+                    try:
+                        mensaje = (
+                            f"Hola {c_nombre},\n\n"
+                            f"¡Gracias por elegir BEDCOM!\n"
+                            f"Tu pedido #{pedido_id} ha sido registrado exitosamente en nuestro sistema.\n\n"
+                            f"Detalles del Pedido:\n"
+                            f"- Total: ${p_total:,.0f} COP\n"
+                            f"- Abono Inicial: ${p_abono:,.0f} COP\n"
+                            f"- Saldo Pendiente: ${p_saldo:,.0f} COP\n\n"
+                            f"Te notificaremos cuando tu pedido esté listo para despacho.\n\n"
+                            f"Atentamente,\nEl equipo de BEDCOM"
+                        )
+                        send_mail(
+                            subject=f'Confirmación de Pedido #{pedido_id} - BEDCOM',
+                            message=mensaje,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[c_email],
+                            fail_silently=True
+                        )
+                    except Exception as e:
+                        print("Error enviando correo de pedido:", e)
+                
+                threading.Thread(
+                        target=send_pedido_email,
+                        args=(
+                            nuevo_pedido.id,
+                            cli.nombre,
+                            cli.email,
+                            nuevo_pedido.total,
+                            nuevo_pedido.abono,
+                            nuevo_pedido.saldo_pendiente
+                        ),
+                        daemon=True  
+                    ).start()
 
             return JsonResponse({
                 'ok': True,
@@ -293,6 +355,14 @@ class PedidoUpdateView(View):
                         
                 obj_pedido.save()
 
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='pedidos',
+                        tipo_accion='editar',
+                        descripcion=f'Editó el pedido #{obj_pedido.id}',
+                        usuario=request.user
+                    )
+
             return JsonResponse({
                 'ok': True,
                 'message': f'Pedido #{obj_pedido.id} actualizado correctamente.',
@@ -335,9 +405,16 @@ class PedidoStateChangeView(View):
                         item.producto.stock -= item.cantidad
                         item.producto.save()
 
-                else:
                     obj_pedido.estado = nuevo_estado
                     obj_pedido.save()
+
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='pedidos',
+                        tipo_accion='editar',
+                        descripcion=f'Cambió estado del pedido #{obj_pedido.id} a {nuevo_estado}',
+                        usuario=request.user
+                    )
 
             return JsonResponse({
                 'ok': True,
@@ -387,6 +464,14 @@ class PagoUpdateView(View):
                     if obj_pedido.estado == 'Pendiente':
                         obj_pedido.estado = 'En Fabricación'
                 obj_pedido.save()
+
+                if request.user.is_authenticated:
+                    historial_acciones.objects.create(
+                        modulo='pedidos',
+                        tipo_accion='editar',
+                        descripcion=f'Registró abono de ${monto} al pedido #{obj_pedido.id}',
+                        usuario=request.user
+                    )
 
             return JsonResponse({
                 'ok': True,

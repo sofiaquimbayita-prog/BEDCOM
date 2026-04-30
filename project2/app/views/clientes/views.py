@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
 
-from ...models import cliente, pedido, pago
+from ...models import cliente, pedido, pago, historial_acciones
 
 
 # ─────────────────────────────────────────────
@@ -101,6 +101,14 @@ class ClienteCreateView(View):
                     estado=True
                 )
 
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='crear',
+                    descripcion=f'Creó el cliente "{obj.nombre}"',
+                    usuario=request.user
+                )
+
             return JsonResponse({
                 'ok': True,
                 'message': f'Cliente "{obj.nombre}" creado exitosamente.',
@@ -136,6 +144,14 @@ class ClienteUpdateView(View):
                 obj.es_especial = es_especial
                 obj.save()
 
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='editar',
+                    descripcion=f'Actualizó el cliente "{obj.nombre}"',
+                    usuario=request.user
+                )
+
             return JsonResponse({
                 'ok': True,
                 'message': f'Cliente "{obj.nombre}" actualizado correctamente.',
@@ -156,6 +172,14 @@ class ClienteToggleEstadoView(View):
             obj.estado = not obj.estado
             obj.save()
             accion = 'activado' if obj.estado else 'inactivado'
+            
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='activar' if obj.estado else 'inactivar',
+                    descripcion=f'Cambió estado de cliente "{obj.nombre}" a {accion}',
+                    usuario=request.user
+                )
             return JsonResponse({
                 'ok': True,
                 'message': f'Cliente "{obj.nombre}" {accion} correctamente.',
@@ -283,6 +307,14 @@ class ClientePagoView(View):
                 if p.saldo_pendiente <= 0 and p.estado == 'Pendiente':
                     p.estado = 'Completado'
                 p.save()
+
+            if request.user.is_authenticated:
+                historial_acciones.objects.create(
+                    modulo='clientes',
+                    tipo_accion='editar',
+                    descripcion=f'Registró pago de ${monto} al cliente "{p.cliente.nombre}" (Pedido #{p.id})',
+                    usuario=request.user
+                )
 
             deuda_nueva = _calcular_deuda(p.cliente)
 
