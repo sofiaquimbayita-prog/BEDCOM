@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido, clientes, despacho
 from app.views.respaldos.views import modal_respaldos
@@ -182,4 +182,5 @@ urlpatterns = [
     path('garantias/crear/', GarantiaCreateView.as_view(), name='garantias_crear'),
     path('garantias/estado/<int:pk>/', GarantiaUpdateEstadoView.as_view(), name='garantias_estado'),
     path('garantias/detalle/<int:pk>/', GarantiaDetailView.as_view(), name='garantias_detalle'),
+path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
 ]

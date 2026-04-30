@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.remove('oculto');
+      modal.classList.add('show');
+      modal.style.display = 'flex';
       console.log('Modal abierto');
     }
   };
@@ -17,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById('modalLogout');
     if (modal) {
       modal.classList.add('oculto');
+      modal.classList.remove('show');
+      modal.style.display = 'none';
       console.log('Modal cerrado');
     }
   };
@@ -288,3 +292,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log('Menú cargado correctamente');
 }); // Fin DOMContentLoaded
+

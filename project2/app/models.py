@@ -1,9 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-# --- MODELOS BASE ---
-
-
 class categoria(models.Model):
     TIPO_PRODUCTO = 'producto'
     TIPO_INSUMO = 'insumo'
@@ -108,7 +105,7 @@ class usuario(AbstractUser):
     cedula = models.CharField(max_length=20, unique=True)
     rol = models.CharField(max_length=20)
     estado = models.CharField(max_length=20, default='Activo')
-    foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
+    foto_usua = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(max_length=100, unique=True)
 
@@ -237,7 +234,7 @@ class garantia(models.Model):
     estado = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Garantía #{self.id} - {self.producto.nombre if self.producto else 'Desconocido'}"
+        return f"Garantia para producto {self.id_producto_id}"
 
     class Meta:
         verbose_name = "Garantía"
