@@ -106,6 +106,12 @@ AXES_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = 0.5
 AXES_RESET_ON_SUCCESS = True
 
+# Configuración de plantillas personalizadas para Axes
+AXES_LOCKOUT_URL = 'login:bloqueado'
+AXES_LOCKOUT_TEMPLATE = 'axes/lockout.html'
+AXES_INACTIVE_USER_TEMPLATE = 'app/axes/inactive.html'
+AXES_ONLY_USER_FAILURES = False
+
 # --------------------------------------------------------------------------
 # 8. ARCHIVOS ESTÁTICOS (CSS, JS, IMÁGENES)
 # --------------------------------------------------------------------------
@@ -164,9 +170,5 @@ WEBPUSH_SETTINGS = {
 
 # --------------------------------------------------------------------------
 # 11. CONFIGURACIÓN LUNA IA (EDGE TTS)
-# --------------------------------------------------------------------------
-# Voz por defecto para Edge TTS
-EDGE_TTS_VOICE = "es-CO-DanielaNeural"
-
 # Carpeta para guardar audios generados temporalmente
 LUNA_VOICES_DIR = MEDIA_ROOT / 'voces_ia'

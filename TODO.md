@@ -1,1 +1,11 @@
-# TODO: Fix abrirModalIA not defined - COMPLETED\n\nSteps completed:\n1. ✅ Understood issue via search_files and read_files\n2. ✅ Created edit plan and got approval\n3. ✅ Edited project2/app/static/ap1/js/script_ia.js with missing functions: abrirModalIA, cerrarModalIA, enviarConsultaIA, escucharVoz (adapted for modal IDs)\n4. ✅ Ran `cd project2; python manage.py collectstatic --noinput` (1 file copied, static updated)\n5. ✅ Verified backend endpoint in ia/views.py exists and matches\n6. ✅ Functions now defined globally, modal should work without ReferenceError\n\nReload your Django development server and test the IA floating button on any page (e.g., menu). No further issues expected.
+# BEDCOM Lockout Timer Task
+
+## Pending Steps
+- [ ] 2. Test with `python manage.py runserver` - Trigger lockout (3 failed logins), verify real-time countdown
+- [ ] 3. Handle edge cases (e.g., if lockout_until missing, fallback to 30min)
+
+## Completed Steps
+- [x] 1. Edit `project2/app/templates/axes/lockout.html` - Added dynamic JS countdown using axes `lockout_until` context + 30min fallback
+
+**Next step: Test the implementation**
+
