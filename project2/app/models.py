@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 class categoria(models.Model):
     TIPO_PRODUCTO = 'producto'
@@ -288,6 +290,15 @@ class bom(models.Model):
         verbose_name_plural = "boms"
         db_table = "producto_insumo"
         unique_together = ('producto', 'insumo')
+
+
+@receiver([post_save, post_delete], sender=bom)
+def clear_producto_receta_cache(sender, instance, **kwargs):
+    try:
+        if instance.producto_id:
+            instance.producto.limpiar_cache_receta()
+    except Exception:
+        pass
 
 # --- MODELOS DE COMPRAS Y VENTAS ---
 

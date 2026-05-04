@@ -182,5 +182,5 @@ urlpatterns = [
     path('garantias/crear/', GarantiaCreateView.as_view(), name='garantias_crear'),
     path('garantias/estado/<int:pk>/', GarantiaUpdateEstadoView.as_view(), name='garantias_estado'),
     path('garantias/detalle/<int:pk>/', GarantiaDetailView.as_view(), name='garantias_detalle'),
-path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
+    #path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
 ]

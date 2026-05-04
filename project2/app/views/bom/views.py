@@ -84,6 +84,7 @@ class BomCreateView(SuccessMessageMixin, CreateView):
             return self.form_invalid(form)
         
         response = super().form_valid(form)
+        self.object.producto.limpiar_cache_receta()
 
         # REGISTRAR ACCIÓN EN HISTORIAL
         if self.request.user.is_authenticated:
@@ -169,46 +170,24 @@ def bom_crear_receta(request):
             except insumo.DoesNotExist:
                 errors.append(f"Insumo ID {insumo_id} no existe")
         
-        # Historial
-        if request.user.is_authenticated:
-            action_desc = f'Creó/Actualizó receta para "{producto_obj.nombre}"' + (f' (nuevo producto)' if producto_data else '')
-            historial_acciones.objects.create(
-                modulo='bom',
-                tipo_accion='crear',
-                descripcion=action_desc,
-                usuario=request.user
-            )
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Receta creada/actualizada con {created_count} insumos{" para nuevo producto " + producto_obj.nombre if producto_data else ""}',
-            'producto_id': producto_id
-        })
-        
-        print(f"Total created: {created_count}, errors: {errors}")
         if created_count > 0:
-            # LIMPIAR CACHE DEL PRODUCTO
             producto_obj.limpiar_cache_receta()
-            
-            # REGISTRAR ACCIÓN EN HISTORIAL
             if request.user.is_authenticated:
-                try:
-                    historial_acciones.objects.create(
-                        modulo='bom',
-                        tipo_accion='crear',
-                        descripcion=f'Creó receta para "{producto_obj.nombre}"',
-                        usuario=request.user
-                    )
-                except Exception as e:
-                    print(f"Error historial BOM: {e}")
-
+                action_desc = f'Creó/Actualizó receta para "{producto_obj.nombre}"' + (f' (nuevo producto)' if producto_data else '')
+                historial_acciones.objects.create(
+                    modulo='bom',
+                    tipo_accion='crear',
+                    descripcion=action_desc,
+                    usuario=request.user
+                )
             return JsonResponse({
-                'success': True, 
-                'message': f'Receta creada correctamente con {created_count} insumo(s)'
+                'success': True,
+                'message': f'Receta creada/actualizada con {created_count} insumos{" para nuevo producto " + producto_obj.nombre if producto_data else ""}',
+                'producto_id': producto_id
             })
         else:
             return JsonResponse({
-                'success': False, 
+                'success': False,
                 'error': 'No se pudo crear ninguna relación. ' + '; '.join(errors)
             })
             
@@ -316,6 +295,7 @@ class BomUpdateView(SuccessMessageMixin, UpdateView):
     def form_valid(self, form):
         producto = form.cleaned_data['producto']
         insumo_obj = form.cleaned_data['insumo']
+        original_producto = self.object.producto
         
         # Excluir el registro actual de la verificación
         if bom.objects.filter(producto=producto, insumo=insumo_obj).exclude(pk=self.object.pk).exists():
@@ -323,6 +303,9 @@ class BomUpdateView(SuccessMessageMixin, UpdateView):
             return self.form_invalid(form)
         
         response = super().form_valid(form)
+        self.object.producto.limpiar_cache_receta()
+        if original_producto.pk != self.object.producto.pk:
+            original_producto.limpiar_cache_receta()
 
         # REGISTRAR ACCIÓN EN HISTORIAL
         if self.request.user.is_authenticated:
@@ -347,12 +330,15 @@ class BomDeleteView(DeleteView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
+        related_producto = self.object.producto
 
         # Guardar datos para el historial antes de eliminar
         nombre_producto = self.object.producto.nombre
         nombre_insumo = self.object.insumo.nombre
         
         self.object.delete()
+        if related_producto:
+            related_producto.limpiar_cache_receta()
 
         # REGISTRAR ACCIÓN EN HISTORIAL
         if request.user.is_authenticated:
@@ -416,17 +402,16 @@ def bom_eliminar_receta(request):
         return JsonResponse({'success': False, 'error': 'Producto no especificado'})
     
     try:
-        # Obtener nombre del producto para el historial antes de borrar
-        nombre_prod = "Producto desconocido"
-        try:
-            nombre_prod = producto.objects.get(id=producto_id).nombre
-        except:
-            pass
+        producto_obj = producto.objects.filter(id=producto_id).first()
+        nombre_prod = producto_obj.nombre if producto_obj else "Producto desconocido"
 
         # Eliminar todas las relaciones BOM para este producto
         deleted_count = bom.objects.filter(producto_id=producto_id).delete()[0]
         
         if deleted_count > 0:
+            if producto_obj:
+                producto_obj.limpiar_cache_receta()
+
             if request.user.is_authenticated:
                 try:
                     historial_acciones.objects.create(
