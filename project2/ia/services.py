@@ -9,13 +9,10 @@ from django.conf import settings
 from app.models import (
     categoria, proveedor, respaldo, cliente, usuario, reporte, producto, entrada,
     garantia, mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
-    supervision, despacho, CategoriaEvento, calendario, salida_producto,
+    supervision, despacho, calendario, salida_producto,
     historial_acciones, Notificacion
 )
 
-# =====================================================
-# INTENTOS DE MÓDULOS TTS
-# =====================================================
 EDGE_TTS_AVAILABLE = False
 _edge_tts_module = None
 
