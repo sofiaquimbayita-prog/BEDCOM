@@ -23,6 +23,14 @@ let editRecetaInsumos = [];
 // ===================== INIT =====================
 $(document).ready(function() {
 
+    // 🔥 GLOBAL MODAL CLOSE FUNCTION (BOM modals use .modal + display:none)
+    window.cerrarModal = function(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
     // 🔥 EVITA DUPLICAR EVENTOS
     $('#formReceta').off('submit').on('submit', function(e) {
         e.preventDefault();
