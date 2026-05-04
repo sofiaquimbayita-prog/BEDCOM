@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido, despacho, garantia
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido, despacho, garantia, bom
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -499,7 +499,7 @@ class DespachoForm(forms.ModelForm):
         }
 
 
-class GarantiaForm(forms.ModelForm):
+class garantiaForm(forms.ModelForm):
     class Meta:
         model = garantia
         fields = ['pedido', 'producto', 'descripcion_falla', 'estado_reparacion']

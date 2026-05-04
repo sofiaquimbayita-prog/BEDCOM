@@ -12,7 +12,7 @@ function showToast(msg, tipo = 'success') {
 }
 
 $(document).ready(function () {
-  $('#tablaGarantias').DataTable({
+  $('#tablagarantias').DataTable({
     language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
     pageLength: 25,
     order: [[0, 'desc']],
@@ -85,8 +85,8 @@ $(document).ready(function () {
     }
   });
 
-  /* ── Crear Garantia ───────────────────────────────── */
-  $('#btnNuevaGarantia').click(function(){
+  /* ── Crear garantia ───────────────────────────────── */
+  $('#btnNuevagarantia').click(function(){
       $('#inpPedido').val('');
       $('#inpProducto').val('');
       $('#inpDescripcion').val('');

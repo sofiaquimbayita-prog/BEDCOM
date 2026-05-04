@@ -19,7 +19,7 @@ def _garantia_to_dict(obj):
         'estado_display': obj.get_estado_reparacion_display(),
     }
 
-class GarantiaListView(ListView):
+class garantiaListView(ListView):
     model = garantia
     template_name = 'garantias/garantias_list.html'
     context_object_name = 'garantias'
@@ -38,7 +38,7 @@ class GarantiaListView(ListView):
         ctx['entregadas'] = garantia.objects.filter(estado_reparacion='entregada').count()
         return ctx
 
-class GarantiaCreateView(View):
+class garantiaCreateView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
@@ -86,7 +86,7 @@ class GarantiaCreateView(View):
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
-class GarantiaUpdateEstadoView(View):
+class garantiaUpdateEstadoView(View):
     def post(self, request, pk, *args, **kwargs):
         try:
             gar = get_object_or_404(garantia, pk=pk)
@@ -115,7 +115,7 @@ class GarantiaUpdateEstadoView(View):
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
-class GarantiaDetailView(View):
+class garantiaDetailView(View):
     def get(self, request, pk, *args, **kwargs):
         gar = get_object_or_404(garantia.objects.select_related('pedido__cliente', 'producto'), pk=pk)
         return JsonResponse({'ok': True, 'garantia': _garantia_to_dict(gar)})

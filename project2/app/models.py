@@ -236,27 +236,25 @@ class garantia(models.Model):
     estado = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Garantia para producto {self.id_producto_id}"
+        return f"garantia para producto {self.id_producto_id}"
 
     class Meta:
         verbose_name = "Garantía"
         verbose_name_plural = "Garantías"
         db_table = "garantias"
-
-
-class mantenimiento(models.Model):
+class garantia(models.Model):
     fecha = models.DateField()
-    descripcion = models.TextField()
-    # Asumo que id_garantia debe apuntar a Garantia, no a Reporte.
-    id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE)
+    descripcion_falla = models.TextField()
+    estado_reparacion = models.CharField(max_length=50)
+    fecha_solicitud = models.DateField()
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Mantenimiento del {self.fecha}"
+        return f"Garantía del {self.fecha}"
 
     class Meta:
-        verbose_name = "Mantenimiento"
-        verbose_name_plural = "Mantenimientos"
-        db_table = "mantenimiento"
+        db_table = "garantia"
 # --- MODELOS DE INSUMOS Y PRODUCCIÓN (BOM) ---
 
 

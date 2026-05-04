@@ -1,6 +1,6 @@
 from .views import (
-    GarantiaListView,
-    GarantiaCreateView,
-    GarantiaUpdateEstadoView,
-    GarantiaDetailView,
+    garantiaListView,
+    garantiaCreateView,
+    garantiaUpdateEstadoView,
+    garantiaDetailView,
 )

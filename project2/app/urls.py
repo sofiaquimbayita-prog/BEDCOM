@@ -10,10 +10,10 @@ from app.views.despacho.views import (
     DespachosPorFechaView
 )
 from app.views.garantias.views import (
-    GarantiaListView,
-    GarantiaCreateView,
-    GarantiaUpdateEstadoView,
-    GarantiaDetailView,
+    garantiaListView,
+    garantiaCreateView,
+    garantiaUpdateEstadoView,
+    garantiaDetailView,
 )
 
 urlpatterns = [
@@ -177,10 +177,10 @@ urlpatterns = [
     path('clientes/historial-pagos/<int:pk>/', clientes.ClientePagosHistorialView.as_view(), name='clientes_historial_pagos'),
     path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
 
-    # --- GARANTIAS ---
-    path('garantias/', GarantiaListView.as_view(), name='garantias_list'),
-    path('garantias/crear/', GarantiaCreateView.as_view(), name='garantias_crear'),
-    path('garantias/estado/<int:pk>/', GarantiaUpdateEstadoView.as_view(), name='garantias_estado'),
-    path('garantias/detalle/<int:pk>/', GarantiaDetailView.as_view(), name='garantias_detalle'),
+    # --- garantiaS ---
+    path('garantias/', garantiaListView.as_view(), name='garantias_list'),
+    path('garantias/crear/', garantiaCreateView.as_view(), name='garantias_crear'),
+    path('garantias/estado/<int:pk>/', garantiaUpdateEstadoView.as_view(), name='garantias_estado'),
+    path('garantias/detalle/<int:pk>/', garantiaDetailView.as_view(), name='garantias_detalle'),
     #path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
 ]
