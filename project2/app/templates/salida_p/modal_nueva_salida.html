@@ -18,7 +18,7 @@
     <option value="">Selecciona un producto</option>
     {% if productos %}
     {% for p in productos %}
-    <option value="{{ p.id }}" data-stock="{{ p.stock }}" data-pendiente="{{ p.has_pendidos|yesno:'true,false' }}">{{ p.nombre }}</option>
+    <option value="{{ p.id }}" data-stock="{{ p.stock }}">{{ p.nombre }}</option>
     {% endfor %}
     {% else %}
     <option value="" disabled>No hay productos disponibles</option>

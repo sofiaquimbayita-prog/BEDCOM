@@ -1,7 +1,7 @@
 from django import forms
 import  re
 from datetime import date, datetime
-from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido, despacho, garantia
+from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido,  despacho, bom, garantia
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -400,12 +400,6 @@ class SalidaProductoForm(forms.ModelForm):
             if cantidad > producto.stock:
                 self.add_error('cantidad', f'No hay suficiente stock. Stock disponible: {producto.stock}')
 
-
-        # Validar si producto está pendiente (BOM o pedidos)
-        if producto and producto.has_pendidos():
-            raise forms.ValidationError('No se genera salida de producto pendiente')
-
-
         return cleaned_data
 
 
@@ -417,8 +411,6 @@ class SalidaProductoForm(forms.ModelForm):
             raise forms.ValidationError('La cantidad debe ser un número entero.')
         if cantidad <= 0:
             raise forms.ValidationError('La cantidad debe ser mayor a 0.')
-        if cantidad > 100:
-            raise forms.ValidationError('La cantidad no puede superar 100 unidades.')
         return cantidad
 
     def clean_fecha(self):

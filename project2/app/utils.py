@@ -6,12 +6,16 @@ Módulo con funciones para exportar datos a PDF y Excel
 from weasyprint import HTML
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from datetime import datetime
 import io
 import base64
 import re
+from pathlib import Path
+from urllib.parse import urlparse
 
 # ====== UTILIDADES COMPARTIDAS ======
 def sanitize_value(value):
@@ -25,6 +29,35 @@ def sanitize_value(value):
         text = re.sub(r'(.)\\1{2,}', r'\\1\\1', text)
         return text
     return value
+
+
+def resolve_static_file_url(value):
+    """Convierte URLs de /static/ a file:// para evitar peticiones HTTP lentas en WeasyPrint."""
+    if not isinstance(value, str):
+        return value
+
+    parsed = urlparse(value)
+    path = parsed.path or value
+    static_url = settings.STATIC_URL
+
+    if path.startswith(static_url):
+        static_path = path[len(static_url):]
+    elif path.startswith(f"/{static_url}"):
+        static_path = path[len(static_url) + 1:]
+    else:
+        return value
+
+    found_path = finders.find(static_path)
+    if not found_path:
+        return value
+
+    return Path(found_path).resolve().as_uri()
+
+
+def normalize_pdf_context(contexto):
+    if contexto.get('logo_url'):
+        contexto['logo_url'] = resolve_static_file_url(contexto['logo_url'])
+    return contexto
 
 
 # ====== EXPORTACIÓN A PDF ======
@@ -46,12 +79,14 @@ def exportar_pdf(titulo, columnas, datos, nombre_archivo, contexto_extra=None):
     # Si se pasan datos adicionales (como la URL del icono), se agregan al contexto
     if contexto_extra:
         contexto.update(contexto_extra)
+
+    contexto = normalize_pdf_context(contexto)
     
     # Generar HTML desde el template
     html_string = render_to_string('reportes/reporte_pdf.html', contexto)
     
-    # Crear documento PDF (base_url='.' ayuda a resolver rutas en algunos entornos)
-    html_object = HTML(string=html_string, base_url='.')
+    # Crear documento PDF usando base local para evitar resoluciones HTTP lentas
+    html_object = HTML(string=html_string, base_url=Path(settings.BASE_DIR).resolve().as_uri())
     
     # Generar PDF en memoria
     pdf_bytes = html_object.write_pdf()
@@ -138,12 +173,14 @@ def exportar_pdf_estadisticas(titulo, estadisticas, nombre_archivo, contexto_ext
         )
         for metric, value in estadisticas
     ]
+
+    contexto = normalize_pdf_context(contexto)
     
     # Generar HTML desde el template especializado para estadísticas
     html_string = render_to_string('reportes/reporte_estadisticas.html', contexto)
     
     # Crear documento PDF
-    html_object = HTML(string=html_string, base_url='.')
+    html_object = HTML(string=html_string, base_url=Path(settings.BASE_DIR).resolve().as_uri())
     
     # Generar PDF en memoria
     pdf_bytes = html_object.write_pdf()
