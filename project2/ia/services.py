@@ -13,9 +13,6 @@ from app.models import (
     historial_acciones, Notificacion
 )
 
-# =====================================================
-# INTENTOS DE MÓDULOS TTS
-# =====================================================
 EDGE_TTS_AVAILABLE = False
 _edge_tts_module = None
 

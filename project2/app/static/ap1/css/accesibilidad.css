@@ -1,0 +1,646 @@
+/* ==============================================================
+   BEDCOM - HOJA DE ESTILOS DE ACCESIBILIDAD (FRONTEND)
+   Variables y clases condicionales aplicadas al <html> y <body>
+   ============================================================== */
+
+/* --- 1. TAMAÑO DE TEXTO (Aplica en HTML para rem) --- */
+html.acc-text-lg { font-size: 110% !important; }
+html.acc-text-xl { font-size: 125% !important; }
+
+/* --- 2. ALTO CONTRASTE (Negro absoluto, textos amarillos/blancos) --- */
+/* Es mutuamente excluyente con el modo claro desde JS */
+body.acc-high-contrast {
+    --bg: #000000 !important;
+    --card: #111111 !important;
+    --card-hover: #222222 !important;
+    --text: #ffff00 !important;
+    --muted: #dddddd !important;
+    --brand: #ffffff !important;
+    --color-botones: #ffff00 !important;
+    --color-texto-botones: #000000 !important;
+    --color-botones-hover: #ffffff !important;
+    --fondo: none !important;
+    --fondo-login: none !important;
+    --color-fondo-formulario: #000000 !important;
+    --color-input: #222222 !important;
+    --color-input-text: #ffff00 !important;
+    --shadow: none !important;
+    background-image: none !important;
+    background-color: #000000 !important;
+}
+body.acc-high-contrast * {
+    border-color: #ffff00 !important;
+}
+
+/* --- 3. MODO CLARO (Refinado, preservando fondo original) --- */
+body.acc-light-mode {
+    --bg: rgba(248, 250, 252, 0.9) !important;
+    --card: rgba(255, 255, 255, 0.9) !important;
+    --card-hover: rgba(241, 245, 249, 0.95) !important;
+    --text: #1e293b !important;
+    --muted: #475569 !important;
+    --brand: #0284c7 !important;
+    --color-botones: #0284c7 !important;
+    --color-texto-botones: #ffffff !important;
+    --color-fondo-formulario: rgba(255, 255, 255, 0.9) !important;
+    --color-input: rgba(248, 250, 252, 0.8) !important;
+    --color-input-text: #1e293b !important;
+    --color-input-border: #cbd5e1 !important;
+    --color-borde: #e2e8f0 !important;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    color: var(--text) !important;
+}
+
+body.acc-light-mode .contenedor,
+body.acc-light-mode .formulario,
+body.acc-light-mode .modal-content,
+body.acc-light-mode .modal-box,
+body.acc-light-mode .card,
+body.acc-light-mode .tile,
+body.acc-light-mode .menu-card,
+body.acc-light-mode .tarjetacal,
+body.acc-light-mode .dropdown-sidebar,
+body.acc-light-mode .report-card,
+body.acc-light-mode .chart-card,
+body.acc-light-mode .kpi-card,
+body.acc-light-mode .panel,
+body.acc-light-mode .header-monitoreo,
+body.acc-light-mode .topbar,
+body.acc-light-mode .topbar-modern,
+body.acc-light-mode .dropdown,
+body.acc-light-mode .menu-accesibilidad,
+body.acc-light-mode #noti-menu,
+body.acc-light-mode .dropdown-menu,
+body.acc-light-mode .message {
+    background: var(--card) !important;
+    border-color: var(--color-borde) !important;
+    box-shadow: var(--shadow) !important;
+}
+body.acc-light-mode .notif-modal-contenido,
+body.acc-light-mode .profile-sidebar,
+body.acc-light-mode .module-sidebar,
+body.acc-light-mode .modal-content-ia,
+body.acc-light-mode #chatContainer,
+body.acc-light-mode .salidas-table,
+body.acc-light-mode .table-container,
+body.acc-light-mode .container-tabla,
+body.acc-light-mode .view-detail-grid,
+body.acc-light-mode .modal-contenido {
+    background: var(--card) !important;
+    border-color: var(--color-borde) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+/* Forzar luz en fondos de modales, asegurando no tapar la imagen de fondo de BEDCOM */
+body.acc-light-mode .modal-perfil .modal-overlay,
+body.acc-light-mode .sidebar-overlay,
+body.acc-light-mode .modal-overlay {
+    background-color: rgba(248, 250, 252, 0.5) !important;
+}
+
+/* Modales e Inputs (Claro) */
+body.acc-light-mode input,
+body.acc-light-mode select,
+body.acc-light-mode textarea,
+body.acc-light-mode .search,
+body.acc-light-mode .form-control,
+body.acc-light-mode input[type="search"],
+body.acc-light-mode .dataTables_filter input,
+body.acc-light-mode .dataTables_length select,
+body.acc-light-mode .select2-selection--single,
+body.acc-light-mode .select2-dropdown,
+body.acc-light-mode .select2-search__field,
+body.acc-light-mode .select2-results__option,
+body.acc-light-mode option,
+body.acc-light-mode optgroup,
+body.acc-light-mode #iaQuery {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body.acc-light-mode .select2-results__option[aria-selected="true"],
+body.acc-light-mode .select2-results__option--highlighted {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+body.acc-light-mode .search input {
+    color: var(--text) !important;
+}
+
+body.acc-light-mode input::placeholder,
+body.acc-light-mode textarea::placeholder,
+body.acc-light-mode .search input::placeholder,
+body.acc-light-mode .form-control::placeholder,
+body.acc-light-mode input[type="search"]::placeholder {
+    color: #94a3b8 !important;
+}
+
+body.acc-light-mode .icon-btn-rounded,
+body.acc-light-mode .notif-btn,
+body.acc-light-mode .user-photo,
+body.acc-light-mode .avatar,
+body.acc-light-mode .icon-btn,
+body.acc-light-mode .icon-btn-glass {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--text) !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .icon-btn-rounded:hover,
+body.acc-light-mode .notif-btn:hover,
+body.acc-light-mode .user-photo:hover,
+body.acc-light-mode .avatar:hover,
+body.acc-light-mode .icon-btn:hover,
+body.acc-light-mode .icon-btn-glass:hover,
+body.acc-light-mode .sidebar-module-item:hover,
+body.acc-light-mode .sidebar-menu-item:hover,
+body.acc-light-mode .notif-item:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.acc-light-mode .modal-close,
+body.acc-light-mode .modal .close,
+body.acc-light-mode .notif-modal-close,
+body.acc-light-mode .btn-cerrar-modal {
+    color: var(--muted) !important;
+}
+
+body.acc-light-mode .dropdown a:hover,
+body.acc-light-mode .menu-accesibilidad button:hover,
+body.acc-light-mode .dropdown-item:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Soporte para Tablas y Calendario en Modo Claro */
+body.acc-light-mode table,
+body.acc-light-mode table.dataTable,
+body.acc-light-mode table.dataTable tbody tr,
+body.acc-light-mode table.dataTable tbody td,
+body.acc-light-mode table.dataTable thead th,
+body.acc-light-mode .salidas-table tbody tr,
+body.acc-light-mode .salidas-table tbody td,
+body.acc-light-mode .salidas-table thead th,
+body.acc-light-mode table td,
+body.acc-light-mode table th,
+body.acc-light-mode .cal-layout,
+body.acc-light-mode .cal-sidebar,
+body.acc-light-mode .cal-right,
+body.acc-light-mode .right-header,
+body.acc-light-mode .right-section,
+body.acc-light-mode .fc-theme-standard td, 
+body.acc-light-mode .fc-theme-standard th, 
+body.acc-light-mode .fc-theme-standard .fc-scrollgrid,
+body.acc-light-mode .calendar-header,
+body.acc-light-mode .calendar-dates,
+body.acc-light-mode .calendar-cells {
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .salidas-table thead,
+body.acc-light-mode .salidas-table thead tr {
+    background: rgba(241, 245, 249, 0.95) !important;
+}
+
+body.acc-light-mode .salidas-table tbody tr,
+body.acc-light-mode .salidas-table tbody tr:nth-child(even),
+body.acc-light-mode .salidas-table tbody tr:nth-child(odd),
+body.acc-light-mode table.dataTable tbody tr:nth-child(even),
+body.acc-light-mode table.dataTable tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.acc-light-mode table.dataTable tbody tr:hover,
+body.acc-light-mode table.dataTable tbody tr:hover td {
+    background-color: var(--card-hover) !important;
+}
+
+body.acc-light-mode .proxima-item,
+body.acc-light-mode .tarea-item,
+body.acc-light-mode .cat-item,
+body.acc-light-mode .fc-daygrid-day-number,
+body.acc-light-mode .fc-col-header-cell-cushion,
+body.acc-light-mode .proxima-titulo,
+body.acc-light-mode .tarea-titulo-item,
+body.acc-light-mode .right-fecha-numero,
+body.acc-light-mode .right-fecha-texto,
+body.acc-light-mode .kpi-value,
+body.acc-light-mode .panel-title,
+body.acc-light-mode .alerta-title,
+body.acc-light-mode .card-header h2,
+body.acc-light-mode .value,
+body.acc-light-mode .header-titles h1,
+body.acc-light-mode .header-date,
+body.acc-light-mode .topbar .title,
+body.acc-light-mode .topbar-modern .main-title,
+body.acc-light-mode .dropdown a,
+body.acc-light-mode .menu-accesibilidad button,
+body.acc-light-mode .dropdown-item,
+body.acc-light-mode .modal-content h2,
+body.acc-light-mode .modal-header,
+body.acc-light-mode .form-group label,
+body.acc-light-mode .modal-contact-form label,
+body.acc-light-mode .modal-content p,
+body.acc-light-mode .dropdown-section,
+body.acc-light-mode .sidebar-module-item,
+body.acc-light-mode .sidebar-menu-item,
+body.acc-light-mode .sidebar-name,
+body.acc-light-mode .sidebar-group-title,
+body.acc-light-mode .notif-titulo,
+body.acc-light-mode .notif-modal-titulo,
+body.acc-light-mode .table-header h3,
+body.acc-light-mode .view-info p,
+body.acc-light-mode .switch-text,
+body.acc-light-mode .modal-content h1,
+body.acc-light-mode .modal-content h3,
+body.acc-light-mode .modal-content h4,
+body.acc-light-mode .modal-content h5,
+body.acc-light-mode .modal-content h6,
+body.acc-light-mode .modal-box h1,
+body.acc-light-mode .modal-box h2,
+body.acc-light-mode .modal-box h3,
+body.acc-light-mode .modal-box p,
+body.acc-light-mode .modal-box span,
+body.acc-light-mode label,
+body.acc-light-mode .dataTables_filter label,
+body.acc-light-mode .dataTables_length label,
+body.acc-light-mode .dataTables_wrapper,
+body.acc-light-mode .dataTables_info,
+body.acc-light-mode .dataTables_length,
+body.acc-light-mode .dataTables_filter,
+body.acc-light-mode .modal-body-delete p,
+body.acc-light-mode .modal-body-delete h3,
+body.acc-light-mode .modal-titulo,
+body.acc-light-mode .form-grupo label,
+body.acc-light-mode .inactivar-aviso p {
+    color: #1e293b !important;
+}
+
+/* Textos del Menú Principal, Toasts y Sidebar */
+body.acc-light-mode .sidebar-user-name,
+body.acc-light-mode .sidebar-user-role,
+body.acc-light-mode .tile h3,
+body.acc-light-mode .menu-card-content h3,
+body.acc-light-mode .message .text,
+body.acc-light-mode .calendar-header {
+    color: #1e293b !important;
+}
+
+/* Switches (Mostrar inactivos) */
+body.acc-light-mode .switch-container {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.acc-light-mode .slider {
+    background: #cbd5e1 !important;
+}
+
+body.acc-light-mode input:checked + .slider {
+    background: #f59e0b !important;
+}
+
+body.acc-light-mode .msg-luna {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.acc-light-mode .btn-action,
+body.acc-light-mode .btn-small,
+body.acc-light-mode .completadas-limit-btn,
+body.acc-light-mode .dataTables_wrapper .dataTables_paginate .paginate_button,
+body.acc-light-mode .btn-cancelar,
+body.acc-light-mode .view-btn,
+body.acc-light-mode .edit-btn,
+body.acc-light-mode .delete-btn,
+body.acc-light-mode .activate-btn,
+body.acc-light-mode .bom-btn {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #1e293b !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.acc-light-mode .btn-action:hover,
+body.acc-light-mode .btn-small:hover,
+body.acc-light-mode .completadas-limit-btn:hover,
+body.acc-light-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+body.acc-light-mode .btn-cancelar:hover,
+body.acc-light-mode .view-btn:hover,
+body.acc-light-mode .edit-btn:hover,
+body.acc-light-mode .delete-btn:hover,
+body.acc-light-mode .activate-btn:hover,
+body.acc-light-mode .bom-btn:hover {
+    background: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Botones principales de agregar/nuevo */
+body.acc-light-mode .button-3,
+body.acc-light-mode .btn-add,
+body.acc-light-mode .btn-nueva-salida {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+body.acc-light-mode .button-3:hover,
+body.acc-light-mode .btn-add:hover,
+body.acc-light-mode .btn-nueva-salida:hover {
+    background: #0369a1 !important;
+    color: #ffffff !important;
+}
+
+/* Arreglos de modales oscuros específicos */
+body.acc-light-mode .modal-header-delete,
+body.acc-light-mode .modal-footer-delete {
+    background: transparent !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.acc-light-mode .view-info label,
+body.acc-light-mode .salidas-table th,
+body.acc-light-mode .salidas-table td,
+body.acc-light-mode .empty-state,
+body.acc-light-mode .tile .muted,
+body.acc-light-mode .menu-card-content .muted {
+    color: #334155 !important;
+}
+
+body.acc-light-mode .fc .fc-button-primary {
+    background-color: var(--brand) !important;
+    border-color: var(--brand) !important;
+    color: #fff !important;
+}
+
+body.acc-light-mode .titulo {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+
+/* --- 4. RESALTAR ENLACES Y BOTONES --- */
+body.acc-highlight-links a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 3px !important;
+    text-underline-offset: 3px !important;
+    color: var(--brand) !important;
+    font-weight: bold !important;
+}
+body.acc-highlight-links button,
+body.acc-highlight-links .btn,
+body.acc-highlight-links input[type="button"],
+body.acc-highlight-links input[type="submit"] {
+    border: 3px solid currentColor !important;
+    box-shadow: 0 0 0 2px var(--bg) inset !important;
+}
+
+/* --- 5. ESPACIADO DEL CONTENIDO (Solo texto para no romper UI) --- */
+body.acc-spacing-lg p,
+body.acc-spacing-lg h1,
+body.acc-spacing-lg h2,
+body.acc-spacing-lg h3,
+body.acc-spacing-lg h4,
+body.acc-spacing-lg h5,
+body.acc-spacing-lg h6,
+body.acc-spacing-lg span,
+body.acc-spacing-lg label,
+body.acc-spacing-lg a,
+body.acc-spacing-lg li {
+    line-height: 1.8 !important;
+    letter-spacing: 0.05em !important;
+    word-spacing: 0.1em !important;
+}
+body.acc-spacing-lg p {
+    margin-bottom: 1.5rem !important;
+}
+
+/* --- 6. FUENTE DISLEXIA-FRIENDLY (O geométrica legible) --- */
+/* Fallback a fuentes limpias, sin serifa y redondas si OpenDyslexic no está */
+body.acc-dyslexia * {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Lexend', 'Verdana', sans-serif !important;
+}
+
+/* --- 7. REDUCIR ANIMACIONES --- */
+body.acc-reduce-motion * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+
+/* ==============================================================
+   WIDGET DE ACCESIBILIDAD (UI del Panel Lateral)
+   ============================================================== */
+
+#acc-widget-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0317cc, #007bff);
+    color: white;
+    border: none;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10001;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#acc-widget-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(3, 23, 204, 0.6);
+}
+
+#acc-panel {
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    width: 320px;
+    max-height: 80vh;
+    background: linear-gradient(180deg, #1b2537, #0f172a);
+    color: #e9eef7;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#acc-panel.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.acc-header {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e9eef7;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.acc-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.acc-body {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.acc-group {
+    margin-bottom: 20px;
+}
+
+.acc-group-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #5fa8ff;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 5px;
+}
+
+.acc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+/* Toggle Switch Styles */
+.acc-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.acc-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.acc-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.15);
+    transition: .3s;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.acc-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .acc-slider {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+input:checked + .acc-slider:before {
+    transform: translateX(22px);
+}
+
+/* Botones de tamaño de texto */
+.acc-btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.acc-btn-group button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e9eef7;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.acc-btn-group button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.acc-btn-group button.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.acc-reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.acc-reset-btn:hover {
+    background: #dc2626;
+}
+
+/* Media query para móviles */
+@media (max-width: 480px) {
+    #acc-panel {
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh;
+    }
+    #acc-widget-btn {
+        bottom: 15px;
+        left: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+}

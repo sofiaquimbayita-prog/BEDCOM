@@ -1,1 +1,15 @@
-# TODO: Fix abrirModalIA not defined - COMPLETED\n\nSteps completed:\n1. ✅ Understood issue via search_files and read_files\n2. ✅ Created edit plan and got approval\n3. ✅ Edited project2/app/static/ap1/js/script_ia.js with missing functions: abrirModalIA, cerrarModalIA, enviarConsultaIA, escucharVoz (adapted for modal IDs)\n4. ✅ Ran `cd project2; python manage.py collectstatic --noinput` (1 file copied, static updated)\n5. ✅ Verified backend endpoint in ia/views.py exists and matches\n6. ✅ Functions now defined globally, modal should work without ReferenceError\n\nReload your Django development server and test the IA floating button on any page (e.g., menu). No further issues expected.
+# TODO: Improve Notifications Table Styles & Design
+
+## Plan Breakdown (Approved)
+**Goal**: Enhance styles/design in `monitoreo/notif-section.html` + `monitoreo.css` for coherence (slate theme, badges, responsive DataTables).
+
+### Steps:
+- [x] **Step 1**: Update template `project2/app/templates/monitoreo/notif-section.html` - Add `responsive: true,`. (Classes already present) ✓
+- [x] **Step 2**: Enhance CSS `project2/app/static/ap1/css/monitoreo.css` - Full DataTables integration (slate theme, badges, pagination, responsive). ✓
+- [ ] **Step 3**: Test locally (`cd project2 && python manage.py runserver`), verify /vistas/monitoreo/ table styles/pagination/responsiveness.
+- [ ] **Step 4**: Complete - attempt_completion.
+
+**Progress**: 2/4 complete. Next: Step 3 (test). 
+
+Updated: Template responsive + full CSS enhancements applied.
+

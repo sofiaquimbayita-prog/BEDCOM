@@ -9,12 +9,10 @@
         </div>
     </div>
     <div class="table-wrap">
-        <table id="notifTable" class="display nowrap">
+<table id="notifTable" class="display responsive nowrap" style="width:100%;">
             <thead>
                 <tr>
                     <th>Título</th>
-                    <th>Tipo</th>
-                    <th>Fecha</th>
                     <th>Estado</th>
                     <th>Acción</th>
                 </tr>
@@ -53,8 +51,6 @@ function initNotifTable() {
         ajax: '/vistas/monitoreo/api/notificaciones/',
         columns: [
             { data: 'titulo', orderable: true },
-            { data: 'tipo', orderable: true },
-            { data: 'fecha_notif', render: data => new Date(data).toLocaleString('es-CO') },
             { data: 'leida', render: data => data ? '<span class="status-leida">Leída</span>' : '<span class="status-nueva">Nueva</span>' },
             { 
                 orderable: false,
@@ -69,11 +65,10 @@ function initNotifTable() {
             }
         ],
         pageLength: 25,
-        order: [[2, 'desc']],
+        order: [[0, 'desc']],
         columnDefs: [
-            { targets: [0,1], width: '25%' },
-            { targets: [3], width: '15%' },
-            { targets: [4], width: '15%', orderable: false }
+            { targets: [0], width: '60%' },
+            { targets: [2], width: '20%', orderable: false }
         ],
         language: {
             "lengthMenu": "Mostrar _MENU_ entradas",
@@ -101,6 +96,7 @@ function initNotifTable() {
         },
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todas"]],
         dom: '<"top"l>frtip', // Organized: length | filter | table | info+paging
+        responsive: true,
         drawCallback: function() { 
             attachNotifListeners(); 
             if (typeof window.updateGlobalBadge === 'function') {

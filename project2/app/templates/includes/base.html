@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/header-nav.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/notifications.css' %}" />
+    <link rel="stylesheet" href="{% static 'ap1/css/accesibilidad.css' %}" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
@@ -75,22 +76,10 @@
         <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
             <!-- DASHBOARDS PRINCIPALES -->
-            <div class="sidebar-group-title">DASHBOARDS</div>
+            <div class="sidebar-group-title">DASHBOARD</div>
             <a href="{% url 'menu' %}" class="sidebar-module-item" title="Menú Principal">
                 <i class="fa-solid fa-house"></i>
                 <span>MENÚ PRINCIPAL</span>
-            </a>
-            <a href="{% url 'logistica' %}" class="sidebar-module-item" title="Logística y Planeación">
-                <i class="fa-solid fa-truck-fast"></i>
-                <span>LOGÍSTICA Y PLANEACIÓN</span>
-            </a>
-            <a href="{% url 'suministros' %}" class="sidebar-module-item" title="Suministros">
-                <i class="fa-solid fa-boxes-stacked"></i>
-                <span>SUMINISTROS</span>
-            </a>
-            <a href="{% url 'gestion' %}" class="sidebar-module-item" title="Gestión de Datos">
-                <i class="fa-solid fa-database"></i>
-                <span>GESTIÓN DE DATOS</span>
             </a>
 
             <!-- LOGÍSTICA Y PLANEACIÓN -->
@@ -208,6 +197,72 @@
         </div>
     </div>
 
+    <!-- WIDGET DE ACCESIBILIDAD -->
+    <button id="acc-widget-btn" title="Opciones de Accesibilidad">
+        <i class="fa-solid fa-universal-access"></i>
+    </button>
+
+    <div id="acc-panel">
+        <div class="acc-header">
+            <span>Accesibilidad</span>
+            <button class="acc-close" id="acc-close-btn">&times;</button>
+        </div>
+        <div class="acc-body">
+            <div class="acc-group">
+                <div class="acc-group-title">Visual y Lectura</div>
+                <div class="acc-item">
+                    <span>Tamaño de texto</span>
+                    <div class="acc-btn-group">
+                        <button id="acc-text-normal" class="active">A</button>
+                        <button id="acc-text-lg">A+</button>
+                        <button id="acc-text-xl">A++</button>
+                    </div>
+                </div>
+                <div class="acc-item">
+                    <span>Espaciado amplio</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-spacing-lg"><span class="acc-slider"></span></label>
+                </div>
+                <div class="acc-item">
+                    <span>Fuente legible (Dislexia)</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-dyslexia"><span class="acc-slider"></span></label>
+                </div>
+                <div class="acc-item">
+                    <span>Lector de texto (Selección)</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-speech-enabled"><span class="acc-slider"></span></label>
+                </div>
+            </div>
+
+            <div class="acc-group">
+                <div class="acc-group-title">Colores y Contraste</div>
+                <div class="acc-item">
+                    <span>Alto Contraste</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-high-contrast"><span class="acc-slider"></span></label>
+                </div>
+                <div class="acc-item">
+                    <span>Modo Claro</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-light-mode"><span class="acc-slider"></span></label>
+                </div>
+            </div>
+
+            <div class="acc-group">
+                <div class="acc-group-title">Navegación e Interacción</div>
+                <div class="acc-item">
+                    <span>Resaltar Enlaces</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-highlight-links"><span class="acc-slider"></span></label>
+                </div>
+                <div class="acc-item">
+                    <span>Reducir Animaciones</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-reduce-motion"><span class="acc-slider"></span></label>
+                </div>
+            </div>
+
+            <button class="acc-reset-btn" id="acc-reset-btn">
+                <i class="fa-solid fa-rotate-right"></i> Restablecer todo
+            </button>
+        </div>
+    </div>
+    <!-- FIN WIDGET ACCESIBILIDAD -->
+
     <button class="btn-ia-flotante" onclick="abrirModalIA()" title="Hablar con Luna"><i class="fa-solid fa-robot"></i></button>
 
     <div id="modalIA" class="modal-perfil oculto">
@@ -245,6 +300,8 @@
     <script src="{% static 'ap1/js/marked.min.js' %}"></script>
 <script src="{% static 'ap1/js/vosk-browser.js' %}"></script>
     <script src="{% static 'ap1/js/script_ia.js' %}"></script>
+    <script src="{% static 'ap1/js/accesibilidad.js' %}"></script>
+
 
     <script>
         // --- LÓGICA SIDEBARS ---
