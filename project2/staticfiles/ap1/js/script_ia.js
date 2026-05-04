@@ -30,9 +30,18 @@ function reproducirVozLuna(urlAudio) {
     }
 }
 
+// --- DEBUG GET EL Helper ---
+function debugGetEl(id) {
+  const el = document.getElementById(id);
+  console.log(`🔍 [IA.js] ID "${id}" -> ${el ? 'OK' : 'NULL!'}`);
+  return el;
+}
+
 // --- SPEECH RECOGNITION (Simplified & Reliable) ---
 window.escucharVoz = function() {
+  console.log('🔍 [IA.js] CLICK escucharVoz called');
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    console.log('🔍 [IA.js] SpeechRecognition:', !!Recognition);
     
     if (!Recognition) {
         const iaQuery = document.getElementById('iaQuery');
@@ -54,7 +63,7 @@ window.escucharVoz = function() {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    const btnVoz = document.getElementById('btnVoz');
+    const btnVoz = debugGetEl('btnVoz');
     
     recognition.onstart = () => {
         if (btnVoz) {
@@ -106,6 +115,7 @@ window.escucharVoz = function() {
 
 // --- CONSULTA IA ---
 window.enviarConsultaIA = function() {
+  console.log('🔍 [IA.js] CLICK enviarConsultaIA called');
     const input = document.getElementById('iaQuery');
     const chatContainer = document.getElementById('chatContainer');
     const btnPreguntar = document.getElementById('btnPreguntarIA');
@@ -173,6 +183,65 @@ window.enviarConsultaIA = function() {
 };
 
 // --- INICIO ---
+window.abrirModalIA = function() {
+    const m = document.getElementById('modalIA');
+    console.log('[DEBUG IA] abrirModalIA called, modal:', m);
+    if (m) {
+        m.style.display = 'flex !important';
+        m.style.zIndex = '9999 !important';
+        m.querySelector('.modal-dialog, .modal-content, .modal-body, #chatContainer, .input-group, input, button').forEach(el => {
+            el.style.pointerEvents = 'auto';
+            el.style.zIndex = '10001';
+        });
+        document.body.style.overflow = 'hidden';
+        console.log('[DEBUG IA] Modal shown, pointerEvents auto');
+    } else {
+        console.log('[DEBUG IA] Modal #modalIA not found');
+    }
+};
+
+window.cerrarModalIA = function() {
+    const m = document.getElementById('modalIA');
+    console.log('[DEBUG IA] cerrarModalIA called');
+    if (m) {
+        m.style.display = 'none';
+        m.classList.remove('show', 'oculto');
+        document.body.classList.remove('modal-open');
+        console.log('[DEBUG IA] Modal hidden');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("✅ Asistente Luna cargado - Mic fixed (SpeechRecognition es-CO)");
+    const modalIA = document.getElementById('modalIA');
+    console.log('[DEBUG IA] DOM loaded, modalIA:', modalIA);
+    if (modalIA) {
+        // Backdrop
+        modalIA.addEventListener('click', (e) => {
+            if (e.target === modalIA) cerrarModalIA();
+        });
+        // Stop prop AGRESIVO - previene cierres clicks internos
+        modalIA.querySelectorAll('*').forEach(el => {
+            el.addEventListener('click', e => {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }, true); // Capture phase
+        });
+        // También input/button specific
+        const inputs = modalIA.querySelectorAll('input, button, textarea');
+        inputs.forEach(el => {
+            el.addEventListener('click', e => {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            });
+        });
+        // ESC
+        const escHandler = (e) => {
+            if (e.key === 'Escape' && getComputedStyle(modalIA).display !== 'none') cerrarModalIA();
+        };
+        document.addEventListener('keydown', escHandler);
+        console.log('[DEBUG IA] Handlers added');
+    } else {
+        console.log('[DEBUG IA] No modalIA, no handlers');
+    }
+    console.log("✅ Asistente Luna + Modal IA debug ready");
 });

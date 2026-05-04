@@ -1,18 +1,17 @@
-# TODO: Fix Modal-Logout Interaction Issue
+# Debug Logs para Botones e IDs
+Estado: En progreso
 
-## Status: In Progress
+## Pasos del Plan:
+- [x] 1. Crear TODO.md (este archivo)
+- [x] 2. Agregar console.logs detallados a project2/app/static/ap1/js/script_ia.js (getElementById, clicks btnVoz/btnPreguntarIA, modalIA open/close)
+- [x] 3. Agregar console.logs a project2/app/static/ap1/js/script_usuarios.js (abrirModalEditar, getElementById forms, submit, toggles)
+- [ ] 4. Probar en navegador: F12 > Console, click buttons/modals, revisar logs por NULLs o eventos no disparados
+- [ ] 5. Reportar resultados y cleanup logs si necesario
 
-### Breakdown Steps:
-- [x] 1. Analyze files and create detailed edit plan (base.html)
-- [x] 2. Get user approval for plan
-- [x] 3. Create this TODO.md for tracking
-- [x] 4. Update CSS in base.html (z-index 10010, pointer-events, glassmorphism)
-- [x] 5. Enhance modal HTML structure and inline styles
-- [x] 6. Update JS functions (add body.modal-open class, timeout for render)
-- [ ] 7. Test modal: open/close, interaction, no blocking overlay
-- [ ] 8. Run `python project2/manage.py collectstatic`
-- [ ] 9. Update TODO-FIX-MODAL-LOGOUT.md as complete
-- [ ] 10. Final verification and attempt_completion
-
-**Current Step:** 4. Edit base.html CSS
+**Instrucciones de test:**
+1. python manage.py runserver
+2. Abrir /ia/ o /usuarios/ 
+3. F12 > Console
+4. Click botones/modals
+5. Buscar 'NULL!' o 'CLICK no detectado'
 
