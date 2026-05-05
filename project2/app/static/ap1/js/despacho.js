@@ -169,20 +169,117 @@ $(document).ready(function () {
     $('#modalCrearDespacho').addClass('mostrar');
   });
 
+  // Strict phone and placa input filtering
+  $(document).on('keydown', '#inpCrearTelefono', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if (this.value.length >= 10) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearTelefono', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[0-9]+$/.test(paste)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('input', '#inpCrearTelefono', function() {
+    const clean = this.value.replace(/\D/g, '').slice(0, 10);
+    if (this.value !== clean) this.value = clean;
+  });
+
+  $(document).on('keydown', '#inpCrearGuia', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if (this.value.length >= 8) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key.length === 1 && !/^[A-Za-z0-9]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearGuia', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[A-Za-z0-9]+$/.test(paste)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('input', '#inpCrearGuia', function() {
+    const clean = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+    if (this.value !== clean) this.value = clean;
+  });
+
   $('#btnGuardarDespacho').on('click', async function(){
-    const pedido_id = $('#inpCrearPedidoId').val();
-    if (!pedido_id) {
-      showToast('Debe seleccionar un pedido', 'error');
+    // Client-side validation
+    const fields = {
+      pedido: $('#inpCrearPedidoId'),
+      empresa: $('#inpCrearEmpresa'),
+      telefono: $('#inpCrearTelefono'),
+      guia: $('#inpCrearGuia'),
+      costo: $('#inpCrearCosto')
+    };
+
+    let valid = true;
+    const errors = {};
+
+    // Reset previous errors
+    $('.error-msg').hide().text('');
+    $('.form-input').removeClass('input-error');
+
+    // Validate each field
+    if (!fields.pedido.val()) {
+      errors.pedido = 'Seleccione un pedido';
+      valid = false;
+    }
+    const emp = fields.empresa.val().trim();
+    if (!emp || emp.length < 2) {
+      errors.empresa = 'Nombre del acarreista requerido (mín 2 caracteres)';
+      valid = false;
+    }
+   const tel = fields.telefono.val();
+
+if (!/^[0-9]{10}$/.test(tel)) {
+  errors.telefono = 'El teléfono debe tener exactamente 10 dígitos numéricos';
+  valid = false;
+}
+   const gui = fields.guia.val().trim();
+
+if (!/^[a-zA-Z0-9]{1,8}$/.test(gui)) {
+  errors.guia = 'Placa: solo letras y números (máx 8 caracteres)';
+  valid = false;
+}
+    const cos = parseFloat(fields.costo.val()) || 0;
+    if (cos < 0) {
+      errors.costo = 'Costo no puede ser negativo';
+      valid = false;
+    }
+
+    if (!valid) {
+      // Show errors
+      Object.keys(errors).forEach(key => {
+        $(`#error-${key}`).text(errors[key]).show();
+        fields[key].addClass('input-error');
+      });
+      fields.pedido.focus();
+      showToast('Corrija los errores en el formulario', 'error');
       return;
     }
 
-    const empresa = $('#inpCrearEmpresa').val().trim();
-    const guia = $('#inpCrearGuia').val().trim();
-    const costo = parseFloat($('#inpCrearCosto').val()) || 0;
-
+    const pedido_id = fields.pedido.val();
     const btn = $(this);
     const originalHtml = btn.html();
-    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
 
     try {
       const res = await fetch('/vistas/despacho/crear/', {
@@ -190,9 +287,10 @@ $(document).ready(function () {
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({
           pedido_id: pedido_id,
-          empresa_transporte: empresa,
-          numero_guia: guia,
-          costo_envio: costo
+          empresa_transporte: emp,
+          numero_guia: gui,
+          costo_envio: cos,
+          telefono: tel  // Send cleaned
         })
       });
       const data = await res.json();
@@ -201,8 +299,14 @@ $(document).ready(function () {
         showToast(data.message);
         $('#modalCrearDespacho').removeClass('mostrar');
         setTimeout(() => location.reload(), 1000);
-      } else {
+      } else if (data.field) {
+        // Server field error
+        $(`#error-${data.field}`).text(data.error).show();
+        fields[data.field].addClass('input-error').focus();
         showToast(data.error, 'error');
+        btn.prop('disabled', false).html(originalHtml);
+      } else {
+        showToast(data.error || 'Error desconocido', 'error');
         btn.prop('disabled', false).html(originalHtml);
       }
     } catch(e) {
@@ -210,6 +314,7 @@ $(document).ready(function () {
       btn.prop('disabled', false).html(originalHtml);
     }
   });
+
 
   /* ── Cierre de Modales ──────────────────────────────── */
   $(document).on('click', '[data-close]', function () {
