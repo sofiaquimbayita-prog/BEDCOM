@@ -57,7 +57,8 @@ $(document).ready(function () {
        UTILS
      */
     function getCsrf() {
-        if (typeof CSRF_TOKEN !== 'undefined') return CSRF_TOKEN;
+        if (typeof CSRF_TOKEN !== 'undefined' && CSRF_TOKEN) return CSRF_TOKEN;
+        if (typeof cfg !== 'undefined' && cfg.csrf) return cfg.csrf;
         let v = null;
         document.cookie.split(';').forEach(c => {
             const t = c.trim();
@@ -77,14 +78,17 @@ $(document).ready(function () {
 
     function url(nombre) {
         if (typeof URLS !== 'undefined' && URLS[nombre]) return URLS[nombre];
+        const config = (document.getElementById('js-config') || {}).dataset || {};
         const mapa = {
-            eventosData:   typeof EVENTOS_DATA_URL    !== 'undefined' ? EVENTOS_DATA_URL    : '',
-            crearEvento:   typeof CREAR_EVENTO_URL    !== 'undefined' ? CREAR_EVENTO_URL    : '',
-            editarBase:    typeof EDITAR_EVENTO_BASE  !== 'undefined' ? EDITAR_EVENTO_BASE  : '',
-            obtenerBase:   typeof OBTENER_EVENTO_BASE !== 'undefined' ? OBTENER_EVENTO_BASE : '',
-            cambiarEstado: typeof CAMBIAR_ESTADO_BASE !== 'undefined' ? CAMBIAR_ESTADO_BASE : '',
-            inactivarBase: typeof INACTIVAR_EVENTO_BASE !== 'undefined' ? INACTIVAR_EVENTO_BASE : '',
-            restaurarBase: typeof RESTAURAR_EVENTO_BASE !== 'undefined' ? RESTAURAR_EVENTO_BASE : '',
+            eventosData:   config.urlEventosData || '',
+            crearEvento:   config.urlCrearEvento || '',
+            editarBase:    (config.urlEditarBase || '').replace('/0/', '/'),
+            obtenerBase:   (config.urlObtenerBase || '').replace('/0/', '/'),
+            cambiarEstado: (config.urlEstadoBase || '').replace('/0/', '/'),
+            completarBase: (config.urlCompletarBase || '').replace('/0/', '/'),
+            eliminarBase:  (config.urlEliminarBase || '').replace('/0/', '/'),
+            inactivarBase: (config.urlInactivarBase || '').replace('/0/', '/'),
+            restaurarBase: (config.urlRestaurarBase || '').replace('/0/', '/'),
         };
         return mapa[nombre] || '';
     }
@@ -554,6 +558,16 @@ $(document).ready(function () {
         limpiarEstado('in_descripcion');
     }
 
+    // Función para filtrar caracteres especiales en tiempo real
+    function filtrarCaracteresEspecialesCalendario() {
+        const $campo = $('#in_descripcion');
+        const val = $campo.val();
+        const filtrado = val.replace(/[^a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]/g, '');
+        if (val !== filtrado) {
+            $campo.val(filtrado);
+        }
+    }
+
     $('#in_titulo').on('blur input',  validarTitulo);
     $('#in_fecha').on('blur change',  validarFecha);
     $('#in_hora').on('blur change',   validarHora);
@@ -568,6 +582,9 @@ $(document).ready(function () {
         $c.text(len + '/100').toggleClass('contador-alerta', len > 90);
     });
     $('#in_descripcion').on('input', function () {
+        // Filtrar caracteres especiales primero
+        filtrarCaracteresEspecialesCalendario();
+        
         const len = ($(this).val() || '').trim().length;
         let $c = $('#contador-descripcion');
         if (!$c.length) { $c = $('<span id="contador-descripcion" class="campo-contador"></span>'); $(this).parent().append($c); }

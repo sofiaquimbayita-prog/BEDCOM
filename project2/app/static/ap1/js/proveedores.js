@@ -639,6 +639,9 @@ $(document).ready(function() {
         } else {
             limpiarError('editDescripcion');
         }
+        
+        // Filtrar caracteres especiales en tiempo real
+        filtrarCaracteresEspecialesDescripcion();
     });
 
 

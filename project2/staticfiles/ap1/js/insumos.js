@@ -201,12 +201,23 @@ $(document).ready(function () {
         limpiarEstado(id);
     }
 
+    // Función para filtrar caracteres especiales en tiempo real
+    function filtrarCaracteresEspeciales(id) {
+        const $campo = $('#' + id);
+        const val = $campo.val();
+        const filtrado = val.replace(/[^a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]/g, '');
+        if (val !== filtrado) {
+            $campo.val(filtrado);
+        }
+    }
+
     // Agregar
     $('#ag_nombre').on('blur input', () => validarNombre('ag_nombre'));
     $('#ag_cantidad').on('blur input', () => validarCantidad('ag_cantidad'));
     $('#ag_precio').on('blur input', () => validarPrecio('ag_precio'));
     $('#ag_unidad').on('blur change', () => validarUnidad('ag_unidad'));
     $('#ag_descripcion').on('blur', () => validarDescripcion('ag_descripcion'));
+    $('#ag_descripcion').on('input', () => filtrarCaracteresEspeciales('ag_descripcion'));
 
     // Editar
     $('#ed_nombre').on('blur input', () => {
@@ -217,6 +228,7 @@ $(document).ready(function () {
     $('#ed_precio').on('blur input', () => validarPrecio('ed_precio'));
     $('#ed_unidad').on('blur change', () => validarUnidad('ed_unidad'));
     $('#ed_descripcion').on('blur', () => validarDescripcion('ed_descripcion'));
+    $('#ed_descripcion').on('input', () => filtrarCaracteresEspeciales('ed_descripcion'));
 
     /* ── DataTable con filtro de estado ── */
     let mostrarInactivos = false;
