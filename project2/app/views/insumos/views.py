@@ -1,9 +1,12 @@
+import re
 from django.views import View
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from ...models import insumo, categoria, proveedor
 from ...forms import insumosForm
+
+DESCRIPCION_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,-]+$')
 
 ESTADOS_PERMITIDOS = {'Activo', 'Inactivo'}
 
@@ -146,6 +149,16 @@ class CategoriaCreateView(View):
         if not descripcion:
             return JsonResponse(
                 {'status': 'error', 'message': 'La descripción es obligatoria.'},
+                status=400
+            )
+        if len(descripcion) < 10:
+            return JsonResponse(
+                {'status': 'error', 'message': 'La descripción debe tener al menos 10 caracteres.'},
+                status=400
+            )
+        if not DESCRIPCION_PATTERN.match(descripcion):
+            return JsonResponse(
+                {'status': 'error', 'message': 'La descripción no puede contener caracteres especiales.'},
                 status=400
             )
 

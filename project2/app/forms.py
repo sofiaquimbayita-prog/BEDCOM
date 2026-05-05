@@ -1,7 +1,21 @@
 from django import forms
-import  re
+import re
 from datetime import date, datetime
 from .models import calendario, insumo, proveedor, respaldo, entrada, producto, salida_producto, usuario, pedido, detalle_pedido,  despacho, bom, mantenimiento
+
+DESCRIPCION_PATTERN = re.compile(r'^[a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]+$')
+
+def validar_texto_sin_especiales(texto, campo='La descripción', min_len=0, max_len=None, requerido=False):
+    texto = (texto or '').strip()
+    if requerido and not texto:
+        raise forms.ValidationError(f'{campo} es obligatorio.')
+    if min_len and len(texto) < min_len:
+        raise forms.ValidationError(f'{campo} debe tener al menos {min_len} caracteres.')
+    if max_len and len(texto) > max_len:
+        raise forms.ValidationError(f'{campo} no puede superar los {max_len} caracteres.')
+    if texto and not DESCRIPCION_PATTERN.match(texto):
+        raise forms.ValidationError(f'{campo} solo puede contener letras, números, espacios, puntos, comas y guiones.')
+    return texto
 
 UNIDADES_VALIDAS = {
     'kg', 'g', 'lb', 't',
@@ -27,10 +41,12 @@ class insumosForm(forms.ModelForm):
         return nombre
 
     def clean_descripcion(self):
-        descripcion = self.cleaned_data.get('descripcion') or ''
-        if len(descripcion) > 600:
-            raise forms.ValidationError('La descripción no puede superar los 600 caracteres.')
-        return descripcion
+        return validar_texto_sin_especiales(
+            self.cleaned_data.get('descripcion'),
+            'La descripción',
+            max_len=600,
+            requerido=False
+        )
 
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
@@ -95,10 +111,12 @@ class calendarioForm(forms.ModelForm):
         return fecha
 
     def clean_descripcion(self):
-        descripcion = self.cleaned_data.get('descripcion') or ''
-        if len(descripcion) > 500:
-            raise forms.ValidationError('La descripción no puede superar los 500 caracteres.')
-        return descripcion
+        return validar_texto_sin_especiales(
+            self.cleaned_data.get('descripcion'),
+            'La descripción',
+            max_len=500,
+            requerido=False
+        )
 
     def clean(self):
         cleaned = super().clean()
@@ -184,12 +202,10 @@ class ProveedorForm(forms.ModelForm):
             self.add_error('direccion', 'La dirección debe tener al menos 10 caracteres.')
 
         descripcion = self.cleaned_data.get('descripcion', '').strip()
-        if len(descripcion) < 5:
-            self.add_error('descripcion', 'La descripción debe tener al menos 5 caracteres.')
-        if len(descripcion) > 255:
-            self.add_error('descripcion', 'La descripción no puede exceder 255 caracteres.')
-        if not re.match(r'^[a-zA-Z0-9\\sÁÉÍÓÚáéíóúÑñ.,-]+$', descripcion):
-            self.add_error('descripcion', 'Solo letras, números, espacios, .,,- permitidos.')
+        try:
+            validar_texto_sin_especiales(descripcion, 'La descripción', min_len=5, max_len=255, requerido=True)
+        except forms.ValidationError as e:
+            self.add_error('descripcion', e)
 
         return cleaned_data
 
@@ -230,35 +246,12 @@ class RespaldoForm(forms.ModelForm):
 
     def clean_descripcion(self):
         descripcion = self.cleaned_data.get('descripcion') or ''
-        
-        # Eliminar espacios al inicio y final
         descripcion = descripcion.strip()
-        
-        # Campo obligatorio
-        if not descripcion:
-            raise forms.ValidationError('La descripción es obligatoria.')
-        
-        # Longitud mínima: 5 caracteres
-        if len(descripcion) < 5:
-            raise forms.ValidationError('La descripción debe tener al menos 5 caracteres.')
-        
-        # Longitud máxima: 255 caracteres
-        if len(descripcion) > 255:
-            raise forms.ValidationError('La descripción no puede superar los 255 caracteres.')
-        
-        # No permitir solo espacios en blanco
-        if descripcion.isspace():
-            raise forms.ValidationError('La descripción no puede contener solo espacios.')
-        
-        # Validar que contenga al menos una letra (no solo números)
-        import re
+        descripcion = validar_texto_sin_especiales(descripcion, 'La descripción', min_len=5, max_len=255, requerido=True)
+
         if not re.search(r'[a-zA-ZÁÉÍÓÚáéíóúÑñ]', descripcion):
             raise forms.ValidationError('La descripción debe contener al menos una letra.')
-        
-        # Solo letras números y espacios (sin caracteres especiales)
-        if not re.match(r'^[a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ]+$', descripcion):
-            raise forms.ValidationError('La descripción solo puede contener letras, números y espacios.')
-        
+
         return descripcion
 
 
@@ -517,3 +510,8 @@ class MantenimientoForm(forms.ModelForm):
             'descripcion_falla': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Describa el problema...'}),
             'estado_reparacion': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def clean_descripcion_falla(self):
+        descripcion = self.cleaned_data.get('descripcion_falla') or ''
+        descripcion = validar_texto_sin_especiales(descripcion, 'La descripción de la falla', min_len=5, max_len=1000, requerido=True)
+        return descripcion

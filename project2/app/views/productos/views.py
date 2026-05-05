@@ -16,6 +16,7 @@ from ...models import producto, categoria, bom, reporte, usuario, historial_acci
 
 
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
+DESCRIPCION_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,-]+$')
 # --- VISTA DE LISTADO ---
 @method_decorator(login_required, name='dispatch')
 class producto_list_view(ListView):
@@ -71,6 +72,11 @@ class producto_create_view(SuccessMessageMixin, CreateView):
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
             messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return redirect('productos')
+        if not DESCRIPCION_PATTERN.match(descripcion):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción no puede contener caracteres especiales.']}})
+            messages.error(self.request, "La descripción no puede contener caracteres especiales.")
             return redirect('productos')
         
         # Validación de negocio: Precio no negativo
@@ -186,6 +192,11 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
             messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return super().form_invalid(form)
+        if not DESCRIPCION_PATTERN.match(descripcion):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción no puede contener caracteres especiales.']}})
+            messages.error(self.request, "La descripción no puede contener caracteres especiales.")
             return super().form_invalid(form)
         
         # Validación de negocio: Precio no negativo

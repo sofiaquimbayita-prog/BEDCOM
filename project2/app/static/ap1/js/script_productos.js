@@ -897,3 +897,18 @@ $(document).ready(function() {
         return false;
     });
 });
+
+// Función para filtrar caracteres especiales en tiempo real
+function filtrarCaracteresEspecialesProductos(id) {
+    var campo = document.getElementById(id);
+    if (campo) {
+        campo.value = campo.value.replace(/[^a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]/g, '');
+    }
+}
+
+// Agregar evento de filtrado en tiempo real para el campo de descripción
+$(document).ready(function() {
+    $('#inputDescripcion').on('input', function() {
+        filtrarCaracteresEspecialesProductos('inputDescripcion');
+    });
+});

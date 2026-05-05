@@ -29,6 +29,16 @@ function validarDescripcionProveedor(descripcion) {
     return patron.test(descripcion);
 }
 
+// Filtrar caracteres especiales en tiempo real para descripción
+function filtrarCaracteresEspecialesDescripcion() {
+    var $campo = $('#inputDescripcion');
+    var val = $campo.val();
+    var filtrado = val.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,-]/g, '');
+    if (val !== filtrado) {
+        $campo.val(filtrado);
+    }
+}
+
 
 // Validar teléfono
 function validarTelefono(telefono) {
@@ -552,6 +562,9 @@ $(document).ready(function() {
 
     // Descripción input
     $('#inputDescripcion').on('input', function() {
+        // Primero filtrar caracteres especiales
+        filtrarCaracteresEspecialesDescripcion();
+        
         var valor = $(this).val().trim();
         if (valor.length < 5) {
             mostrarError('inputDescripcion', 'La descripción debe tener al menos 5 caracteres');

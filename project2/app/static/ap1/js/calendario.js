@@ -558,6 +558,16 @@ $(document).ready(function () {
         limpiarEstado('in_descripcion');
     }
 
+    // Función para filtrar caracteres especiales en tiempo real
+    function filtrarCaracteresEspecialesCalendario() {
+        const $campo = $('#in_descripcion');
+        const val = $campo.val();
+        const filtrado = val.replace(/[^a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]/g, '');
+        if (val !== filtrado) {
+            $campo.val(filtrado);
+        }
+    }
+
     $('#in_titulo').on('blur input',  validarTitulo);
     $('#in_fecha').on('blur change',  validarFecha);
     $('#in_hora').on('blur change',   validarHora);
@@ -572,6 +582,9 @@ $(document).ready(function () {
         $c.text(len + '/100').toggleClass('contador-alerta', len > 90);
     });
     $('#in_descripcion').on('input', function () {
+        // Filtrar caracteres especiales primero
+        filtrarCaracteresEspecialesCalendario();
+        
         const len = ($(this).val() || '').trim().length;
         let $c = $('#contador-descripcion');
         if (!$c.length) { $c = $('<span id="contador-descripcion" class="campo-contador"></span>'); $(this).parent().append($c); }

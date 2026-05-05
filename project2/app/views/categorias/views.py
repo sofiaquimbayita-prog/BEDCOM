@@ -14,6 +14,7 @@ from ...models import categoria
 
 
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
+DESCRIPCION_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,-]+$')
 
 # --- VISTA DE LISTADO ---
 @method_decorator(login_required, name='dispatch')
@@ -75,6 +76,12 @@ class categoria_create_view(SuccessMessageMixin, CreateView):
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
             messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return redirect('categorias')
+
+        if not DESCRIPCION_PATTERN.match(descripcion):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción no puede contener caracteres especiales.']}})
+            messages.error(self.request, "La descripción no puede contener caracteres especiales.")
             return redirect('categorias')
 
         form.instance.estado = True
@@ -147,6 +154,12 @@ class categoria_update_view(SuccessMessageMixin, UpdateView):
             if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción debe tener al menos 10 caracteres.']}})
             messages.error(self.request, "La descripción debe tener al menos 10 caracteres.")
+            return super().form_invalid(form)
+
+        if not DESCRIPCION_PATTERN.match(descripcion):
+            if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': {'descripcion': ['La descripción no puede contener caracteres especiales.']}})
+            messages.error(self.request, "La descripción no puede contener caracteres especiales.")
             return super().form_invalid(form)
 
         # Guardar

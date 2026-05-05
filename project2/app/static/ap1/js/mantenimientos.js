@@ -160,3 +160,18 @@ $(document).ready(function () {
   });
 
 });
+
+// Función para filtrar caracteres especiales en tiempo real
+function filtrarCaracteresEspecialesMantenimientos(id) {
+    var campo = document.getElementById(id);
+    if (campo) {
+        campo.value = campo.value.replace(/[^a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,-]/g, '');
+    }
+}
+
+// Agregar evento de filtrado en tiempo real para el campo de descripción de falla
+$(document).ready(function() {
+    $('#inpDescripcion').on('input', function() {
+        filtrarCaracteresEspecialesMantenimientos('inpDescripcion');
+    });
+});
