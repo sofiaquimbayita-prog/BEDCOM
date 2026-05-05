@@ -4,59 +4,113 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
     <title>{% block title %}BEDCOM{% endblock %}</title> 
 
-<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
+    <!-- Estilos del Proyecto -->
+    <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/header-nav.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/notifications.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/accesibilidad.css' %}" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
-    <!-- Select2 CSS -->
     <link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/x-icon">
     
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> -->
-
     <style>
-        /* --- ESTILOS LUNA IA (DANIELA VOICE OPTIMIZED) --- */
-        .btn-ia-flotante { 
-            position: fixed; bottom: 24px; right: 24px; width: 70px; height: 70px; 
-            border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%); 
-            border: none; color: white; font-size: 1.8rem; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5); 
-            cursor: pointer; z-index: 10005; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            display: flex; align-items: center; justify-content: center; 
-        }
-        .btn-ia-flotante:hover { transform: scale(1.15) rotate(360deg); }
+        .oculto { display: none !important; }
 
-        .modal-perfil { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10003 !important; display: none; align-items: center; justify-content: center; padding: 20px; }
+        /* --- CONTENEDOR MAESTRO DE MODALES --- */
+        .modal-perfil { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 10010 !important; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
+            pointer-events: auto; /* IMPORTANTE: Permitir eventos */
+        }
         .modal-perfil.show { display: flex; }
-        .modal-perfil .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
+
+        /* --- OVERLAY (FONDO OSCURO) --- */
+        .modal-overlay { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(10px); 
+            z-index: 1; /* Capa base */
+        }
         
+        /* --- CONTENID O DE LUNA (CAPA SUPERIOR) --- */
         .modal-content-ia { 
-            position: relative; z-index: 2; background: #0f172a !important; color: #fff !important; 
-            border-radius: 12px !important; width: 100%; max-width: 600px; max-height: 90vh; 
-            overflow: hidden; border: 1px solid #334155; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); 
+            position: relative; 
+            z-index: 5; /* Asegura estar sobre el overlay */
+            background: #0f172a !important; 
+            color: #fff !important; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 600px; 
+            max-height: 90vh; 
+            overflow: hidden; 
+            border: 1px solid #334155; 
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); 
+            pointer-events: auto; /* Forzar clics */
         }
 
         #chatContainer { 
-            background: #111827; border-radius: 8px; padding: 20px; height: 350px; 
-            overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #1e293b;
+            background: #111827; 
+            padding: 20px; 
+            height: 350px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            border-bottom: 1px solid #1e293b;
         }
         
-        .msg-user { 
-            align-self: flex-end; background: #38bdf8; color: #0f172a; padding: 10px 15px; 
-            border-radius: 15px 15px 0 15px; max-width: 85%; font-size: 0.95rem; font-weight: 500;
-        }
+        .msg-luna { align-self: flex-start; background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 12px; border: 1px solid #334155; max-width: 85%; }
+        .msg-user { align-self: flex-end; background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; max-width: 85%; }
+        .thinking-msg { animation: pulse 1.5s ease-in-out infinite; }
         
-        .msg-luna { 
-            align-self: flex-start; background: #1e293b; color: #38bdf8; padding: 10px 15px; 
-            border-radius: 15px 15px 15px 0; max-width: 85%; font-size: 0.95rem; border: 1px solid #334155;
+        .typing-dots::after {
+            content: '';
+            animation: typing 1.4s steps(4) infinite;
+        }
+        @keyframes typing {
+            0% { content: '.'; }
+            25% { content: '..'; }
+            50% { content: '...'; }
+            75% { content: '..'; }
+            100% { content: '.'; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
-        .oculto { display: none !important; }
+        /* Botón Flotante IA */
+        .btn-ia-flotante { 
+            position: fixed; bottom: 24px; right: 24px; 
+            width: 70px; height: 70px; border-radius: 50%; 
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%); 
+            border: none; color: white; font-size: 1.8rem; 
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5); 
+            cursor: pointer; z-index: 9999; 
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .btn-ia-flotante:hover { transform: scale(1.1); }
+
+        /* Modal Logout */
+        .modal-content-logout {
+            position: relative; z-index: 5; background: #0f172a;
+            border: 1px solid #334155; border-radius: 12px; padding: 30px;
+            max-width: 420px; width: 100%; text-align: center;
+        }
+        body.modal-open { overflow: hidden; }
     </style>
 
     {% block head %}{% endblock %} 
@@ -70,10 +124,8 @@
         {% include 'includes/modal_perfil.html' %}
     {% endblock %}
 
+    <!-- SIDEBARS -->
     <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
-
-        
-        <div class="sidebar-divider"></div>
         <nav class="sidebar-modules">
             <!-- DASHBOARDS PRINCIPALES -->
             <div class="sidebar-group-title">DASHBOARD</div>
@@ -163,8 +215,7 @@
     <div id="profileSidebar" class="dropdown-sidebar oculto profile-sidebar">
         <div class="sidebar-user-info">
             <div class="sidebar-avatar">
-                {% if usuario_perfil.foto_perfil %}<img src="{{ usuario_perfil.foto_perfil.url }}" class="foto-perfil-img">
-                {% else %}<i class="fas fa-user"></i>{% endif %}
+                {% if usuario_perfil.foto_perfil %}<img src="{{ usuario_perfil.foto_perfil.url }}" class="foto-perfil-img">{% else %}<i class="fas fa-user"></i>{% endif %}
             </div>
             <div class="sidebar-text">
                 <span class="sidebar-name">{{ user.get_full_name|default:user.username }}</span>
@@ -172,12 +223,9 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="#" class="sidebar-menu-item" id="btnMiPerfil"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
-            <a href="#" class="sidebar-menu-item" id="btnCambiarPass"><i class="fas fa-key"></i><span>Seguridad</span></a>
+            <a href="#" class="sidebar-menu-item"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
+            <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
         </nav>
-        <div class="sidebar-menu-item logout-item" style="margin-top: auto;">
-            <a href="javascript:void(0)" onclick="abrirModalLogout()"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
-        </div>
     </div>
 
     <div id="profileOverlay" class="sidebar-overlay oculto" onclick="toggleProfileSidebar()"></div>
@@ -185,13 +233,14 @@
 
     {% block content %}{% endblock %}
 
+    <!-- MODAL LOGOUT -->
     <div id="modalLogout" class="modal-perfil oculto">
         <div class="modal-overlay" onclick="cerrarModalLogout()"></div>
-        <div class="modal-content" style="max-width: 420px; background: #0f172a; padding: 25px; border-radius: 15px; border: 1px solid #334155;">
-            <h2 style="color: white;"><i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> ¿Cerrar Sesión?</h2>
-            <p style="color: #94a3b8;">Se cerrará tu sesión actual en el sistema BEDCOM.</p>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-cancel" onclick="cerrarModalLogout()" style="flex: 1;">Cancelar</button>
+        <div class="modal-content-logout">
+            <h2 style="color: white; margin-bottom: 15px;"><i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> ¿Cerrar Sesión?</h2>
+            <p style="color: #94a3b8; margin-bottom: 25px;">Se cerrará tu sesión actual en el sistema BEDCOM.</p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="cerrarModalLogout()" style="flex: 1; padding: 12px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 8px; cursor: pointer;">Cancelar</button>
                 <button onclick="confirmarLogout()" style="flex: 1; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
             </div>
         </div>
@@ -263,60 +312,116 @@
     </div>
     <!-- FIN WIDGET ACCESIBILIDAD -->
 
-    <button class="btn-ia-flotante" onclick="abrirModalIA()" title="Hablar con Luna"><i class="fa-solid fa-robot"></i></button>
+    <!-- BOTÓN LUNA IA -->
+    <button class="btn-ia-flotante" onclick="abrirModalIA()" title="Hablar con Luna">
+        <i class="fa-solid fa-robot"></i>
+    </button>
 
+    <!-- MODAL LUNA IA -->
     <div id="modalIA" class="modal-perfil oculto">
         <div class="modal-overlay" onclick="cerrarModalIA()"></div>
         <div class="modal-content-ia">
             <div style="padding: 20px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
                 <h2 style="margin: 0; color: #38bdf8; font-size: 1.25rem;"><i class="fa-solid fa-brain"></i> Asistente BEDCOM AI</h2>
-                <button onclick="cerrarModalIA()" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                <button onclick="cerrarModalIA()" style="background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; line-height: 1;">×</button>
             </div>
             <div id="chatContainer">
-                <div class="msg-luna">¡Qué más, Edgar! Soy <strong>Luna</strong>. ¿Qué duda tiene del inventario hoy?</div>
+                <div class="msg-luna">¡Hola! Soy <strong>Luna</strong>, tu asistente de BEDCOM. ¿En qué puedo ayudarte?</div>
             </div>
             <div style="padding: 20px; background: #1e293b;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button id="btnVoz" onclick="escucharVoz()" style="background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 50%; width: 50px; height: 50px; cursor: pointer;"><i class="fa-solid fa-microphone"></i></button>
-                    <textarea id="iaQuery" placeholder="Pregúntame algo..." style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px;"></textarea>
-                    <button id="btnPreguntarIA" onclick="enviarConsultaIA()" style="background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; width: 50px; height: 50px; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <button id="btnVoz" onclick="escucharVoz()" style="background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="Voz"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="btnMute" onclick="toggleMute()" style="background: #10b981; border: none; color: white; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="IA sin mute - Clic para mutar">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <textarea id="iaQuery" placeholder="Escribe tu consulta aquí..." style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px; font-family: inherit;" onkeydown="handleKeyPress(event)"></textarea>
+                    <button id="btnPreguntarIA" onclick="enviarConsultaIA()" style="background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-    <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'ap1/js/menu.js' %}"></script>
-    <script>
-        // INIT NOTIFICACIONES GLOBAL en todas las páginas
-        document.addEventListener('DOMContentLoaded', function() {
-            if (document.getElementById('notifBtn')) {
-                initNotifPolling(); // Del header.js inline
-            }
-        });
-    </script>
-    <script src="{% static 'ap1/js/select2.min.js' %}"></script>
     <script src="{% static 'ap1/js/marked.min.js' %}"></script>
-<script src="{% static 'ap1/js/vosk-browser.js' %}"></script>
     <script src="{% static 'ap1/js/script_ia.js' %}"></script>
     <script src="{% static 'ap1/js/accesibilidad.js' %}"></script>
 
 
     <script>
-        // --- LÓGICA SIDEBARS ---
-        window.toggleModuleSidebar = function() { document.getElementById('moduleSidebar').classList.toggle('oculto'); document.getElementById('sidebarOverlay').classList.toggle('oculto'); };
-        window.toggleProfileSidebar = function() { document.getElementById('profileSidebar').classList.toggle('oculto'); document.getElementById('profileOverlay').classList.toggle('oculto'); };
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                enviarConsultaIA();
+            }
+        }
+
+        // Resto del JS igual...
+        // Sidebars, logout, IA functions completas
+        window.toggleModuleSidebar = function() { $('#moduleSidebar, #sidebarOverlay').toggleClass('oculto'); };
+        window.toggleProfileSidebar = function() { $('#profileSidebar, #profileOverlay').toggleClass('oculto'); };
         
-        // --- LÓGICA MODALES ---
-        window.abrirModalLogout = function() { const m = document.getElementById('modalLogout'); m.style.display = 'flex'; m.classList.remove('oculto'); };
-        window.cerrarModalLogout = function() { const m = document.getElementById('modalLogout'); m.style.display = 'none'; m.classList.add('oculto'); };
+        window.abrirModalLogout = function() { 
+            $('#modalLogout').css('display', 'flex').removeClass('oculto').addClass('show'); 
+            $('body').addClass('modal-open');
+        };
+        window.cerrarModalLogout = function() { 
+            $('#modalLogout').removeClass('show').hide().addClass('oculto'); 
+            $('body').removeClass('modal-open');
+        };
         window.confirmarLogout = function() { window.location.href = '{% url "login:logout" %}'; };
 
-        window.abrirModalIA = function() { const m = document.getElementById('modalIA'); m.style.display = 'flex'; m.classList.remove('oculto'); m.classList.add('show'); };
-        window.cerrarModalIA = function() { const m = document.getElementById('modalIA'); m.style.display = 'none'; m.classList.add('oculto'); if(window.audioActual) window.audioActual.pause(); };
+        window.abrirModalIA = function() { 
+            $('#modalIA').css('display', 'flex').removeClass('oculto').addClass('show'); 
+            $('#iaQuery').focus();
+        };
+        window.cerrarModalIA = function() { 
+            $('#modalIA').removeClass('show').hide().addClass('oculto'); 
+            $('#iaQuery').val('');
+        };
+        
+        // IA functions - dynamic thinking
+        window.currentThinkingMsg = null;
+        window.mostrarPensando = function() {
+            // Dinámico AL FINAL
+            const thinkingHtml = `<div class="msg-luna thinking-msg">
+                <strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots"></span>
+            </div>`;
+            $('#chatContainer').append(thinkingHtml);
+            window.currentThinkingMsg = $('#chatContainer .msg-luna').last();
+            $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+        };
+        window.ocultarPensando = function() {
+            if (window.currentThinkingMsg) {
+                window.currentThinkingMsg.remove();
+                window.currentThinkingMsg = null;
+            }
+        };
+        window.agregarMensajeUsuario = function(texto) {
+            const chatContainer = $('#chatContainer');
+            const div = $(`<div class="msg-user">${texto}</div>`);
+            chatContainer.append(div);
+            chatContainer.scrollTop(chatContainer[0].scrollHeight);
+        };
+        window.agregarMensajeLuna = function(texto) {
+            window.ocultarPensando();
+            const chatContainer = $('#chatContainer');
+            const div = $(`<div class="msg-luna"><strong>Luna:</strong> ${texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>`);
+            chatContainer.append(div);
+            chatContainer.scrollTop(chatContainer[0].scrollHeight);
+        };
+
+        // Inicializar botón mute al cargar página
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnMute = document.getElementById('btnMute');
+            if (btnMute) {
+                toggleMute(); // Force update UI to current state
+            }
+        });
     </script>
 
     {% block scripts %}{% endblock %}
 </body>
 </html>
+

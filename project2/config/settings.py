@@ -106,6 +106,12 @@ AXES_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = 0.5
 AXES_RESET_ON_SUCCESS = True
 
+# Configuración de plantillas personalizadas para Axes
+AXES_LOCKOUT_URL = 'login:bloqueado'
+AXES_LOCKOUT_TEMPLATE = 'axes/lockout.html'
+AXES_INACTIVE_USER_TEMPLATE = 'app/axes/inactive.html'
+AXES_ONLY_USER_FAILURES = False
+
 # --------------------------------------------------------------------------
 # 8. ARCHIVOS ESTÁTICOS (CSS, JS, IMÁGENES)
 # --------------------------------------------------------------------------
@@ -163,15 +169,6 @@ WEBPUSH_SETTINGS = {
 }
 
 # --------------------------------------------------------------------------
-# 11. CONFIGURACIÓN LUNA IA (PIPER - VOZ DE DANIELA)
-# --------------------------------------------------------------------------
-# Basado en tu estructura: media/piper/
-PIPER_BASE_DIR = MEDIA_ROOT / 'piper'
-
-PIPER_CONFIG = {
-    'EXE': PIPER_BASE_DIR / 'piper.exe',
-    'MODEL': PIPER_BASE_DIR / 'es_AR-daniela-high.onnx',
-}
-
+# 11. CONFIGURACIÓN LUNA IA (EDGE TTS)
 # Carpeta para guardar audios generados temporalmente
-LUNA_VOICES_DIR = MEDIA_ROOT / 'luna_voces'
+LUNA_VOICES_DIR = MEDIA_ROOT / 'voces_ia'

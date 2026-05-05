@@ -13,25 +13,249 @@
             </div>
             
             <div class="modal-body">
+                <!-- Chat Container -->
                 <div id="chatContainer" style="height: 350px; overflow-y: auto; background: #0f172a; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155;">
-                    <div style="color: #38bdf8; margin-bottom: 10px;">
-                        <strong>Luna:</strong> ¡Qué más pues, Edgar! Soy Luna. ¿En qué le puedo ayudar con el inventario hoy?
+                    <div class="mensaje-luna">
+                        <strong>Luna:</strong> ¡Hola! Soy Luna, tu asistente virtual de BEDCOM. ¿En qué puedo ayudarte hoy?
                     </div>
+                    
                 </div>
 
+                <!-- Input Group -->
                 <div class="input-group">
                     <button id="btnVoz" class="btn btn-outline-info" onclick="escucharVoz()" title="Hablar">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
 
                     <input type="text" id="iaQuery" class="form-control bg-secondary text-white border-0" 
-                           placeholder="Pregúntame algo..." autocomplete="off">
+                           placeholder="Pregúntame algo..." autocomplete="off" onkeypress="if(event.key==='Enter') enviarConsultaIA()">
 
                     <button id="btnPreguntarIA" class="btn btn-info" onclick="enviarConsultaIA()">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
+
+            <!-- CSS mejorada para animación de puntos + spinner -->
+            <style>
+.typing-dots {
+                    display: inline-block;
+                    width: 20px;
+                }
+                .typing-dots::after {
+                    content: '';
+                    animation: typing 1.4s steps(4) infinite;
+                }
+                @keyframes typing {
+                    0% { content: '.'; }
+                    25% { content: '..'; }
+                    50% { content: '...'; }
+                    75% { content: '..'; }
+                    100% { content: '.'; }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.7; transform: scale(1.05); }
+                }
+                .msg-luna, .mensaje-luna {
+                    color: #38bdf8;
+                    margin-bottom: 12px;
+                    font-size: 0.95em;
+                    line-height: 1.4;
+                }
+                .msg-user, .mensaje-usuario {
+                    color: #10b981;
+                    text-align: right;
+                    margin-bottom: 12px;
+                    font-size: 0.95em;
+                    line-height: 1.4;
+                }
+            </style>
         </div>
     </div>
 </div>
+
+<!-- JavaScript completo para el chat IA -->
+<script>
+let recognition = null;
+let isListening = false;
+
+function abrirModalIA() {
+    document.getElementById('modalIA').style.display = 'flex';
+    document.getElementById('iaQuery').focus();
+}
+
+function cerrarModalIA() {
+    document.getElementById('modalIA').style.display = 'none';
+    document.getElementById('iaQuery').value = '';
+}
+
+function mostrarPensando() {
+    document.getElementById('thinkingIndicator').style.display = 'block';
+    document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+}
+
+function ocultarPensando() {
+    document.getElementById('thinkingIndicator').style.display = 'none';
+}
+
+function agregarMensajeUsuario(texto) {
+    const chatContainer = document.getElementById('chatContainer');
+    const div = document.createElement('div');
+    div.className = 'mensaje-usuario';
+    div.textContent = texto;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function agregarMensajeLuna(texto) {
+    const chatContainer = document.getElementById('chatContainer');
+    const div = document.createElement('div');
+    div.className = 'mensaje-luna';
+    div.innerHTML = '<strong>Luna:</strong> ' + texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+window.audioActualIA = null; // Global para IA template
+
+function reproducirAudio(url) {
+    if (window.audioActualIA) window.audioActualIA.pause();
+    
+    if (url && !window.isMuted) {
+        window.audioActualIA = new Audio(url);
+        window.audioActualIA.play().catch(e => console.log('Error reproduciendo audio:', e));
+    }
+}
+
+async function enviarConsultaIA() {
+    const query = document.getElementById('iaQuery');
+    const pregunta = query.value.trim();
+    
+    if (!pregunta) return;
+    
+    // Deshabilitar input y botón
+    query.disabled = true;
+    document.getElementById('btnPreguntarIA').disabled = true;
+    document.getElementById('btnVoz').disabled = true;
+    
+    // Mostrar mensaje usuario y pensando
+    agregarMensajeUsuario(pregunta);
+    query.value = '';
+    mostrarPensando();
+    
+    try {
+        const response = await fetch('/ia/api-consultar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({pregunta: pregunta})
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            ocultarPensando();
+            agregarMensajeLuna(data.respuesta);
+            reproducirAudio(data.audio_url);
+        } else {
+            ocultarPensando();
+            agregarMensajeLuna('❌ Error: ' + (data.error || 'Inténtalo de nuevo'));
+        }
+    } catch (error) {
+        ocultarPensando();
+        agregarMensajeLuna('❌ Error de conexión. Verifica que el servidor esté corriendo.');
+        console.error('Error:', error);
+    } finally {
+        // Re-habilitar input
+        query.disabled = false;
+        document.getElementById('btnPreguntarIA').disabled = false;
+        document.getElementById('btnVoz').disabled = false;
+        query.focus();
+    }
+}
+
+function escucharVoz() {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert('Tu navegador no soporta reconocimiento de voz');
+        return;
+    }
+    
+    if (isListening) {
+        recognition.stop();
+        return;
+    }
+    
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'es-CO';
+    
+    recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('btnVoz').classList.add('btn-info');
+    };
+    
+    recognition.onresult = (event) => {
+        const texto = event.results[0][0].transcript;
+        document.getElementById('iaQuery').value = texto;
+        enviarConsultaIA();
+    };
+    
+    recognition.onerror = (event) => {
+        console.error('Error voz:', event.error);
+        isListening = false;
+        document.getElementById('btnVoz').classList.remove('btn-info');
+    };
+    
+    recognition.onend = () => {
+        isListening = false;
+        document.getElementById('btnVoz').classList.remove('btn-info');
+    };
+    
+    recognition.start();
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('modalIA');
+    if (event.target === modal) {
+        cerrarModalIA();
+    }
+});
+
+// Soporte mute para este template
+window.toggleMuteIA = function() {
+    if (typeof window.toggleMute === 'function') {
+        window.toggleMute();
+    }
+    // Afecta audioActualIA también
+    if (window.audioActualIA) {
+        if (window.isMuted) {
+            window.audioActualIA.pause();
+            window.audioActualIA.muted = true;
+        } else {
+            window.audioActualIA.muted = false;
+            window.audioActualIA.currentTime = 0;
+            window.audioActualIA.play().catch(e => {});
+        }
+    }
+};
+</script>

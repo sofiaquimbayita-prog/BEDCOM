@@ -1,3 +1,10 @@
+// --- DEBUG GET EL Helper (solo JS vanilla para compatibilidad) ---
+function debugGetEl(id) {
+  const el = document.getElementById(id);
+  console.log(`🔍 [USUARIOS.js] ID "${id}" -> ${el ? 'OK' : 'NULL!'}`);
+  return el;
+}
+
 /* ==================================================
    script_usuarios.js - Gestión de Usuarios BedCom
    ================================================== */
@@ -190,14 +197,16 @@ window.cerrarModal = function(id) {
 };
 
 window.abrirModalEditar = function(id) {
+    console.log('🔍 [USUARIOS.js] CLICK abrirModalEditar called con ID:', id);
     if (!id) return;
+    const modalEdit = debugGetEl('modalEdit');
     fetch(`/usuarios/detalle_json/${id}/`)
         .then(r => r.json())
         .then(data => {
             const f = $('#formEditUsuario');
             f.attr('action', `/usuarios/editar/${id}/`);
-            $('#edit_username').val(data.username);
-            $('#edit_email').val(data.email);
+            debugGetEl('edit_username').value = data.username;
+            debugGetEl('edit_email').value = data.email;
             $('#edit_first_name').val(data.first_name);
             $('#edit_last_name').val(data.last_name);
             $('#edit_cedula').val(data.cedula);

@@ -7,4 +7,5 @@ openpyxl
 Pillow
 gunicorn
 mysqlclient
-django-webpush  
+django-webpush
+edge-tts

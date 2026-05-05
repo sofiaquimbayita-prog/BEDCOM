@@ -1,8 +1,3 @@
-/**
- * script_ia.js - BEDCOM IA Assistant (VOSK + PIPER AUDIO)
- * Optimizado para Daniela (Voz Local)
- */
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -19,9 +14,9 @@ function getCookie(name) {
 }
 
 // === ESTADO GLOBAL ===
-let model = null;
-let recognizer = null;
+let recognition = null;
 let audioActual = null;
+window.isMuted = localStorage.getItem('iaMuted') === 'true' || false;
 
 // --- REPRODUCCIÓN DE AUDIO (PIPER) ---
 function reproducirVozLuna(urlAudio) {
@@ -29,24 +24,45 @@ function reproducirVozLuna(urlAudio) {
 
     if (urlAudio) {
         audioActual = new Audio(urlAudio);
-        audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        if (!window.isMuted) {
+            audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        }
     }
 }
 
-// --- MICROFONO LOCAL CON VOSK ---
-async function inicializarVosk() {
-    // VALIDACIÓN CRÍTICA: Esperar a que la librería esté cargada
-    if (typeof Vosk === 'undefined') {
-        throw new Error("La librería Vosk no se ha cargado. Revisa la conexión o el orden de los scripts en el HTML.");
+window.toggleMute = function() {
+    window.isMuted = !window.isMuted;
+    localStorage.setItem('iaMuted', window.isMuted);
+    
+    // Mute/desmute audio actual si existe
+    if (audioActual) {
+        if (window.isMuted) {
+            audioActual.pause();
+            audioActual.muted = true;
+        } else {
+            audioActual.muted = false;
+            audioActual.currentTime = 0; // Reiniciar para desmute instantáneo
+            audioActual.play().catch(e => console.log('Auto-resume failed:', e));
+        }
     }
-
-    if (!model) {
-        console.log("Cargando modelo Vosk desde static...");
-        // Asegúrate de que esta carpeta exista en tu static/ap1/js/
-        model = await Vosk.createModel('/static/ap1/js/vosk-model-small-es-0.42/');
+    
+    const btnMute = document.getElementById('btnMute');
+    if (btnMute) {
+        if (window.isMuted) {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            btnMute.style.background = '#ef4444';
+            btnMute.title = 'IA mutada - Clic para desmutar';
+        } else {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            btnMute.style.background = '#10b981';
+            btnMute.title = 'IA sin mute - Clic para mutar';
+        }
     }
-}
+    
+    console.log('IA ' + (window.isMuted ? 'MUTADA (audio pausado)' : 'DESMUTADA (audio resumed)'));
+};
 
+// --- MICROFONO CON SPEECHRECOGNITION NATIVO ---
 window.escucharVoz = async function() {
     const btnVoz = document.getElementById('btnVoz');
     const iaQuery = document.getElementById('iaQuery');
@@ -54,47 +70,71 @@ window.escucharVoz = async function() {
     try {
         btnVoz.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btnVoz.style.background = "#ef4444";
-        iaQuery.placeholder = "Cargando motor local...";
+        iaQuery.placeholder = "Iniciando reconocimiento...";
 
-        await inicializarVosk();
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-ES';
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true
-        });
+        recognition.onstart = () => {
+            console.log('Escuchando...');
+            iaQuery.placeholder = "Habla ahora...";
+            btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        };
 
-        recognizer = new model.KaldiRecognizer(16000);
-        recognizer.start();
-        iaQuery.placeholder = "Te escucho, Edgar...";
-        btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        recognition.onspeechend = () => {
+            console.log('Fin de habla detectado');
+        };
 
-        recognizer.on("result", (message) => {
-            const result = message.result;
-            if (result.text && result.text.trim() !== "") {
-                iaQuery.value = result.text;
-                detenerMicrofono(stream);
-                window.enviarConsultaIA(); 
+        recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalText += transcript;
+                } else {
+                    interimText += transcript;
+                }
             }
-        });
-
-        recognizer.on("partialresult", (message) => {
-            if (message.result.partial) {
-                iaQuery.placeholder = message.result.partial + "...";
+            
+            if (interimText) {
+                iaQuery.placeholder = interimText + '...';
             }
-        });
+            
+            if (finalText.trim()) {
+                iaQuery.value = finalText.trim();
+                recognition.stop();
+                window.enviarConsultaIA();
+            }
+        };
 
-// Browser Speech API handles stream internally - no connect needed
+        recognition.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            iaQuery.placeholder = `Error: ${event.error}`;
+            btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+        };
+
+        recognition.onend = () => {
+            detenerMicrofono();
+        };
+
+        recognition.start();
 
     } catch (error) {
-        console.error("Error Vosk/STT:", error);
-        // Graceful fallback - no alert, just stop
-        iaQuery.placeholder = "Speech API no disponible";
-        detenerMicrofono(stream);
+        console.error("Error STT:", error);
+        iaQuery.placeholder = "Speech no disponible en este navegador";
         btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
     }
 };
 
-function detenerMicrofono(stream) {
-    if (stream) stream.getTracks().forEach(track => track.stop());
+function detenerMicrofono() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
     const btnVoz = document.getElementById('btnVoz');
     if (btnVoz) {
         btnVoz.innerHTML = '<i class="fa-solid fa-microphone"></i>';
@@ -102,7 +142,7 @@ function detenerMicrofono(stream) {
     }
 }
 
-// --- CONSULTA ---
+
 window.enviarConsultaIA = function() {
     const input = document.getElementById('iaQuery');
     const chatContainer = document.getElementById('chatContainer');
@@ -113,11 +153,27 @@ window.enviarConsultaIA = function() {
 
     btnPreguntar.disabled = true;
     
-    // Usar las burbujas que definimos en el HTML
-    chatContainer.innerHTML += `<div class="msg-user"><strong>Tú:</strong><br>${pregunta}</div>`;
+    // Append user message SAFELY without destroying existing elements
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg-user';
+    userMsg.innerHTML = `<strong>Tú:</strong><br>${pregunta}`;
+    chatContainer.appendChild(userMsg);
     
     chatContainer.scrollTop = chatContainer.scrollHeight;
     input.value = '';
+
+    // Show/create thinking indicator dynamically
+    let thinkingIndicator = document.getElementById('thinkingIndicator');
+    if (!thinkingIndicator) {
+        thinkingIndicator = document.createElement('div');
+        thinkingIndicator.id = 'thinkingIndicator';
+        thinkingIndicator.className = 'msg-luna';
+        thinkingIndicator.style.cssText = 'color: #38bdf8; animation: pulse 1.5s ease-in-out infinite; background: transparent; border: none; padding: 12px 12px 12px 0;';
+        thinkingIndicator.innerHTML = '<strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>';
+        chatContainer.appendChild(thinkingIndicator);
+    }
+    thinkingIndicator.style.display = 'block';
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     fetch('/vistas/ia/asistente-inventario/api-consultar/', {
         method: 'POST',
@@ -126,14 +182,26 @@ window.enviarConsultaIA = function() {
     })
     .then(response => response.json())
     .then(data => {
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         if (data.error) {
-            chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error:</strong> ${data.error}</div>`;
+            // Append error SAFELY
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'msg-luna';
+            errorMsg.style.color = '#ef4444';
+            errorMsg.innerHTML = `<strong>Error:</strong> ${data.error}`;
+            chatContainer.appendChild(errorMsg);
         } else {
             const respuesta = data.respuesta || 'No pude procesar tu pregunta.';
-            // Formatear respuesta con Marked (si está cargado) para negritas y listas
             const htmlRespuesta = typeof marked !== 'undefined' ? marked.parse(respuesta) : respuesta;
             
-            chatContainer.innerHTML += `<div class="msg-luna"><strong>Luna:</strong><br>${htmlRespuesta}</div>`;
+            // Append response SAFELY
+            const lunaMsg = document.createElement('div');
+            lunaMsg.className = 'msg-luna';
+            lunaMsg.innerHTML = `<strong>Luna:</strong><br>${htmlRespuesta}`;
+            chatContainer.appendChild(lunaMsg);
             
             if (data.audio_url) {
                 reproducirVozLuna(data.audio_url);
@@ -142,15 +210,24 @@ window.enviarConsultaIA = function() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     })
     .catch(error => {
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         console.error("Error API:", error);
-        chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error de conexión</strong></div>`;
+        // Append error connection SAFELY
+        const connError = document.createElement('div');
+        connError.className = 'msg-luna';
+        connError.style.color = '#ef4444';
+        connError.innerHTML = '<strong>Error de conexión</strong>';
+        chatContainer.appendChild(connError);
     })
     .finally(() => { 
         if (btnPreguntar) btnPreguntar.disabled = false; 
     });
 };
 
-// --- INICIO ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Asistente Luna cargado.");
 });
+
