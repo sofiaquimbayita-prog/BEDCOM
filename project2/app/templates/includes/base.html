@@ -129,9 +129,39 @@
         <nav class="sidebar-modules">
             <div class="sidebar-group-title">DASHBOARDS</div>
             <a href="{% url 'menu' %}" class="sidebar-module-item"><i class="fa-solid fa-house"></i><span>MENÚ PRINCIPAL</span></a>
+            
+            <div class="sidebar-group-title">GESTIÓN DE INVENTARIO</div>
+            <a href="{% url 'productos' %}" class="sidebar-module-item"><i class="fa-solid fa-box"></i><span>PRODUCTOS</span></a>
+            <a href="{% url 'categorias' %}" class="sidebar-module-item"><i class="fa-solid fa-tags"></i><span>CATEGORÍAS</span></a>
+            <a href="{% url 'insumos' %}" class="sidebar-module-item"><i class="fa-solid fa-cogs"></i><span>INSUMOS</span></a>
+            <a href="{% url 'inventario' %}" class="sidebar-module-item"><i class="fa-solid fa-warehouse"></i><span>INVENTARIO</span></a>
+            <a href="{% url 'bom_list' %}" class="sidebar-module-item"><i class="fa-solid fa-sitemap"></i><span>BOM</span></a>
+            
+            <div class="sidebar-group-title">COMPRAS Y PROVEEDORES</div>
+            <a href="{% url 'proveedores_list' %}" class="sidebar-module-item"><i class="fa-solid fa-truck"></i><span>PROVEEDORES</span></a>
+            <a href="{% url 'suministros' %}" class="sidebar-module-item"><i class="fa-solid fa-shopping-cart"></i><span>SUMINISTROS</span></a>
+            
+            <div class="sidebar-group-title">VENTAS Y CLIENTES</div>
+            <a href="{% url 'clientes_list' %}" class="sidebar-module-item"><i class="fa-solid fa-users"></i><span>CLIENTES</span></a>
+            <a href="{% url 'pedido_list' %}" class="sidebar-module-item"><i class="fa-solid fa-shopping-bag"></i><span>PEDIDOS</span></a>
+            <a href="{% url 'despacho_list' %}" class="sidebar-module-item"><i class="fa-solid fa-shipping-fast"></i><span>DESPACHO</span></a>
+            
+            <div class="sidebar-group-title">OPERACIONES</div>
+            <a href="{% url 'entrada_p' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-down"></i><span>ENTRADA PRODUCTOS</span></a>
+            <a href="{% url 'salida_producto' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-up"></i><span>SALIDA PRODUCTOS</span></a>
             <a href="{% url 'logistica' %}" class="sidebar-module-item"><i class="fa-solid fa-truck-fast"></i><span>LOGÍSTICA</span></a>
-            <a href="{% url 'suministros' %}" class="sidebar-module-item"><i class="fa-solid fa-boxes-stacked"></i><span>SUMINISTROS</span></a>
+            
+            <div class="sidebar-group-title">REPORTES Y GESTIÓN</div>
+            <a href="{% url 'reportes' %}" class="sidebar-module-item"><i class="fa-solid fa-chart-bar"></i><span>REPORTES</span></a>
             <a href="{% url 'gestion' %}" class="sidebar-module-item"><i class="fa-solid fa-database"></i><span>GESTIÓN DE DATOS</span></a>
+            <a href="{% url 'respaldos_list' %}" class="sidebar-module-item"><i class="fa-solid fa-save"></i><span>RESPALDOS</span></a>
+            
+            <div class="sidebar-group-title">MANTENIMIENTO</div>
+            <a href="{% url 'mantenimientos_list' %}" class="sidebar-module-item"><i class="fa-solid fa-tools"></i><span>MANTENIMIENTOS</span></a>
+            <a href="{% url 'calendario' %}" class="sidebar-module-item"><i class="fa-solid fa-calendar"></i><span>CALENDARIO</span></a>
+            
+            <div class="sidebar-group-title">MONITOREO</div>
+            <a href="{% url 'monitoreo' %}" class="sidebar-module-item"><i class="fa-solid fa-eye"></i><span>MONITOREO</span></a>
         </nav>
     </div>
 
