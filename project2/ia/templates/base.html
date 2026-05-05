@@ -117,10 +117,14 @@ function agregarMensajeLuna(texto) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+window.audioActualIA = null; // Global para IA template
+
 function reproducirAudio(url) {
-    if (url) {
-        const audio = new Audio(url);
-        audio.play().catch(e => console.log('Error reproduciendo audio:', e));
+    if (window.audioActualIA) window.audioActualIA.pause();
+    
+    if (url && !window.isMuted) {
+        window.audioActualIA = new Audio(url);
+        window.audioActualIA.play().catch(e => console.log('Error reproduciendo audio:', e));
     }
 }
 
@@ -236,4 +240,22 @@ document.addEventListener('click', function(event) {
         cerrarModalIA();
     }
 });
+
+// Soporte mute para este template
+window.toggleMuteIA = function() {
+    if (typeof window.toggleMute === 'function') {
+        window.toggleMute();
+    }
+    // Afecta audioActualIA también
+    if (window.audioActualIA) {
+        if (window.isMuted) {
+            window.audioActualIA.pause();
+            window.audioActualIA.muted = true;
+        } else {
+            window.audioActualIA.muted = false;
+            window.audioActualIA.currentTime = 0;
+            window.audioActualIA.play().catch(e => {});
+        }
+    }
+};
 </script>

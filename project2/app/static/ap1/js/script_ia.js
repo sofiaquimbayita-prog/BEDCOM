@@ -16,6 +16,7 @@ function getCookie(name) {
 // === ESTADO GLOBAL ===
 let recognition = null;
 let audioActual = null;
+window.isMuted = localStorage.getItem('iaMuted') === 'true' || false;
 
 // --- REPRODUCCIÓN DE AUDIO (PIPER) ---
 function reproducirVozLuna(urlAudio) {
@@ -23,9 +24,43 @@ function reproducirVozLuna(urlAudio) {
 
     if (urlAudio) {
         audioActual = new Audio(urlAudio);
-        audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        if (!window.isMuted) {
+            audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        }
     }
 }
+
+window.toggleMute = function() {
+    window.isMuted = !window.isMuted;
+    localStorage.setItem('iaMuted', window.isMuted);
+    
+    // Mute/desmute audio actual si existe
+    if (audioActual) {
+        if (window.isMuted) {
+            audioActual.pause();
+            audioActual.muted = true;
+        } else {
+            audioActual.muted = false;
+            audioActual.currentTime = 0; // Reiniciar para desmute instantáneo
+            audioActual.play().catch(e => console.log('Auto-resume failed:', e));
+        }
+    }
+    
+    const btnMute = document.getElementById('btnMute');
+    if (btnMute) {
+        if (window.isMuted) {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            btnMute.style.background = '#ef4444';
+            btnMute.title = 'IA mutada - Clic para desmutar';
+        } else {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            btnMute.style.background = '#10b981';
+            btnMute.title = 'IA sin mute - Clic para mutar';
+        }
+    }
+    
+    console.log('IA ' + (window.isMuted ? 'MUTADA (audio pausado)' : 'DESMUTADA (audio resumed)'));
+};
 
 // --- MICROFONO CON SPEECHRECOGNITION NATIVO ---
 window.escucharVoz = async function() {
