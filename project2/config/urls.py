@@ -24,6 +24,7 @@ urlpatterns = [
     path('vistas/', include('app.urls')),
     path('', include(('login.urls', 'login'), namespace='login')),
     path('usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
+    path('ia/', include(('ia.urls', 'ia'), namespace='ia')),
     path('webpush/', include('webpush.urls')),
 ]
 

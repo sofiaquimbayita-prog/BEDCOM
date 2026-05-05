@@ -71,7 +71,28 @@
         }
         
         .msg-luna { align-self: flex-start; background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 12px; border: 1px solid #334155; max-width: 85%; }
+        .msg-luna#thinkingIndicator { background: transparent; border: none; padding: 12px 12px 12px 0; }
         .msg-user { align-self: flex-end; background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; max-width: 85%; }
+        
+        .typing-dots {
+            display: inline-block;
+            width: 20px;
+        }
+        .typing-dots::after {
+            content: '';
+            animation: typing 1.4s steps(4) infinite;
+        }
+        @keyframes typing {
+            0% { content: '.'; }
+            25% { content: '..'; }
+            50% { content: '...'; }
+            75% { content: '..'; }
+            100% { content: '.'; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
 
         /* Botón Flotante IA */
         .btn-ia-flotante { 
@@ -167,13 +188,15 @@
             
             <div id="chatContainer">
                 <div class="msg-luna">¡Hola! Soy <strong>Luna</strong>, tu asistente de BEDCOM. ¿En qué puedo ayudarte?</div>
+                
+                <!-- Thinking indicator dinámico (creado por JS siempre al final) -->
             </div>
             
             <div style="padding: 20px; background: #1e293b;">
                 <div style="display: flex; gap: 10px; align-items: flex-end;">
                     <button id="btnVoz" onclick="escucharVoz()" style="background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;"><i class="fa-solid fa-microphone"></i></button>
                     
-                    <textarea id="iaQuery" placeholder="Escribe tu consulta aquí..." style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px; font-family: inherit;"></textarea>
+                    <textarea id="iaQuery" placeholder="Escribe tu consulta aquí..." style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px; font-family: inherit;" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); enviarConsultaIA(); return false; }"></textarea>
                     
                     <button id="btnPreguntarIA" onclick="enviarConsultaIA()" style="background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
@@ -209,6 +232,91 @@
         };
         window.cerrarModalIA = function() { 
             $('#modalIA').removeClass('show').hide().addClass('oculto'); 
+        };
+        
+        // Funciones IA completas (pensando + API)
+        window.mostrarPensando = function() {
+            $('#thinkingIndicator').show();
+            $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
+        };
+        window.ocultarPensando = function() {
+            $('#thinkingIndicator').hide();
+        };
+        window.agregarMensajeUsuario = function(texto) {
+            const chatContainer = $('#chatContainer');
+            const div = $(`<div class="msg-user">${texto}</div>`);
+            chatContainer.append(div);
+            chatContainer.scrollTop(chatContainer[0].scrollHeight);
+        };
+        window.agregarMensajeLuna = function(texto) {
+            const chatContainer = $('#chatContainer');
+            const div = $(`<div class="msg-luna"><strong>Luna:</strong> ${texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>`);
+            chatContainer.append(div);
+            chatContainer.scrollTop(chatContainer[0].scrollHeight);
+        };
+        window.enviarConsultaIA = async function() {
+            const query = $('#iaQuery');
+            const pregunta = query.val().trim();
+            if (!pregunta) return;
+            
+            query.prop('disabled', true);
+            $('#btnPreguntarIA, #btnVoz').prop('disabled', true);
+            
+            window.agregarMensajeUsuario(pregunta);
+            query.val('');
+            window.mostrarPensando();
+            
+            try {
+                const response = await fetch('/ia/api-consultar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({pregunta: pregunta})
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    window.ocultarPensando();
+                    window.agregarMensajeLuna(data.respuesta);
+                    // Audio if available
+                    if (data.audio_url) {
+                        const audio = new Audio(data.audio_url);
+                        audio.play().catch(e => console.log('Audio error:', e));
+                    }
+                } else {
+                    window.ocultarPensando();
+                    window.agregarMensajeLuna('❌ Error: ' + (data.error || 'Inténtalo de nuevo'));
+                }
+            } catch (error) {
+                window.ocultarPensando();
+                window.agregarMensajeLuna('❌ Error de conexión. Verifica el servidor.');
+                console.error('Error:', error);
+            } finally {
+                query.prop('disabled', false);
+                $('#btnPreguntarIA, #btnVoz').prop('disabled', false);
+                query.focus();
+            }
+        };
+        window.getCookie = function(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+        // Voz (simplificado)
+        window.escucharVoz = function() {
+            alert('Reconocimiento de voz simplificado - usa texto por ahora.');
         };
     </script>
 

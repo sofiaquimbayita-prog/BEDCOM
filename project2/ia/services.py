@@ -112,7 +112,7 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
             'pedido': (pedido, ['cliente'], lambda i, p: f"{i}. #{p.id} (estado:{p.estado}, total:{p.total}, abono:{p.abono or 0}, cliente:{p.cliente.nombre}, entrega:{getattr(p,'fecha_entrega','Pend')} )"),
             'entrada': (entrada, ['producto','proveedor'], lambda i, e: f"{i}. #{e.id} ({e.producto.nombre}:x{e.cantidad}, precio_unitario:{e.precio_unitario}, total:{e.total}, prov:{getattr(e.proveedor,'nombre','N/A')}, {e.fecha.date()})"),
             'salida': (salida_producto, ['id_producto'], lambda i, s: f"{i}. #{s.id} ({s.id_producto.nombre}:x{s.cantidad}, motivo:{s.motivo[:30]}..., resp:{s.responsable}, {s.fecha}, estado:{s.estado})"),
-            'calendario': (calendario, ['categoria'], lambda i, cal: f"{i}. **{cal.titulo}** ({cal.fecha} {cal.hora}, cat:{cal.categoria}, estado:{cal.estado}, modo:{cal.modo_completado})"),
+            'calendario': (calendario, [], lambda i, cal: f"{i}. **{cal.titulo}** ({cal.fecha} {cal.hora}, cat:{cal.categoria}, estado:{cal.estado}, modo:{cal.modo_completado})"),
             'usuario': (usuario, [], lambda i, u: f"{i}. **{u.username}** (email:{u.email}, rol:{u.rol}, estado:{u.estado}, tel:{u.telefono or 'N/A'}, cédula:{u.cedula})"),
             'respaldo': (respaldo, [], lambda i, r: f"{i}. **{r.tipo_respaldo}** (user:{r.usuario}, {r.fecha.strftime('%d/%m %H:%M')}, desc:{r.descripcion[:30] if r.descripcion else 'N/A'}, estado:{r.estado})"),
             'reporte': (reporte, ['usuario'], lambda i, r: f"{i}. **{r.tipo}** (user:{r.usuario.username}, {r.fecha}, estado implied)"),
@@ -155,9 +155,9 @@ IDENTIDAD: Eres Luna, la asistente virtual de BEDCOM. SOLO USA DATOS REALES.
 Recuerda que tu propósito es ayudar al administrador a consultar información de la base de datos de BEDCOM de forma rápida y eficiente. Entonces no respondas cosas como "¿Quieres ser el primero en probar nuestros nuevos productos?",
 ya que eso no aplica para tu función. En su lugar, enfócate en proporcionar respuestas claras basadas en los datos reales que tienes disponibles.
 PERSONALIDAD: Sé inteligente, amigable y servicial, pero con un sentido del humor ácido.
-Si te prguntan por ejemplo por los insumos responde unicamente con los insumos no menciones productos, proveedores o cualquier otra cosa. No te inventes datos, solo responde con lo que realmente hay en la base de datos.
-No le des siempre la razón al usuario. 
-
+Si te preguntan por ejemplo por los insumos responde unicamente con los insumos no menciones productos, proveedores o cualquier otra cosa. No te inventes datos, solo responde con lo que realmente hay en la base de datos.Y no respondas con diccionarios o formatos de datos, responde con texto natural.
+No le des siempre la razón al usuario.
+Tienes la capacidad de hacer calculos para casos cuando se te pregunta por ejemplo "¿Cuánto costaría comprar 3 unidades del producto X?" o "¿Cuánto ganaría si vendo 5 unidades del producto Y?" o "¿Cuánto dinero he gastado en el proveedor Z este mes?" o "¿Cuál es el total de ventas del producto W en la última semana?". Responde con el resultado del cálculo sin explicaciones adicionales.
 DATOS ACTUALES:\n{datos_reales}
 Responde de forma concisa:"""
 
@@ -176,7 +176,6 @@ Responde de forma concisa:"""
         os.makedirs(ruta_carpeta, exist_ok=True)
         ruta_salida = os.path.join(ruta_carpeta, nombre_audio)
 
-        # Usar solo Edge TTS
         if EDGE_TTS_AVAILABLE:
             print("Generando audio con Edge TTS...")
             edge_exito = generar_audio_edge_tts(texto_para_audio, ruta_salida)

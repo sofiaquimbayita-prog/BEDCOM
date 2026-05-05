@@ -16,8 +16,7 @@ function getCookie(name) {
 }
 
 // === ESTADO GLOBAL ===
-let model = null;
-let recognizer = null;
+let recognition = null;
 let audioActual = null;
 
 // --- REPRODUCCIÓN DE AUDIO (PIPER) ---
@@ -30,20 +29,7 @@ function reproducirVozLuna(urlAudio) {
     }
 }
 
-// --- MICROFONO LOCAL CON VOSK ---
-async function inicializarVosk() {
-    // VALIDACIÓN CRÍTICA: Esperar a que la librería esté cargada
-    if (typeof Vosk === 'undefined') {
-        throw new Error("La librería Vosk no se ha cargado. Revisa la conexión o el orden de los scripts en el HTML.");
-    }
-
-    if (!model) {
-        console.log("Cargando modelo Vosk desde static...");
-        // Asegúrate de que esta carpeta exista en tu static/ap1/js/
-        model = await Vosk.createModel('/static/ap1/js/vosk-model-small-es-0.42/');
-    }
-}
-
+// --- MICROFONO CON SPEECHRECOGNITION NATIVO ---
 window.escucharVoz = async function() {
     const btnVoz = document.getElementById('btnVoz');
     const iaQuery = document.getElementById('iaQuery');
@@ -51,47 +37,72 @@ window.escucharVoz = async function() {
     try {
         btnVoz.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btnVoz.style.background = "#ef4444";
-        iaQuery.placeholder = "Cargando motor local...";
+        iaQuery.placeholder = "Iniciando reconocimiento...";
 
-        await inicializarVosk();
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true
-        });
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-ES';
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
-        recognizer = new model.KaldiRecognizer(16000);
-        recognizer.start();
-        iaQuery.placeholder = "Te escucho, Edgar...";
-        btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        recognition.onstart = () => {
+            console.log('Escuchando...');
+            iaQuery.placeholder = "Habla ahora...";
+            btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        };
 
-        recognizer.on("result", (message) => {
-            const result = message.result;
-            if (result.text && result.text.trim() !== "") {
-                iaQuery.value = result.text;
-                detenerMicrofono(stream);
-                window.enviarConsultaIA(); 
+        recognition.onspeechend = () => {
+            console.log('Fin de habla detectado');
+        };
+
+        recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalText += transcript;
+                } else {
+                    interimText += transcript;
+                }
             }
-        });
-
-        recognizer.on("partialresult", (message) => {
-            if (message.result.partial) {
-                iaQuery.placeholder = message.result.partial + "...";
+            
+            if (interimText) {
+                iaQuery.placeholder = interimText + '...';
             }
-        });
+            
+            if (finalText.trim()) {
+                iaQuery.value = finalText.trim();
+                recognition.stop();
+                window.enviarConsultaIA();
+            }
+        };
 
-// Browser Speech API handles stream internally - no connect needed
+        recognition.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            iaQuery.placeholder = `Error: ${event.error}`;
+            btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+        };
+
+        recognition.onend = () => {
+            detenerMicrofono();
+        };
+
+        recognition.start();
 
     } catch (error) {
-        console.error("Error Vosk/STT:", error);
-        // Graceful fallback - no alert, just stop
-        iaQuery.placeholder = "Speech API no disponible";
-        detenerMicrofono(stream);
+        console.error("Error STT:", error);
+        iaQuery.placeholder = "Speech no disponible en este navegador";
         btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
     }
 };
 
-function detenerMicrofono(stream) {
-    if (stream) stream.getTracks().forEach(track => track.stop());
+function detenerMicrofono() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
     const btnVoz = document.getElementById('btnVoz');
     if (btnVoz) {
         btnVoz.innerHTML = '<i class="fa-solid fa-microphone"></i>';
@@ -99,7 +110,7 @@ function detenerMicrofono(stream) {
     }
 }
 
-// --- CONSULTA ---
+
 window.enviarConsultaIA = function() {
     const input = document.getElementById('iaQuery');
     const chatContainer = document.getElementById('chatContainer');
@@ -127,7 +138,7 @@ window.enviarConsultaIA = function() {
             chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error:</strong> ${data.error}</div>`;
         } else {
             const respuesta = data.respuesta || 'No pude procesar tu pregunta.';
-            // Formatear respuesta con Marked (si está cargado) para negritas y listas
+
             const htmlRespuesta = typeof marked !== 'undefined' ? marked.parse(respuesta) : respuesta;
             
             chatContainer.innerHTML += `<div class="msg-luna"><strong>Luna:</strong><br>${htmlRespuesta}</div>`;
@@ -147,7 +158,6 @@ window.enviarConsultaIA = function() {
     });
 };
 
-// --- INICIO ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Asistente Luna cargado.");
 });

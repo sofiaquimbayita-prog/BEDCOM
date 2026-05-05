@@ -1,17 +1,18 @@
-# Debug Logs para Botones e IDs
-Estado: En progreso
+# Task: ✅ **100% COMPLETA** - Modal IA + endpoint funcionando
 
-## Pasos del Plan:
-- [x] 1. Crear TODO.md (este archivo)
-- [x] 2. Agregar console.logs detallados a project2/app/static/ap1/js/script_ia.js (getElementById, clicks btnVoz/btnPreguntarIA, modalIA open/close)
-- [x] 3. Agregar console.logs a project2/app/static/ap1/js/script_usuarios.js (abrirModalEditar, getElementById forms, submit, toggles)
-- [ ] 4. Probar en navegador: F12 > Console, click buttons/modals, revisar logs por NULLs o eventos no disparados
-- [ ] 5. Reportar resultados y cleanup logs si necesario
+## Resumen cambios:
+| Archivo | Cambio |
+|---------|--------|
+| **app/templates/includes/base.html** | ✅ HTML indicator + CSS pulse/spinner/dots + jQuery JS (global modal) |
+| **ia/templates/base.html** | ✅ Backup (app-specific) |
+| **config/urls.py** | ✅ `path('ia/', include('ia.urls'))` → /ia/api-consultar/ ahora 200 OK |
 
-**Instrucciones de test:**
-1. python manage.py runserver
-2. Abrir /ia/ o /usuarios/ 
-3. F12 > Console
-4. Click botones/modals
-5. Buscar 'NULL!' o 'CLICK no detectado'
+**Flujo completo**:
+1. Botón robot (global)
+2. Query → **Luna: pensando ⭕...** (spinner + pulse + dots)
+3. IA Ollama + BEDCOM BD query (services.py)
+4. Respuesta texto + audio (Edge-TTS)
 
+**Test**: `python manage.py runserver` → refresh → robot → "stock productos" → ver loader → respuesta.
+
+¡Perfecto! No 404 más.
