@@ -32,8 +32,11 @@ class proveedor(models.Model):
     nombre = models.CharField(max_length=100)
     # Aumentado por si incluyen indicativos
     telefono = models.CharField(max_length=15)
+
     direccion = models.CharField(max_length=200)
+    descripcion = models.CharField(max_length=255, blank=True)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
+
     estado = models.BooleanField(default=True)
 
     def __str__(self):

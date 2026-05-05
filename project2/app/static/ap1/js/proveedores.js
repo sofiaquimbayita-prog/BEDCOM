@@ -23,6 +23,13 @@ function validarNombreProveedor(nombre) {
     return patron.test(nombre);
 }
 
+// Validar descripción
+function validarDescripcionProveedor(descripcion) {
+    var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,-]+$/;
+    return patron.test(descripcion);
+}
+
+
 // Validar teléfono
 function validarTelefono(telefono) {
     var patron = /^\d{10}$/;
@@ -111,9 +118,28 @@ function validarProveedor() {
             limpiarError('inputDireccion');
         }
     }
+
+    // descripción
+    var descripcion = document.getElementById('inputDescripcion');
+    if (descripcion) {
+        var descripcionValor = descripcion.value.trim();
+        if (descripcionValor.length < 5) {
+            mostrarError('inputDescripcion', 'La descripción debe tener al menos 5 caracteres');
+            esValido = false;
+        } else if (descripcionValor.length > 255) {
+            mostrarError('inputDescripcion', 'La descripción no puede exceder 255 caracteres');
+            esValido = false;
+        } else if (!validarDescripcionProveedor(descripcionValor)) {
+            mostrarError('inputDescripcion', 'Solo letras, números, espacios, .,,- permitidos');
+            esValido = false;
+        } else {
+            limpiarError('inputDescripcion');
+        }
+    }
     
     return esValido;
 }
+
 
 // editar proveedor
 function validarProveedorEditar() {
@@ -325,14 +351,16 @@ function verProveedor(id) {
         success: function(response) {
             var proveedor = response.proveedores.find(function(p) { return p.id === id; });
             if (proveedor) {
-                document.getElementById('viewNombre').textContent = proveedor.nombre;
-                document.getElementById('viewTelefono').textContent = proveedor.telefono;
-                document.getElementById('viewDireccion').textContent = proveedor.direccion;
+                document.getElementById('viewNombre').textContent = proveedor.nombre || '';
+                document.getElementById('viewTelefono').textContent = proveedor.telefono || '';
+                document.getElementById('viewDireccion').textContent = proveedor.direccion || '';
+                document.getElementById('viewDescripcion').textContent = proveedor.descripcion || 'No especificada';
                 
                 var imagenSrc = proveedor.imagen ? proveedor.imagen : '/static/ap1/imagenes/foto_usuario.png';
                 document.getElementById('viewImagen').src = imagenSrc;
                 
                 abrirModal('modalView');
+
             }
         },
         error: function(xhr, status, error) {
@@ -353,14 +381,17 @@ function editarProveedor(id) {
             var proveedor = response.proveedores.find(function(p) { return p.id === id; });
             if (proveedor) {
                 document.getElementById('editId').value = proveedor.id;
-                document.getElementById('editNombre').value = proveedor.nombre;
-                document.getElementById('editTelefono').value = proveedor.telefono;
-                document.getElementById('editDireccion').value = proveedor.direccion;
+                document.getElementById('editNombre').value = proveedor.nombre || '';
+                document.getElementById('editTelefono').value = proveedor.telefono || '';
+                document.getElementById('editDireccion').value = proveedor.direccion || '';
+                document.getElementById('editDescripcion').value = proveedor.descripcion || '';
                 limpiarError('editNombre');
                 limpiarError('editTelefono');
                 limpiarError('editDireccion');
+                limpiarError('editDescripcion');
                 
                 abrirModal('modalEdit');
+
             }
         },
         error: function(xhr, status, error) {
@@ -518,6 +549,21 @@ $(document).ready(function() {
             limpiarError('inputDireccion');
         }
     });
+
+    // Descripción input
+    $('#inputDescripcion').on('input', function() {
+        var valor = $(this).val().trim();
+        if (valor.length < 5) {
+            mostrarError('inputDescripcion', 'La descripción debe tener al menos 5 caracteres');
+        } else if (valor.length > 255) {
+            mostrarError('inputDescripcion', 'La descripción no puede exceder 255 caracteres');
+        } else if (!validarDescripcionProveedor(valor)) {
+            mostrarError('inputDescripcion', 'Solo letras, números, espacios, .,,- permitidos');
+        } else {
+            limpiarError('inputDescripcion');
+        }
+    });
+
     // Nombre editar
     $('#editNombre').on('input', function() {
         var valor = $(this).val().trim();
@@ -568,6 +614,21 @@ $(document).ready(function() {
         }
     });
 
+    // Descripción edit
+    $('#editDescripcion').on('input', function() {
+        var valor = $(this).val().trim();
+        if (valor.length < 5) {
+            mostrarError('editDescripcion', 'La descripción debe tener al menos 5 caracteres');
+        } else if (valor.length > 255) {
+            mostrarError('editDescripcion', 'La descripción no puede exceder 255 caracteres');
+        } else if (!validarDescripcionProveedor(valor)) {
+            mostrarError('editDescripcion', 'Solo letras, números, espacios, .,,- permitidos');
+        } else {
+            limpiarError('editDescripcion');
+        }
+    });
+
+
     
     // Formulario agregar proveedor
     $('#formAgregarProveedor').on('submit', function(e) {
@@ -582,11 +643,13 @@ $(document).ready(function() {
         formData.append('nombre', document.getElementById('inputNombre').value.trim());
         formData.append('telefono', document.getElementById('inputTelefono').value.trim());
         formData.append('direccion', document.getElementById('inputDireccion').value.trim());
+        formData.append('descripcion', document.getElementById('inputDescripcion').value.trim());
         
         var inputImagen = document.getElementById('inputImagen');
         if (inputImagen && inputImagen.files && inputImagen.files[0]) {
             formData.append('imagen', inputImagen.files[0]);
         }
+
         
         $.ajax({
             url: '/vistas/proveedores/crear/',
@@ -641,11 +704,13 @@ $(document).ready(function() {
         formData.append('nombre', document.getElementById('editNombre').value.trim());
         formData.append('telefono', document.getElementById('editTelefono').value.trim());
         formData.append('direccion', document.getElementById('editDireccion').value.trim());
+        formData.append('descripcion', document.getElementById('editDescripcion').value.trim());
         
         var editImagen = document.getElementById('editImagen');
         if (editImagen && editImagen.files && editImagen.files[0]) {
             formData.append('imagen', editImagen.files[0]);
         }
+
         
         $.ajax({
             url: '/vistas/proveedores/editar/' + id + '/',
