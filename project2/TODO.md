@@ -1,5 +1,1 @@
-# TODO - Fix Chatbot Calendar Error
-## Steps to complete:
-
-- [x] Step 1: Edit project2/ia/services.py - Remove invalid select_related('categoria') for calendario model
-
+2. ✅ Edit `project2/app/static/ap1/js/script_ia.js` - Changed `innerHTML +=` to `createElement/appendChild` + dynamic indicator creation. All appends now safe.

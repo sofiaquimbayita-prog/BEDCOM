@@ -1,5 +1,3 @@
-
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -38,7 +36,6 @@ window.escucharVoz = async function() {
         btnVoz.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btnVoz.style.background = "#ef4444";
         iaQuery.placeholder = "Iniciando reconocimiento...";
-
 
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-ES';
@@ -121,11 +118,27 @@ window.enviarConsultaIA = function() {
 
     btnPreguntar.disabled = true;
     
-    // Usar las burbujas que definimos en el HTML
-    chatContainer.innerHTML += `<div class="msg-user"><strong>Tú:</strong><br>${pregunta}</div>`;
+    // Append user message SAFELY without destroying existing elements
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg-user';
+    userMsg.innerHTML = `<strong>Tú:</strong><br>${pregunta}`;
+    chatContainer.appendChild(userMsg);
     
     chatContainer.scrollTop = chatContainer.scrollHeight;
     input.value = '';
+
+    // Show/create thinking indicator dynamically
+    let thinkingIndicator = document.getElementById('thinkingIndicator');
+    if (!thinkingIndicator) {
+        thinkingIndicator = document.createElement('div');
+        thinkingIndicator.id = 'thinkingIndicator';
+        thinkingIndicator.className = 'msg-luna';
+        thinkingIndicator.style.cssText = 'color: #38bdf8; animation: pulse 1.5s ease-in-out infinite; background: transparent; border: none; padding: 12px 12px 12px 0;';
+        thinkingIndicator.innerHTML = '<strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>';
+        chatContainer.appendChild(thinkingIndicator);
+    }
+    thinkingIndicator.style.display = 'block';
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     fetch('/vistas/ia/asistente-inventario/api-consultar/', {
         method: 'POST',
@@ -134,14 +147,26 @@ window.enviarConsultaIA = function() {
     })
     .then(response => response.json())
     .then(data => {
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         if (data.error) {
-            chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error:</strong> ${data.error}</div>`;
+            // Append error SAFELY
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'msg-luna';
+            errorMsg.style.color = '#ef4444';
+            errorMsg.innerHTML = `<strong>Error:</strong> ${data.error}`;
+            chatContainer.appendChild(errorMsg);
         } else {
             const respuesta = data.respuesta || 'No pude procesar tu pregunta.';
-
             const htmlRespuesta = typeof marked !== 'undefined' ? marked.parse(respuesta) : respuesta;
             
-            chatContainer.innerHTML += `<div class="msg-luna"><strong>Luna:</strong><br>${htmlRespuesta}</div>`;
+            // Append response SAFELY
+            const lunaMsg = document.createElement('div');
+            lunaMsg.className = 'msg-luna';
+            lunaMsg.innerHTML = `<strong>Luna:</strong><br>${htmlRespuesta}`;
+            chatContainer.appendChild(lunaMsg);
             
             if (data.audio_url) {
                 reproducirVozLuna(data.audio_url);
@@ -150,8 +175,17 @@ window.enviarConsultaIA = function() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     })
     .catch(error => {
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         console.error("Error API:", error);
-        chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error de conexión</strong></div>`;
+        // Append error connection SAFELY
+        const connError = document.createElement('div');
+        connError.className = 'msg-luna';
+        connError.style.color = '#ef4444';
+        connError.innerHTML = '<strong>Error de conexión</strong>';
+        chatContainer.appendChild(connError);
     })
     .finally(() => { 
         if (btnPreguntar) btnPreguntar.disabled = false; 
@@ -161,3 +195,4 @@ window.enviarConsultaIA = function() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Asistente Luna cargado.");
 });
+

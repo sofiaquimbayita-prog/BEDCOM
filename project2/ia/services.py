@@ -94,6 +94,8 @@ def generar_audio_edge_tts(texto, archivo_salida):
         return False
 
 
+import time
+
 def consultar_bd_con_ia(pregunta_usuario, historial):
     """
     Procesa la pregunta del usuario consultando los modelos de BEDCOM,
@@ -187,6 +189,7 @@ Responde de forma concisa:"""
         else:
             print("Edge TTS no disponible. Instala edge-tts con: pip install edge-tts")
 
+        time.sleep(2)  # 2s delay for visible thinking indicator
         return {
             "respuesta": respuesta_texto,
             "audio_url": audio_url

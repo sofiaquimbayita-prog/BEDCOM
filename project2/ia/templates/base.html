@@ -19,10 +19,6 @@
                         <strong>Luna:</strong> ¡Hola! Soy Luna, tu asistente virtual de BEDCOM. ¿En qué puedo ayudarte hoy?
                     </div>
                     
-                    <!-- Indicador de "pensando" -->
-                    <div id="thinkingIndicator" class="mensaje-luna" style="display: none; color: #38bdf8; animation: pulse 1.5s ease-in-out infinite;">
-                        <strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>
-                    </div>
                 </div>
 
                 <!-- Input Group -->
@@ -61,13 +57,13 @@
                     0%, 100% { opacity: 1; transform: scale(1); }
                     50% { opacity: 0.7; transform: scale(1.05); }
                 }
-                .mensaje-luna {
+                .msg-luna, .mensaje-luna {
                     color: #38bdf8;
                     margin-bottom: 12px;
                     font-size: 0.95em;
                     line-height: 1.4;
                 }
-                .mensaje-usuario {
+                .msg-user, .mensaje-usuario {
                     color: #10b981;
                     text-align: right;
                     margin-bottom: 12px;
