@@ -380,6 +380,12 @@ body.acc-light-mode .titulo {
     color: #0369a1 !important;
 }
 
+/* --- 8. ESCALADA DE GRISES (Nuevo) --- */
+body.acc-grayscale *,
+body.acc-grayscale {
+    filter: grayscale(100%) !important;
+}
+
 
 /* --- 4. RESALTAR ENLACES Y BOTONES --- */
 body.acc-highlight-links a {
@@ -390,7 +396,7 @@ body.acc-highlight-links a {
     font-weight: bold !important;
 }
 body.acc-highlight-links button,
-body.acc-highlight-links .btn,
+body.acc-light-mode .btn,
 body.acc-highlight-links input[type="button"],
 body.acc-highlight-links input[type="submit"] {
     border: 3px solid currentColor !important;
@@ -642,5 +648,179 @@ input:checked + .acc-slider:before {
         width: 50px;
         height: 50px;
         font-size: 24px;
+    }
+}
+
+/* ==============================================================
+   SALIDA_P & RESPALDOS LIGHT MODE FIXES - SPECIFIC OVERRIDES
+   Removes dark gradients, forces light backgrounds/texts in problem modals
+   ============================================================== */
+
+/* === SALIDA_P MODALS === */
+body.acc-light-mode #modalSalida,
+body.acc-light-mode #modalSalida .modal-salida,
+body.acc-light-mode .modal-salida-content,
+body.acc-light-mode .modal-salida-header,
+body.acc-light-mode .modal-salida-body,
+body.acc-light-mode .modal-salida-footer,
+body.acc-light-mode #modalDetalleSalida .modal,
+body.acc-light-mode #modalDetalleSalida .modal-content {
+    background: var(--card) !important;
+    background-image: none !important;
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .modal-salida-content,
+body.acc-light-mode #modalDetalleSalida .modal-content {
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+body.acc-light-mode .modal-salida-header h2,
+body.acc-light-mode .modal-header .modal-header-content {
+    color: #1e293b !important;
+}
+
+body.acc-light-mode .modal-salida-footer,
+body.acc-light-mode .modal-footer {
+    background: rgba(248, 250, 252, 0.5) !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .btn-cancel,
+body.acc-light-mode .btn-cancelar {
+    background: rgba(71, 85, 105, 0.3) !important;
+    color: #475569 !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.acc-light-mode .btn-cancel:hover,
+body.acc-light-mode .btn-cancelar:hover {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+body.acc-light-mode .btn-save,
+body.acc-light-mode .btn-submit {
+    background: var(--brand) !important;
+    color: white !important;
+}
+
+/* SalidaP table fixes */
+body.acc-light-mode .salidas-table thead {
+    background: rgba(241, 245, 249, 0.95) !important;
+    color: #1e293b !important;
+}
+
+body.acc-light-mode .salidas-table tbody tr {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.acc-light-mode .salidas-table tbody tr:hover {
+    background: var(--card-hover) !important;
+}
+
+body.acc-light-mode .view-detail-grid,
+body.acc-light-mode .view-detail-grid label,
+body.acc-light-mode .view-detail-grid p {
+    color: #1e293b !important;
+    background: transparent !important;
+}
+
+/* === RESPALDOS MODALS & ELEMENTS === */
+body.acc-light-mode .main-card-dark,
+body.acc-light-mode .respaldos-table,
+body.acc-light-mode .table-container,
+body.acc-light-mode #generarModal .modal-content,
+body.acc-light-mode #viewModal .modal-content,
+body.acc-light-mode #deleteModal .modal-content,
+body.acc-light-mode #modalDescargaSQL .modal-content {
+    background: var(--card) !important;
+    background-image: none !important;
+    color: var(--text) !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .stat-card,
+body.acc-light-mode .small-card {
+    background: var(--card) !important;
+    border-color: var(--color-borde) !important;
+    box-shadow: var(--shadow) !important;
+}
+
+body.acc-light-mode .stat-card .stat-label,
+body.acc-light-mode .stat-card .stat-value,
+body.acc-light-mode .small-card .label,
+body.acc-light-mode .small-card .value {
+    color: #1e293b !important;
+}
+
+body.acc-light-mode .modal-content.delete {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.acc-light-mode .message,
+body.acc-light-mode .messages-container .message {
+    background: var(--card) !important;
+    color: #1e293b !important;
+    border-color: var(--color-borde) !important;
+}
+
+body.acc-light-mode .respaldos-table td,
+body.acc-light-mode .respaldos-table th {
+    color: #1e293b !important;
+    background: transparent !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.acc-light-mode .respaldos-table tbody tr:hover {
+    background: var(--card-hover) !important;
+}
+
+/* === SHARED MODAL ELEMENTS === */
+body.acc-light-mode .modal-header,
+body.acc-light-mode .modal-header h3,
+body.acc-light-mode .section-title {
+    color: #1e293b !important;
+    background: transparent !important;
+}
+
+body.acc-light-mode .btn-generar,
+body.acc-light-mode .stat-btn {
+    background: var(--brand) !important;
+    color: white !important;
+}
+
+/* Force light on all modal inputs/selects in these sections */
+body.acc-light-mode #modalSalida input,
+body.acc-light-mode #modalSalida select,
+body.acc-light-mode #modalSalida textarea,
+body.acc-light-mode #modalDetalleSalida input,
+body.acc-light-mode .modal-descarga-sql input,
+body.acc-light-mode .zona-carga-mini input {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Remove all dark gradients/linear-gradients in light mode */
+body.acc-light-mode * {
+    background-image: none !important;
+}
+
+body.acc-light-mode [style*="linear-gradient"],
+body.acc-light-mode [style*="gradient"] {
+    background: var(--card) !important;
+    background-image: none !important;
+}
+
+/* Responsive light mode */
+@media (max-width: 768px) {
+    body.acc-light-mode .modal-salida-content,
+    body.acc-light-mode .modal-content {
+        background: rgba(255, 255, 255, 0.98) !important;
     }
 }
