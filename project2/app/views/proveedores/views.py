@@ -54,8 +54,11 @@ class ProveedorCreateView(View):
                         'id': proveedor_obj.id,
                         'nombre': proveedor_obj.nombre,
                         'telefono': proveedor_obj.telefono,
+
                         'direccion': proveedor_obj.direccion,
+                        'descripcion': proveedor_obj.descripcion,
                         'imagen': proveedor_obj.imagen.url if proveedor_obj.imagen else None,
+
                         'estado': proveedor_obj.estado
                     }
                 })
@@ -184,8 +187,11 @@ class ProveedorDataView(View):
                     'id': p.id,
                     'nombre': p.nombre,
                     'telefono': p.telefono,
+
                     'direccion': p.direccion,
+                    'descripcion': p.descripcion,
                     'imagen': p.imagen.url if p.imagen else None,
+
                     'estado': p.estado
                 })
 

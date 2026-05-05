@@ -19,10 +19,17 @@ def _mantenimiento_to_dict(obj):
         'estado_display': obj.get_estado_reparacion_display(),
     }
 
+<<<<<<< HEAD:project2/app/views/mantenimientos/views.py
 class MantenimientoListView(ListView):
     model = mantenimiento
     template_name = 'mantenimientos/mantenimientos_list.html'
     context_object_name = 'mantenimientos'
+=======
+class garantiaListView(ListView):
+    model = garantia
+    template_name = 'garantias/garantias_list.html'
+    context_object_name = 'garantias'
+>>>>>>> SOFIA:project2/app/views/garantias/views.py
 
     def get_queryset(self):
         return mantenimiento.objects.select_related('pedido__cliente', 'producto').order_by('-fecha')
@@ -38,7 +45,11 @@ class MantenimientoListView(ListView):
         ctx['entregadas'] = mantenimiento.objects.filter(estado_reparacion='entregada').count()
         return ctx
 
+<<<<<<< HEAD:project2/app/views/mantenimientos/views.py
 class MantenimientoCreateView(View):
+=======
+class garantiaCreateView(View):
+>>>>>>> SOFIA:project2/app/views/garantias/views.py
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
@@ -86,7 +97,11 @@ class MantenimientoCreateView(View):
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
+<<<<<<< HEAD:project2/app/views/mantenimientos/views.py
 class MantenimientoUpdateEstadoView(View):
+=======
+class garantiaUpdateEstadoView(View):
+>>>>>>> SOFIA:project2/app/views/garantias/views.py
     def post(self, request, pk, *args, **kwargs):
         try:
             gar = get_object_or_404(mantenimiento, pk=pk)
@@ -115,7 +130,11 @@ class MantenimientoUpdateEstadoView(View):
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
+<<<<<<< HEAD:project2/app/views/mantenimientos/views.py
 class MantenimientoDetailView(View):
+=======
+class garantiaDetailView(View):
+>>>>>>> SOFIA:project2/app/views/garantias/views.py
     def get(self, request, pk, *args, **kwargs):
         gar = get_object_or_404(mantenimiento.objects.select_related('pedido__cliente', 'producto'), pk=pk)
         return JsonResponse({'ok': True, 'mantenimiento': _mantenimiento_to_dict(gar)})

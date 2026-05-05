@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 class categoria(models.Model):
     TIPO_PRODUCTO = 'producto'
@@ -30,8 +32,11 @@ class proveedor(models.Model):
     nombre = models.CharField(max_length=100)
     # Aumentado por si incluyen indicativos
     telefono = models.CharField(max_length=15)
+
     direccion = models.CharField(max_length=200)
+    descripcion = models.CharField(max_length=255, blank=True)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
+
     estado = models.BooleanField(default=True)
 
     def __str__(self):
@@ -253,9 +258,7 @@ class mantenimiento(models.Model):
     def __str__(self):
         return f"Mantenimiento del {self.fecha}"
     class Meta:
-        verbose_name = "Mantenimiento"
-        verbose_name_plural = "Mantenimientos"
-        db_table = "mantenimiento"
+        db_table = "garantia"
 # --- MODELOS DE INSUMOS Y PRODUCCIÓN (BOM) ---
 
 
@@ -289,6 +292,15 @@ class bom(models.Model):
         verbose_name_plural = "boms"
         db_table = "producto_insumo"
         unique_together = ('producto', 'insumo')
+
+
+@receiver([post_save, post_delete], sender=bom)
+def clear_producto_receta_cache(sender, instance, **kwargs):
+    try:
+        if instance.producto_id:
+            instance.producto.limpiar_cache_receta()
+    except Exception:
+        pass
 
 # --- MODELOS DE COMPRAS Y VENTAS ---
 
@@ -400,7 +412,7 @@ class despacho(models.Model):
     responsable = models.CharField(max_length=100, blank=True, null=True)
     empresa_transporte = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transportadora")
     numero_guia = models.CharField(max_length=100, blank=True, null=True, verbose_name="Número de Guía")
-    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    costo_envio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     supervision = models.ForeignKey(
         supervision, on_delete=models.CASCADE, null=True, blank=True)
 

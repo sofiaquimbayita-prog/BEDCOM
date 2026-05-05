@@ -96,31 +96,15 @@ $(document).ready(function() {
     // Select2 para receta
     $('#recetaInsumo, #recetaProducto').select2({
         language: 'es',
-        placeholder: 'Seleccione una opción',
         allowClear: true,
         width: '100%'
-    });
-
-    // Select2 para unidad de medida en receta (crear)
-    $('#recetaUnidad').select2({
-        language: 'es',
-        width: '100%',
-        minimumResultsForSearch: Infinity // Ocultar búsqueda ya que son pocas opciones
     });
 
     // Select2 para edición de receta
     $('#editRecetaInsumo, #editRecetaProducto').select2({
         language: 'es',
-        placeholder: 'Seleccione una opción',
         allowClear: true,
         width: '100%'
-    });
-
-    // Select2 para unidad de medida en receta (editar)
-    $('#editRecetaUnidad').select2({
-        language: 'es',
-        width: '100%',
-        minimumResultsForSearch: Infinity
     });
 
     // Manejar cambio de producto en el modal de crear receta
@@ -615,13 +599,22 @@ function abrirModal(modalId) {
         $('#recetaProducto').val('').trigger('change');
         $('#recetaInsumo').val('').trigger('change');
         $('#recetaCantidad').val(1);
-        $('#recetaUnidad').val('und').trigger('change');
         $('#recetaInsumosBody').html('<tr id="recetaVacio"><td colspan="4" style="padding: 20px; text-align: center; color: #999; border: 1px solid #ddd;">No hay insumos agregados. Use el formulario de arriba para agregar.</td></tr>');
+        
+        // Destruir Select2 existentes antes de reinicializar
+        if ($('#recetaProducto').hasClass('select2-hidden-accessible')) {
+            $('#recetaProducto').select2('destroy');
+        }
+        if ($('#recetaInsumo').hasClass('select2-hidden-accessible')) {
+            $('#recetaInsumo').select2('destroy');
+        }
+        if ($('#recetaUnidad').hasClass('select2-hidden-accessible')) {
+            $('#recetaUnidad').select2('destroy');
+        }
         
         // Inicializar Select2 para receta (necesario porque el modal estaba oculto)
         $('#recetaProducto, #recetaInsumo').select2({
             language: 'es',
-            placeholder: 'Seleccione una opción',
             allowClear: true,
             width: '100%',
             dropdownParent: $('#modalReceta')
@@ -634,6 +627,9 @@ function abrirModal(modalId) {
             minimumResultsForSearch: Infinity,
             dropdownParent: $('#modalReceta')
         });
+        
+        // Establecer valor por defecto para unidad después de inicializar Select2
+        $('#recetaUnidad').select2('val', 'und');
     }
     
     const modal = document.getElementById(modalId);
@@ -743,11 +739,21 @@ function editarBom(productoId) {
                 // Renderizar la tabla
                 renderEditRecetaTable();
                 
+                // Destruir Select2 existentes antes de reinicializar
+                if ($('#editRecetaProducto').hasClass('select2-hidden-accessible')) {
+                    $('#editRecetaProducto').select2('destroy');
+                }
+                if ($('#editRecetaInsumo').hasClass('select2-hidden-accessible')) {
+                    $('#editRecetaInsumo').select2('destroy');
+                }
+                if ($('#editRecetaUnidad').hasClass('select2-hidden-accessible')) {
+                    $('#editRecetaUnidad').select2('destroy');
+                }
+                
                 // Inicializar Select2 para edición (necesario porque el modal estaba oculto)
                 // Se usa dropdownParent para que el dropdown aparezca sobre el modal
                 $('#editRecetaProducto, #editRecetaInsumo').select2({
                     language: 'es',
-                    placeholder: 'Seleccione una opción',
                     allowClear: true,
                     width: '100%',
                     dropdownParent: $('#modalEditBom')

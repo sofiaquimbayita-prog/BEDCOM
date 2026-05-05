@@ -12,7 +12,11 @@ function showToast(msg, tipo = 'success') {
 }
 
 $(document).ready(function () {
+<<<<<<< HEAD
   $('#tablaMantenimientos').DataTable({
+=======
+  $('#tablagarantias').DataTable({
+>>>>>>> SOFIA
     language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
     pageLength: 25,
     order: [[0, 'desc']],
@@ -85,8 +89,13 @@ $(document).ready(function () {
     }
   });
 
+<<<<<<< HEAD
   /* ── Crear Mantenimiento ───────────────────────────────── */
   $('#btnNuevaMantenimiento').click(function(){
+=======
+  /* ── Crear garantia ───────────────────────────────── */
+  $('#btnNuevagarantia').click(function(){
+>>>>>>> SOFIA
       $('#inpPedido').val('');
       $('#inpProducto').val('');
       $('#inpDescripcion').val('');

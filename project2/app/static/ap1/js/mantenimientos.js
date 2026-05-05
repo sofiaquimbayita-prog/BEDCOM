@@ -23,7 +23,11 @@ function showToast(msg, tipo = 'success') {
 }
 
 $(document).ready(function () {
+<<<<<<< HEAD:project2/app/static/ap1/js/mantenimientos.js
   $('#tablaMantenimientos').DataTable({
+=======
+  $('#tablagarantias').DataTable({
+>>>>>>> SOFIA:project2/app/static/ap1/js/garantias.js
     language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
     pageLength: 25,
     order: [[0, 'desc']],
@@ -96,8 +100,13 @@ $(document).ready(function () {
     }
   });
 
+<<<<<<< HEAD:project2/app/static/ap1/js/mantenimientos.js
   /* ── Crear Mantenimiento ───────────────────────────────── */
   $('#btnNuevaMantenimiento').click(function(){
+=======
+  /* ── Crear garantia ───────────────────────────────── */
+  $('#btnNuevagarantia').click(function(){
+>>>>>>> SOFIA:project2/app/static/ap1/js/garantias.js
       $('#inpPedido').val('');
       $('#inpProducto').val('');
       $('#inpDescripcion').val('');

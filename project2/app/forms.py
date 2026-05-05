@@ -124,7 +124,7 @@ class calendarioForm(forms.ModelForm):
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model = proveedor
-        fields = ['nombre', 'telefono', 'direccion', 'imagen']
+        fields = ['nombre', 'telefono', 'direccion', 'descripcion', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -141,7 +141,14 @@ class ProveedorForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Dirección (mínimo 10 caracteres)'
             }),
+            'descripcion': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control',
+                'placeholder': 'Descripción del proveedor (ej: madera, telas, etc.)',
+                'maxlength': '255'
+            }),
             'imagen': forms.FileInput(attrs={
+
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
@@ -176,7 +183,16 @@ class ProveedorForm(forms.ModelForm):
         if len(direccion) < 10:
             self.add_error('direccion', 'La dirección debe tener al menos 10 caracteres.')
 
+        descripcion = self.cleaned_data.get('descripcion', '').strip()
+        if len(descripcion) < 5:
+            self.add_error('descripcion', 'La descripción debe tener al menos 5 caracteres.')
+        if len(descripcion) > 255:
+            self.add_error('descripcion', 'La descripción no puede exceder 255 caracteres.')
+        if not re.match(r'^[a-zA-Z0-9\\sÁÉÍÓÚáéíóúÑñ.,-]+$', descripcion):
+            self.add_error('descripcion', 'Solo letras, números, espacios, .,,- permitidos.')
+
         return cleaned_data
+
 
 class RespaldoForm(forms.ModelForm):
     TIPO_RESPALDO_CHOICES = [

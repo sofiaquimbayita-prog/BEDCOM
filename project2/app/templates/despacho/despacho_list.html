@@ -4,9 +4,10 @@
 {% block header_title %}DESPACHOS{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho_modal_fix.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}?v=4">
 
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
@@ -137,7 +138,8 @@
     <div class="form-grupo">
       <label>Seleccionar Pedido a Despachar <span style="color:var(--color-error)">*</span></label>
       <select id="inpCrearPedidoId" class="form-input" required>
-        <option value="">— Seleccionar Pedido —</option>
+        <option value="" disabled selected>— Seleccionar Pedido —</option>
+
         {% for ped in pedidos_disponibles %}
         <option value="{{ ped.id }}">Pedido #{{ ped.id }} - {{ ped.cliente.nombre }} - Saldo: ${{ ped.saldo_pendiente }}</option>
         {% endfor %}
@@ -145,18 +147,27 @@
     </div>
 
     <div class="form-grupo">
-      <label>Empresa Transportadora</label>
-      <input type="text" id="inpCrearEmpresa" class="form-input" placeholder="Ej. Servientrega, Inter Rapidísimo...">
+      <label>Nombre del acarreista <span style="color:var(--color-error)">*</span></label>
+      <input type="text" id="inpCrearEmpresa" class="form-input" placeholder="Ej. Camión de Sergio" required>
+      <span class="error-msg" id="error-empresa" style="display:none"></span>
     </div>
-    
+
     <div class="form-grupo">
-      <label>Número de Guía / Rastreo</label>
-      <input type="text" id="inpCrearGuia" class="form-input" placeholder="Opcional...">
+      <label>Número de contacto <span style="color:var(--color-error)">*</span></label>
+      <input type="tel" id="inpCrearTelefono" class="form-input" placeholder="3001234567" pattern="[0-9]{10}" maxlength="10" inputmode="numeric" required title="Solo números, 10 dígitos">
+      <span class="error-msg" id="error-telefono" style="display:none"></span>
     </div>
-    
+
     <div class="form-grupo">
-      <label>Costo de Envío</label>
-      <input type="number" id="inpCrearCosto" class="form-input" step="0.01" value="0" min="0">
+      <label>Placa del vehículo <span style="color:var(--color-error)">*</span></label>
+      <input type="text" id="inpCrearGuia" class="form-input" placeholder="Ej. ABC123" pattern="[A-Z0-9]{1,8}" maxlength="8" required title="Solo letras/números, máx 8 caracteres">
+      <span class="error-msg" id="error-guia" style="display:none"></span>
+    </div>
+
+    <div class="form-grupo">
+      <label>Costo de Envío (COP) <span style="color:var(--color-error)">*</span></label>
+      <input type="text" id="inpCrearCosto" class="form-input" inputmode="decimal" placeholder="0,00" maxlength="15" required title="Ingrese el costo en pesos colombianos, hasta 9.999.999.999">
+      <span class="error-msg" id="error-costo" style="display:none"></span>
     </div>
 
     <div class="form-botones">
@@ -169,8 +180,8 @@
 <!-- Toast -->
 <div class="messages" id="toastContainer"></div>
 
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'ap1/js/despacho.js' %}"></script>
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/despacho.js' %}?v=4"></script>
 
 {% endblock %}
