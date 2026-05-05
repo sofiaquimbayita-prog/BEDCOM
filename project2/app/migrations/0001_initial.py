@@ -118,7 +118,6 @@ class Migration(migrations.Migration):
                 ('rol', models.CharField(max_length=20)),
                 ('estado', models.CharField(default='Activo', max_length=20)),
                 ('foto_usua', models.ImageField(blank=True, null=True, upload_to='usuarios/fotos/')),
-                ('foto_usua', models.ImageField(blank=True, null=True, upload_to='usuarios/fotos/')),
                 ('telefono', models.CharField(blank=True, max_length=15, null=True)),
                 ('email', models.EmailField(max_length=100, unique=True)),
                 ('groups', models.ManyToManyField(blank=True, related_name='usuario_set', to='auth.group')),
