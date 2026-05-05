@@ -9,11 +9,11 @@ from app.views.despacho.views import (
     DespachoDetailView,
     DespachosPorFechaView
 )
-from app.views.garantias.views import (
-    GarantiaListView,
-    GarantiaCreateView,
-    GarantiaUpdateEstadoView,
-    GarantiaDetailView,
+from app.views.mantenimientos.views import (
+    MantenimientoListView,
+    MantenimientoCreateView,
+    MantenimientoUpdateEstadoView,
+    MantenimientoDetailView,
 )
 
 urlpatterns = [
@@ -177,10 +177,10 @@ urlpatterns = [
     path('clientes/historial-pagos/<int:pk>/', clientes.ClientePagosHistorialView.as_view(), name='clientes_historial_pagos'),
     path('clientes/pago/', clientes.ClientePagoView.as_view(), name='clientes_pago'),
 
-    # --- GARANTIAS ---
-    path('garantias/', GarantiaListView.as_view(), name='garantias_list'),
-    path('garantias/crear/', GarantiaCreateView.as_view(), name='garantias_crear'),
-    path('garantias/estado/<int:pk>/', GarantiaUpdateEstadoView.as_view(), name='garantias_estado'),
-    path('garantias/detalle/<int:pk>/', GarantiaDetailView.as_view(), name='garantias_detalle'),
+    # --- mantenimiento ---
+    path('mantenimientos/', MantenimientoListView.as_view(), name='mantenimientos_list'),
+    path('mantenimientos/crear/', MantenimientoCreateView.as_view(), name='mantenimientos_crear'),
+    path('mantenimientos/estado/<int:pk>/', MantenimientoUpdateEstadoView.as_view(), name='mantenimientos_estado'),
+    path('mantenimientos/detalle/<int:pk>/', MantenimientoDetailView.as_view(), name='mantenimientos_detalle'),
 path('ia/asistente-inventario/', include('ia.urls'), name='asistente_inventario'),
 ]

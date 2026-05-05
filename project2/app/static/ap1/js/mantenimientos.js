@@ -1,4 +1,4 @@
-/* garantias.js — Módulo de Garantías */
+/* mantenimientos.js — Módulo de mantenimiento */
 
 let cfg = {};
 if (document.getElementById('js-config')) {
@@ -23,7 +23,7 @@ function showToast(msg, tipo = 'success') {
 }
 
 $(document).ready(function () {
-  $('#tablaGarantias').DataTable({
+  $('#tablaMantenimientos').DataTable({
     language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
     pageLength: 25,
     order: [[0, 'desc']],
@@ -40,14 +40,14 @@ $(document).ready(function () {
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
 
-      const d = data.garantia;
+      const d = data.mantenimiento;
       document.getElementById('modalTitulo').innerHTML =
-        `<i class="fas fa-screwdriver-wrench"></i> Garantía #${d.id}`;
+        `<i class="fas fa-screwdriver-wrench"></i> Mantenimiento #${d.id}`;
 
       document.getElementById('modalBody').innerHTML = `
         <div class="info-grid" style="display:flex; flex-direction:column; gap:15px;">
           <div class="info-card" style="padding:15px; border-radius:8px; border:1px solid #ddd;">
-            <h4><i class="fas fa-file-invoice"></i> Información de Garantía</h4>
+            <h4><i class="fas fa-file-invoice"></i> Información de Mantenimiento</h4>
             <p><strong>Fecha Solicitud:</strong> ${d.fecha_solicitud}</p>
             <p><strong>Pedido:</strong> ${d.pedido_id ? '#' + d.pedido_id : 'Ninguno'}</p>
             <p><strong>Cliente:</strong> ${d.cliente_nombre}</p>
@@ -96,8 +96,8 @@ $(document).ready(function () {
     }
   });
 
-  /* ── Crear Garantia ───────────────────────────────── */
-  $('#btnNuevaGarantia').click(function(){
+  /* ── Crear Mantenimiento ───────────────────────────────── */
+  $('#btnNuevaMantenimiento').click(function(){
       $('#inpPedido').val('');
       $('#inpProducto').val('');
       $('#inpDescripcion').val('');

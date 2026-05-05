@@ -8,7 +8,7 @@ import asyncio
 from django.conf import settings
 from app.models import (
     categoria, proveedor, respaldo, cliente, usuario, reporte, producto, entrada,
-    garantia, mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
+    mantenimiento, mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
     supervision, despacho, calendario, salida_producto,
     historial_acciones, Notificacion
 )

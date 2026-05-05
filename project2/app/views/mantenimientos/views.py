@@ -5,9 +5,9 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
 
-from ...models import garantia, pedido, producto, Notificacion, usuario, historial_acciones
+from ...models import mantenimiento, pedido, producto, Notificacion, usuario, historial_acciones
 
-def _garantia_to_dict(obj):
+def _mantenimiento_to_dict(obj):
     return {
         'id': obj.id,
         'fecha_solicitud': obj.fecha_solicitud.strftime('%Y-%m-%d'),
@@ -19,26 +19,26 @@ def _garantia_to_dict(obj):
         'estado_display': obj.get_estado_reparacion_display(),
     }
 
-class GarantiaListView(ListView):
-    model = garantia
-    template_name = 'garantias/garantias_list.html'
-    context_object_name = 'garantias'
+class MantenimientoListView(ListView):
+    model = mantenimiento
+    template_name = 'mantenimientos/mantenimientos_list.html'
+    context_object_name = 'mantenimientos'
 
     def get_queryset(self):
-        return garantia.objects.select_related('pedido__cliente', 'producto').order_by('-fecha_solicitud')
+        return mantenimiento.objects.select_related('pedido__cliente', 'producto').order_by('-fecha')
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['pedidos'] = pedido.objects.filter(estado__in=['Despachado', 'Completado']).select_related('cliente').order_by('-id')
         ctx['productos'] = producto.objects.filter(estado=True)
         
-        ctx['total_garantias'] = garantia.objects.count()
-        ctx['recibidas'] = garantia.objects.filter(estado_reparacion='recibida').count()
-        ctx['en_reparacion'] = garantia.objects.filter(estado_reparacion='en_reparacion').count()
-        ctx['entregadas'] = garantia.objects.filter(estado_reparacion='entregada').count()
+        ctx['total_mantenimientos'] = mantenimiento.objects.count()
+        ctx['recibidas'] = mantenimiento.objects.filter(estado_reparacion='recibida').count()
+        ctx['en_reparacion'] = mantenimiento.objects.filter(estado_reparacion='en_reparacion').count()
+        ctx['entregadas'] = mantenimiento.objects.filter(estado_reparacion='entregada').count()
         return ctx
 
-class GarantiaCreateView(View):
+class MantenimientoCreateView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
@@ -52,7 +52,7 @@ class GarantiaCreateView(View):
             ped = get_object_or_404(pedido, pk=pedido_id) if pedido_id else None
             prod = get_object_or_404(producto, pk=producto_id)
 
-            gar = garantia.objects.create(
+            gar = mantenimiento.objects.create(
                 pedido=ped,
                 producto=prod,
                 descripcion_falla=descripcion,
@@ -64,36 +64,36 @@ class GarantiaCreateView(View):
             if admin_user:
                 Notificacion.objects.create(
                     user=admin_user,
-                    tipo='garantia_nueva', # We can use a freeform string or add to TIPO_CHOICES. The model uses max_length 30. We'll use 'garantia_nueva'.
-                    titulo='Nueva Garantía Registrada',
-                    mensaje=f'Garantía #{gar.id} registrada para el producto {prod.nombre}.',
+                    tipo='mantenimiento_nueva', # We can use a freeform string or add to TIPO_CHOICES. The model uses max_length 30. We'll use 'mantenimiento_nueva'.
+                    titulo='Nuevo mantenimiento Registrada',
+                    mensaje=f'Mantenimiento #{gar.id} registrada para el producto {prod.nombre}.',
                     target_id=gar.id
                 )
 
             if request.user.is_authenticated:
                 historial_acciones.objects.create(
-                    modulo='garantias',
+                    modulo='mantenimientos',
                     tipo_accion='crear',
-                    descripcion=f'Registró garantía #{gar.id} para {prod.nombre}',
+                    descripcion=f'Registró mantenimiento #{gar.id} para {prod.nombre}',
                     usuario=request.user
                 )
 
             return JsonResponse({
                 'ok': True,
-                'message': f'Garantía #{gar.id} registrada correctamente.',
-                'garantia': _garantia_to_dict(gar)
+                'message': f'Mantenimiento #{gar.id} registrada correctamente.',
+                'mantenimiento': _mantenimiento_to_dict(gar)
             })
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
-class GarantiaUpdateEstadoView(View):
+class MantenimientoUpdateEstadoView(View):
     def post(self, request, pk, *args, **kwargs):
         try:
-            gar = get_object_or_404(garantia, pk=pk)
+            gar = get_object_or_404(mantenimiento, pk=pk)
             data = json.loads(request.body)
             nuevo_estado = data.get('estado_reparacion')
 
-            if nuevo_estado not in dict(garantia.ESTADO_CHOICES).keys():
+            if nuevo_estado not in dict(mantenimiento.ESTADO_CHOICES).keys():
                 return JsonResponse({'ok': False, 'error': 'Estado inválido.'})
 
             gar.estado_reparacion = nuevo_estado
@@ -101,21 +101,21 @@ class GarantiaUpdateEstadoView(View):
 
             if request.user.is_authenticated:
                 historial_acciones.objects.create(
-                    modulo='garantias',
+                    modulo='mantenimientos',
                     tipo_accion='editar',
-                    descripcion=f'Cambió estado de garantía #{gar.id} a {gar.get_estado_reparacion_display()}',
+                    descripcion=f'Cambió estado de mantenimiento #{gar.id} a {gar.get_estado_reparacion_display()}',
                     usuario=request.user
                 )
 
             return JsonResponse({
                 'ok': True,
-                'message': f'Garantía #{gar.id} actualizada a {gar.get_estado_reparacion_display()}.',
-                'garantia': _garantia_to_dict(gar)
+                'message': f'Mantenimiento #{gar.id} actualizada a {gar.get_estado_reparacion_display()}.',
+                'mantenimiento': _mantenimiento_to_dict(gar)
             })
         except Exception as e:
             return JsonResponse({'ok': False, 'error': str(e)})
 
-class GarantiaDetailView(View):
+class MantenimientoDetailView(View):
     def get(self, request, pk, *args, **kwargs):
-        gar = get_object_or_404(garantia.objects.select_related('pedido__cliente', 'producto'), pk=pk)
-        return JsonResponse({'ok': True, 'garantia': _garantia_to_dict(gar)})
+        gar = get_object_or_404(mantenimiento.objects.select_related('pedido__cliente', 'producto'), pk=pk)
+        return JsonResponse({'ok': True, 'mantenimiento': _mantenimiento_to_dict(gar)})

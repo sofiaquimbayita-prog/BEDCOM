@@ -218,7 +218,7 @@ class entrada(models.Model):
         ordering = ['-fecha']
 
 
-class garantia(models.Model):
+class mantenimiento(models.Model):
     ESTADO_CHOICES = [
         ('recibida', 'Recibida'),
         ('en_reparacion', 'En Reparación'),
@@ -234,23 +234,24 @@ class garantia(models.Model):
     estado = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Garantia para producto {self.id_producto_id}"
+        return f"Mantenimiento para producto {self.id_producto_id}"
 
     class Meta:
-        verbose_name = "Garantía"
-        verbose_name_plural = "Garantías"
-        db_table = "garantias"
+        verbose_name = "mantenimiento "
+        verbose_name_plural = "mantenimientos   "
+        db_table = "mantenimientos"
+
 
 
 class mantenimiento(models.Model):
     fecha = models.DateField()
-    descripcion = models.TextField()
-    # Asumo que id_garantia debe apuntar a Garantia, no a Reporte.
-    id_garantia = models.ForeignKey('garantia', on_delete=models.CASCADE)
-
+    descripcion_falla = models.TextField()
+    estado_reparacion = models.CharField(max_length=50)
+    pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, null=True, blank=True)
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    
     def __str__(self):
         return f"Mantenimiento del {self.fecha}"
-
     class Meta:
         verbose_name = "Mantenimiento"
         verbose_name_plural = "Mantenimientos"
@@ -535,7 +536,7 @@ class historial_acciones(models.Model):
         ('notificaciones', 'Notificaciones'),
         ('pedidos', 'Pedidos'),
         ('despachos', 'Despachos'),
-        ('garantias', 'Garantías'),
+        ('mantenimientos', 'Mantenimientos'),
         ('clientes', 'Clientes'),
     ]
 
@@ -573,7 +574,7 @@ class Notificacion(models.Model):
         ('reporte_generado', 'Reporte generado'),
         ('despacho_completado', 'Despacho completado'),
         ('pago_pendiente', 'Pedido pago pendiente'),
-        ('garantia_nueva', 'Nueva Garantía Registrada'),
+        ('mantenimiento_nueva', 'Nuevo Mantenimiento Registrado'),
     ]
     
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
