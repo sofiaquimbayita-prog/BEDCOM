@@ -408,7 +408,7 @@ class despacho(models.Model):
     responsable = models.CharField(max_length=100, blank=True, null=True)
     empresa_transporte = models.CharField(max_length=100, blank=True, null=True, verbose_name="Transportadora")
     numero_guia = models.CharField(max_length=100, blank=True, null=True, verbose_name="Número de Guía")
-    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    costo_envio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     supervision = models.ForeignKey(
         supervision, on_delete=models.CASCADE, null=True, blank=True)
 

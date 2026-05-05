@@ -1,6 +1,7 @@
 import json
 import re
 import threading
+from decimal import Decimal, InvalidOperation
 from django.db import transaction
 from django.db.models import Sum, Q, F
 from django.http import JsonResponse
@@ -38,7 +39,30 @@ def safe_datetime_str(value):
         return value.strftime('%Y-%m-%dT%H:%M:%S')
     return str(value)
 
-from ...models import despacho, pedido, cliente, detalle_pedido, producto
+
+def parse_cop_amount(value):
+    text = str(value or '').strip()
+    if text == '':
+        return Decimal('0')
+    text = re.sub(r'[^0-9.,]', '', text)
+    comma_count = text.count(',')
+    dot_count = text.count('.')
+
+    if comma_count > 0 and dot_count > 0:
+        if text.rfind(',') > text.rfind('.'):
+            text = text.replace('.', '').replace(',', '.')
+        else:
+            text = text.replace(',', '')
+    elif comma_count > 0:
+        text = text.replace(',', '.')
+    elif dot_count > 1:
+        text = text.replace('.', '')
+
+    parts = text.split('.')
+    if len(parts) > 2:
+        text = parts[0] + '.' + ''.join(parts[1:])
+
+    return Decimal(text)
 
 
 # ─────────────────────────────────────────────
@@ -120,7 +144,7 @@ class DespachoCreateView(View):
             if not empresa or len(empresa) < 2:
                 return JsonResponse({'ok': False, 'field': 'empresa', 'error': 'Nombre del acarreista requerido (mín. 2 caracteres).'})
             
-            telefono = data.get('telefono', '').replace(r'\D', '')
+            telefono = re.sub(r'\D', '', str(data.get('telefono', '') or ''))
             if not re.match(r'^\d{10}$', telefono):
                 return JsonResponse({'ok': False, 'field': 'telefono', 'error': 'Teléfono debe tener exactamente 10 dígitos numéricos.'})
             
@@ -129,12 +153,13 @@ class DespachoCreateView(View):
                 return JsonResponse({'ok': False, 'field': 'guia', 'error': 'Número de placa/guía inválido.'})
             
             try:
-                costo_envio = Decimal(str(data.get('costo_envio', 0)))
+                costo_envio = parse_cop_amount(data.get('costo_envio', 0))
                 if costo_envio < 0:
                     return JsonResponse({'ok': False, 'field': 'costo', 'error': 'Costo de envío no puede ser negativo.'})
-            except:
+                if costo_envio > Decimal('9999999999'):
+                    return JsonResponse({'ok': False, 'field': 'costo', 'error': 'Costo de envío no puede exceder 9.999.999.999 COP.'})
+            except (InvalidOperation, ValueError):
                 return JsonResponse({'ok': False, 'field': 'costo', 'error': 'Costo de envío inválido.'})
-
 
             pedido_obj = get_object_or_404(pedido, pk=pedido_id)
 
@@ -143,8 +168,6 @@ class DespachoCreateView(View):
                     'ok': False,
                     'error': 'El pedido no está en un estado válido para despacharse.'
                 })
-                
-            from decimal import Decimal
             
             # Validación de Pagos
             if not pedido_obj.cliente.es_especial:

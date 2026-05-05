@@ -4,10 +4,10 @@
 {% block header_title %}DESPACHOS{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/despacho_modal_fix.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho_modal_fix.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}?v=4">
 
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
@@ -165,8 +165,8 @@
     </div>
 
     <div class="form-grupo">
-      <label>Costo de Envío <span style="color:var(--color-error)">*</span></label>
-      <input type="number" id="inpCrearCosto" class="form-input" step="0.01" min="0" placeholder="0.00" required>
+      <label>Costo de Envío (COP) <span style="color:var(--color-error)">*</span></label>
+      <input type="text" id="inpCrearCosto" class="form-input" inputmode="decimal" placeholder="0,00" maxlength="15" required title="Ingrese el costo en pesos colombianos, hasta 9.999.999.999">
       <span class="error-msg" id="error-costo" style="display:none"></span>
     </div>
 
@@ -180,8 +180,8 @@
 <!-- Toast -->
 <div class="messages" id="toastContainer"></div>
 
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'ap1/js/despacho.js' %}"></script>
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/despacho.js' %}?v=4"></script>
 
 {% endblock %}

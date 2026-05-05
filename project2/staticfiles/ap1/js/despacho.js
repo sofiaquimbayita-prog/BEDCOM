@@ -1,8 +1,15 @@
 /**
  * DESPACHOS JS
- * Requiere que el template defina ANTES de cargar este script:
- *   CSRF_TOKEN, URL_DETALLE, URL_ESTADO, PENDIENTES
  */
+
+let cfg = {};
+if (document.getElementById('js-config')) {
+  cfg = document.getElementById('js-config').dataset;
+}
+const CSRF_TOKEN = cfg.csrf || '';
+const URL_DETALLE = pk => (cfg.urlDetalle || '').replace('/0/', '/' + pk + '/');
+const URL_ESTADO = pk => (cfg.urlEstado || '').replace('/0/', '/' + pk + '/');
+const PENDIENTES = parseInt(cfg.pendientes || '0', 10);
 
 /* ── Toast ─────────────────────────────────────────── */
 function showToast(msg, tipo = 'success') {
@@ -39,7 +46,7 @@ $(document).ready(function () {
   $(document).on('click', '.btn-ver', async function () {
     const id = this.dataset.id;
     try {
-      const res  = await fetch(`${URL_DETALLE}${id}/`);
+      const res  = await fetch(URL_DETALLE(id));
       const data = await res.json();
 
       if (!data.ok) throw new Error(data.error);
@@ -77,8 +84,8 @@ $(document).ready(function () {
               : ''}
           </div>
           <div class="info-card">
-            <h4><i class="fas fa-truck-loading"></i> Transportadora</h4>
-            <p><strong>Empresa:</strong> ${d.empresa_transporte || 'Propia / Sin asignar'}</p>
+            <h4><i class="fas fa-truck-loading"></i> Datos del Distribuidor</h4>
+            <p><strong>Distribuidor:</strong> ${d.empresa_transporte || 'Propia / Sin asignar'}</p>
             <p><strong>No. Guía:</strong> ${d.numero_guia || '—'}</p>
             <p><strong>Costo:</strong> $${parseFloat(d.costo_envio || 0).toLocaleString('es-CO')}</p>
             <p><strong>Responsable:</strong> ${d.responsable || '—'}</p>
@@ -129,7 +136,7 @@ $(document).ready(function () {
     formData.append('nuevo_estado', nuevoEstado);
 
     try {
-      const res  = await fetch(`${URL_ESTADO}${pk}/`, { method: 'POST', body: formData });
+      const res  = await fetch(URL_ESTADO(pk), { method: 'POST', body: formData });
       const data = await res.json();
 
       if (data.ok) {
@@ -157,25 +164,202 @@ $(document).ready(function () {
   $('#btnNuevoDespacho').on('click', function(){
     $('#inpCrearPedidoId').val('');
     $('#inpCrearEmpresa').val('');
+    $('#inpCrearTelefono').val('');
     $('#inpCrearGuia').val('');
     $('#inpCrearCosto').val('0');
+    $('.error-msg').hide().text('');
+    $('.form-input').removeClass('input-error input-success');
     $('#modalCrearDespacho').addClass('mostrar');
   });
 
+  const normalizeTelefono = value => String(value || '').replace(/\D/g, '').slice(0, 10);
+  const normalizeGuia = value => String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+  const normalizeCosto = value => {
+    let text = String(value || '').trim();
+    text = text.replace(/[^0-9.,]/g, '');
+    if (!text) return '';
+
+    const commaCount = (text.match(/,/g) || []).length;
+    const dotCount = (text.match(/\./g) || []).length;
+
+    if (commaCount > 0 && dotCount > 0) {
+      if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+        text = text.replace(/\./g, '').replace(/,/g, '.');
+      } else {
+        text = text.replace(/,/g, '');
+      }
+    } else if (commaCount > 0) {
+      text = text.replace(/,/g, '.');
+    } else if (dotCount > 1) {
+      text = text.replace(/\./g, '');
+    }
+
+    const parts = text.split('.');
+    if (parts.length > 1) {
+      return parts.shift() + '.' + parts.join('').slice(0, 2);
+    }
+    return text;
+  };
+  const setFieldState = (field, state) => {
+    field.toggleClass('input-error', state === 'error');
+    field.toggleClass('input-success', state === 'success');
+  };
+
+  $(document).on('input', '#inpCrearTelefono', function() {
+    const clean = normalizeTelefono(this.value);
+    if (this.value !== clean) this.value = clean;
+    setFieldState($(this), clean.length === 10 ? 'success' : 'error');
+  });
+
+  $(document).on('keydown', '#inpCrearTelefono', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if ((this.value || '').length >= 10) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key && e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearTelefono', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[0-9]+$/.test(paste)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('input', '#inpCrearGuia', function() {
+    const clean = normalizeGuia(this.value);
+    if (this.value !== clean) this.value = clean;
+    setFieldState($(this), clean.length > 0 ? 'success' : 'error');
+  });
+
+  $(document).on('keydown', '#inpCrearGuia', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if ((this.value || '').length >= 8) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key && e.key.length === 1 && !/^[A-Za-z0-9]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearGuia', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[A-Za-z0-9]+$/.test(paste)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('input', '#inpCrearCosto', function() {
+    const clean = normalizeCosto(this.value);
+    if (this.value !== clean) this.value = clean;
+    const num = Number(clean);
+    setFieldState($(this), clean !== '' && !Number.isNaN(num) && num >= 0 && num <= 9999999999 ? 'success' : 'error');
+  });
+
+  $(document).on('keydown', '#inpCrearCosto', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if (e.key && e.key.length === 1 && !/^[0-9.,]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearCosto', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[0-9.,]+$/.test(paste)) {
+      e.preventDefault();
+    }
+  });
+
   $('#btnGuardarDespacho').on('click', async function(){
-    const pedido_id = $('#inpCrearPedidoId').val();
-    if (!pedido_id) {
-      showToast('Debe seleccionar un pedido', 'error');
+    // Client-side validation
+    const fields = {
+      pedido: $('#inpCrearPedidoId'),
+      empresa: $('#inpCrearEmpresa'),
+      telefono: $('#inpCrearTelefono'),
+      guia: $('#inpCrearGuia'),
+      costo: $('#inpCrearCosto')
+    };
+
+    let valid = true;
+    const errors = {};
+
+    // Reset previous errors
+    $('.error-msg').hide().text('');
+    $('.form-input').removeClass('input-error input-success');
+
+    // Validate each field
+    if (!fields.pedido.val()) {
+      errors.pedido = 'Seleccione un pedido';
+      valid = false;
+      setFieldState(fields.pedido, 'error');
+    } else {
+      setFieldState(fields.pedido, 'success');
+    }
+    const emp = fields.empresa.val().trim();
+    if (!emp || emp.length < 2) {
+      errors.empresa = 'Nombre del acarreista requerido (mín 2 caracteres)';
+      valid = false;
+      setFieldState(fields.empresa, 'error');
+    } else {
+      setFieldState(fields.empresa, 'success');
+    }
+
+    const tel = normalizeTelefono(fields.telefono.val());
+    fields.telefono.val(tel);
+    const telefonoValido = /^[0-9]{10}$/.test(tel);
+    if (!telefonoValido) {
+      errors.telefono = 'El teléfono debe tener exactamente 10 dígitos numéricos';
+      valid = false;
+      setFieldState(fields.telefono, 'error');
+    } else {
+      setFieldState(fields.telefono, 'success');
+    }
+
+    const gui = normalizeGuia(fields.guia.val());
+    fields.guia.val(gui);
+    if (!/^[A-Z0-9]{1,8}$/.test(gui)) {
+      errors.guia = 'Placa: solo letras y números (máx 8 caracteres)';
+      valid = false;
+      setFieldState(fields.guia, 'error');
+    } else {
+      setFieldState(fields.guia, 'success');
+    }
+    const cleanedCosto = normalizeCosto(fields.costo.val());
+    fields.costo.val(cleanedCosto);
+    const cos = Number(cleanedCosto);
+    if (cleanedCosto === '' || Number.isNaN(cos) || cos < 0 || cos > 9999999999) {
+      errors.costo = 'Costo de envío inválido. Ingrese hasta 9.999.999.999 COP';
+      valid = false;
+      setFieldState(fields.costo, 'error');
+    } else {
+      setFieldState(fields.costo, 'success');
+    }
+
+    if (!valid) {
+      // Show errors
+      Object.keys(errors).forEach(key => {
+        $(`#error-${key}`).text(errors[key]).show();
+        fields[key].addClass('input-error');
+      });
+      fields.pedido.focus();
+      showToast('Corrija los errores en el formulario', 'error');
       return;
     }
 
-    const empresa = $('#inpCrearEmpresa').val().trim();
-    const guia = $('#inpCrearGuia').val().trim();
-    const costo = parseFloat($('#inpCrearCosto').val()) || 0;
-
+    const pedido_id = fields.pedido.val();
     const btn = $(this);
     const originalHtml = btn.html();
-    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
 
     try {
       const res = await fetch('/vistas/despacho/crear/', {
@@ -183,9 +367,10 @@ $(document).ready(function () {
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({
           pedido_id: pedido_id,
-          empresa_transporte: empresa,
-          numero_guia: guia,
-          costo_envio: costo
+          empresa_transporte: emp,
+          numero_guia: gui,
+          costo_envio: cos,
+          telefono: tel  // Send cleaned
         })
       });
       const data = await res.json();
@@ -194,8 +379,14 @@ $(document).ready(function () {
         showToast(data.message);
         $('#modalCrearDespacho').removeClass('mostrar');
         setTimeout(() => location.reload(), 1000);
-      } else {
+      } else if (data.field) {
+        // Server field error
+        $(`#error-${data.field}`).text(data.error).show();
+        fields[data.field].addClass('input-error').focus();
         showToast(data.error, 'error');
+        btn.prop('disabled', false).html(originalHtml);
+      } else {
+        showToast(data.error || 'Error desconocido', 'error');
         btn.prop('disabled', false).html(originalHtml);
       }
     } catch(e) {
@@ -203,6 +394,7 @@ $(document).ready(function () {
       btn.prop('disabled', false).html(originalHtml);
     }
   });
+
 
   /* ── Cierre de Modales ──────────────────────────────── */
   $(document).on('click', '[data-close]', function () {

@@ -164,21 +164,62 @@ $(document).ready(function () {
   $('#btnNuevoDespacho').on('click', function(){
     $('#inpCrearPedidoId').val('');
     $('#inpCrearEmpresa').val('');
+    $('#inpCrearTelefono').val('');
     $('#inpCrearGuia').val('');
     $('#inpCrearCosto').val('0');
+    $('.error-msg').hide().text('');
+    $('.form-input').removeClass('input-error input-success');
     $('#modalCrearDespacho').addClass('mostrar');
   });
 
-  // Strict phone and placa input filtering
+  const normalizeTelefono = value => String(value || '').replace(/\D/g, '').slice(0, 10);
+  const normalizeGuia = value => String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+  const normalizeCosto = value => {
+    let text = String(value || '').trim();
+    text = text.replace(/[^0-9.,]/g, '');
+    if (!text) return '';
+
+    const commaCount = (text.match(/,/g) || []).length;
+    const dotCount = (text.match(/\./g) || []).length;
+
+    if (commaCount > 0 && dotCount > 0) {
+      if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+        text = text.replace(/\./g, '').replace(/,/g, '.');
+      } else {
+        text = text.replace(/,/g, '');
+      }
+    } else if (commaCount > 0) {
+      text = text.replace(/,/g, '.');
+    } else if (dotCount > 1) {
+      text = text.replace(/\./g, '');
+    }
+
+    const parts = text.split('.');
+    if (parts.length > 1) {
+      return parts.shift() + '.' + parts.join('').slice(0, 2);
+    }
+    return text;
+  };
+  const setFieldState = (field, state) => {
+    field.toggleClass('input-error', state === 'error');
+    field.toggleClass('input-success', state === 'success');
+  };
+
+  $(document).on('input', '#inpCrearTelefono', function() {
+    const clean = normalizeTelefono(this.value);
+    if (this.value !== clean) this.value = clean;
+    setFieldState($(this), clean.length === 10 ? 'success' : 'error');
+  });
+
   $(document).on('keydown', '#inpCrearTelefono', function(e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40];
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
     if (allowedKeys.includes(e.keyCode)) return;
-    if (this.value.length >= 10) {
+    if ((this.value || '').length >= 10) {
       e.preventDefault();
       return;
     }
-    if (e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
+    if (e.key && e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
       e.preventDefault();
     }
   });
@@ -190,20 +231,21 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on('input', '#inpCrearTelefono', function() {
-    const clean = this.value.replace(/\D/g, '').slice(0, 10);
+  $(document).on('input', '#inpCrearGuia', function() {
+    const clean = normalizeGuia(this.value);
     if (this.value !== clean) this.value = clean;
+    setFieldState($(this), clean.length > 0 ? 'success' : 'error');
   });
 
   $(document).on('keydown', '#inpCrearGuia', function(e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40];
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
     if (allowedKeys.includes(e.keyCode)) return;
-    if (this.value.length >= 8) {
+    if ((this.value || '').length >= 8) {
       e.preventDefault();
       return;
     }
-    if (e.key.length === 1 && !/^[A-Za-z0-9]$/.test(e.key)) {
+    if (e.key && e.key.length === 1 && !/^[A-Za-z0-9]$/.test(e.key)) {
       e.preventDefault();
     }
   });
@@ -215,9 +257,27 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on('input', '#inpCrearGuia', function() {
-    const clean = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+  $(document).on('input', '#inpCrearCosto', function() {
+    const clean = normalizeCosto(this.value);
     if (this.value !== clean) this.value = clean;
+    const num = Number(clean);
+    setFieldState($(this), clean !== '' && !Number.isNaN(num) && num >= 0 && num <= 9999999999 ? 'success' : 'error');
+  });
+
+  $(document).on('keydown', '#inpCrearCosto', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if (e.key && e.key.length === 1 && !/^[0-9.,]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearCosto', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (!/^[0-9.,]+$/.test(paste)) {
+      e.preventDefault();
+    }
   });
 
   $('#btnGuardarDespacho').on('click', async function(){
@@ -235,34 +295,54 @@ $(document).ready(function () {
 
     // Reset previous errors
     $('.error-msg').hide().text('');
-    $('.form-input').removeClass('input-error');
+    $('.form-input').removeClass('input-error input-success');
 
     // Validate each field
     if (!fields.pedido.val()) {
       errors.pedido = 'Seleccione un pedido';
       valid = false;
+      setFieldState(fields.pedido, 'error');
+    } else {
+      setFieldState(fields.pedido, 'success');
     }
     const emp = fields.empresa.val().trim();
     if (!emp || emp.length < 2) {
       errors.empresa = 'Nombre del acarreista requerido (mín 2 caracteres)';
       valid = false;
+      setFieldState(fields.empresa, 'error');
+    } else {
+      setFieldState(fields.empresa, 'success');
     }
-   const tel = fields.telefono.val();
 
-if (!/^[0-9]{10}$/.test(tel)) {
-  errors.telefono = 'El teléfono debe tener exactamente 10 dígitos numéricos';
-  valid = false;
-}
-   const gui = fields.guia.val().trim();
-
-if (!/^[a-zA-Z0-9]{1,8}$/.test(gui)) {
-  errors.guia = 'Placa: solo letras y números (máx 8 caracteres)';
-  valid = false;
-}
-    const cos = parseFloat(fields.costo.val()) || 0;
-    if (cos < 0) {
-      errors.costo = 'Costo no puede ser negativo';
+    const tel = normalizeTelefono(fields.telefono.val());
+    fields.telefono.val(tel);
+    const telefonoValido = /^[0-9]{10}$/.test(tel);
+    if (!telefonoValido) {
+      errors.telefono = 'El teléfono debe tener exactamente 10 dígitos numéricos';
       valid = false;
+      setFieldState(fields.telefono, 'error');
+    } else {
+      setFieldState(fields.telefono, 'success');
+    }
+
+    const gui = normalizeGuia(fields.guia.val());
+    fields.guia.val(gui);
+    if (!/^[A-Z0-9]{1,8}$/.test(gui)) {
+      errors.guia = 'Placa: solo letras y números (máx 8 caracteres)';
+      valid = false;
+      setFieldState(fields.guia, 'error');
+    } else {
+      setFieldState(fields.guia, 'success');
+    }
+    const cleanedCosto = normalizeCosto(fields.costo.val());
+    fields.costo.val(cleanedCosto);
+    const cos = Number(cleanedCosto);
+    if (cleanedCosto === '' || Number.isNaN(cos) || cos < 0 || cos > 9999999999) {
+      errors.costo = 'Costo de envío inválido. Ingrese hasta 9.999.999.999 COP';
+      valid = false;
+      setFieldState(fields.costo, 'error');
+    } else {
+      setFieldState(fields.costo, 'success');
     }
 
     if (!valid) {
