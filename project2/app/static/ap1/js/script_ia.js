@@ -230,4 +230,3 @@ window.enviarConsultaIA = function() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Asistente Luna cargado.");
 });
-

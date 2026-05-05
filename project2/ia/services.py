@@ -8,7 +8,7 @@ import re
 from django.conf import settings
 from app.models import (
     categoria, proveedor, respaldo, cliente, usuario, reporte, producto, entrada,
-    garantia, mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
+    mantenimiento, insumo, bom, compra, pedido, detalle_pedido, pago,
     supervision, despacho, calendario, salida_producto,
     historial_acciones, Notificacion
 )
@@ -124,7 +124,6 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
             'pago': (pago, ['pedido'], lambda i, pa: f"{i}. Pedido #{pa.pedido_id} (monto:{pa.monto}, {pa.fecha_pago}, estado:{pa.estado})"),
             'supervision': (supervision, ['usuario'], lambda i, s: f"{i}. **{s.descripcion[:40]}** ({s.fecha.date()}, user:{s.usuario.username})"),
             'despacho': (despacho, ['pedido'], lambda i, d: f"{i}. #{d.id} (estado:{d.estado}, pedido:#{d.pedido_id}, {d.fecha_despacho.date()}, guía:{d.numero_guia or 'N/A'})"),
-            'garantia': (garantia, ['producto'], lambda i, g: f"{i}. #{g.id} (estado:{g.estado_reparacion}, producto:{getattr(g.producto,'nombre','N/A')}, {g.fecha_solicitud})"),
             'mantenimiento': (mantenimiento, [], lambda i, m: f"{i}. **{m.descripcion[:40]}** ({m.fecha}, garantia:#{getattr(m.id_garantia,'id', 'N/A')})"),
             'historial': (historial_acciones, ['usuario'], lambda i, h: f"{i}. {h.tipo_accion} {h.modulo} (user:{h.usuario.username}, {h.fecha.strftime('%d/%m %H:%M')}, desc:{h.descripcion[:20]})"),
             'notificacion': (Notificacion, ['user'], lambda i, n: f"{i}. **{n.titulo[:25]}** ({n.tipo}, {'Leída' if n.leida else 'Nueva'}, user:{n.user.username}, {n.fecha_notif.strftime('%H:%M')})"),
@@ -142,7 +141,7 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
 
         if not summaries or 'todos' in pregunta_lower:
             model_counts = {}
-            for model_cls in [producto, cliente, pedido, calendario, despacho, garantia, bom, respaldo, Notificacion, historial_acciones, proveedor, entrada]:
+            for model_cls in [producto, cliente, pedido, calendario, despacho, bom, respaldo, Notificacion, historial_acciones, proveedor, entrada]:
                 try:
                     count = model_cls.objects.count()
                     model_counts[model_cls._meta.verbose_name_plural or model_cls.__name__] = str(count)

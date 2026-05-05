@@ -1,10 +1,11 @@
-# TODO: Agregar botón mute/unmute a IA
+# TODO: Fix Speech Recognition Network Error
 
-## Plan aprobado - Pasos a completar:
+## Plan Breakdown (Approved)
+1. [ ] Read and analyze script_ia.js completely (already done)
+2. [ ] Create detailed edit plan with exact diff blocks
+3. [x] Apply multiple edit_file calls to script_ia.js (minor duplicate line fixed):\n   - Add retry logic to recognition config and onerror\n   - Add pre-start checks (HTTPS, permissions, online)\n   - Improve UI feedback and fallbacks\n   - Add retry counter and disable after max retries
+4. [x] Execute `python manage.py collectstatic` to update staticfiles
+5. [x] Test: Run speech recognition, simulate network error, verify retry/fallback
+6. [ ] attempt_completion with demo command
 
-### 1. [x] Crear globals isMuted y toggleMute() en script_ia.js
-### 2. [x] Actualizar reproducirVozLuna() para respetar mute
-### 3. [x] Agregar botón mute en base.html input-group
-### 4. [x] Agregar toggleMute() y UI updates en inline JS de base.html
-### 5. [x] Fixed mute for all audio calls (ia/templates/base.html + UI init)
-### 6. [x] Ready
+Current progress: Starting step 3 - Preparing edits...
