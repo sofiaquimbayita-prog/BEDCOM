@@ -10,65 +10,44 @@
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
     
-    <style>
-        /* Estilo para los mensajes de Django */
-        .mensaje-django {
-            padding: 14px 18px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            animation: mensajeSlideIn 0.4s ease;
-        }
-
-        @keyframes mensajeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .mensaje-exito {
-            background: linear-gradient(135deg, var(--success-bg-start) 0%, var(--success-bg-end) 100%);
-            color: var(--success-text);
-            border: 1px solid var(--success-border);
-        }
-
-        .mensaje-exito i {
-            font-size: 18px;
-        }
-
-        .mensaje-error {
-            background-color: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid var(--error-border);
-        }
-
-        .error-django {
-            background-color: var(--error-bg);
-            color: var(--error-text);
-            padding: 14px 18px;
-            border-radius: 10px;
-            border: 1px solid var(--error-border);
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'ap1/css/global_messages.css' %}">
+    <script src="{% static 'ap1/js/menu.js' %}" defer></script>
 </head>
 <body>
+
+<!-- GLOBAL TOAST CONTAINER (login autónomo) -->
+<div id="global-toast-container"></div>
+<script>
+(function() {
+    var _shiftTimer = null;
+    function _dismiss(toast) {
+        if (toast._dismissed) return;
+        toast._dismissed = true;
+        toast.classList.add('toast-exit');
+        setTimeout(function() {
+            toast.remove();
+            var c = document.getElementById('global-toast-container');
+            if (c && c.children.length === 0) { c.classList.remove('toast-shifted'); clearTimeout(_shiftTimer); _shiftTimer = null; }
+        }, 400);
+    }
+    window.showToast = function(msg, tipo) {
+        tipo = tipo || 'success';
+        if (tipo === 'danger') tipo = 'error';
+        var container = document.getElementById('global-toast-container');
+        if (!container) return;
+        var iconMap = { success:'fa-check-circle', warning:'fa-exclamation-triangle', error:'fa-times-circle', info:'fa-info-circle' };
+        var toast = document.createElement('div');
+        toast.className = 'toast-item toast-' + tipo;
+        toast.innerHTML = '<div class="toast-content"><span class="toast-icon"><i class="fas ' + (iconMap[tipo]||iconMap.info) + '"></i></span><span class="toast-text">' + msg + '</span></div><button type="button" class="toast-close"><i class="fas fa-times"></i></button>';
+        toast.querySelector('.toast-close').onclick = function() { _dismiss(toast); };
+        container.appendChild(toast);
+        requestAnimationFrame(function() { requestAnimationFrame(function() { toast.classList.add('toast-visible'); }); });
+        if (!_shiftTimer) { _shiftTimer = setTimeout(function() { container.classList.add('toast-shifted'); }, 1200); }
+        setTimeout(function() { _dismiss(toast); }, 5500);
+    };
+    window.mostrarMensaje = function(tipo, texto) { window.showToast(texto, tipo); };
+})();
+</script>
 
 
 
@@ -91,18 +70,17 @@
                     </div>
                 {% endif %}
                 
+                <!-- Global Toast Container — poblado solo por JS -->
+                <div id="global-toast-container"></div>
+
                 {% if messages %}
-                    {% for message in messages %}
-                        {% if message.tags == 'success' %}
-                            <div class="mensaje-django mensaje-exito">
-                                <i class="fas fa-check-circle"></i> {{ message }}
-                            </div>
-                        {% else %}
-                            <div class="mensaje-django mensaje-error">
-                                <i class="fa-solid fa-circle-info"></i> {{ message }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        {% for message in messages %}
+                        window.showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+                        {% endfor %}
+                    });
+                </script>
                 {% endif %}
                 
                 <label for="loginCorreo" class="label" data-i18n="label-correo">Correo electrónico</label>

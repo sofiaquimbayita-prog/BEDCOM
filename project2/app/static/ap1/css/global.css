@@ -485,75 +485,7 @@ body {
     background: var(--color-botones-hover);
     transform: translateY(-2px);
 }
-.error-msg {
-  display: none; 
-  border: none;
-  border-left: 4px solid #ff4757;
-  background-color: rgba(255, 71, 87, 0.1);
-  color: #f4f4f4;
-  font-size: 0.95em;
-  padding: 12px 15px;
-  margin: 8px 0 15px;
-  align-items: center;
-  border-radius: 0 8px 8px 0;
-  font-weight: 500;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  animation: slideIn 0.3s ease-out;
-  position: relative;
-  overflow: hidden;
-}
 
-
-.error-msg::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: linear-gradient(to bottom, #ff4757, #ff6b81);
-}
-
-.error-msg i {
-  margin-right: 10px;
-  font-size: 1.1em;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Efecto al pasar el ratón */
-.error-msg:hover {
-  transform: translateX(3px);
-  transition: transform 0.2s ease;
-}
-
-/* Versiones alternativas para diferentes tipos de mensaje */
-.error-msg.warning {
-  border-left-color: #ff9f43;
-  background-color: rgba(255, 159, 67, 0.1);
-  color: #cc7f30;
-}
-
-.error-msg.success {
-  border-left-color: #2ed573;
-  background-color: rgba(46, 213, 115, 0.1);
-  color: #23ad5c;
-}
-
-.error-msg.info {
-  border-left-color: #1e90ff;
-  background-color: rgba(30, 144, 255, 0.1);
-  color: #1c7ed6;
-}
 
 .password-container {
   position: relative;

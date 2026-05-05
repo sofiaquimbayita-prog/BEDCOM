@@ -21,16 +21,7 @@ if (document.getElementById('clientes-data')) {
   CLIENTES_DATA = JSON.parse(document.getElementById('clientes-data').textContent);
 }
 
-function showToast(msg, tipo='success'){
-  const c=document.getElementById('toastContainer');
-  if(!c)return;
-  const d=document.createElement('div');
-  const icon=tipo==='success'?'fa-check-circle':tipo==='error'?'fa-times-circle':'fa-info-circle';
-  d.className=`message message--${tipo}`;
-  d.innerHTML=`<i class="fas ${icon}"></i><span>${msg}</span>`;
-  c.appendChild(d);
-  setTimeout(()=>d.remove(),3500);
-}
+
 
 function openModal(id){
   document.querySelectorAll('.modal').forEach(modal => {
@@ -96,15 +87,15 @@ $(document).on('change', '.ped-estado-select', async function(){
       this.dataset.estadoActual=nuevo;
       this.className=`ped-estado-select estado-${nuevo.toLowerCase()}`;
       this.closest('tr').dataset.anulado=nuevo==='Anulado'?'true':'false';
-      showToast(data.message);
+      window.showToast(data.message);
       setTimeout(()=>location.reload(),1000);
     }else{
       this.value=anterior;
-      showToast(data.error,'error');
+      window.showToast(data.error,'error');
     }
   }catch(e){
     this.value=anterior;
-    showToast('Error al cambiar estado','error');
+    window.showToast('Error al cambiar estado','error');
   }
 });
 
@@ -112,7 +103,7 @@ $(document).on('click', '.btn-ver', async function(){
   try{
     const res=await fetch(URL_VER(this.dataset.id));
     const data=await res.json();
-    if(!data.ok){showToast(data.error,'error');return;}
+    if(!data.ok){window.showToast(data.error,'error');return;}
     const p=data.pedido;
     document.getElementById('verTitulo').textContent=`Pedido #${p.id}`;
     document.getElementById('verInfoCliente').innerHTML=`
@@ -131,7 +122,7 @@ $(document).on('click', '.btn-ver', async function(){
     `).join('');
     document.getElementById('verTotal').textContent=`$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:0})}`;
     openModal('modalVer');
-  }catch(e){showToast('Error al cargar detalle','error');}
+  }catch(e){window.showToast('Error al cargar detalle','error');}
 });
 
 // 5. Botón EDITAR
@@ -139,7 +130,7 @@ $(document).on('click', '.btn-editar', async function(){
   try{
     const res=await fetch(URL_VER(this.dataset.id));
     const data=await res.json();
-    if(!data.ok){showToast(data.error,'error');return;}
+    if(!data.ok){window.showToast(data.error,'error');return;}
     const p=data.pedido;
     modoEdicion=true;
     pedidoEditandoId=this.dataset.id;
@@ -155,7 +146,7 @@ $(document).on('click', '.btn-editar', async function(){
     if(abonoInput)abonoInput.value=parseFloat(p.abono||0);
     recalcular();
     openModal('modalForm');
-  }catch(e){showToast('Error al cargar pedido','error');}
+  }catch(e){window.showToast('Error al cargar pedido','error');}
 });
 
 // ✅ BUG CORREGIDO PRINCIPAL: el modal de pago no abría porque el listener
@@ -218,7 +209,7 @@ $(document).on('click', '#btnGuardarPago', async function(){
 
     if(data.ok){
       closeModal('modalPago');
-      showToast(data.message);
+      window.showToast(data.message);
       setTimeout(()=>location.reload(), 1200);
     } else {
       alerta.textContent = data.error;
@@ -541,7 +532,7 @@ if(btnGuardar){
       if(btn){ btn.disabled = false; btn.innerHTML = originalHtml; }
       if(data.ok){
         closeModal('modalForm');
-        showToast(data.message);
+        window.showToast(data.message);
         setTimeout(()=>location.reload(), 1200);
       } else {
         if(alerta){ alerta.textContent = data.error; alerta.style.display = 'block'; }

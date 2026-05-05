@@ -656,66 +656,8 @@ function cerrarModal(modalId) {
     }
 }
 
-// Función para mostrar mensajes toast
-function mostrarMensaje(tipo, mensaje) {
-    const container = document.getElementById('toast-container');
-    if (!container) {
-        // Crear contenedor si no existe
-        const newContainer = document.createElement('div');
-        newContainer.className = 'messages';
-        newContainer.id = 'toast-container';
-        document.body.appendChild(newContainer);
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = `message ${tipo}`;
-    
-    let icon = '';
-    if (tipo === 'success') icon = '<i class="fas fa-check-circle"></i>';
-    else if (tipo === 'error') icon = '<i class="fas fa-times-circle"></i>';
-    else if (tipo === 'warning') icon = '<i class="fas fa-exclamation-triangle"></i>';
-    else icon = '<i class="fas fa-info-circle"></i>';
-    
-    toast.innerHTML = `
-        <div class="message-content">
-            ${icon}
-            <span class="text">${mensaje}</span>
-        </div>
-        <button type="button" class="close-toast" onclick="cerrarToast(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    const toastContainer = document.getElementById('toast-container');
-    toastContainer.appendChild(toast);
-    
-    // Auto cerrar después de 5 segundos
-    setTimeout(() => {
-        cerrarToast(toast.querySelector('.close-toast'));
-    }, 5000);
-}
-
-// Función para cerrar toast individual
-function cerrarToast(btn) {
-    const toast = btn.closest('.message');
-    if (toast) {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }
-}
-
-// Función para cerrar todos los toasts
-function cerrarTodosLosToasts() {
-    const toasts = document.querySelectorAll('.message');
-    toasts.forEach(toast => {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    });
-}
+// Toast → usa window.mostrarMensaje() y window.showToast() global (base.html)
+// Todas las llamadas a mostrarMensaje(tipo, texto) usan el alias global.
 
 // Función para editar un registro BOM - abrir modal de edición de receta
 function editarBom(productoId) {
@@ -846,19 +788,5 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Animación para cerrar toast
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-    }
-`;
-document.head.appendChild(style);
+// Toast animations are handled by global_messages.css
 

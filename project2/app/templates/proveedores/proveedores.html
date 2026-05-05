@@ -7,26 +7,6 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-{% if messages %}
-<div class="messages-container" id="toast-container">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">
-        <div class="message-content">
-            {% if message.tags == 'success' %}
-                <i class="fas fa-check-circle"></i>
-            {% else %}
-                <i class="fas fa-exclamation-circle"></i>
-            {% endif %}
-            <span class="text">{{ message }}</span>
-        </div>
-        <button type="button" class="close-toast" onclick="cerrarToast(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <main class="proveedores">
     <div class="toolbar">
         <div class="toolbar-left">

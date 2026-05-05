@@ -8,9 +8,45 @@
   <link rel="stylesheet" href="{% static 'ap1/css/global.css' %}">
   <link rel="stylesheet" href="{% static 'ap1/css/styles_crear_usuario.css' %}">
   <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'ap1/css/global_messages.css' %}">
+  <script src="{% static 'ap1/js/menu.js' %}" defer></script>
   <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/png">
 </head>
 <body>
+
+<!-- GLOBAL TOAST CONTAINER (seguridad autónomo) -->
+<div id="global-toast-container"></div>
+<script>
+(function() {
+    var _shiftTimer = null;
+    function _dismiss(toast) {
+        if (toast._dismissed) return;
+        toast._dismissed = true;
+        toast.classList.add('toast-exit');
+        setTimeout(function() {
+            toast.remove();
+            var c = document.getElementById('global-toast-container');
+            if (c && c.children.length === 0) { c.classList.remove('toast-shifted'); clearTimeout(_shiftTimer); _shiftTimer = null; }
+        }, 400);
+    }
+    window.showToast = function(msg, tipo) {
+        tipo = tipo || 'success';
+        if (tipo === 'danger') tipo = 'error';
+        var container = document.getElementById('global-toast-container');
+        if (!container) return;
+        var iconMap = { success:'fa-check-circle', warning:'fa-exclamation-triangle', error:'fa-times-circle', info:'fa-info-circle' };
+        var toast = document.createElement('div');
+        toast.className = 'toast-item toast-' + tipo;
+        toast.innerHTML = '<div class="toast-content"><span class="toast-icon"><i class="fas ' + (iconMap[tipo]||iconMap.info) + '"></i></span><span class="toast-text">' + msg + '</span></div><button type="button" class="toast-close"><i class="fas fa-times"></i></button>';
+        toast.querySelector('.toast-close').onclick = function() { _dismiss(toast); };
+        container.appendChild(toast);
+        requestAnimationFrame(function() { requestAnimationFrame(function() { toast.classList.add('toast-visible'); }); });
+        if (!_shiftTimer) { _shiftTimer = setTimeout(function() { container.classList.add('toast-shifted'); }, 1200); }
+        setTimeout(function() { _dismiss(toast); }, 5500);
+    };
+    window.mostrarMensaje = function(tipo, texto) { window.showToast(texto, tipo); };
+})();
+</script>
  <!-- Botón de Idioma - Esquina Superior Derecha -->
 
 
@@ -24,26 +60,17 @@
 
   <div class="contenedor">
 <div class="formulario">
+  <!-- Global Toast Container — poblado solo por JS -->
+  <div id="global-toast-container"></div>
+
   {% if messages %}
-    <div class="messages-container" id="toast-container">
-      {% for message in messages %}
-        <div class="message {{ message.tags }}">
-          <div class="message-content">
-            {% if message.tags == 'success' or message.tags == 'info' %}
-              <i class="fas fa-check-circle"></i>
-            {% elif message.tags == 'error' or message.tags == 'danger' %}
-              <i class="fas fa-times-circle"></i>
-            {% else %}
-              <i class="fas fa-info-circle"></i>
-            {% endif %}
-            <span>{{ message }}</span>
-          </div>
-          <button type="button" class="close-toast" onclick="cerrarToast(this)">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      {% endfor %}
-    </div>
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          {% for message in messages %}
+          window.showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+          {% endfor %}
+      });
+  </script>
   {% endif %}
   <form id="cambiarContrasenaForm" method="post" novalidate>
         {% csrf_token %}
@@ -158,48 +185,13 @@
       }
     }
 
-    function mostrarMensaje(tipo, texto) {
-      let cont = document.getElementById('toast-container') || crearToastContainer();
-      let msg = document.createElement('div');
-      msg.className = `message ${tipo}`;
-      msg.innerHTML = `
-        <div class="message-content">
-          <i class="fas fa-${tipo === 'success' ? 'check' : 'times'}-circle"></i>
-          <span>${texto}</span>
-        </div>
-        <button class="close-toast" onclick="cerrarToast(this)"><i class="fas fa-times"></i></button>
-      `;
-      cont.appendChild(msg);
-      setTimeout(() => cerrarToast(msg.querySelector('.close-toast')), 5000);
-    }
-
-    function crearToastContainer() {
-      let c = document.createElement('div');
-      c.id = 'toast-container';
-      c.className = 'messages-container';
-      document.querySelector('.contenedor').prepend(c);
-      return c;
-    }
-
-    function cerrarToast(btn) {
-      btn.closest('.message').style.animation = 'slideOutToast .3s';
-      setTimeout(() => btn.closest('.message').remove(), 300);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      validarEnTiempoReal();
       document.getElementById('cambiarContrasenaForm').addEventListener('submit', function(e) {
         let valido = this.checkValidity();
         if (!valido) {
           e.preventDefault();
-          mostrarMensaje('error', 'Corrige los errores antes de enviar.');
+          if (window.showToast) window.showToast('Corrige los errores antes de enviar.', 'error');
         }
       });
-      // Auto-close existing toasts
-      document.querySelectorAll('.message').forEach(msg => {
-        setTimeout(() => cerrarToast(msg.querySelector('.close-toast')), 5000);
-      });
-    });
   </script>
 </body>
 </html>

@@ -26,48 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ============================
-  // TOAST NOTIFICATIONS
+  // GLOBAL TOAST NOTIFICATIONS
+  // window.showToast() ya está definido en base.html (carga antes del body).
+  // Este archivo NO debe redefinirlo. Se usa directamente donde se necesite.
   // ============================
-  
-  // Función para cerrar toast
-  window.cerrarToast = function(btn) {
-    const toast = btn.closest('.message');
-    if (toast) {
-      toast.style.animation = 'slideOut 0.3s ease forwards';
-      setTimeout(() => {
-        toast.remove();
-      }, 300);
-    }
-  };
-
-  // Agregar animación de salida
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Auto-cerrar toast después de 5 segundos
-  const toasts = document.querySelectorAll('.message');
-  toasts.forEach(toast => {
-    setTimeout(() => {
-      if (toast && toast.parentElement) {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-          toast.remove();
-        }, 300);
-      }
-    }, 5000);
-  });
 
   // PERFIL Y LOGOUT - with null checks
   const perfilBtn = document.getElementById("perfilBtn");
@@ -217,54 +179,11 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Toast success como otros módulos
-          const toast = document.createElement('div');
-          toast.className = 'message success';
-          toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 350px;';
-          toast.innerHTML = `
-            <div class="message-content">
-              <i class="fas fa-check-circle"></i>
-              <span>Perfil actualizado correctamente</span>
-            </div>
-            <button onclick="cerrarToast(this)" class="close-toast">
-              <i class="fas fa-times"></i>
-            </button>
-          `;
-          document.body.appendChild(toast);
-          
-          // Auto cerrar toast después de 5s
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.style.animation = 'slideOut 0.3s ease forwards';
-              setTimeout(() => toast.remove(), 300);
-            }
-          }, 5000);
-          
+          window.showToast('Perfil actualizado correctamente', 'success');
           cerrarModalPerfilFunc();
           setTimeout(() => location.reload(), 2000);
         } else {
-          // Toast error
-          const toast = document.createElement('div');
-          toast.className = 'message error';
-          toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; max-width: 350px;';
-          toast.innerHTML = `
-            <div class="message-content">
-              <i class="fas fa-exclamation-circle"></i>
-              <span>Error: ${data.error}</span>
-            </div>
-            <button onclick="cerrarToast(this)" class="close-toast">
-              <i class="fas fa-times"></i>
-            </button>
-          `;
-          document.body.appendChild(toast);
-          
-          // Auto cerrar después de 6s
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.style.animation = 'slideOut 0.3s ease forwards';
-              setTimeout(() => toast.remove(), 300);
-            }
-          }, 6000);
+          window.showToast('Error: ' + (data.error || 'No se pudo actualizar el perfil'), 'error');
         }
       })
       .catch(error => {

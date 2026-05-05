@@ -1,39 +1,14 @@
 $(document).ready(function () {
 
     /* 
-       TOAST SYSTEM
+       TOAST SYSTEM → delega a window.showToast() global (base.html)
      */
-    function obtenerContenedor() {
-        let $c = $('#toast-container');
-        if (!$c.length) { $c = $('<div class="messages" id="toast-container"></div>'); $('body').append($c); }
-        return $c;
-    }
-    function mostrarToast(tipo, texto, duracion = 4500) {
-        const iconos = { success: 'fa-circle-check', warning: 'fa-triangle-exclamation', error: 'fa-circle-xmark' };
-        const $toast = $(`
-            <div class="message ${tipo}">
-                <div class="message-content">
-                    <i class="fas ${iconos[tipo] || 'fa-circle-info'}"></i>
-                    <span class="text">${texto}</span>
-                </div>
-                <button type="button" class="close-toast" aria-label="Cerrar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `);
-        $toast.find('.close-toast').on('click', () => cerrarToastElement($toast));
-        obtenerContenedor().append($toast);
-        $toast[0].offsetHeight;
-        $toast.addClass('toast-visible');
-        if (duracion > 0) setTimeout(() => cerrarToastElement($toast), duracion);
-    }
-    function cerrarToastElement($t) { $t.addClass('fade-out'); setTimeout(() => $t.remove(), 400); }
-
     const Alerta = {
-        exito(titulo, texto)       { mostrarToast('success', `<strong>${titulo}</strong> ${texto}`); },
-        advertencia(titulo, texto) { mostrarToast('warning', `<strong>${titulo}:</strong> ${texto}`, 0); },
-        error(titulo, texto)       { mostrarToast('error',   `<strong>${titulo}:</strong> ${texto}`, 0); },
+        exito(titulo, texto)       { window.showToast(`<strong>${titulo}</strong> ${texto}`, 'success'); },
+        advertencia(titulo, texto) { window.showToast(`<strong>${titulo}:</strong> ${texto}`, 'warning'); },
+        error(titulo, texto)       { window.showToast(`<strong>${titulo}:</strong> ${texto}`, 'error'); },
     };
+
 
 
     /* 

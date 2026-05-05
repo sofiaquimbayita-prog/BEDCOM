@@ -69,18 +69,8 @@ document.querySelectorAll('.modal').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
 });
 
-/* ─── Toast ─── */
-function showToast(msg, tipo = 'success') {
-  const container = document.querySelector('.messages') || (() => {
-    const d = document.createElement('div'); d.className = 'messages'; document.body.appendChild(d); return d;
-  })();
-  const el = document.createElement('div');
-  el.className = `message message--${tipo}`;
-  const icon = tipo === 'success' ? 'fa-check-circle' : tipo === 'error' ? 'fa-times-circle' : 'fa-info-circle';
-  el.innerHTML = `<i class="fas ${icon}"></i><span>${msg}</span>`;
-  container.appendChild(el);
-  setTimeout(() => el.remove(), 4000);
-}
+/* ─── Toast → usa window.showToast() global (base.html) ─── */
+
 
 /* ══════════════════════════════════════════════════════════════════════
    DELEGACIÓN DE EVENTOS — un único listener en la tabla captura clics

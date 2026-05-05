@@ -11,18 +11,8 @@ const URL_DETALLE = pk => (cfg.urlDetalle || '').replace('/0/', '/' + pk + '/');
 const URL_ESTADO = pk => (cfg.urlEstado || '').replace('/0/', '/' + pk + '/');
 const PENDIENTES = parseInt(cfg.pendientes || '0', 10);
 
-/* ── Toast ─────────────────────────────────────────── */
-function showToast(msg, tipo = 'success') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `message message--${tipo}`;
-  toast.innerHTML = `
-    <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-    <span>${msg}</span>
-  `;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-}
+/* ── Toast → usa window.showToast() global (base.html) ── */
+
 
 /* ── DataTable + Delegación de eventos ─────────────── */
 $(document).ready(function () {
