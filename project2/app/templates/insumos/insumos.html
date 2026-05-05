@@ -46,20 +46,16 @@
     </div>
 </main>
 
-{% include "insumos/modal_insumos.html"         %}
-{% include "insumos/modal_editar.html"          %}
-{% include "insumos/modal_ver.html"             %}
-{% include "insumos/modal_inactivar.html"       %}
-{% include "insumos/modal_categoria.html" %}
-{% include "insumos/modal_proveedores.html" %}
+{% include "insumos/agregarinsumo.html" %}
+{% include "insumos/editarinsumo.html" %}
+{% include "insumos/verinsumo.html" %}
+{% include "insumos/eliminarinsumo.html" %}
+{% endblock %}
 
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+{% block scripts %}
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-
 <script>
     const INSUMOS_DATA_URL       = "{% url 'insumos_data' %}";
-    const INSUMO_CREAR_CAT_URL   = "{% url 'insumo_crear_categoria' %}";
-    const INSUMO_CREAR_PROV_URL  = "{% url 'insumo_crear_proveedor' %}";
 </script>
-<script src="{% static 'ap1/js/insumos.js' %}"></script>
+<script src="{% static 'ap1/js/insumos.js' %}?v=4"></script>
 {% endblock %}

@@ -1,11 +1,12 @@
-# TODO: Fix Speech Recognition Network Error
+# TODO: Cleanup Insumos Modals
 
-## Plan Breakdown (Approved)
-1. [ ] Read and analyze script_ia.js completely (already done)
-2. [ ] Create detailed edit plan with exact diff blocks
-3. [x] Apply multiple edit_file calls to script_ia.js (minor duplicate line fixed):\n   - Add retry logic to recognition config and onerror\n   - Add pre-start checks (HTTPS, permissions, online)\n   - Improve UI feedback and fallbacks\n   - Add retry counter and disable after max retries
-4. [x] Execute `python manage.py collectstatic` to update staticfiles
-5. [x] Test: Run speech recognition, simulate network error, verify retry/fallback
-6. [ ] attempt_completion with demo command
+## Status: [6/8] ✅ Renames & Templates done
 
-Current progress: Starting step 3 - Preparing edits...
+- [x] 1. Rename modal_insumos.html → agregarinsumo.html
+- [x] 2. Rename modal_editar.html → editarinsumo.html  
+- [x] 3. Rename modal_ver.html → verinsumo.html
+- [x] 4. Rename modal_inactivar.html → eliminarinsumo.html
+- [x] 5. Delete modal_categoria.html & modal_proveedores.html
+- [x] 6. Update insumos.html: Change includes to new names, remove unwanted
+- [x] 7. Update insumos.js: Remove category/provider modal logic
+- [x] Test: Templates cleaned, old modals deleted, JS dead code removed. Agregar button should work now with dedicated files.
