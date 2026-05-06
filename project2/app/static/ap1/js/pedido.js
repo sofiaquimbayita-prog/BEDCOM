@@ -24,11 +24,15 @@ if (document.getElementById('clientes-data')) {
 
 
 function openModal(id){
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.classList.remove('mostrar');
+  // Cerrar cualquier modal abierto antes de abrir el nuevo
+  document.querySelectorAll('.modal.mostrar').forEach(modal => {
+    if(modal.id !== id) modal.classList.remove('mostrar');
   });
-  const m=document.getElementById(id);
-  if(m) m.classList.add('mostrar');
+  const m = document.getElementById(id);
+  // Usar setTimeout(0) para que el evento de click actual termine
+  // antes de mostrar el modal, evitando que el listener "click fuera"
+  // lo cierre inmediatamente al recibir el mismo evento.
+  setTimeout(() => { if(m) m.classList.add('mostrar'); }, 0);
 }
 
 function closeModal(id){
@@ -36,21 +40,26 @@ function closeModal(id){
   if(m) m.classList.remove('mostrar');
 }
 
-// ✅ BUG CORREGIDO: listener de [data-close] con delegación para que funcione
-// con elementos creados/movidos por DataTables
-$(document).on('click', '[data-close]', function(){
+// Listener de [data-close] con delegación
+$(document).on('click', '[data-close]', function(e){
+  // Evitar cerrar si el elemento tiene otra clase de acción (btn-pagar, etc.)
+  if($(this).hasClass('btn-pagar') || $(this).hasClass('btn-ver') ||
+     $(this).hasClass('btn-editar') || $(this).hasClass('btn-despacho')) return;
   closeModal(this.dataset.close);
 });
 
-// Cerrar modal clickeando fuera
-document.querySelectorAll('.modal').forEach(m=>{
-  m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);});
+// Cerrar modal clickeando fuera (backdrop)
+$(document).on('click', '.modal', function(e){
+  if(e.target === this) closeModal(this.id);
 });
 
 // ═══════════════════════════════════════════════════════════════
 // DATATABLES INICIALIZACIÓN
 // ═══════════════════════════════════════════════════════════════
 $(document).ready(function(){
+  if(!($ && $.fn && $.fn.DataTable)){
+    return;
+  }
   const dt=$('#tablaPedidos').DataTable({
     language:{url:'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'},
     pageLength:10,
@@ -175,7 +184,21 @@ $(document).on('click', '.btn-pagar', function(e){
   openModal('modalPago');
 });
 
-// 7. Guardar pago
+// 7. Botón DESPACHO
+$(document).on('click', '.btn-despacho', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  const pk = $(this).data('id');
+  if(!URL_DESPACHO){
+    window.showToast('URL de despacho no configurada', 'error');
+    return;
+  }
+  // Redirigir a la vista de crear despacho pre-cargada con el pedido
+  const url = URL_DESPACHO + '?pedido=' + pk;
+  window.location.href = url;
+});
+
+// 8. Guardar pago
 $(document).on('click', '#btnGuardarPago', async function(){
   const alerta = document.getElementById('pagoAlerta');
   alerta.style.display = 'none';

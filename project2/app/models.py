@@ -228,37 +228,25 @@ class mantenimiento(models.Model):
         ('recibida', 'Recibida'),
         ('en_reparacion', 'En Reparación'),
         ('reparada', 'Reparada'),
-        ('entregada', 'Entregada al cliente')
+        ('entregada', 'Entregada al cliente'),
     ]
     from django.utils.timezone import now
-    fecha_solicitud = models.DateField(default=now)
+    fecha = models.DateField(default=now)
     pedido = models.ForeignKey('pedido', on_delete=models.CASCADE, null=True, blank=True)
     producto = models.ForeignKey('producto', on_delete=models.CASCADE, null=True, blank=True)
     descripcion_falla = models.TextField(blank=True, null=True)
-    estado_reparacion = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='recibida')
+    estado_reparacion = models.CharField(
+        max_length=20, choices=ESTADO_CHOICES, default='recibida')
     estado = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Mantenimiento para producto {self.id_producto_id}"
+        nombre = self.producto.nombre if self.producto else 'Sin producto'
+        return f"Mantenimiento #{self.id} - {nombre}"
 
     class Meta:
-        verbose_name = "mantenimiento "
-        verbose_name_plural = "mantenimientos   "
+        verbose_name = "Mantenimiento"
+        verbose_name_plural = "Mantenimientos"
         db_table = "mantenimientos"
-
-
-
-class mantenimiento(models.Model):
-    fecha = models.DateField()
-    descripcion_falla = models.TextField()
-    estado_reparacion = models.CharField(max_length=50)
-    pedido = models.ForeignKey('Pedido', on_delete=models.CASCADE, null=True, blank=True)
-    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return f"Mantenimiento del {self.fecha}"
-    class Meta:
-        db_table = "garantia"
 # --- MODELOS DE INSUMOS Y PRODUCCIÓN (BOM) ---
 
 
@@ -624,4 +612,3 @@ class Notificacion(models.Model):
         model_name = tipo_map.get(self.tipo, 'app.producto')
         model = apps.get_model(*model_name.split('.'))
         return model.objects.filter(id=self.target_id).first()
-

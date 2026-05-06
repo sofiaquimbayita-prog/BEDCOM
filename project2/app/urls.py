@@ -136,6 +136,7 @@ urlpatterns = [
     path('bom/crear-receta/', bom.bom_crear_receta, name='bom_crear_receta'),
     path('bom/editar-receta/', bom.bom_editar_receta, name='bom_editar_receta'),
     path('bom/eliminar/<int:pk>/', bom.BomDeleteView.as_view(), name='bom_eliminar'),
+    path('bom/eliminar-receta/', bom.bom_eliminar_receta, name='bom_eliminar_receta'),
     path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
     path('bom/data/', bom.bom_data, name='bom_data'),
 

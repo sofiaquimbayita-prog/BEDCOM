@@ -58,25 +58,34 @@
             <select class="ped-estado-select estado-{{ p.estado|lower }}" data-id="{{ p.id }}"
               data-estado-actual="{{ p.estado }}">
               <option value="Pendiente" {% if p.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+              <option value="En Fabricación" {% if p.estado == "En Fabricación" %}selected{% endif %}>En Fabricación</option>
+              <option value="Listo para Despacho" {% if p.estado == "Listo para Despacho" %}selected{% endif %}>Listo para Despacho</option>
               <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>Completado</option>
               <option value="Anulado" {% if p.estado == "Anulado" %}selected{% endif %}>Anulado</option>
             </select>
           </td>
           <td>
             <div class="icons">
-              <!-- BUG CORREGIDO: todos los botones de la tabla tienen type="button" -->
               <button type="button" class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
                 <i class="fas fa-eye"></i>
               </button>
+              {% if p.estado != "Anulado" and p.estado != "Completado" %}
               <button type="button" class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
-              {% if p.estado == "Pendiente" and p.saldo_pendiente > 0 %}
+              {% endif %}
+              {% if p.estado != "Anulado" and p.saldo_pendiente > 0 %}
               <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}"
                 data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
                 <i class="fas fa-money-bill-wave"></i>
               </button>
               {% endif %}
+              {% if p.estado == "Listo para Despacho" %}
+              <button type="button" class="btn-despacho" data-id="{{ p.id }}" title="Crear despacho">
+                <i class="fas fa-truck"></i>
+              </button>
+              {% endif %}
+
             </div>
           </td>
         </tr>
@@ -293,6 +302,13 @@
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script>
+  // DataTables puede no estar disponible en algunos bundles.
+  // Esto evita que falle pedido.js.
+  window.__dtReady = !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable);
+</script>
+
+
 
 {# Variables de Django que el JS externo necesita #}
 {{ productos_json|json_script:"productos-data" }}
@@ -300,7 +316,7 @@
 <div id="js-config" data-csrf="{{ csrf_token }}" data-url-crear="{% url 'crear_pedido' %}"
   data-url-ver-base="{% url 'pedido_detalle' 0 %}" data-url-editar-base="{% url 'editar_pedido' 0 %}"
   data-url-estado-base="{% url 'cambiar_estado' 0 %}" data-url-pago-base="{% url 'pedido_pago' 0 %}"
-  data-url-despacho="{% url 'despacho_crear' %}" style="display:none;"></div>
+  data-url-despacho="{% url 'despacho_list' %}" style="display:none;"></div>
 
 <script src="{% static 'ap1/js/pedido.js' %}"></script>
 {% endblock %}

@@ -13,7 +13,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
 from collections import defaultdict
-from ...models import despacho, pedido, cliente, detalle_pedido, producto, Notificacion, usuario, historial_acciones
+from ...models import despacho, pedido, cliente, detalle_pedido, producto, Notificacion, usuario
 
 def safe_date_str(value):
     if value is None:

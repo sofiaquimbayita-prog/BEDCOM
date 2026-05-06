@@ -61,7 +61,12 @@ $(document).ready(function() {
                     cerrarModal('modalReceta');
                     mostrarMensaje('success', res.message);
                     setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarMensaje('error', res.error || 'Error al guardar la receta');
                 }
+            },
+            error: function() {
+                mostrarMensaje('error', 'Error de conexión al guardar la receta');
             }
         });
     });
@@ -70,6 +75,11 @@ $(document).ready(function() {
         e.preventDefault();
 
         const productoId = $('#editProductoId').val();
+
+        if (editRecetaInsumos.length === 0) {
+            mostrarMensaje('error', 'Debe agregar al menos un insumo');
+            return;
+        }
 
         $.ajax({
             url: '/vistas/bom/editar-receta/',
@@ -85,7 +95,12 @@ $(document).ready(function() {
                     cerrarModal('modalEditBom');
                     mostrarMensaje('success', res.message);
                     setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarMensaje('error', res.error || 'Error al actualizar la receta');
                 }
+            },
+            error: function() {
+                mostrarMensaje('error', 'Error de conexión al actualizar la receta');
             }
         });
     });
@@ -99,9 +114,6 @@ function abrirModal(id) {
 
         recetaInsumos = [];
 
-        $('#recetaProducto').val('').trigger('change');
-        $('#recetaInsumo').val('').trigger('change');
-
         $('#recetaCantidad').val(1);
 
         // 🔥 LIMPIAR TABLA
@@ -111,33 +123,37 @@ function abrirModal(id) {
             </tr>
         `);
 
-        // 🔥 ROBUST SELECT2 RE-INIT (FIX DUPLICATES)
+        // ✅ FIX: Romper la cadena jQuery para que Select2 se inicialice sobre $select, no sobre el container eliminado
+        // ✅ GUARD: Solo usar Select2 si la librería está cargada
         $('#recetaProducto, #recetaInsumo').each(function() {
             const $select = $(this);
-            if ($select.hasClass('select2-hidden-accessible')) {
-                $select.select2('destroy');
+            if ($.fn.select2) {
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+                $select.removeClass('select2-hidden-accessible select2-offscreen');
+                $select.next('.select2-container').remove();
+                $select.val('').select2({
+                    width: '100%',
+                    dropdownParent: $('#modalReceta'),
+                    placeholder: 'Seleccione...'
+                });
+            } else {
+                $select.val('');
             }
-            // Force clean Select2 remnants
-            $select.removeClass('select2-hidden-accessible select2-offscreen')
-                   .next('.select2-container').remove()
-                   .empty()
-                   .select2({
-                       width: '100%',
-                       dropdownParent: $('#modalReceta'),
-                       placeholder: 'Seleccione...'
-                   });
         });
     }
 
     document.getElementById(id).style.display = 'flex';
 }
 
-// ===================== AGREGAR INSUMO =====================
+// ===================== AGREGAR INSUMO (CREAR) =====================
 function agregarInsumoReceta() {
 
     const insumoId = $('#recetaInsumo').val();
     const cantidad = parseInt($('#recetaCantidad').val());
     const unidad = $('#recetaUnidad').val();
+    const insumoNombre = $('#recetaInsumo option:selected').text();
 
     if (!insumoId || cantidad < 1) {
         mostrarMensaje('error', 'Datos inválidos');
@@ -146,12 +162,13 @@ function agregarInsumoReceta() {
 
     // 🔥 EVITAR DUPLICADOS
     if (recetaInsumos.some(i => i.insumo_id == insumoId)) {
-        mostrarMensaje('error', 'Ya existe');
+        mostrarMensaje('error', 'Este insumo ya fue agregado');
         return;
     }
 
     recetaInsumos.push({
         insumo_id: insumoId,
+        insumo_nombre: insumoNombre,
         cantidad: cantidad,
         unidad_medida: unidad
     });
@@ -159,7 +176,37 @@ function agregarInsumoReceta() {
     renderRecetaTable();
 }
 
-// ===================== RENDER =====================
+// ===================== AGREGAR INSUMO (EDITAR) =====================
+// ✅ FIX: Función que faltaba completamente
+function agregarInsumoEditReceta() {
+
+    const insumoId = $('#editRecetaInsumo').val();
+    const cantidad = parseInt($('#editRecetaCantidad').val());
+    const unidad = $('#editRecetaUnidad').val();
+    const insumoNombre = $('#editRecetaInsumo option:selected').text();
+
+    if (!insumoId || cantidad < 1) {
+        mostrarMensaje('error', 'Datos inválidos');
+        return;
+    }
+
+    // 🔥 EVITAR DUPLICADOS
+    if (editRecetaInsumos.some(i => i.insumo_id == insumoId)) {
+        mostrarMensaje('error', 'Este insumo ya fue agregado');
+        return;
+    }
+
+    editRecetaInsumos.push({
+        insumo_id: insumoId,
+        insumo_nombre: insumoNombre,
+        cantidad: cantidad,
+        unidad_medida: unidad
+    });
+
+    renderEditRecetaTable();
+}
+
+// ===================== RENDER TABLA CREAR =====================
 function renderRecetaTable() {
 
     const tbody = document.getElementById('recetaInsumosBody');
@@ -169,23 +216,16 @@ function renderRecetaTable() {
         return;
     }
 
-    const select = document.getElementById('recetaInsumo');
-    let opciones = {};
-
-    for (let o of select.options) {
-        opciones[o.value] = o.text;
-    }
-
     let html = '';
 
     recetaInsumos.forEach((item, i) => {
         html += `
         <tr>
-            <td>${opciones[item.insumo_id]}</td>
+            <td>${item.insumo_nombre}</td>
             <td>${item.cantidad}</td>
             <td>${item.unidad_medida}</td>
             <td>
-                <button onclick="eliminarInsumoReceta(${i})">X</button>
+                <button type="button" onclick="eliminarInsumoReceta(${i})">X</button>
             </td>
         </tr>`;
     });
@@ -194,51 +234,7 @@ function renderRecetaTable() {
     tbody.innerHTML = html;
 }
 
-// ===================== ELIMINAR =====================
-function eliminarInsumoReceta(i) {
-    recetaInsumos.splice(i, 1);
-    renderRecetaTable();
-}
-
-// ===================== EDITAR =====================
-function editarBom(productoId) {
-
-    editRecetaInsumos = [];
-
-    $.get('/vistas/bom/por-producto/', { producto_id: productoId }, function(res) {
-
-        if (res.success) {
-
-            // 🔥 LIMPIAR
-            $('#editRecetaInsumosBody').html('');
-
-            editRecetaInsumos = res.data;
-
-            renderEditRecetaTable();
-
-            $('#editProductoId').val(productoId);
-
-            // 🔥 SELECT2 FOR EDIT MODAL
-            $('#editRecetaProducto, #editRecetaInsumo').each(function() {
-                const $select = $(this);
-                if ($select.hasClass('select2-hidden-accessible')) {
-                    $select.select2('destroy');
-                }
-                $select.removeClass('select2-hidden-accessible select2-offscreen')
-                       .next('.select2-container').remove()
-                       .empty()
-                       .select2({
-                           width: '100%',
-                           dropdownParent: $('#modalEditBom'),
-                           placeholder: 'Seleccione...'
-                       });
-            });
-
-            abrirModal('modalEditBom');
-        }
-    });
-}
-
+// ===================== RENDER TABLA EDITAR =====================
 function renderEditRecetaTable() {
 
     const tbody = document.getElementById('editRecetaInsumosBody');
@@ -250,14 +246,15 @@ function renderEditRecetaTable() {
 
     let html = '';
 
+    // ✅ FIX: Usar insumo_nombre en lugar de insumo_id
     editRecetaInsumos.forEach((item, i) => {
         html += `
         <tr>
-            <td>${item.insumo_id}</td>
+            <td>${item.insumo_nombre}</td>
             <td>${item.cantidad}</td>
             <td>${item.unidad_medida}</td>
             <td>
-                <button onclick="eliminarInsumoEditReceta(${i})">X</button>
+                <button type="button" onclick="eliminarInsumoEditReceta(${i})">X</button>
             </td>
         </tr>`;
     });
@@ -265,7 +262,138 @@ function renderEditRecetaTable() {
     tbody.innerHTML = html;
 }
 
+// ===================== ELIMINAR INSUMO (CREAR) =====================
+function eliminarInsumoReceta(i) {
+    recetaInsumos.splice(i, 1);
+    renderRecetaTable();
+}
+
+// ===================== ELIMINAR INSUMO (EDITAR) =====================
 function eliminarInsumoEditReceta(i) {
     editRecetaInsumos.splice(i, 1);
     renderEditRecetaTable();
+}
+
+// ===================== EDITAR BOM =====================
+function editarBom(productoId) {
+
+    editRecetaInsumos = [];
+
+    $.get('/vistas/bom/por-producto/', { producto_id: productoId }, function(res) {
+
+        if (res.success) {
+
+            $('#editRecetaInsumosBody').html('');
+
+            // ✅ Los datos del backend ya incluyen insumo_nombre
+            editRecetaInsumos = res.data;
+
+            renderEditRecetaTable();
+
+            $('#editProductoId').val(productoId);
+
+            // Seleccionar el producto correcto en el select deshabilitado
+            $('#editRecetaProducto').val(productoId);
+
+            // ✅ FIX: Romper la cadena jQuery — mismo patrón corregido que en abrirModal
+            // ✅ GUARD: Solo usar Select2 si la librería está cargada
+            $('#editRecetaInsumo').each(function() {
+                const $select = $(this);
+                if ($.fn.select2) {
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+                    $select.removeClass('select2-hidden-accessible select2-offscreen');
+                    $select.next('.select2-container').remove();
+                    $select.val('').select2({
+                        width: '100%',
+                        dropdownParent: $('#modalEditBom'),
+                        placeholder: 'Seleccione...'
+                    });
+                } else {
+                    $select.val('');
+                }
+            });
+
+            document.getElementById('modalEditBom').style.display = 'flex';
+
+        } else {
+            mostrarMensaje('error', res.error || 'Error al cargar la receta');
+        }
+    }).fail(function() {
+        mostrarMensaje('error', 'Error de conexión al cargar la receta');
+    });
+}
+
+// ===================== VER DETALLE RECETA =====================
+// ✅ FIX: Función que faltaba completamente
+function verDetalleReceta(productoId, productoNombre) {
+
+    $('#verProductoNombre').text(productoNombre);
+    $('#verProductoId').text(productoId);
+    $('#verRecetaInsumosBody').html('<tr><td colspan="3" style="padding: 20px; text-align: center; color: #999;">Cargando...</td></tr>');
+    $('#verTotalInsumos').text('0');
+
+    document.getElementById('modalVerReceta').style.display = 'flex';
+
+    $.get('/vistas/bom/por-producto/', { producto_id: productoId }, function(res) {
+
+        if (res.success && res.data.length > 0) {
+
+            let html = '';
+            res.data.forEach(function(item) {
+                html += `
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #334155;">${item.insumo_nombre}</td>
+                    <td style="padding: 10px; text-align: center; border-bottom: 1px solid #334155;">${item.cantidad}</td>
+                    <td style="padding: 10px; text-align: center; border-bottom: 1px solid #334155;">${item.unidad_medida}</td>
+                </tr>`;
+            });
+
+            $('#verRecetaInsumosBody').html(html);
+            $('#verTotalInsumos').text(res.data.length);
+
+        } else {
+            $('#verRecetaInsumosBody').html('<tr><td colspan="3" style="padding: 20px; text-align: center; color: #999;">No hay insumos registrados</td></tr>');
+        }
+    }).fail(function() {
+        $('#verRecetaInsumosBody').html('<tr><td colspan="3" style="padding: 20px; text-align: center; color: #ef4444;">Error al cargar los datos</td></tr>');
+    });
+}
+
+// ===================== ELIMINAR RECETA COMPLETA =====================
+// ✅ FIX: Función que faltaba completamente
+function eliminarRecetaCompleta(productoId, productoNombre) {
+
+    $('#deleteProducto').text(productoNombre);
+    $('#deleteId').val(productoId);
+
+    // Limpiar insumo previo si el modal lo usaba para otra cosa
+    $('#deleteInsumo').text('(todos los insumos de la receta)');
+
+    // Sobreescribir el submit del form para usar AJAX (elimina receta completa)
+    $('#formDeleteBom').off('submit').on('submit', function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: '/vistas/bom/eliminar-receta/',
+            type: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            data: { id: productoId },
+            success: function(res) {
+                if (res.success) {
+                    cerrarModal('modalDeleteBom');
+                    mostrarMensaje('success', res.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    mostrarMensaje('error', res.error || 'Error al eliminar la receta');
+                }
+            },
+            error: function() {
+                mostrarMensaje('error', 'Error de conexión al eliminar la receta');
+            }
+        });
+    });
+
+    document.getElementById('modalDeleteBom').style.display = 'flex';
 }

@@ -240,33 +240,25 @@ $(document).ready(function() {
         "order": [[1, "asc"]]
     });
 
-    // ── Initialize toggle state from URL param ──
+    // ── Leer estado del toggle desde URL y reflejar en el checkbox ──
     const urlParams = new URLSearchParams(window.location.search);
     const mostrarInactivosFromUrl = urlParams.get('mostrar_inactivos') === 'true';
     $('#toggleInactivos').prop('checked', mostrarInactivosFromUrl);
-    
-    // Initialize table filter after setting checkbox state
-    if (mostrarInactivosFromUrl) {
-        table.draw();
+
+    // Actualizar texto del switch según estado actual
+    const switchText = document.querySelector('.switch-text');
+    if (switchText) {
+        switchText.textContent = mostrarInactivosFromUrl ? 'Mostrando inactivos' : 'Mostrar inactivos';
     }
 
-
-// ── Toggle Activos / Inactivos - Backend Sync ──
-/*
- * Toggle ON (?mostrar_inactivos=true): Backend loads ONLY inactive → JS shows all (fallback filter hides active, but none loaded)
- * Toggle OFF (?mostrar_inactivos=false): Backend loads ONLY active → JS shows all
- */
-$('#toggleInactivos').on('change', function() {
-    const mostrarInactivos = $(this).is(':checked');
-    
-    // Parse current URL params
-    const url = new URL(window.location);
-    url.searchParams.set('mostrar_inactivos', mostrarInactivos);
-    url.searchParams.set('t', Date.now());  // Cache-busting timestamp
-    
-    // Force reload with new URL to fetch fresh data from backend
-    window.location.href = url.toString();
-});
+    // ── Toggle Activos / Inactivos - Backend Sync ──
+    // El backend filtra: ?mostrar_inactivos=true → estado=False | false → estado=True
+    $('#toggleInactivos').on('change', function() {
+        const mostrarInactivos = $(this).is(':checked');
+        const url = new URL(window.location);
+        url.searchParams.set('mostrar_inactivos', mostrarInactivos);
+        window.location.href = url.toString();
+    });
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
     $(document).on('submit', '#formAddProducto', function(e) {
     e.preventDefault(); // Prevenir submit normal

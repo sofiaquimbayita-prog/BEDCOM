@@ -385,26 +385,37 @@ class PedidoStateChangeView(View):
             if not nuevo_estado:
                 return JsonResponse({'ok': False, 'error': 'Debe enviar el nuevo estado.'})
 
+            ESTADOS_VALIDOS = ['Pendiente', 'En Fabricación', 'Listo para Despacho', 'Completado', 'Anulado']
+            if nuevo_estado not in ESTADOS_VALIDOS:
+                return JsonResponse({'ok': False, 'error': f'Estado "{nuevo_estado}" no válido.'})
+
             with transaction.atomic():
                 if nuevo_estado == 'Anulado' and obj_pedido.estado != 'Anulado':
+                    # Anular: devolver stock solo de productos reales
                     obj_pedido.estado = 'Anulado'
                     obj_pedido.save()
                     for item in obj_pedido.detalles.select_related('producto').all():
-                        item.producto.stock += item.cantidad
-                        item.producto.save()
+                        if item.producto and not item.es_personalizado:
+                            item.producto.stock += item.cantidad
+                            item.producto.save()
 
                 elif obj_pedido.estado == 'Anulado' and nuevo_estado != 'Anulado':
+                    # Re-activar: verificar stock y descontarlo (solo productos reales)
                     for item in obj_pedido.detalles.select_related('producto').all():
-                        if item.producto.stock < item.cantidad:
-                            raise Exception(
-                                f"No hay stock suficiente para «{item.producto.nombre}»"
-                            )
+                        if item.producto and not item.es_personalizado:
+                            if item.producto.stock < item.cantidad:
+                                raise Exception(
+                                    f"No hay stock suficiente para «{item.producto.nombre}»"
+                                )
                     obj_pedido.estado = nuevo_estado
                     obj_pedido.save()
                     for item in obj_pedido.detalles.select_related('producto').all():
-                        item.producto.stock -= item.cantidad
-                        item.producto.save()
+                        if item.producto and not item.es_personalizado:
+                            item.producto.stock -= item.cantidad
+                            item.producto.save()
 
+                elif obj_pedido.estado != nuevo_estado:
+                    # Cambio entre estados normales (Pendiente, Completado, etc.)
                     obj_pedido.estado = nuevo_estado
                     obj_pedido.save()
 
@@ -502,7 +513,7 @@ def validar_pedido(items, abono, total):
     if abono > total:
         errores.append("El abono no puede ser mayor al total")
 
-    productos_ids = [item['producto_id'] for item in items]
+    productos_ids = [item['producto_id'] for item in items if item.get('producto_id')]
     if len(productos_ids) != len(set(productos_ids)):
         errores.append("No se puede repetir productos")
 

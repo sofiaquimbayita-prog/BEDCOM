@@ -7,6 +7,11 @@
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<style>
+  /* Validación en tiempo real */
+  .input-error { border-color: #ef4444 !important; box-shadow: 0 0 0 2px rgba(239,68,68,.15) !important; }
+  .form-grupo  { display: flex; flex-direction: column; }
+</style>
 
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
@@ -76,7 +81,7 @@
         {% for g in mantenimientos %}
         <tr>
           <td><strong>#{{ g.id }}</strong></td>
-          <td>{{ g.fecha_solicitud|date:"d/m/Y" }}</td>
+          <td>{{ g.fecha|date:"d/m/Y" }}</td>
           <td>{{ g.pedido.cliente.nombre|default:"N/A" }} (Ped #{{ g.pedido.id }})</td>
           <td>{{ g.producto.nombre }}</td>
           <td title="{{ g.descripcion_falla }}">{{ g.descripcion_falla|truncatechars:30 }}</td>
@@ -126,10 +131,17 @@
         <option value="{{ p.id }}">{{ p.nombre }}</option>
         {% endfor %}
       </select>
+      <span id="inpProducto_error" style="display:none;color:#ef4444;font-size:0.8rem;margin-top:3px;"></span>
     </div>
+
     <div class="form-grupo">
-      <label>Descripción de Falla/Reparación <span style="color:red">*</span></label>
-      <textarea id="inpDescripcion" class="form-input" rows="4" required></textarea>
+      <label>
+        Descripción de Falla/Reparación <span style="color:red">*</span>
+        <span id="descContador" style="float:right;font-size:0.75rem;color:#94a3b8;font-weight:normal;">0/500</span>
+      </label>
+      <textarea id="inpDescripcion" class="form-input" rows="4"
+                placeholder="Describa la falla o el trabajo de reparación requerido..." required></textarea>
+      <span id="inpDescripcion_error" style="display:none;color:#ef4444;font-size:0.8rem;margin-top:3px;"></span>
     </div>
     <div class="form-botones">
       <button class="btn-cancelar" data-close="modalCrear">Cancelar</button>
@@ -140,14 +152,19 @@
 
 <!-- Modal Detalle -->
 <div class="modal" id="modalDetalle">
-  <div class="modal-contenido">
+    <div class="modal-contenido">
     <div class="modal-header modal-header--ver">
       <h2 class="modal-titulo modal-titulo--ver" id="modalTitulo">
         <i class="fas fa-screwdriver-wrench"></i> Detalle Mantenimiento
       </h2>
       <button class="btn-cerrar btn-cerrar--ver" data-close="modalDetalle">&times;</button>
     </div>
-    <div id="modalBody"></div>
+
+    <!-- Cuerpo del modal (inyectado por JS) -->
+    <div class="modal-body-view" style="padding: 0;">
+      <div id="modalBody" class="modal-body-view"></div>
+    </div>
+
     <div class="form-botones">
       <button class="btn-cancelar" data-close="modalDetalle"><i class="fas fa-times"></i> Cerrar</button>
     </div>

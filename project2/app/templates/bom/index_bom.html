@@ -5,12 +5,13 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
 
 <main class="bom-gestion">
     
         <div class="crear-receta">
-            <button class="button-2" onclick="event.preventDefault(); abrirModal('modalReceta');">
+            <button class="button-2" type="button" onclick="event.preventDefault(); abrirModal('modalReceta');">
                 <i class="fas fa-book-open"></i> <span class="btn-text">Crear Receta</span>
             </button>
         </div>
@@ -303,6 +304,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     // Inicializar la lista de productos con receta desde el template Django

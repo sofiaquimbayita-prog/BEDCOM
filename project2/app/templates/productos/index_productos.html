@@ -16,7 +16,7 @@
             <div class="switch-container">
                 <span class="switch-text">Mostrar inactivos</span>
                 <label class="switch-control">
-                    <input type="checkbox" id="toggleInactivos">
+                    <input type="checkbox" id="toggleInactivos" {% if request.GET.mostrar_inactivos %}checked{% endif %}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -45,7 +45,7 @@
             
             <tbody>
                 {% for p in productos %}
-                <tr {% if not p.tiene_receta %}class="pending-recipe"{% endif %} {% if not p.estado %}class="inactive"{% endif %}>
+                <tr class="{% if not p.tiene_receta %}pending-recipe {% endif %}{% if not p.estado %}inactive{% endif %}">
                     <td>
                         {% if p.imagen %}
                             <img src="/media/{{ p.imagen }}" alt="{{ p.nombre }}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
