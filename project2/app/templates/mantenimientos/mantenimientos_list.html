@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block header_title %}MANTENIMIENTO{% endblock %}
-
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+{% endblock %}
 
+{% block content %}
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
      data-url-crear="/vistas/mantenimientos/crear/"

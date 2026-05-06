@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block header_title %}CLIENTES{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/cliente.css' %}">
+{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/cliente.css' %}">
-
 <main class="main-container">
 
   <!-- ══ KPI CARDS ══ -->

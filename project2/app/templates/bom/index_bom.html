@@ -3,14 +3,16 @@
 
 {% block header_title %}Gestión BOM - Estructura de Productos{% endblock %}
 
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
+{% endblock %}
 
+{% block content %}
 <main class="bom-gestion">
     
         <div class="crear-receta">
-            <button class="button-2" onclick="event.preventDefault(); abrirModal('modalReceta');">
+            <button type="button" id="btnCrearReceta" class="button-2" data-modal-target="modalReceta">
                 <i class="fas fa-book-open"></i> <span class="btn-text">Crear Receta</span>
             </button>
         </div>

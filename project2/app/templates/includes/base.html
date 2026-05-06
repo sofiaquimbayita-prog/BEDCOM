@@ -114,8 +114,82 @@
         }
         body.modal-open { overflow: hidden; }
     </style>
-
+    
     {% block head %}{% endblock %} 
+    <style>
+        header.topbar-modern {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: var(--topbar-h, 72px) !important;
+            padding: 12px 20px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+
+        header.topbar-modern .topbar-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            min-height: 48px !important;
+            width: 100% !important;
+        }
+
+        header.topbar-modern .nav-section,
+        header.topbar-modern .actions-section {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            flex-shrink: 0 !important;
+        }
+
+        header.topbar-modern .perfil-container {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            height: auto !important;
+            position: relative !important;
+        }
+
+        header.topbar-modern .title-section {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            padding: 0 20px !important;
+            text-align: center !important;
+        }
+
+        header.topbar-modern .main-title {
+            margin: 0 !important;
+            line-height: 1.2 !important;
+            font-size: 16px !important;
+        }
+
+        header.topbar-modern .icon-btn-glass,
+        header.topbar-modern .notif-btn,
+        header.topbar-modern .home-btn,
+        header.topbar-modern .nav-btn,
+        header.topbar-modern #perfilBtn,
+        header.topbar-modern #notifBtn,
+        header.topbar-modern #moduleToggle {
+            width: 46px !important;
+            min-width: 46px !important;
+            height: 46px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            line-height: 1 !important;
+            flex-shrink: 0 !important;
+        }
+
+        header.topbar-modern .icon-btn-glass i,
+        header.topbar-modern .notif-btn i,
+        header.topbar-modern .home-btn i,
+        header.topbar-modern .nav-btn i {
+            line-height: 1 !important;
+        }
+    </style>
 </head>
 <body>
     <div class="bg"></div>

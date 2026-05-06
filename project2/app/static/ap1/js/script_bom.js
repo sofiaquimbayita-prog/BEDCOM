@@ -20,6 +20,100 @@ function getCookie(name) {
 let recetaInsumos = [];
 let editRecetaInsumos = [];
 
+function inicializarSelect2Bom(selector, modalSelector) {
+    if (!window.jQuery) return;
+
+    $(selector).each(function() {
+        const $select = $(this);
+
+        if ($.fn.select2 && $select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+
+        $select.removeClass('select2-hidden-accessible select2-offscreen')
+               .next('.select2-container').remove();
+
+        if ($.fn.select2) {
+            $select.select2({
+                width: '100%',
+                dropdownParent: $(modalSelector),
+                placeholder: 'Seleccione...'
+            });
+        }
+    });
+}
+
+function asegurarSelect2Bom() {
+    if (!window.jQuery || $.fn.select2) return;
+
+    $.fn.select2 = function(action, value) {
+        if (action === 'val' && arguments.length > 1) {
+            return this.val(value);
+        }
+
+        return this;
+    };
+}
+
+asegurarSelect2Bom();
+
+function limpiarFormularioReceta() {
+    recetaInsumos = [];
+
+    if (window.jQuery) {
+        $('#recetaProducto').val('').trigger('change');
+        $('#recetaInsumo').val('').trigger('change');
+        $('#recetaCantidad').val(1);
+        $('#recetaInsumosBody').html(`
+            <tr id="recetaVacio">
+                <td colspan="4">No hay insumos</td>
+            </tr>
+        `);
+        inicializarSelect2Bom('#recetaProducto, #recetaInsumo', '#modalReceta');
+        return;
+    }
+
+    const producto = document.getElementById('recetaProducto');
+    const insumo = document.getElementById('recetaInsumo');
+    const cantidad = document.getElementById('recetaCantidad');
+    const body = document.getElementById('recetaInsumosBody');
+
+    if (producto) producto.value = '';
+    if (insumo) insumo.value = '';
+    if (cantidad) cantidad.value = 1;
+    if (body) {
+        body.innerHTML = `
+            <tr id="recetaVacio">
+                <td colspan="4">No hay insumos</td>
+            </tr>
+        `;
+    }
+}
+
+function mostrarModalBom(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+}
+
+window.abrirModal = function(id) {
+    if (id === 'modalReceta') {
+        limpiarFormularioReceta();
+    }
+
+    mostrarModalBom(id);
+};
+
+document.addEventListener('click', function(e) {
+    const button = e.target.closest('[data-modal-target]');
+    if (!button) return;
+
+    e.preventDefault();
+    window.abrirModal(button.dataset.modalTarget);
+});
+
 // ===================== INIT =====================
 $(document).ready(function() {
 
@@ -28,6 +122,7 @@ $(document).ready(function() {
         const modal = document.getElementById(id);
         if (modal) {
             modal.style.display = 'none';
+            modal.classList.remove('show');
         }
     };
 
@@ -94,42 +189,11 @@ $(document).ready(function() {
 
 // ===================== MODAL =====================
 function abrirModal(id) {
-
     if (id === 'modalReceta') {
-
-        recetaInsumos = [];
-
-        $('#recetaProducto').val('').trigger('change');
-        $('#recetaInsumo').val('').trigger('change');
-
-        $('#recetaCantidad').val(1);
-
-        // 🔥 LIMPIAR TABLA
-        $('#recetaInsumosBody').html(`
-            <tr id="recetaVacio">
-                <td colspan="4">No hay insumos</td>
-            </tr>
-        `);
-
-        // 🔥 ROBUST SELECT2 RE-INIT (FIX DUPLICATES)
-        $('#recetaProducto, #recetaInsumo').each(function() {
-            const $select = $(this);
-            if ($select.hasClass('select2-hidden-accessible')) {
-                $select.select2('destroy');
-            }
-            // Force clean Select2 remnants
-            $select.removeClass('select2-hidden-accessible select2-offscreen')
-                   .next('.select2-container').remove()
-                   .empty()
-                   .select2({
-                       width: '100%',
-                       dropdownParent: $('#modalReceta'),
-                       placeholder: 'Seleccione...'
-                   });
-        });
+        limpiarFormularioReceta();
     }
 
-    document.getElementById(id).style.display = 'flex';
+    mostrarModalBom(id);
 }
 
 // ===================== AGREGAR INSUMO =====================
@@ -219,20 +283,7 @@ function editarBom(productoId) {
             $('#editProductoId').val(productoId);
 
             // 🔥 SELECT2 FOR EDIT MODAL
-            $('#editRecetaProducto, #editRecetaInsumo').each(function() {
-                const $select = $(this);
-                if ($select.hasClass('select2-hidden-accessible')) {
-                    $select.select2('destroy');
-                }
-                $select.removeClass('select2-hidden-accessible select2-offscreen')
-                       .next('.select2-container').remove()
-                       .empty()
-                       .select2({
-                           width: '100%',
-                           dropdownParent: $('#modalEditBom'),
-                           placeholder: 'Seleccione...'
-                       });
-            });
+            inicializarSelect2Bom('#editRecetaProducto, #editRecetaInsumo', '#modalEditBom');
 
             abrirModal('modalEditBom');
         }

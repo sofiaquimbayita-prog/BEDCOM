@@ -31,6 +31,7 @@ class MantenimientoListView(ListView):
         ctx = super().get_context_data(**kwargs)
         ctx['pedidos'] = pedido.objects.filter(estado__in=['Despachado', 'Completado']).select_related('cliente').order_by('-id')
         ctx['productos'] = producto.objects.filter(estado=True)
+        ctx['titulo_pagina'] = 'MANTENIMIENTO'
         
         ctx['total_mantenimientos'] = mantenimiento.objects.count()
         ctx['recibidas'] = mantenimiento.objects.filter(estado_reparacion='recibida').count()
