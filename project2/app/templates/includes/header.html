@@ -31,9 +31,9 @@
         <div class="actions-section">
             <!--  CAMPANITA NOTIFICACIONES - Ahora como MODAL -->
             <div class="notificaciones-container">
-                <button id="notifBtn" class="icon-btn-glass notif-btn" title="Notificaciones (polling)" aria-label="Notificaciones">
+                <button id="notifBtn" class="icon-btn-glass notif-btn" title="Notificaciones" aria-label="Notificaciones">
                     <i class="fas fa-bell"></i>
-                    <span id="notif-count" class="notif-badge" style="display:none;"></span>  <!-- Added ID for global badge -->
+                    <span id="notif-count" class="notif-badge" style="display:none;"></span>
                 </button>
             </div>
             
@@ -69,9 +69,273 @@
 
 
 <script>
-/* NOTIFICACIONES GLOBAL - HEADER BELL MODAL */
-let notifPolling;
+/* ═══════════════════════════════════════════════════════════════════
+   BEDCOM NOTIFICACIONES - SISTEMA CENTRALIZADO DE POLLING INTELIGENTE
+   ═══════════════════════════════════════════════════════════════════
+   
+   PUNTO CENTRAL: Este es el ÚNICO sistema de polling del proyecto.
+   Todas las vistas (monitoreo, etc.) consumen datos de aquí.
+   
+   Características:
+   - Auto-trigger al cargar la app
+   - Polling adaptativo con backoff (60s → 120s → 300s)
+   - Solo ejecuta si la pestaña está activa
+   - Expone window.BedcomNotifs.forceCheck() para triggers event-driven
+   ═══════════════════════════════════════════════════════════════════ */
 
+window.BedcomNotifs = (function() {
+    // ── CONFIGURACIÓN ────────────────────────────────────────────
+    const CONFIG = {
+        BASE_INTERVAL: 60000,      // 60 segundos base
+        MAX_INTERVAL: 300000,      // 5 minutos máximo
+        BACKOFF_MULTIPLIER: 2,     // Duplicar intervalo si no hay cambios
+        TRIGGER_URL: '/vistas/monitoreo/api/check-triggers/',
+        LIST_URL: '/vistas/monitoreo/api/notificaciones/',
+    };
+    
+    // ── ESTADO INTERNO ───────────────────────────────────────────
+    let _timerId = null;
+    let _currentInterval = CONFIG.BASE_INTERVAL;
+    let _lastCount = -1;          // Para detectar cambios
+    let _isRunning = false;
+    let _lastTriggerTime = 0;     // Evitar triggers duplicados
+    let _listeners = [];          // Callbacks cuando hay datos nuevos
+    let _lastData = null;         // Cache del último resultado
+    
+    // ── CSRF HELPER ──────────────────────────────────────────────
+    function _getCsrf() {
+        let v = null;
+        if (document.cookie) {
+            document.cookie.split(';').forEach(c => {
+                c = c.trim();
+                if (c.startsWith('csrftoken=')) v = decodeURIComponent(c.substring(10));
+            });
+        }
+        return v;
+    }
+    
+    // ── CORE: EJECUTAR TRIGGER + CARGAR NOTIFICACIONES ───────────
+    async function _executeCycle(isManual = false) {
+        // Guard: solo si pestaña activa (o forzado manual)
+        if (!isManual && document.visibilityState !== 'visible') {
+            return;
+        }
+        
+        // Guard: evitar triggers duplicados en <5s
+        const now = Date.now();
+        if (!isManual && (now - _lastTriggerTime) < 5000) {
+            return;
+        }
+        _lastTriggerTime = now;
+        
+        try {
+            // PASO 1: Ejecutar check-triggers (crear nuevas + auto-resolver)
+            await fetch(CONFIG.TRIGGER_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': _getCsrf(),
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // PASO 2: Cargar lista actualizada
+            const res = await fetch(CONFIG.LIST_URL);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            
+            if (data.success) {
+                _lastData = data;
+                
+                // ── Actualizar badge global ──
+                _updateBadge(data.count);
+                
+                // ── Actualizar modal campanita ──
+                _updateModalList(data.data || []);
+                
+                // ── Notificar listeners (monitoreo, etc.) ──
+                _listeners.forEach(fn => {
+                    try { fn(data); } catch(e) { console.error('Notif listener error:', e); }
+                });
+                
+                // ── Backoff adaptativo ──
+                if (data.count !== _lastCount) {
+                    // Hubo cambios → reset a intervalo base
+                    _currentInterval = CONFIG.BASE_INTERVAL;
+                } else {
+                    // Sin cambios → aumentar intervalo
+                    _currentInterval = Math.min(
+                        _currentInterval * CONFIG.BACKOFF_MULTIPLIER,
+                        CONFIG.MAX_INTERVAL
+                    );
+                }
+                _lastCount = data.count;
+            }
+        } catch(err) {
+            console.error('BedcomNotifs cycle error:', err);
+            // En error, mantener intervalo actual (no hacer backoff)
+        }
+        
+        // Reprogramar siguiente ciclo
+        _scheduleNext();
+    }
+    
+    // ── PROGRAMAR SIGUIENTE CICLO ────────────────────────────────
+    function _scheduleNext() {
+        if (_timerId) clearTimeout(_timerId);
+        _timerId = setTimeout(() => _executeCycle(false), _currentInterval);
+    }
+    
+    // ── ACTUALIZAR BADGE DE CAMPANITA ────────────────────────────
+    function _updateBadge(count) {
+        const badge = document.getElementById('notif-count');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    // ── ACTUALIZAR LISTA DEL MODAL ───────────────────────────────
+    function _updateModalList(notifsArray) {
+        const list = document.getElementById('notifListModal');
+        if (!list) return;
+        
+        // Filtrar solo no leídas para el modal de la campanita
+        const unread = notifsArray.filter(n => !n.leida);
+        
+        if (unread.length === 0) {
+            list.innerHTML = '<li class="notif-empty">Sin notificaciones nuevas 🎉</li>';
+            return;
+        }
+        
+        let html = '';
+        unread.slice(0, 5).forEach(n => {
+            html += `
+                <li class="notif-item unread" onclick="BedcomNotifs.markReadAndRedirect(${n.id}, '${n.tipo}')">
+                    <div class="notif-content">
+                        <div class="notif-titulo">${n.titulo}</div>
+                    </div>
+                </li>
+            `;
+        });
+        
+        if (unread.length > 5) {
+            html += `<li class="notif-item notif-more">y ${unread.length - 5} más...</li>`;
+        }
+        
+        list.innerHTML = html;
+    }
+    
+    // ── VISIBILITY CHANGE: Pausar/reanudar ───────────────────────
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && _isRunning) {
+            // Pestaña vuelve a ser visible → ejecutar inmediato y reprogramar
+            _currentInterval = CONFIG.BASE_INTERVAL; // Reset backoff
+            _executeCycle(false);
+        }
+    });
+    
+    // ═════════════════════════════════════════════════════════════
+    // API PÚBLICA
+    // ═════════════════════════════════════════════════════════════
+    return {
+        /**
+         * Iniciar el sistema de polling.
+         * Se ejecuta automáticamente al cargar la página.
+         */
+        start: function() {
+            if (_isRunning) return;
+            _isRunning = true;
+            // Trigger inicial inmediato
+            _executeCycle(true);
+        },
+        
+        /**
+         * Detener el sistema de polling.
+         */
+        stop: function() {
+            _isRunning = false;
+            if (_timerId) {
+                clearTimeout(_timerId);
+                _timerId = null;
+            }
+        },
+        
+        /**
+         * Forzar verificación inmediata.
+         * Usar después de acciones del usuario (crear pedido, actualizar stock, etc.)
+         */
+        forceCheck: function() {
+            _currentInterval = CONFIG.BASE_INTERVAL; // Reset backoff
+            _executeCycle(true);
+        },
+        
+        /**
+         * Obtener datos del último ciclo (cache).
+         */
+        getLastData: function() {
+            return _lastData;
+        },
+        
+        /**
+         * Registrar listener para recibir datos cuando hay actualizaciones.
+         * Usado por monitoreo para actualizar su tabla sin polling propio.
+         * @param {Function} callback - Recibe el objeto data del API
+         * @returns {Function} Función para remover el listener
+         */
+        onUpdate: function(callback) {
+            _listeners.push(callback);
+            // Si ya hay datos cached, notificar inmediatamente
+            if (_lastData) {
+                try { callback(_lastData); } catch(e) {}
+            }
+            // Retornar unsubscribe function
+            return function() {
+                _listeners = _listeners.filter(fn => fn !== callback);
+            };
+        },
+        
+        /**
+         * Marcar como leída y redirigir al módulo correspondiente.
+         */
+        markReadAndRedirect: function(id, tipo) {
+            let urlDestino = '/vistas/monitoreo/';
+            switch(tipo) {
+                case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
+                case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
+                case 'calendario_hoy':
+                case 'calendario_manaña': urlDestino = '/vistas/calendario/'; break;
+                case 'pendido_despacho': urlDestino = '/vistas/despacho/'; break;
+                case 'sin_bom': urlDestino = '/vistas/bom/'; break;
+                case 'pago_pendiente': urlDestino = '/vistas/pedido/'; break;
+                case 'mantenimiento_nueva': urlDestino = '/vistas/mantenimientos/'; break;
+                case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
+            }
+            
+            fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': _getCsrf(),
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                window.location.href = urlDestino;
+            }).catch(() => {
+                window.location.href = urlDestino;
+            });
+        },
+        
+        /**
+         * Obtener el CSRF token (útil para otros módulos).
+         */
+        getCsrf: _getCsrf,
+    };
+})();
+
+
+/* ── MODAL CAMPANITA ──────────────────────────────────────────── */
 function toggleNotifModal() {
     const modal = document.getElementById('notifModal');
     const headerRect = document.querySelector('header.topbar-modern').getBoundingClientRect();
@@ -81,113 +345,25 @@ function toggleNotifModal() {
     modal.style.right = (window.innerWidth - headerRect.right + 20) + 'px';
     modal.style.zIndex = '10020';
     modal.classList.toggle('show');
-    if (modal.classList.contains('show')) {
-        cargarNotificacionesModal(true);
-        updateGlobalBadge(); // Sync badge
-    }
 }
 
 function closeNotifModal() {
     document.getElementById('notifModal').classList.remove('show');
 }
 
-function cargarNotificacionesModal(force=false) {
-    fetch('/vistas/monitoreo/api/notificaciones/')
-        .then(res => res.json())
-        .then(data => {
-            // Update GLOBAL badge first
-            if (data.success) {
-                window.updateGlobalBadge(data);
-            }
-            // Legacy badge support
-            const badge = document.getElementById('notifBadge');
-            if (badge && data.success) {
-                if (data.count > 0) {
-                    badge.textContent = data.count > 99 ? '99+' : data.count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-            
-            if (data.success) {
-                // Update modal count (null-safe)
-                const countEl = document.getElementById('notifCountModal');
-                if (countEl) countEl.textContent = data.count || 0;
-                
-                // Update modal list
-                const list = document.getElementById('notifListModal');  
-                if (list) {
-                    const notifsArray = data.data || [];
-                    if (notifsArray.length === 0) {
-                        list.innerHTML = '<li class="notif-empty">Sin notificaciones nuevas </li>';
-                    } else {
-                        let html = '';
-                        // Solo mostramos las últimas 5 en la campanita
-                        notifsArray.slice(0, 5).forEach(n => {
-                            const tiempo = new Date(n.fecha_notif).toLocaleString('es-CO');
-                            const unread = n.leida ? '' : 'unread';
-                            html += `
-                                <li class="notif-item ${unread}" onclick="marcarLeidaYRedirigir(${n.id}, '${n.tipo}')">
-                                    <div class="notif-content">
-                                        <div class="notif-titulo">${n.titulo}</div>
-                                    </div>
-                                </li>
-                            `;
-                        });
-                        list.innerHTML = html;
-                    }
-                }
-            }
-        })
-        .catch(err => console.error('Notif error:', err));
-}
-
-function marcarLeidaYRedirigir(id, tipo) {
-    let urlDestino = '/vistas/monitoreo/'; // fallback
-    switch(tipo) {
-        case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
-        case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
-        case 'calendario_hoy':
-        case 'calendario_manaña': urlDestino = '/vistas/calendario/'; break;
-        case 'pendido_despacho': urlDestino = '/vistas/despacho/'; break;
-        case 'sin_bom': urlDestino = '/vistas/bom/'; break;
-        case 'pago_pendiente': urlDestino = '/vistas/pedido/'; break;
-        case 'mantenimiento_nueva': urlDestino = '/vistas/mantenimientos/'; break;
-        case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
+/* ── GLOBAL BADGE UPDATE (legacy compat) ──────────────────────── */
+window.updateGlobalBadge = function(data) {
+    const badge = document.getElementById('notif-count');
+    if (!badge) return;
+    if (data && data.success && data.count > 0) {
+        badge.textContent = data.count > 99 ? '99+' : data.count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
     }
+};
 
-    // Helper CSRF local
-    function getCookieLocal(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookieLocal('csrftoken'),
-            'Content-Type': 'application/json'
-        }
-    }).then(() => {
-        window.location.href = urlDestino;
-    }).catch(err => {
-        console.error('Error al marcar leída:', err);
-        window.location.href = urlDestino; // Redirigir de todos modos
-    });
-}
-
-// Event listeners
+/* ── EVENT LISTENERS ──────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
     // Bell click
     document.getElementById('notifBtn')?.addEventListener('click', (e) => {
@@ -206,31 +382,16 @@ document.addEventListener('DOMContentLoaded', function() {
             closeNotifModal();
         }
     });
-});
-
-/* GLOBAL BADGE UPDATE */
-window.updateGlobalBadge = function(data) {
-    const badge = document.getElementById('notif-count');
-    if (!badge) return;
-    if (data && data.success && data.count > 0) {
-        badge.textContent = data.count > 99 ? '99+' : data.count;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
+    
+    // ── INICIAR SISTEMA CENTRALIZADO ──
+    if (document.getElementById('notifBtn')) {
+        window.BedcomNotifs.start();
     }
-};
-
-// Init polling 30s - global (single interval)
-window.initNotifPolling = function() {
-    if (notifPolling) clearInterval(notifPolling);
-    cargarNotificacionesModal();
-    notifPolling = setInterval(cargarNotificacionesModal, 30000);
-};
-if (document.getElementById('notifBtn')) window.initNotifPolling();
+});
 
 // Cleanup
 window.addEventListener('beforeunload', () => {
-    if (notifPolling) clearInterval(notifPolling);
+    window.BedcomNotifs.stop();
 });
 
 </script>

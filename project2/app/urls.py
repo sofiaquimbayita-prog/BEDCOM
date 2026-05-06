@@ -104,6 +104,8 @@ urlpatterns = [
     path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
     path('monitoreo/api/notif-read/<int:pk>/', monitoreo.api_mark_read, name='api_mark_read'),
     path('monitoreo/api/check-triggers/', monitoreo.api_check_triggers, name='api_check_triggers'),
+    path('monitoreo/api/notificaciones-agrupadas/', monitoreo.api_notificaciones_agrupadas, name='api_notificaciones_agrupadas'),
+    path('monitoreo/api/notif-group-read/<str:tipo>/', monitoreo.api_mark_group_read, name='api_mark_group_read'),
 
 
     # --- PROVEEDORES ---

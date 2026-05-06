@@ -1,6 +1,6 @@
 <div id="notificaciones-section" class="panel notif-panel">
     <div class="panel-header">
-        <span class="panel-title"><i class="fas fa-bell"></i> Notificaciones ({{ unread_count|default:0 }})</span>
+        <span class="panel-title"><i class="fas fa-bell"></i> Notificaciones (<span id="notif-total-count">0</span>)</span>
         <div class="panel-actions">
             <button onclick="checkTriggersNow()" class="btn-check-now" title="Verificar triggers ahora">
                 <i class="fas fa-bolt"></i> Verificar Ahora
@@ -8,23 +8,22 @@
             <span id="check-status" class="status-ok"></span>
         </div>
     </div>
-    <div class="table-wrap">
-<table id="notifTable" class="display responsive nowrap" style="width:100%;">
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-        </table>
+    
+    <!-- VISTA AGRUPADA (Anti-spam) -->
+    <div id="notif-grouped-view" class="notif-grouped-container">
+        <div class="notif-loading">
+            <i class="fas fa-spinner fa-spin"></i> Cargando notificaciones...
+        </div>
     </div>
 </div>
 
 <script>
-let notifTable;
+/* ═══════════════════════════════════════════════════════════════════
+   NOTIF-SECTION: Vista de monitoreo
+   NO tiene polling propio. Consume datos del sistema global BedcomNotifs.
+   ═══════════════════════════════════════════════════════════════════ */
 
-// Get CSRF Token helper (from menu.js pattern)
+// ── CSRF Helper ──────────────────────────────────────────────────
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -40,153 +39,164 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function initNotifTable() {
-    const tableEl = document.getElementById('notifTable');
-    if (!tableEl) {
-        console.error('Notif table element not found');
-        return;
-    }
-    
-    notifTable = $('#notifTable').DataTable({
-        ajax: '/vistas/monitoreo/api/notificaciones/',
-        columns: [
-            { data: 'titulo', orderable: true },
-            { data: 'leida', render: data => data ? '<span class="status-leida">Leída</span>' : '<span class="status-nueva">Nueva</span>' },
-            { 
-                orderable: false,
-                render: (data, type, row) => {
-                    let btnHTML = row.leida ? 
-                        `<button class="btn-small reopen" onclick="reopenNotif(${row.id})" title="Reabrir"><i class="fas fa-undo"></i></button>` :
-                        `<button class="btn-small danger" onclick="markRead(${row.id})" title="Marcar como leída"><i class="fas fa-eye"></i></button>`;
-                    
-                    btnHTML += ` <button class="btn-small action" onclick="redirigirNotif('${row.tipo}')" title="Ir al módulo"><i class="fas fa-external-link-alt"></i></button>`;
-                    return btnHTML;
-                }
-            }
-        ],
-        pageLength: 25,
-        order: [[0, 'desc']],
-        columnDefs: [
-            { targets: [0], width: '60%' },
-            { targets: [2], width: '20%', orderable: false }
-        ],
-        language: {
-            "lengthMenu": "Mostrar _MENU_ entradas",
-            "decimal": ",",
-            "thousands": ".",
-            "emptyTable": "No hay notificaciones",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ notificaciones",
-            "infoEmpty": "Mostrando 0 a 0 de 0 notificaciones",
-            "infoFiltered": "(filtrado de _MAX_ total notificaciones)",
-            "infoPostFix": "",
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron notificaciones coincidentes",
-            "paginate": {
-                "first": "Primera",
-                "last": "Última",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            },
-            "aria": {
-                "sortAscending": ": activar para ordenar la columna ascendente",
-                "sortDescending": ": activar para ordenar la columna descendente"
-            }
-        },
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todas"]],
-        dom: '<"top"l>frtip', // Organized: length | filter | table | info+paging
-        responsive: true,
-        drawCallback: function() { 
-            attachNotifListeners(); 
-            if (typeof window.updateGlobalBadge === 'function') {
-                fetch('/vistas/monitoreo/api/notificaciones/')
-                    .then(res => res.json())
-                    .then(window.updateGlobalBadge)
-                    .catch(console.error);
-            }
-            updateNotifBadge(); 
-        }
-    });
-}
-
-function updateNotifBadge() {
-    fetch('/vistas/monitoreo/api/notificaciones/')
-        .then(response => {
-            if (!response.ok) throw new Error('API failed');
-            return response.json();
-        })
+// ── Cargar vista agrupada ────────────────────────────────────────
+function cargarNotifAgrupadas() {
+    fetch('/vistas/monitoreo/api/notificaciones-agrupadas/')
+        .then(res => res.json())
         .then(data => {
-            const badgeEl = document.querySelector('#notificaciones-section .panel-title');
-            if (badgeEl) {
-                const count = data.count || 0;
-                badgeEl.innerHTML = '<i class="fas fa-bell"></i> Notificaciones ' + 
-                    (count > 0 ? `<span class="badge-count">${count}</span>` : '');
+            if (!data.success) return;
+            
+            // Actualizar contador del panel
+            const countEl = document.getElementById('notif-total-count');
+            if (countEl) countEl.textContent = data.total || 0;
+            
+            const container = document.getElementById('notif-grouped-view');
+            if (!container) return;
+            
+            const grupos = data.grupos || [];
+            
+            if (grupos.length === 0) {
+                container.innerHTML = `
+                    <div class="notif-empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Sin notificaciones activas</p>
+                        <span>El sistema está funcionando correctamente</span>
+                    </div>
+                `;
+                return;
             }
+            
+            let html = '';
+            grupos.forEach((grupo, idx) => {
+                const isExpanded = grupo.no_leidas > 0; // Auto-expandir si hay no leídas
+                const badgeClass = grupo.no_leidas > 0 ? 'badge-unread' : 'badge-read';
+                
+                html += `
+                <div class="notif-group ${isExpanded ? 'expanded' : ''}" data-tipo="${grupo.tipo}">
+                    <div class="notif-group-header" onclick="toggleNotifGroup(this)" style="--group-color: ${grupo.color}">
+                        <div class="notif-group-left">
+                            <i class="${grupo.icon}" style="color: ${grupo.color}"></i>
+                            <span class="notif-group-title">${grupo.titulo_grupo}</span>
+                            <span class="notif-group-badge ${badgeClass}">${grupo.cantidad}</span>
+                            ${grupo.no_leidas > 0 ? `<span class="notif-group-unread">${grupo.no_leidas} nuevas</span>` : ''}
+                        </div>
+                        <div class="notif-group-right">
+                            <button class="btn-mark-group" onclick="event.stopPropagation(); markGroupRead('${grupo.tipo}')" title="Marcar todas como leídas" ${grupo.no_leidas === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-check-double"></i>
+                            </button>
+                            <i class="fas fa-chevron-down notif-group-arrow"></i>
+                        </div>
+                    </div>
+                    <div class="notif-group-body">
+                        <ul class="notif-group-items">`;
+                
+                grupo.items.forEach(item => {
+                    const readClass = item.leida ? 'leida' : 'no-leida';
+                    const fecha = new Date(item.fecha_notif).toLocaleString('es-CO', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    });
+                    
+                    html += `
+                            <li class="notif-group-item ${readClass}">
+                                <div class="notif-item-content">
+                                    <span class="notif-item-dot ${readClass}"></span>
+                                    <div class="notif-item-text">
+                                        <span class="notif-item-titulo">${item.titulo}</span>
+                                        <span class="notif-item-fecha">${fecha}</span>
+                                    </div>
+                                </div>
+                                <div class="notif-item-actions">
+                                    ${!item.leida ? `
+                                    <button class="btn-small-notif" onclick="markSingleRead(${item.id})" title="Marcar como leída">
+                                        <i class="fas fa-eye"></i>
+                                    </button>` : `
+                                    <span class="notif-read-badge"><i class="fas fa-check"></i> Leída</span>`}
+                                    <button class="btn-small-notif action" onclick="redirigirNotif('${grupo.tipo}')" title="Ir al módulo">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                            </li>`;
+                });
+                
+                html += `
+                        </ul>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
         })
-        .catch(err => console.error('Badge update error:', err));
+        .catch(err => {
+            console.error('Error cargando notifs agrupadas:', err);
+        });
 }
 
-function checkTriggersNow() {
-    const statusEl = document.getElementById('check-status');
-    if (!statusEl) {
-        console.error('Check status element not found');
-        return;
-    }
-    
-    statusEl.textContent = 'Verificando...';
-    statusEl.className = 'status-loading';
-    
-    fetch('/vistas/monitoreo/api/check-triggers/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            showToast(`✅ ${data.nuevas || 0} nuevas notificaciones generadas`);
-            if (notifTable) notifTable.ajax.reload();
-            statusEl.textContent = `${data.nuevas || 0} nuevas`;
-            statusEl.className = (data.nuevas || 0) > 0 ? 'status-new' : 'status-ok';
-            setTimeout(() => { 
-                statusEl.textContent = ''; 
-                statusEl.className = 'status-ok';
-            }, 4000);
-        } else {
-            throw new Error(data.error || 'Respuesta inválida');
-        }
-    })
-    .catch(error => {
-        console.error('Check triggers error:', error);
-        showNotifError('Error verificando triggers: ' + error.message);
-        statusEl.textContent = 'Error';
-        statusEl.className = 'status-error';
-        setTimeout(() => { 
-            statusEl.textContent = ''; 
-            statusEl.className = 'status-ok';
-        }, 4000);
-    });
+// ── Toggle grupo acordeón ────────────────────────────────────────
+function toggleNotifGroup(headerEl) {
+    const group = headerEl.closest('.notif-group');
+    if (group) group.classList.toggle('expanded');
 }
 
-function markRead(id) {
-    if (!notifTable) return;
-    
+// ── Marcar individual como leída ─────────────────────────────────
+function markSingleRead(id) {
     fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
         method: 'POST',
         headers: { 'X-CSRFToken': getCookie('csrftoken') }
     })
-    .then(() => notifTable.ajax.reload())
+    .then(() => {
+        cargarNotifAgrupadas();
+        // Forzar actualización del badge global
+        if (window.BedcomNotifs) window.BedcomNotifs.forceCheck();
+    })
     .catch(err => console.error('Mark read error:', err));
 }
 
+// ── Marcar grupo completo como leído ─────────────────────────────
+function markGroupRead(tipo) {
+    fetch(`/vistas/monitoreo/api/notif-group-read/${tipo}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.showToast(`✅ ${data.marcadas} notificaciones marcadas como leídas`);
+            cargarNotifAgrupadas();
+            if (window.BedcomNotifs) window.BedcomNotifs.forceCheck();
+        }
+    })
+    .catch(err => console.error('Mark group read error:', err));
+}
+
+// ── Verificar triggers manualmente (botón fallback) ──────────────
+function checkTriggersNow() {
+    const statusEl = document.getElementById('check-status');
+    if (statusEl) {
+        statusEl.textContent = 'Verificando...';
+        statusEl.className = 'status-loading';
+    }
+    
+    // Usar el sistema centralizado
+    if (window.BedcomNotifs) {
+        window.BedcomNotifs.forceCheck();
+    }
+    
+    // Esperar un momento y recargar la vista agrupada
+    setTimeout(() => {
+        cargarNotifAgrupadas();
+        if (statusEl) {
+            statusEl.textContent = '✓ Actualizado';
+            statusEl.className = 'status-ok';
+            setTimeout(() => { 
+                statusEl.textContent = ''; 
+            }, 3000);
+        }
+    }, 1500);
+}
+
+// ── Redirigir al módulo correspondiente ──────────────────────────
 function redirigirNotif(tipo) {
-    let urlDestino = '/vistas/monitoreo/'; // fallback
+    let urlDestino = '/vistas/monitoreo/';
     switch(tipo) {
         case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
         case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
@@ -201,36 +211,17 @@ function redirigirNotif(tipo) {
     window.location.href = urlDestino;
 }
 
-function reopenNotif(id) {
-    console.log('Reopen notif:', id); // Future implementation
-}
-
-function attachNotifListeners() {
-    // Row click handlers if needed
-    console.log('Notif listeners attached');
-}
-
-// Init on DOM ready + 500ms delay for DataTables
+// ── INICIALIZACIÓN ───────────────────────────────────────────────
+// Cargar vista agrupada al inicio
 setTimeout(() => {
-    initNotifTable();
-}, 500);
+    cargarNotifAgrupadas();
+}, 600);
 
-// Auto refresh every 30s
-setInterval(() => {
-    if (notifTable) {
-        notifTable.ajax.reload(null, false); // No reset paging
-        // Global sync after reload
-        if (typeof window.updateGlobalBadge === 'function') {
-            fetch('/vistas/monitoreo/api/notificaciones/')
-                .then(res => res.json())
-                .then(window.updateGlobalBadge)
-                .catch(console.error);
-        }
-    }
-}, 30000);
-
-// Toast/error helpers — delegate to global system in base.html
-// window.showToast() and window.showErrorToast() are already defined globally.
-// showNotifError uses the global toast:
-function showNotifError(msg) { window.showToast(msg, 'error'); }
+// Escuchar actualizaciones del sistema global (sin polling propio)
+if (window.BedcomNotifs) {
+    window.BedcomNotifs.onUpdate(function(data) {
+        // Cuando el sistema global detecta cambios, refrescar vista agrupada
+        cargarNotifAgrupadas();
+    });
+}
 </script>
