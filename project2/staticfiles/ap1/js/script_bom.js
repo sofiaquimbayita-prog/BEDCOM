@@ -27,6 +27,52 @@ let recetaInsumos = [];
 let editRecetaInsumos = [];
 // La variable productosConReceta se define en el template HTML antes de cargar este script
 
+function inicializarSelect2Bom(selector, modalSelector, options = {}) {
+    if (!window.jQuery) return;
+
+    $(selector).each(function() {
+        const $select = $(this);
+
+        if ($.fn.select2 && $select.hasClass('select2-hidden-accessible')) {
+            $select.select2('destroy');
+        }
+
+        $select.removeClass('select2-hidden-accessible select2-offscreen')
+               .next('.select2-container').remove();
+
+        if ($.fn.select2) {
+            $select.select2({
+                language: 'es',
+                width: '100%',
+                dropdownParent: $(modalSelector),
+                ...options
+            });
+        }
+    });
+}
+
+function asegurarSelect2Bom() {
+    if (!window.jQuery || $.fn.select2) return;
+
+    $.fn.select2 = function(action, value) {
+        if (action === 'val' && arguments.length > 1) {
+            return this.val(value);
+        }
+
+        return this;
+    };
+}
+
+asegurarSelect2Bom();
+
+document.addEventListener('click', function(e) {
+    const button = e.target.closest('[data-modal-target]');
+    if (!button) return;
+
+    e.preventDefault();
+    abrirModal(button.dataset.modalTarget);
+});
+
 $(document).ready(function() {
     // BOM Agregar Producto handler
     $('#formBomAgregarProducto').on('submit', function(e) {
@@ -93,19 +139,11 @@ $(document).ready(function() {
         });
     }
 
-    // Select2 para receta
-    $('#recetaInsumo, #recetaProducto').select2({
-        language: 'es',
-        allowClear: true,
-        width: '100%'
-    });
+    // Select2 para receta, solo si la libreria esta disponible.
+    inicializarSelect2Bom('#recetaInsumo, #recetaProducto', '#modalReceta', { allowClear: true });
 
-    // Select2 para edición de receta
-    $('#editRecetaInsumo, #editRecetaProducto').select2({
-        language: 'es',
-        allowClear: true,
-        width: '100%'
-    });
+    // Select2 para edicion de receta, solo si la libreria esta disponible.
+    inicializarSelect2Bom('#editRecetaInsumo, #editRecetaProducto', '#modalEditBom', { allowClear: true });
 
     // Manejar cambio de producto en el modal de crear receta
     $('#recetaProducto').on('change', function() {
@@ -593,6 +631,8 @@ function crearProductoBOM() {
 
 // Función para abrir modal
 function abrirModal(modalId) {
+    asegurarSelect2Bom();
+
     // Limpiar receta al abrir
     if (modalId === 'modalReceta') {
         recetaInsumos = [];
@@ -715,6 +755,8 @@ function cerrarTodosLosToasts() {
 
 // Función para editar un registro BOM - abrir modal de edición de receta
 function editarBom(productoId) {
+    asegurarSelect2Bom();
+
     // Limpiar datos anteriores
     editRecetaInsumos = [];
     
