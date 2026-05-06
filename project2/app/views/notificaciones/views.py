@@ -6,36 +6,31 @@ from django.urls import reverse
 from django.shortcuts import render
 from webpush import send_user_notification
 
-from app.models import (historial_acciones, producto, insumo, entrada, salida_producto, calendario,Notificacion, bom, pedido, despacho)
+from app.models import (historial_acciones, producto, insumo, entrada, salida_producto, calendario, Notificacion, bom, pedido, despacho)
 
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum, F
 
 @method_decorator(login_required, name='dispatch')
-class MonitoreoView(TemplateView):
-    template_name = 'monitoreo/monitoreo.html'
+class NotificacionesView(TemplateView):
+    template_name = 'notificaciones/notificaciones.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-        # 2. CARGAR KPIs (Indicadores)
-        # Total stock units (todos productos activos)
-        from django.db.models import Sum
-        total_stock = producto.objects.filter(estado=True).aggregate(total_stock=Sum('stock'))['total_stock']
-        context['stock_total'] = total_stock or 0
-        
-        # Insumos bajos (ejemplo: menos de 10 unidades)
-        context['insumos_bajos'] = insumo.objects.filter(cantidad__lte=10).count()
-        
-        today = timezone.now().date()
-        # Producción hoy: count entradas de hoy
-        context['produccion_hoy'] = entrada.objects.filter(fecha__date=today, estado=True, anulado=False).count()
-        # Salidas hoy
-        context['salidas_hoy'] = salida_producto.objects.filter(fecha=today, estado=True).count()
+        # KPIs avanzados de Notificaciones
+        context['total_alertas'] = Notificacion.objects.filter(user=user).count()
+        context['alertas_pendientes'] = Notificacion.objects.filter(user=user, leida=False).count()
+        context['alertas_criticas'] = Notificacion.objects.filter(
+            user=user, 
+            leida=False, 
+            tipo__in=['bajo_stock_producto', 'bajo_stock_insumo', 'pago_pendiente', 'pendido_despacho']
+        ).count()
+        context['alertas_atendidas'] = Notificacion.objects.filter(user=user, leida=True).count()
 
-        # 3. URLs para redirección desde las tarjetas
-        # Usamos try/except por si alguna URL no está definida aún en urls.py
+        # URLs para redirección de las tarjetas (compatibilidad)
         try: context['productos_url'] = reverse('productos')
         except: context['productos_url'] = '#'
             
@@ -48,33 +43,32 @@ class MonitoreoView(TemplateView):
         try: context['salida_p_url'] = reverse('salida_producto')
         except: context['salida_p_url'] = '#'
 
-        # NOTIFS COUNT for monitoreo page
-        context['unread_count'] = Notificacion.objects.filter(user=self.request.user, leida=False).count()
         return context
 
 
-
-
-    
-
-
 @login_required
-def api_kpis(request):
-    """API endpoint para obtener KPIs en tiempo real"""
+def api_kpis_notificaciones(request):
+    """API endpoint para obtener KPIs de alertas en tiempo real"""
     if request.method == 'GET':
-        from app.models import entrada, salida_producto
-        from django.utils import timezone
-        today = timezone.now().date()
+        user = request.user
+        total = Notificacion.objects.filter(user=user).count()
+        pendientes = Notificacion.objects.filter(user=user, leida=False).count()
+        criticas = Notificacion.objects.filter(
+            user=user, 
+            leida=False, 
+            tipo__in=['bajo_stock_producto', 'bajo_stock_insumo', 'pago_pendiente', 'pendido_despacho']
+        ).count()
+        atendidas = Notificacion.objects.filter(user=user, leida=True).count()
+        
         data = {
-            'produccion_hoy': entrada.objects.filter(fecha__date=today, estado=True, anulado=False).count(),
-            'salidas_hoy': salida_producto.objects.filter(fecha=today, estado=True).count(),
-            'total_eventos': 150,
-            'eventos_activos': 45,
-            'tasa_exito': 87.5,
-            'tiempo_promedio': 12.3,
+            'total_alertas': total,
+            'alertas_pendientes': pendientes,
+            'alertas_criticas': criticas,
+            'alertas_atendidas': atendidas,
         }
         return JsonResponse(data)
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 
 @login_required
 def test_notificacion(request):
@@ -91,20 +85,16 @@ def test_notificacion(request):
 
 
 # =====================================================
-# APIs NOTIFICACIONES - REFACTORIZADAS
+# APIs NOTIFICACIONES
 # =====================================================
 
 @login_required
 def api_notificaciones(request):
     """
     API: Lista TODAS las notificaciones del usuario (leídas + no leídas).
-    Las notificaciones ya NO desaparecen al marcarlas como leídas.
-    Solo desaparecen cuando la auto-resolución las elimina.
     """
-    # Contar no leídas para el badge
     unread_count = Notificacion.objects.filter(user=request.user, leida=False).count()
     
-    # Devolver TODAS las notificaciones (leídas Y no leídas), no solo las no leídas
     notifs = Notificacion.objects.filter(
         user=request.user
     ).select_related('user').order_by('-fecha_notif')[:50].values(
@@ -113,7 +103,7 @@ def api_notificaciones(request):
     
     return JsonResponse({
         'success': True, 
-        'count': unread_count,  # Badge solo cuenta no leídas
+        'count': unread_count,
         'total': Notificacion.objects.filter(user=request.user).count(),
         'data': list(notifs),
         'badge': unread_count if unread_count > 0 else ''
@@ -124,7 +114,7 @@ def api_notificaciones(request):
 def api_notificaciones_agrupadas(request):
     """
     API: Notificaciones agrupadas por tipo para vista anti-spam.
-    Cada tipo retorna un grupo con conteo y items individuales.
+    Each type returns a group with counts and individual items.
     """
     user = request.user
     
@@ -135,7 +125,7 @@ def api_notificaciones_agrupadas(request):
         'calendario_hoy': 'Eventos de hoy',
         'calendario_manaña': 'Eventos de mañana',
         'pendido_despacho': 'Despachos pendientes',
-        'sin_bom': ' Productos sin receta BOM',
+        'sin_bom': 'Productos sin receta BOM',
         'reporte_generado': 'Reportes generados',
         'despacho_completado': 'Despachos completados',
         'pago_pendiente': 'Pagos pendientes',
@@ -172,7 +162,6 @@ def api_notificaciones_agrupadas(request):
     
     all_notifs = Notificacion.objects.filter(user=user).order_by('tipo', '-fecha_notif')
     
-    # Agrupar por tipo
     grupos = {}
     for n in all_notifs:
         if n.tipo not in grupos:
@@ -217,7 +206,6 @@ def api_notificaciones_agrupadas(request):
 def api_mark_read(request, pk):
     """
     API: Marcar notificación como LEÍDA.
-    La notificación NO se elimina, solo cambia de estado visual.
     """
     try:
         notif = Notificacion.objects.get(id=pk, user=request.user)
@@ -231,7 +219,7 @@ def api_mark_read(request, pk):
 @login_required
 def api_mark_group_read(request, tipo):
     """
-    API: Marcar TODAS las notificaciones de un tipo como leídas.
+    API: Marcar todas las de un tipo como leídas.
     """
     count = Notificacion.objects.filter(
         user=request.user, tipo=tipo, leida=False
@@ -242,11 +230,11 @@ def api_mark_group_read(request, tipo):
 @login_required
 def api_check_triggers(request):
     """
-    API: VERIFICAR TRIGGERS y crear notificaciones nuevas.
-    INCLUYE AUTO-RESOLUCIÓN: elimina notificaciones cuya condición ya no existe.
+    API: Verificar triggers y crear nuevas notificaciones.
+    Incluye auto-resolución.
     """
     from django.utils import timezone
-    from datetime import date, timedelta
+    from datetime import date
     today = date.today()
     tomorrow = today + timedelta(days=1)
     user = request.user
@@ -254,10 +242,10 @@ def api_check_triggers(request):
     resolved = []
     
     # ═══════════════════════════════════════════════════
-    # FASE 1: AUTO-RESOLUCIÓN (limpiar notifs obsoletas)
+    # FASE 1: AUTO-RESOLUCIÓN
     # ═══════════════════════════════════════════════════
     
-    # 1a. Resolver bajo_stock_producto: si stock ya >= 5, eliminar notif
+    # 1a. Bajo stock producto
     notifs_stock_prod = Notificacion.objects.filter(user=user, tipo='bajo_stock_producto')
     for notif in notifs_stock_prod:
         try:
@@ -269,7 +257,7 @@ def api_check_triggers(request):
             notif.delete()
             resolved.append(f'Resuelto: producto eliminado id={notif.target_id}')
     
-    # 1b. Resolver bajo_stock_insumo: si cantidad ya >= 10
+    # 1b. Bajo stock insumo
     notifs_stock_ins = Notificacion.objects.filter(user=user, tipo='bajo_stock_insumo')
     for notif in notifs_stock_ins:
         try:
@@ -281,7 +269,7 @@ def api_check_triggers(request):
             notif.delete()
             resolved.append(f'Resuelto: insumo eliminado id={notif.target_id}')
     
-    # 1c. Resolver despachos: si ya no está pendiente
+    # 1c. Despachos pendientes
     notifs_despacho = Notificacion.objects.filter(user=user, tipo='pendido_despacho')
     for notif in notifs_despacho:
         try:
@@ -293,7 +281,7 @@ def api_check_triggers(request):
             notif.delete()
             resolved.append(f'Resuelto: despacho eliminado id={notif.target_id}')
     
-    # 1d. Resolver pagos: si abono >= total
+    # 1d. Pagos pendientes
     notifs_pago = Notificacion.objects.filter(user=user, tipo='pago_pendiente')
     for notif in notifs_pago:
         try:
@@ -305,7 +293,7 @@ def api_check_triggers(request):
             notif.delete()
             resolved.append(f'Resuelto: pedido eliminado id={notif.target_id}')
     
-    # 1e. Resolver sin_bom: si el producto ya tiene BOM
+    # 1e. Sin BOM
     notifs_bom = Notificacion.objects.filter(user=user, tipo='sin_bom')
     for notif in notifs_bom:
         try:
@@ -317,7 +305,7 @@ def api_check_triggers(request):
             notif.delete()
             resolved.append(f'Resuelto: producto eliminado id={notif.target_id}')
     
-    # 1f. Resolver calendario: eventos pasados o completados
+    # 1f. Calendario
     notifs_cal = Notificacion.objects.filter(user=user, tipo__in=['calendario_hoy', 'calendario_manaña'])
     for notif in notifs_cal:
         try:
@@ -333,7 +321,7 @@ def api_check_triggers(request):
     # FASE 2: CREAR NUEVAS NOTIFICACIONES
     # ═══════════════════════════════════════════════════
     
-    # 2a. BAJO STOCK INSUMOS <10
+    # 2a. Bajo stock insumos (<10)
     low_insumos = insumo.objects.filter(cantidad__lt=10, estado='Activo')
     for ins in low_insumos:
         if not Notificacion.objects.filter(
@@ -348,7 +336,7 @@ def api_check_triggers(request):
             )
             created.append(f'Low insumo {ins.nombre}')
     
-    # 2b. BAJO STOCK PRODUCTOS <5
+    # 2b. Bajo stock productos (<5)
     low_productos = producto.objects.filter(stock__lt=5, estado=True)
     for prod in low_productos:
         if not Notificacion.objects.filter(
@@ -363,7 +351,7 @@ def api_check_triggers(request):
             )
             created.append(f'Bajo stock prod {prod.nombre}')
     
-    # 2c. CALENDARIO HOY/MAÑANA pendiente
+    # 2c. Calendario hoy/mañana pendiente
     eventos_hoy = calendario.objects.filter(
         fecha=today, estado='pendiente'
     )
@@ -390,7 +378,7 @@ def api_check_triggers(request):
         )
         created.append(f'Calendario mañana {ev.titulo}')
     
-    # 2d. DESPACHOS PENDIENTES
+    # 2d. Despachos pendientes
     despachos_pend = despacho.objects.filter(estado='pendiente')
     for desp in despachos_pend:
         Notificacion.objects.get_or_create(
@@ -402,7 +390,7 @@ def api_check_triggers(request):
         )
         created.append(f'Despacho pend {desp.id}')
     
-    # 2e. PRODUCTOS SIN BOM (sin receta)
+    # 2e. Productos sin BOM
     productos_sin_bom = producto.objects.filter(
         estado=True
     ).exclude(id__in=bom.objects.values('producto_id').distinct())
@@ -418,7 +406,7 @@ def api_check_triggers(request):
             )
             created.append(f'Sin BOM {prod.nombre}')
     
-    # 2f. PEDIDOS PAGO PENDIENTE
+    # 2f. Pedidos pago pendiente
     pagos_pend = pedido.objects.filter(
         abono__lt=F('total')
     )

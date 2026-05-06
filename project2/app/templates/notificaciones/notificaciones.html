@@ -1,0 +1,230 @@
+{% extends 'includes/base.html' %}
+{% load static %}
+{% block title %}Bandeja de Notificaciones | BEDCOM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/notificaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="notif-main-dashboard">
+    <!-- PANEL DE KPIs DE ALERTAS (METRICS CONTAINER) -->
+    <section class="notif-metrics-section">
+        <div class="notif-metrics-grid">
+            <!-- Total Alertas -->
+            <div class="notif-metric-card total-card" style="--card-theme-color: #38bdf8;">
+                <div class="metric-card-blur"></div>
+                <div class="metric-card-content">
+                    <div class="metric-icon-wrap">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value" id="kpi-total-notifs" data-target="{{ total_alertas|default:0 }}">0</span>
+                        <span class="metric-label">Historial Total</span>
+                    </div>
+                </div>
+                <div class="metric-card-glow"></div>
+            </div>
+
+            <!-- Alertas Pendientes -->
+            <div class="notif-metric-card pending-card" style="--card-theme-color: #f59e0b;">
+                <div class="metric-card-blur"></div>
+                <div class="metric-card-content">
+                    <div class="metric-icon-wrap">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value" id="kpi-pending-notifs" data-target="{{ alertas_pendientes|default:0 }}">0</span>
+                        <span class="metric-label">Pendientes</span>
+                    </div>
+                </div>
+                <div class="metric-card-glow"></div>
+            </div>
+
+            <!-- Alertas Críticas -->
+            <div class="notif-metric-card critical-card" style="--card-theme-color: #ef4444;">
+                <div class="metric-card-blur"></div>
+                <div class="metric-card-content">
+                    <div class="metric-icon-wrap">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value" id="kpi-critical-notifs" data-target="{{ alertas_criticas|default:0 }}">0</span>
+                        <span class="metric-label">Críticas</span>
+                    </div>
+                </div>
+                <div class="metric-card-glow"></div>
+            </div>
+
+            <!-- Alertas Atendidas -->
+            <div class="notif-metric-card attended-card" style="--card-theme-color: #10b981;">
+                <div class="metric-card-blur"></div>
+                <div class="metric-card-content">
+                    <div class="metric-icon-wrap">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="metric-data">
+                        <span class="metric-value" id="kpi-attended-notifs" data-target="{{ alertas_atendidas|default:0 }}">0</span>
+                        <span class="metric-label">Atendidas</span>
+                    </div>
+                </div>
+                <div class="metric-card-glow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN BODY GRID Layout -->
+    <div class="notif-dashboard-body">
+        <!-- SECCIÓN IZQUIERDA: BUSCADOR, FILTROS Y BANDEJA -->
+        <section class="notif-center-panel">
+            <div class="notif-glass-header">
+                <div class="notif-header-top">
+                    <div class="header-title-area">
+                        <h2><i class="fas fa-inbox text-blue"></i> Bandeja de Entrada</h2>
+                        <p class="panel-subtitle">Administra todas las alertas y tareas automatizadas en tiempo real</p>
+                    </div>
+                    <div class="header-clock-area">
+                        <i class="far fa-clock"></i>
+                        <span id="fecha-hora">Cargando fecha y hora...</span>
+                    </div>
+                </div>
+
+                <!-- CONTROLES DE BUSCADOR Y FILTROS -->
+                <div class="notif-controls-grid">
+                    <div class="notif-search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="notif-search-input" placeholder="Buscar palabras clave en alertas..." autocomplete="off">
+                        <button id="clear-search-btn" class="search-clear-btn" style="display: none;" title="Limpiar búsqueda">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="notif-advanced-actions">
+                        <!-- Selector de Categorías -->
+                        <div class="category-select-wrapper">
+                            <select id="notif-category-select">
+                                <option value="all">Todas las Categorías</option>
+                                <option value="bajo_stock_insumo">Inventario: Insumo Bajo</option>
+                                <option value="bajo_stock_producto">Inventario: Producto Bajo</option>
+                                <option value="pago_pendiente">Finanzas: Cobros y Pagos</option>
+                                <option value="pendido_despacho">Logística: Envío Pendiente</option>
+                                <option value="sin_bom">Receta: Producto sin BOM</option>
+                                <option value="calendario">Calendario y Eventos</option>
+                            </select>
+                            <i class="fas fa-chevron-down custom-select-arrow"></i>
+                        </div>
+
+                        <!-- Verificar Ahora Trigger Manual -->
+                        <button onclick="checkTriggersNow()" class="btn-trigger-manual-premium" id="btn-check-triggers" title="Escanear base de datos ahora para actualizar">
+                            <i class="fas fa-bolt"></i>
+                            <span>Verificar Ahora</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TABS DE FILTRO POR ESTADOS (Pestañas premium) -->
+                <div class="notif-tabs-filters-wrapper">
+                    <div class="notif-tabs-container">
+                        <button class="notif-tab-btn active" data-filter="all">
+                            <span class="tab-label">Todas</span>
+                        </button>
+                        <button class="notif-tab-btn" data-filter="pending">
+                            <span class="tab-indicator pending-indicator"></span>
+                            <span class="tab-label">Pendientes</span>
+                        </button>
+                        <button class="notif-tab-btn" data-filter="critical">
+                            <span class="tab-indicator critical-indicator"></span>
+                            <span class="tab-label">Críticas</span>
+                        </button>
+                        <button class="notif-tab-btn" data-filter="attended">
+                            <span class="tab-indicator attended-indicator"></span>
+                            <span class="tab-label">Atendidas</span>
+                        </button>
+                    </div>
+                    <span id="check-status-badge" class="check-status-idle"></span>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR DE LA BANDEJA (ACORDEÓN) -->
+            <div class="notif-inbox-wrapper">
+                {% include 'notificaciones/notif-section.html' %}
+            </div>
+        </section>
+
+        <!-- SECCIÓN DERECHA: SIDEBAR DE PRIORIDADES Y TRIGGERS -->
+        <aside class="notif-sidebar-panel">
+            <!-- Prioridades del Día Widget -->
+            <div class="sidebar-widget priority-widget-glass">
+                <div class="widget-header-premium">
+                    <h3><i class="fas fa-fire-alt text-orange animate-pulse"></i> Prioridades Críticas</h3>
+                </div>
+                <div class="widget-body-premium" id="prioridades-hoy-container">
+                    <div class="priority-loading">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <span>Analizando prioridades de inventario...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado de Triggers Activos Widget -->
+            <div class="sidebar-widget triggers-widget-glass">
+                <div class="widget-header-premium">
+                    <h3><i class="fas fa-cog text-blue"></i> Triggers del Sistema</h3>
+                    <span class="badge-system-ok">En Línea</span>
+                </div>
+                <div class="widget-body-premium">
+                    <p class="triggers-info-desc">
+                        BEDCOM gestiona 5 automatizadores de fondo activos en tiempo real para mantener la integridad de las operaciones:
+                    </p>
+                    <div class="triggers-status-list">
+                        <div class="trigger-status-item">
+                            <div class="trigger-status-header">
+                                <span class="trigger-bullet bg-orange"><i class="fas fa-warehouse"></i> Inventario Crítico</span>
+                                <span class="trigger-pulse-dot"></span>
+                            </div>
+                            <p class="trigger-status-text">Escanea niveles mínimos en insumos (&lt;10) y productos (&lt;5).</p>
+                        </div>
+
+                        <div class="trigger-status-item">
+                            <div class="trigger-status-header">
+                                <span class="trigger-bullet bg-emerald"><i class="fas fa-money-bill-wave"></i> Cuentas Pendientes</span>
+                                <span class="trigger-pulse-dot"></span>
+                            </div>
+                            <p class="trigger-status-text">Detecta saldos por cobrar de pedidos confirmados.</p>
+                        </div>
+
+                        <div class="trigger-status-item">
+                            <div class="trigger-status-header">
+                                <span class="trigger-bullet bg-blue"><i class="fas fa-calendar-day"></i> Agenda de Eventos</span>
+                                <span class="trigger-pulse-dot"></span>
+                            </div>
+                            <p class="trigger-status-text">Genera alarmas de eventos pendientes programados para hoy y mañana.</p>
+                        </div>
+
+                        <div class="trigger-status-item">
+                            <div class="trigger-status-header">
+                                <span class="trigger-bullet bg-orange-deep"><i class="fas fa-truck"></i> Estado de Logística</span>
+                                <span class="trigger-pulse-dot"></span>
+                            </div>
+                            <p class="trigger-status-text">Previene retrasos en el despacho y entrega de pedidos activos.</p>
+                        </div>
+
+                        <div class="trigger-status-item">
+                            <div class="trigger-status-header">
+                                <span class="trigger-bullet bg-purple"><i class="fas fa-sitemap"></i> Recetas de Fabricación</span>
+                                <span class="trigger-pulse-dot"></span>
+                            </div>
+                            <p class="trigger-status-text">Verifica que todo producto activo tenga su receta de materiales BOM.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<!-- Custom dynamic behavior for notifications dashboard -->
+<script src="{% static 'ap1/js/notificaciones.js' %}"></script>
+{% endblock %}

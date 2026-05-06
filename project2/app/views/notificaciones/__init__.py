@@ -1,6 +1,6 @@
 from .views import (
-    MonitoreoView, 
-    api_kpis, 
+    NotificacionesView, 
+    api_kpis_notificaciones,
     test_notificacion,
     api_notificaciones,
     api_notificaciones_agrupadas,

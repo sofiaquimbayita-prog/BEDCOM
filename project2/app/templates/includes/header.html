@@ -54,7 +54,7 @@
                         </ul>
                     </div>
                     <div class="notif-modal-footer">
-                        <a href="{% url 'monitoreo' %}" class="notif-ver-todas">Ver todas en Monitoreo </a>
+                        <a href="{% url 'notificaciones' %}" class="notif-ver-todas">Ver bandeja de entrada</a>
                     </div>
                 </div>
             </div>
@@ -89,8 +89,8 @@ window.BedcomNotifs = (function() {
         BASE_INTERVAL: 60000,      // 60 segundos base
         MAX_INTERVAL: 300000,      // 5 minutos máximo
         BACKOFF_MULTIPLIER: 2,     // Duplicar intervalo si no hay cambios
-        TRIGGER_URL: '/vistas/monitoreo/api/check-triggers/',
-        LIST_URL: '/vistas/monitoreo/api/notificaciones/',
+        TRIGGER_URL: '/vistas/notificaciones/api/check-triggers/',
+        LIST_URL: '/vistas/notificaciones/api/notificaciones/',
     };
     
     // ── ESTADO INTERNO ───────────────────────────────────────────
@@ -301,7 +301,7 @@ window.BedcomNotifs = (function() {
          * Marcar como leída y redirigir al módulo correspondiente.
          */
         markReadAndRedirect: function(id, tipo) {
-            let urlDestino = '/vistas/monitoreo/';
+            let urlDestino = '/vistas/notificaciones/';
             switch(tipo) {
                 case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
                 case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
@@ -314,7 +314,7 @@ window.BedcomNotifs = (function() {
                 case 'reporte_generado': urlDestino = '/vistas/reportes/'; break;
             }
             
-            fetch(`/vistas/monitoreo/api/notif-read/${id}/`, {
+            fetch(`/vistas/notificaciones/api/notif-read/${id}/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': _getCsrf(),

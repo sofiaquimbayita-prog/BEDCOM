@@ -1,6 +1,6 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido, clientes, despacho
+from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, notificaciones, pedido, clientes, despacho
 from app.views.respaldos.views import modal_respaldos
 from app.views.despacho.views import (
     DespachoListView,
@@ -17,8 +17,8 @@ from app.views.mantenimientos.views import (
 )
 
 urlpatterns = [
-    # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
-    path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis_alias'),
+    # ALIAS PATHS for notificaciones APIs (to fix frontend 404s to wrong paths)
+    path('notificaciones/api/kpis/', notificaciones.api_kpis_notificaciones, name='api_kpis_alias'),
 
 
     # --- ENTRADA DE PRODUCTOS ---
@@ -96,16 +96,16 @@ urlpatterns = [
     path('calendario/completar/<int:pk>/', calendario.EventoCompletarView.as_view(), name='completar_evento'),
     path('calendario/eliminar/<int:pk>/', calendario.EventoEliminarView.as_view(), name='eliminar_evento'),
 
-    # --- MONITOREO ---
-    path('monitoreo/', monitoreo.MonitoreoView.as_view(), name='monitoreo'),
-    path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
-    path('monitoreo/test-notif/', monitoreo.test_notificacion, name='test_notif'),
-    # --- NUEVAS URLs NOTIFICACIONES - PASO 3 ---
-    path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),
-    path('monitoreo/api/notif-read/<int:pk>/', monitoreo.api_mark_read, name='api_mark_read'),
-    path('monitoreo/api/check-triggers/', monitoreo.api_check_triggers, name='api_check_triggers'),
-    path('monitoreo/api/notificaciones-agrupadas/', monitoreo.api_notificaciones_agrupadas, name='api_notificaciones_agrupadas'),
-    path('monitoreo/api/notif-group-read/<str:tipo>/', monitoreo.api_mark_group_read, name='api_mark_group_read'),
+    # --- NOTIFICACIONES ---
+    path('notificaciones/', notificaciones.NotificacionesView.as_view(), name='notificaciones'),
+    path('notificaciones/api/kpis/', notificaciones.api_kpis_notificaciones, name='api_kpis'),
+    path('notificaciones/test-notif/', notificaciones.test_notificacion, name='test_notif'),
+    # --- NUEVAS URLs NOTIFICACIONES ---
+    path('notificaciones/api/notificaciones/', notificaciones.api_notificaciones, name='api_notificaciones'),
+    path('notificaciones/api/notif-read/<int:pk>/', notificaciones.api_mark_read, name='api_mark_read'),
+    path('notificaciones/api/check-triggers/', notificaciones.api_check_triggers, name='api_check_triggers'),
+    path('notificaciones/api/notificaciones-agrupadas/', notificaciones.api_notificaciones_agrupadas, name='api_notificaciones_agrupadas'),
+    path('notificaciones/api/notif-group-read/<str:tipo>/', notificaciones.api_mark_group_read, name='api_mark_group_read'),
 
 
     # --- PROVEEDORES ---
