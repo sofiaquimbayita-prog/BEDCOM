@@ -3,14 +3,12 @@
 
 {% block header_title %}Entradas de Productos - BEDCOM{% endblock %}
 
-{% block content %}
-
-
-
-<link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/entrada_p.css' %}">
+{% endblock %}
 
+{% block content %}
 <main class="entradas-productos">
     <div class="toolbar">
         <div class="toolbar-left">
@@ -69,8 +67,9 @@
     {% include "entrada_p/modal_reactivar.html" %}
 </div>
 
+{% endblock %}
 
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+{% block scripts %}
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/entrada_p.js' %}"></script>
 
@@ -249,6 +248,5 @@ function abrirModalReactivar(id, nombre) {
     $('body').css('overflow', 'hidden');
 }
 </script>
-
 {% endblock %}
 

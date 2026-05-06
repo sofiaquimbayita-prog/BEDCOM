@@ -212,6 +212,7 @@
         {% include 'includes/header.html' %} 
         {% include 'includes/modal_perfil.html' %}
     {% endblock %}
+    {% block extra_header %}{% endblock %}
 
     <!-- SIDEBARS -->
     <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
@@ -223,7 +224,6 @@
             <a href="{% url 'productos' %}" class="sidebar-module-item"><i class="fa-solid fa-box"></i><span>PRODUCTOS</span></a>
             <a href="{% url 'categorias' %}" class="sidebar-module-item"><i class="fa-solid fa-tags"></i><span>CATEGORÍAS</span></a>
             <a href="{% url 'insumos' %}" class="sidebar-module-item"><i class="fa-solid fa-cogs"></i><span>INSUMOS</span></a>
-            <a href="{% url 'inventario' %}" class="sidebar-module-item"><i class="fa-solid fa-warehouse"></i><span>INVENTARIO</span></a>
             <a href="{% url 'bom_list' %}" class="sidebar-module-item"><i class="fa-solid fa-sitemap"></i><span>BOM</span></a>
             
             <div class="sidebar-group-title">COMPRAS Y PROVEEDORES</div>
@@ -238,11 +238,9 @@
             <div class="sidebar-group-title">OPERACIONES</div>
             <a href="{% url 'entrada_p' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-down"></i><span>ENTRADA PRODUCTOS</span></a>
             <a href="{% url 'salida_producto' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-up"></i><span>SALIDA PRODUCTOS</span></a>
-            <a href="{% url 'logistica' %}" class="sidebar-module-item"><i class="fa-solid fa-truck-fast"></i><span>LOGÍSTICA</span></a>
             
             <div class="sidebar-group-title">REPORTES Y GESTIÓN</div>
             <a href="{% url 'reportes' %}" class="sidebar-module-item"><i class="fa-solid fa-chart-bar"></i><span>REPORTES</span></a>
-            <a href="{% url 'gestion' %}" class="sidebar-module-item"><i class="fa-solid fa-database"></i><span>GESTIÓN DE DATOS</span></a>
             <a href="{% url 'respaldos_list' %}" class="sidebar-module-item"><i class="fa-solid fa-save"></i><span>RESPALDOS</span></a>
             
             <div class="sidebar-group-title">MANTENIMIENTO</div>

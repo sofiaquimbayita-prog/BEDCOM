@@ -1,6 +1,7 @@
 {% extends "includes/base.html" %}
 {% load static %}
 {% block header_title %}Respaldos{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
 
@@ -99,10 +100,8 @@
                         <td style="text-align: center;">
                             <div class="table-actions" style="display: flex; justify-content: center; gap: 15px;">
                                 <!-- Ver detalles -->
-                                <i class="fa-regular fa-eye" 
-onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i:s' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"
-                                   title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
-                               
+                                <i class="fa-regular fa-eye" onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i:s' }}', '{{ r.usuario|escapejs }}', '{{ r.tipo_respaldo|escapejs }}', '{{ r.descripcion|escapejs }}')"                                   title="Ver detalles" style="cursor:pointer; color: #38bdf8; font-size: 1.1rem;"></i>
+            
                                 {% if r.estado %}
                                     <!-- Descargar -->
                                     <a href="{% url 'descargar_respaldo' r.id %}" title="Descargar SQL" style="text-decoration: none;">
@@ -110,14 +109,10 @@ onclick="openViewModal('{{ r.fecha|date:'d/m/Y H:i:s' }}', '{{ r.usuario|escapej
                                     </a>
 
                                     <!-- Inactivar -->
-                                    <i class="fa-regular fa-trash-can" 
-onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
-                                       title="Inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
+                                    <i class="fa-regular fa-trash-can" onclick="openDeleteModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"  title="Inactivar" style="cursor:pointer; color: #ef4444; font-size: 1.1rem;"></i>
                                 {% else %}
                                     <!-- Reactivar -->
-                                    <i class="fas fa-undo-alt" 
-onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
-                                       title="Reactivar" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
+                                    <i class="fas fa-undo-alt" onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"         title="Reactivar" style="cursor:pointer; color: #10b981; font-size: 1.1rem;"></i>
                                 {% endif %}
                             </div>
                         </td>
@@ -164,11 +159,9 @@ onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
     </div>
 </div>
 
+{% endblock %}
 
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
+{% block scripts %}
 <script>
     const URL_RESTAURAR = "{% url 'restaurar_datos' %}";
     const URL_MODAL_RESPALDOS = "{% url 'modal_respaldos' %}";
@@ -176,6 +169,4 @@ onclick="openRestoreModal('{{ r.id }}', '{{ r.fecha|date:'d/m/Y H:i:s' }}')"
 
 <script src="{% static 'ap1/js/respaldos.js' %}?v={% now 'U' %}"></script>
 <script src="{% static 'ap1/js/modal_restauracion.js' %}?v={% now 'U' %}"></script>
-
 {% endblock %}
-

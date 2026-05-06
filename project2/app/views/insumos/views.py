@@ -22,7 +22,7 @@ class InsumoListView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['categorias'] = categoria.objects.filter(estado=True, tipo=categoria.TIPO_INSUMO)
         context['proveedor']  = proveedor.objects.filter(estado=True)
-        context['titulo_pagina'] = 'GESTION DE INSUMOS - BEDCOM'
+        context['titulo_pagina'] = 'INSUMOS'
         context['icono_modulo'] = 'fas fa-boxes'
         return context
 
@@ -233,3 +233,4 @@ class ProveedorCreateView(View):
             'id': nuevo.id,
             'nombre': nuevo.nombre,
         })
+

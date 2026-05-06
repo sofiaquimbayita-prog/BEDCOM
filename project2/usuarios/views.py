@@ -27,6 +27,7 @@ class ListarUsuariosView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_form'] = UserForm()
+        context['titulo_pagina'] = 'GESTIÓN DE USUARIOS'
         return context
 
 # ==================================================

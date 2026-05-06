@@ -132,3 +132,4 @@ def reporte_ventas(request):
     Función deprecada - usar ReporteVentasView en su lugar
     """
     return ReporteVentasView.as_view()(request)
+

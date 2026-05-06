@@ -1,8 +1,3 @@
-/**
- * script_ia.js - BEDCOM IA Assistant (SpeechRecognition)
- * Fixed: Removed buggy Vosk, reliable browser SpeechRecog (es-CO)
- */
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -19,229 +14,219 @@ function getCookie(name) {
 }
 
 // === ESTADO GLOBAL ===
+let recognition = null;
 let audioActual = null;
+window.isMuted = localStorage.getItem('iaMuted') === 'true' || false;
 
-// --- REPRODUCCIÓN DE AUDIO ---
+// --- REPRODUCCIÓN DE AUDIO (PIPER) ---
 function reproducirVozLuna(urlAudio) {
     if (audioActual) audioActual.pause();
+
     if (urlAudio) {
         audioActual = new Audio(urlAudio);
-        audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        if (!window.isMuted) {
+            audioActual.play().catch(e => console.error("Error al reproducir voz de Luna:", e));
+        }
     }
 }
 
-// --- DEBUG GET EL Helper ---
-function debugGetEl(id) {
-  const el = document.getElementById(id);
-  console.log(`🔍 [IA.js] ID "${id}" -> ${el ? 'OK' : 'NULL!'}`);
-  return el;
-}
-
-// --- SPEECH RECOGNITION (Simplified & Reliable) ---
-window.escucharVoz = function() {
-  console.log('🔍 [IA.js] CLICK escucharVoz called');
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    console.log('🔍 [IA.js] SpeechRecognition:', !!Recognition);
+window.toggleMute = function() {
+    window.isMuted = !window.isMuted;
+    localStorage.setItem('iaMuted', window.isMuted);
     
-    if (!Recognition) {
-        const iaQuery = document.getElementById('iaQuery');
-        if (iaQuery) iaQuery.placeholder = "Chrome/Edge requerido para mic";
-        console.warn("SpeechRecognition no soportado. Usa Chrome/Edge.");
-        return;
+    // Mute/desmute audio actual si existe
+    if (audioActual) {
+        if (window.isMuted) {
+            audioActual.pause();
+            audioActual.muted = true;
+        } else {
+            audioActual.muted = false;
+            audioActual.currentTime = 0; // Reiniciar para desmute instantáneo
+            audioActual.play().catch(e => console.log('Auto-resume failed:', e));
+        }
     }
-
-    // HTTPS check (required for mic)
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-        const iaQuery = document.getElementById('iaQuery');
-        if (iaQuery) iaQuery.placeholder = "HTTPS requerido para mic";
-        console.warn("Mic requiere HTTPS (excepto localhost)");
-        return;
-    }
-
-    const recognition = new Recognition();
-    recognition.lang = 'es-CO';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    const btnVoz = debugGetEl('btnVoz');
     
-    recognition.onstart = () => {
-        if (btnVoz) {
-            btnVoz.innerHTML = '<i class="fa-solid fa-waveform-lines"></i>';
-            btnVoz.style.background = "#ef4444";
+    const btnMute = document.getElementById('btnMute');
+    if (btnMute) {
+        if (window.isMuted) {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            btnMute.style.background = '#ef4444';
+            btnMute.title = 'IA mutada - Clic para desmutar';
+        } else {
+            btnMute.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            btnMute.style.background = '#10b981';
+            btnMute.title = 'IA sin mute - Clic para mutar';
         }
-        const iaQuery = document.getElementById('iaQuery');
-        if (iaQuery) iaQuery.placeholder = "Escuchando...";
-        console.log("🎤 Escuchando...");
-    };
-
-    recognition.onresult = (event) => {
-        const texto = event.results[0][0].transcript;
-        const iaQuery = document.getElementById('iaQuery');
-        if (iaQuery) iaQuery.value = texto;
-        console.log("Reconocido:", texto);
-        window.enviarConsultaIA();
-    };
-
-    recognition.onspeechend = () => {
-        recognition.stop();
-        if (btnVoz) {
-            btnVoz.innerHTML = '<i class="fa-solid fa-microphone"></i>';
-            btnVoz.style.background = "#0f172a";
-        }
-        console.log("🛑 Escucha terminada");
-    };
-
-    recognition.onerror = (event) => {
-        let msg = event.error;
-        if (msg === 'network') {
-            msg = 'Sin conexión/red. Revisa internet o usa localhost.';
-        } else if (msg === 'not-allowed') {
-            msg = 'Mic denegado. Habilita permisos en navegador.';
-        } else if (msg === 'no-speech') {
-            msg = 'No se detectó voz. Habla más cerca.';
-        }
-        console.error("❌ Error voz (" + msg + "):", event.error);
-        const iaQuery = document.getElementById('iaQuery');
-        if (iaQuery) iaQuery.placeholder = msg;
-        if (btnVoz) {
-            btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
-            btnVoz.style.background = "#1e293b";
-        }
-    };
-
-    recognition.start();
+    }
+    
+    console.log('IA ' + (window.isMuted ? 'MUTADA (audio pausado)' : 'DESMUTADA (audio resumed)'));
 };
 
-// --- CONSULTA IA ---
+// --- MICROFONO CON SPEECHRECOGNITION NATIVO ---
+window.escucharVoz = async function() {
+    const btnVoz = document.getElementById('btnVoz');
+    const iaQuery = document.getElementById('iaQuery');
+
+    try {
+        btnVoz.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btnVoz.style.background = "#ef4444";
+        iaQuery.placeholder = "Iniciando reconocimiento...";
+
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'es-ES';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            console.log('Escuchando...');
+            iaQuery.placeholder = "Habla ahora...";
+            btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        };
+
+        recognition.onspeechend = () => {
+            console.log('Fin de habla detectado');
+        };
+
+        recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalText += transcript;
+                } else {
+                    interimText += transcript;
+                }
+            }
+            
+            if (interimText) {
+                iaQuery.placeholder = interimText + '...';
+            }
+            
+            if (finalText.trim()) {
+                iaQuery.value = finalText.trim();
+                recognition.stop();
+                window.enviarConsultaIA();
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            iaQuery.placeholder = `Error: ${event.error}`;
+            btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+        };
+
+        recognition.onend = () => {
+            detenerMicrofono();
+        };
+
+        recognition.start();
+
+    } catch (error) {
+        console.error("Error STT:", error);
+        iaQuery.placeholder = "Speech no disponible en este navegador";
+        btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+    }
+};
+
+function detenerMicrofono() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
+    const btnVoz = document.getElementById('btnVoz');
+    if (btnVoz) {
+        btnVoz.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+        btnVoz.style.background = "#0f172a";
+    }
+}
+
+
 window.enviarConsultaIA = function() {
-  console.log('🔍 [IA.js] CLICK enviarConsultaIA called');
     const input = document.getElementById('iaQuery');
     const chatContainer = document.getElementById('chatContainer');
     const btnPreguntar = document.getElementById('btnPreguntarIA');
     
-    const pregunta = input ? input.value.trim() : '';
+    const pregunta = input.value.trim();
     if (!pregunta) return;
 
-    if (btnPreguntar) btnPreguntar.disabled = true;
+    btnPreguntar.disabled = true;
     
-    if (chatContainer) {
-        chatContainer.innerHTML += `<div class="msg-user"><strong>Tú:</strong><br>${pregunta}</div>`;
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-    if (input) input.value = '';
+    // Append user message SAFELY without destroying existing elements
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg-user';
+    userMsg.innerHTML = `<strong>Tú:</strong><br>${pregunta}`;
+    chatContainer.appendChild(userMsg);
+    
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    input.value = '';
 
-    const loadingMsgId = 'loadingMsg_' + Date.now();
-    if (chatContainer) {
-        chatContainer.innerHTML += `<div id="${loadingMsgId}" class="msg-luna msg-loading">
-            <strong>Luna:</strong> (pensando<span class="typing-dots"></span>) 
-            <i class="fas fa-brain spinner"></i>
-        </div>`;
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Show/create thinking indicator dynamically
+    let thinkingIndicator = document.getElementById('thinkingIndicator');
+    if (!thinkingIndicator) {
+        thinkingIndicator = document.createElement('div');
+        thinkingIndicator.id = 'thinkingIndicator';
+        thinkingIndicator.className = 'msg-luna';
+        thinkingIndicator.style.cssText = 'color: #38bdf8; animation: pulse 1.5s ease-in-out infinite; background: transparent; border: none; padding: 12px 12px 12px 0;';
+        thinkingIndicator.innerHTML = '<strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>';
+        chatContainer.appendChild(thinkingIndicator);
     }
+    thinkingIndicator.style.display = 'block';
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     fetch('/vistas/ia/asistente-inventario/api-consultar/', {
         method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json', 
-            'X-CSRFToken': getCookie('csrftoken') 
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
         body: JSON.stringify({ pregunta: pregunta })
     })
     .then(response => response.json())
     .then(data => {
-        if (document.getElementById(loadingMsgId)) document.getElementById(loadingMsgId).remove();
-
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         if (data.error) {
-            if (chatContainer) {
-                chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error:</strong> ${data.error}</div>`;
-            }
+            // Append error SAFELY
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'msg-luna';
+            errorMsg.style.color = '#ef4444';
+            errorMsg.innerHTML = `<strong>Error:</strong> ${data.error}`;
+            chatContainer.appendChild(errorMsg);
         } else {
             const respuesta = data.respuesta || 'No pude procesar tu pregunta.';
             const htmlRespuesta = typeof marked !== 'undefined' ? marked.parse(respuesta) : respuesta;
             
-            if (chatContainer) {
-                chatContainer.innerHTML += `<div class="msg-luna"><strong>Luna:</strong><br>${htmlRespuesta}</div>`;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
+            // Append response SAFELY
+            const lunaMsg = document.createElement('div');
+            lunaMsg.className = 'msg-luna';
+            lunaMsg.innerHTML = `<strong>Luna:</strong><br>${htmlRespuesta}`;
+            chatContainer.appendChild(lunaMsg);
             
             if (data.audio_url) {
                 reproducirVozLuna(data.audio_url);
             }
         }
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     })
     .catch(error => {
-        if (document.getElementById(loadingMsgId)) document.getElementById(loadingMsgId).remove();
+        // Hide thinking indicator
+        const thinkingIndicator = document.getElementById('thinkingIndicator');
+        if (thinkingIndicator) thinkingIndicator.style.display = 'none';
+        
         console.error("Error API:", error);
-        if (chatContainer) {
-            chatContainer.innerHTML += `<div class="msg-luna" style="color: #ef4444;"><strong>Error de conexión</strong></div>`;
-        }
+        // Append error connection SAFELY
+        const connError = document.createElement('div');
+        connError.className = 'msg-luna';
+        connError.style.color = '#ef4444';
+        connError.innerHTML = '<strong>Error de conexión</strong>';
+        chatContainer.appendChild(connError);
     })
     .finally(() => { 
         if (btnPreguntar) btnPreguntar.disabled = false; 
     });
 };
 
-// --- INICIO ---
-window.abrirModalIA = function() {
-    const m = document.getElementById('modalIA');
-    console.log('[DEBUG IA] abrirModalIA called, modal:', m);
-    if (m) {
-        m.style.display = 'flex !important';
-        m.style.zIndex = '9999 !important';
-        m.querySelector('.modal-dialog, .modal-content, .modal-body, #chatContainer, .input-group, input, button').forEach(el => {
-            el.style.pointerEvents = 'auto';
-            el.style.zIndex = '10001';
-        });
-        document.body.style.overflow = 'hidden';
-        console.log('[DEBUG IA] Modal shown, pointerEvents auto');
-    } else {
-        console.log('[DEBUG IA] Modal #modalIA not found');
-    }
-};
-
-window.cerrarModalIA = function() {
-    const m = document.getElementById('modalIA');
-    console.log('[DEBUG IA] cerrarModalIA called');
-    if (m) {
-        m.style.display = 'none';
-        m.classList.remove('show', 'oculto');
-        document.body.classList.remove('modal-open');
-        console.log('[DEBUG IA] Modal hidden');
-    }
-};
-
 document.addEventListener('DOMContentLoaded', () => {
-    const modalIA = document.getElementById('modalIA');
-    console.log('[DEBUG IA] DOM loaded, modalIA:', modalIA);
-    if (modalIA) {
-        // Backdrop
-        modalIA.addEventListener('click', (e) => {
-            if (e.target === modalIA) cerrarModalIA();
-        });
-        // Stop prop AGRESIVO - previene cierres clicks internos
-        modalIA.querySelectorAll('*').forEach(el => {
-            el.addEventListener('click', e => {
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-            }, true); // Capture phase
-        });
-        // También input/button specific
-        const inputs = modalIA.querySelectorAll('input, button, textarea');
-        inputs.forEach(el => {
-            el.addEventListener('click', e => {
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-            });
-        });
-        // ESC
-        const escHandler = (e) => {
-            if (e.key === 'Escape' && getComputedStyle(modalIA).display !== 'none') cerrarModalIA();
-        };
-        document.addEventListener('keydown', escHandler);
-        console.log('[DEBUG IA] Handlers added');
-    } else {
-        console.log('[DEBUG IA] No modalIA, no handlers');
-    }
-    console.log("✅ Asistente Luna + Modal IA debug ready");
+    console.log("Asistente Luna cargado.");
 });

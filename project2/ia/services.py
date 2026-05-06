@@ -42,7 +42,7 @@ def _try_import_edge_tts():
         import edge_tts
         _edge_tts_module = edge_tts
         EDGE_TTS_AVAILABLE = True
-        print("✓ edge-tts cargado correctamente")
+        print("[OK] edge-tts cargado correctamente")
         return True
     except ImportError:
         print("edge-tts no instalado. Ejecuta: pip install edge-tts")
@@ -183,7 +183,7 @@ Responde de forma concisa:"""
             edge_exito = generar_audio_edge_tts(texto_para_audio, ruta_salida)
             if edge_exito and os.path.exists(ruta_salida):
                 audio_url = f"{settings.MEDIA_URL}voces_ia/{nombre_audio}"
-                print(f"✓ Audio generado con Edge TTS")
+                print(f"[OK] Audio generado con Edge TTS")
             else:
                 print("Edge TTS falló")
         else:
