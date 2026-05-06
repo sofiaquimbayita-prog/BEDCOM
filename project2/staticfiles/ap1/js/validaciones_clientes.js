@@ -12,6 +12,7 @@ class ClienteValidator {
         this.setupNombreValidation();
         this.setupTelefonoValidation();
         this.setupDireccionValidation();
+        this.setupEmailValidation();
         this.setupPagoMontoValidation();
     }
 
@@ -153,6 +154,31 @@ class ClienteValidator {
         });
     }
 
+    setupEmailValidation() {
+        const emailInput = document.getElementById('fEmail');
+        if (!emailInput) return;
+
+        const errorDiv = this.createErrorElement('email-error');
+        emailInput.parentNode.appendChild(errorDiv);
+
+        emailInput.addEventListener('input', (e) => {
+            const valor = e.target.value.trim();
+            
+            if (valor.length === 0) {
+                this.showError('email-error', '');
+                emailInput.classList.remove('input-error', 'input-success');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+                this.showError('email-error', ' Formato de correo inválido');
+                emailInput.classList.add('input-error');
+                emailInput.classList.remove('input-success');
+            } else {
+                this.showError('email-error', ' Correo válido');
+                emailInput.classList.add('input-success');
+                emailInput.classList.remove('input-error');
+            }
+        });
+    }
+
     // ═══════════════════════════════════════════════════════
     // VALIDACIÓN DE MONTO DE PAGO
     // ═══════════════════════════════════════════════════════
@@ -183,7 +209,7 @@ class ClienteValidator {
             const monto = parseFloat(valor);
             if (window.pedidoPagoPendiente && monto > window.pedidoPagoPendiente) {
                 montoInput.style.borderColor = 'var(--color-inactivar)';
-                this.showToast('El monto no puede superar el saldo pendiente', 'error');
+                window.showToast('El monto no puede superar el saldo pendiente', 'error');
             } else {
                 montoInput.style.borderColor = '';
             }
@@ -237,12 +263,7 @@ class ClienteValidator {
         }
     }
 
-    showToast(msg, tipo = 'error') {
-        // Usar la función showToast existente si está disponible
-        if (typeof window.showToast === 'function') {
-            window.showToast(msg, tipo);
-        }
-    }
+    // showToast: usa directamente window.showToast() global (definido en base.html).
 }
 
 // ═══════════════════════════════════════════════════════

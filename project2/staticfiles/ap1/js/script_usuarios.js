@@ -15,43 +15,7 @@ const numeric10Regex = /^\d{10}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\d!@#$%^&*(),.?\":{}|<>]{8,}$/;
 
-// 2. SISTEMA DE NOTIFICACIONES (TOAST)
-function mostrarNotificacion(titulo, mensaje, tipo = 'info') {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.style.cssText = 'position:fixed; top:25px; right:25px; z-index:999999; display:flex; flex-direction:column; gap:12px; pointer-events:none;';
-        document.body.appendChild(container);
-    }
-    
-    const toast = document.createElement('div');
-    const colorBorde = tipo === 'error' ? '#ef4444' : '#10b981';
-    const icono = tipo === 'error' ? 'fa-times-circle' : 'fa-check-circle';
-
-    toast.style.cssText = `
-        background: #1a202c; color: white; min-width: 320px; max-width: 400px;
-        border-left: 6px solid ${colorBorde}; padding: 18px; border-radius: 6px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4); display: flex; flex-direction: column;
-        pointer-events: auto; opacity: 0; transform: translateX(50px);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    `;
-    
-    toast.innerHTML = `
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-            <i class="fas ${icono}" style="color:${colorBorde}; font-size:1.3rem;"></i>
-            <strong style="font-size:0.95rem; text-transform:uppercase;">${titulo}</strong>
-        </div>
-        <div style="font-size:0.88rem; color:#d1d5db; padding-left:32px;">${mensaje}</div>
-    `;
-    
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(0)'; }, 10);
-    setTimeout(() => {
-        toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)';
-        setTimeout(() => toast.remove(), 600);
-    }, 5500);
-}
+// 2. SISTEMA DE NOTIFICACIONES — usa window.showToast() global (base.html)
 
 // 3. VALIDACIÓN EN TIEMPO REAL
 function validateFieldLive(input, validator, message, isRequired = true) {
@@ -150,7 +114,7 @@ $(document).ready(function() {
         });
 
         if (!formValido) {
-            mostrarNotificacion('Error', 'Por favor, revisa los campos obligatorios', 'error');
+            window.showToast('Por favor, revisa los campos obligatorios', 'error');
             return;
         }
 
@@ -165,13 +129,13 @@ $(document).ready(function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                mostrarNotificacion('Éxito', data.message, 'success');
+                window.showToast(data.message, 'success');
                 setTimeout(() => window.location.reload(), 1200);
             } else {
-                mostrarNotificacion('Error', data.message || 'Error al procesar', 'error');
+                window.showToast(data.message || 'Error al procesar', 'error');
             }
         })
-        .catch(() => mostrarNotificacion('Error', 'Fallo de conexión con MySQL', 'error'));
+        .catch(() => window.showToast('Fallo de conexión con MySQL', 'error'));
     });
 });
 
@@ -215,7 +179,7 @@ window.abrirModalEditar = function(id) {
             $('#editUsuarioNombre').text(data.username);
             abrirModal('modalEdit');
         })
-        .catch(() => mostrarNotificacion('Error', 'Error al cargar datos desde MySQL', 'error'));
+        .catch(() => window.showToast('Error al cargar datos desde MySQL', 'error'));
 };
 
 window.abrirModalEliminar = function(id, nombre) {

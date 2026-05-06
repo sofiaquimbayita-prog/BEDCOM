@@ -27,35 +27,7 @@ $(document).ready(function() {
         return texto.length > limite ? `${texto.slice(0, limite - 3)}...` : texto;
     }
 
-    function mostrarToast(mensaje, tipo = 'success') {
-        const icono = tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        const toastHtml = `
-            <div class="message ${tipo}">
-                <div class="message-content">
-                    <i class="fas ${icono}"></i>
-                    <span class="text">${escapeHtml(mensaje)}</span>
-                </div>
-                <button type="button" class="close-toast" onclick="cerrarToast(this)">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
 
-        let $contenedor = $('#toast-container');
-        if (!$contenedor.length) {
-            $contenedor = $('<div class="messages-container" id="toast-container"></div>');
-            $('body').append($contenedor);
-        }
-
-        const $toast = $(toastHtml);
-        $contenedor.append($toast);
-
-        setTimeout(() => {
-            $toast.fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 5000);
-    }
 
     function construirFilaRespaldo(respaldo) {
         const fecha = escapeHtml(respaldo.fecha);
@@ -237,13 +209,13 @@ $(document).ready(function() {
 
             insertarNuevoRespaldoEnTabla(data.respaldo);
             cerrarModal('modalDescargaSQL');
-            mostrarToast(data.mensaje || 'Respaldo generado correctamente.', 'success');
+            window.showToast(data.mensaje || 'Respaldo generado correctamente.', 'success');
 
             if (data.respaldo && data.respaldo.download_url) {
                 descargarArchivoRespaldo(data.respaldo.download_url);
             }
         } catch (error) {
-            mostrarToast(error.message || 'Ocurrió un error al generar el respaldo.', 'error');
+            window.showToast(error.message || 'Ocurrió un error al generar el respaldo.', 'error');
         } finally {
             $btn.prop('disabled', false).html(textoOriginal);
         }
@@ -457,15 +429,7 @@ $(document).ready(function() {
     }
 
     // ================= TOAST NOTIFICATIONS =================
-    window.cerrarToast = function(btn) {
-        const toast = $(btn).closest('.message');
-        toast.fadeOut(300, function() { $(this).remove(); });
-    };
 
-    // Auto cerrar toast después de 5 segundos
-    setTimeout(() => {
-        $('.message').fadeOut(500, function() { $(this).remove(); });
-    }, 5000);
 
     // ================= TIPO DE RESPALDO =================
 

@@ -1,39 +1,14 @@
 $(document).ready(function () {
 
     /* 
-       TOAST SYSTEM
+       TOAST SYSTEM → delega a window.showToast() global (base.html)
      */
-    function obtenerContenedor() {
-        let $c = $('#toast-container');
-        if (!$c.length) { $c = $('<div class="messages" id="toast-container"></div>'); $('body').append($c); }
-        return $c;
-    }
-    function mostrarToast(tipo, texto, duracion = 4500) {
-        const iconos = { success: 'fa-circle-check', warning: 'fa-triangle-exclamation', error: 'fa-circle-xmark' };
-        const $toast = $(`
-            <div class="message ${tipo}">
-                <div class="message-content">
-                    <i class="fas ${iconos[tipo] || 'fa-circle-info'}"></i>
-                    <span class="text">${texto}</span>
-                </div>
-                <button type="button" class="close-toast" aria-label="Cerrar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `);
-        $toast.find('.close-toast').on('click', () => cerrarToastElement($toast));
-        obtenerContenedor().append($toast);
-        $toast[0].offsetHeight;
-        $toast.addClass('toast-visible');
-        if (duracion > 0) setTimeout(() => cerrarToastElement($toast), duracion);
-    }
-    function cerrarToastElement($t) { $t.addClass('fade-out'); setTimeout(() => $t.remove(), 400); }
-
     const Alerta = {
-        exito(titulo, texto)       { mostrarToast('success', `<strong>${titulo}</strong> ${texto}`); },
-        advertencia(titulo, texto) { mostrarToast('warning', `<strong>${titulo}:</strong> ${texto}`, 0); },
-        error(titulo, texto)       { mostrarToast('error',   `<strong>${titulo}:</strong> ${texto}`, 0); },
+        exito(titulo, texto)       { window.showToast(`<strong>${titulo}</strong> ${texto}`, 'success'); },
+        advertencia(titulo, texto) { window.showToast(`<strong>${titulo}:</strong> ${texto}`, 'warning'); },
+        error(titulo, texto)       { window.showToast(`<strong>${titulo}:</strong> ${texto}`, 'error'); },
     };
+
 
 
     /* 
@@ -59,6 +34,8 @@ $(document).ready(function () {
     function getCsrf() {
         if (typeof CSRF_TOKEN !== 'undefined' && CSRF_TOKEN) return CSRF_TOKEN;
         if (typeof cfg !== 'undefined' && cfg.csrf) return cfg.csrf;
+        const config = (document.getElementById('js-config') || {}).dataset || {};
+        if (config.csrf) return config.csrf;
         let v = null;
         document.cookie.split(';').forEach(c => {
             const t = c.trim();
@@ -323,9 +300,7 @@ $(document).ready(function () {
         const $btn = $(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
 
-        const urlEstado = (typeof URLS !== 'undefined' && URLS.completarBase)
-            ? URLS.completarBase + id + '/'
-            : '';
+        const urlEstado = url('completarBase') ? url('completarBase') + id + '/' : '';
 
         const fd = new FormData();
         fd.append('estado', 'pendiente');
@@ -605,6 +580,10 @@ $(document).ready(function () {
         if (fecha) $('#in_fecha').val(fecha);
         else       $('#in_fecha').attr('min', new Date().toISOString().slice(0, 10));
         if (hora) $('#in_hora').val(hora);
+        if (form.modo_completado) {
+            form.modo_completado.value = 'automatico';
+            $('input[name="modo_completado"][value="automatico"]').trigger('change');
+        }
         modal.addClass('mostrar');
         setTimeout(() => $('#in_titulo').focus(), 150);
     }
@@ -695,9 +674,7 @@ $(document).ready(function () {
         const fd = new FormData();
         fd.append('estado', nuevoEstado);
 
-        const urlEstado = (typeof URLS !== 'undefined' && URLS.completarBase)
-            ? URLS.completarBase + eventoDetalleId + '/'
-            : (typeof CAMBIAR_ESTADO_BASE !== 'undefined' ? CAMBIAR_ESTADO_BASE + eventoDetalleId + '/' : '');
+        const urlEstado = url('completarBase') ? url('completarBase') + eventoDetalleId + '/' : '';
 
         fetch(urlEstado, {
             method: 'POST', body: fd,
@@ -761,6 +738,10 @@ $(document).ready(function () {
                 form.hora.value        = data.hora;
                 form.categoria.value   = data.categoria;
                 form.descripcion.value = data.descripcion || '';
+                if (form.modo_completado) {
+                    form.modo_completado.value = data.modo_completado;
+                    $(`input[name="modo_completado"][value="${data.modo_completado}"]`).trigger('change');
+                }
                 if (eventoIdInput) eventoIdInput.value = data.id;
                 $('#in_titulo').trigger('input');
                 if (data.descripcion) $('#in_descripcion').trigger('input');
@@ -794,9 +775,7 @@ $(document).ready(function () {
         const $btn = $(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Procesando…');
 
-        const inactivarUrl = (typeof URLS !== 'undefined' && URLS.eliminarBase)
-            ? URLS.eliminarBase + eventoInactivarId + '/'
-            : (typeof INACTIVAR_EVENTO_BASE !== 'undefined' ? INACTIVAR_EVENTO_BASE + eventoInactivarId + '/' : '');
+        const inactivarUrl = url('eliminarBase') ? url('eliminarBase') + eventoInactivarId + '/' : '';
 
         fetch(inactivarUrl, {
             method: 'POST',
@@ -822,9 +801,7 @@ $(document).ready(function () {
         const $btn = $(this);
         $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Eliminando…');
 
-        const eliminarUrl = (typeof URLS !== 'undefined' && URLS.eliminarBase)
-            ? URLS.eliminarBase + eventoInactivarId + '/'
-            : '';
+        const eliminarUrl = url('eliminarBase') ? url('eliminarBase') + eventoInactivarId + '/' : '';
 
         fetch(eliminarUrl, {
             method: 'POST',
@@ -850,7 +827,7 @@ $(document).ready(function () {
        RESTAURAR
      */
     window.restaurarEvento = function (id) {
-        const restaurarUrl = typeof RESTAURAR_EVENTO_BASE !== 'undefined' ? RESTAURAR_EVENTO_BASE + id + '/' : '';
+        const restaurarUrl = url('restaurarBase') ? url('restaurarBase') + id + '/' : '';
         if (!restaurarUrl) return;
         fetch(restaurarUrl, {
             method: 'POST',

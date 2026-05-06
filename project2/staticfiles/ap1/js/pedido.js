@@ -1,15 +1,27 @@
-/* pedido.js — Módulo de Pedidos (TODOS LOS BUGS CORREGIDOS) */
+/* pedido.js — Módulo de Pedidos */
 
-function showToast(msg, tipo='success'){
-  const c=document.getElementById('toastContainer');
-  if(!c)return;
-  const d=document.createElement('div');
-  const icon=tipo==='success'?'fa-check-circle':tipo==='error'?'fa-times-circle':'fa-info-circle';
-  d.className=`message message--${tipo}`;
-  d.innerHTML=`<i class="fas ${icon}"></i><span>${msg}</span>`;
-  c.appendChild(d);
-  setTimeout(()=>d.remove(),3500);
+let cfg = {};
+if (document.getElementById('js-config')) {
+  cfg = document.getElementById('js-config').dataset;
 }
+const CSRF_TOKEN = cfg.csrf || '';
+const URL_CREAR = cfg.urlCrear || '';
+const URL_VER = pk => (cfg.urlVerBase || '').replace('/0/', '/' + pk + '/');
+const URL_EDITAR = pk => (cfg.urlEditarBase || '').replace('/0/', '/' + pk + '/');
+const URL_ESTADO = pk => (cfg.urlEstadoBase || '').replace('/0/', '/' + pk + '/');
+const URL_PAGO = pk => (cfg.urlPagoBase || '').replace('/0/', '/' + pk + '/');
+const URL_DESPACHO = cfg.urlDespacho || '';
+
+let PRODUCTOS_DATA = [];
+let CLIENTES_DATA = [];
+if (document.getElementById('productos-data')) {
+  PRODUCTOS_DATA = JSON.parse(document.getElementById('productos-data').textContent);
+}
+if (document.getElementById('clientes-data')) {
+  CLIENTES_DATA = JSON.parse(document.getElementById('clientes-data').textContent);
+}
+
+
 
 function openModal(id){
   document.querySelectorAll('.modal').forEach(modal => {
@@ -75,22 +87,23 @@ $(document).on('change', '.ped-estado-select', async function(){
       this.dataset.estadoActual=nuevo;
       this.className=`ped-estado-select estado-${nuevo.toLowerCase()}`;
       this.closest('tr').dataset.anulado=nuevo==='Anulado'?'true':'false';
-      showToast(data.message);
+      window.showToast(data.message);
       setTimeout(()=>location.reload(),1000);
     }else{
       this.value=anterior;
-      showToast(data.error,'error');
+      window.showToast(data.error,'error');
     }
   }catch(e){
     this.value=anterior;
-    showToast('Error al cambiar estado','error');
+    window.showToast('Error al cambiar estado','error');
   }
+});
 
 $(document).on('click', '.btn-ver', async function(){
   try{
     const res=await fetch(URL_VER(this.dataset.id));
     const data=await res.json();
-    if(!data.ok){showToast(data.error,'error');return;}
+    if(!data.ok){window.showToast(data.error,'error');return;}
     const p=data.pedido;
     document.getElementById('verTitulo').textContent=`Pedido #${p.id}`;
     document.getElementById('verInfoCliente').innerHTML=`
@@ -99,17 +112,17 @@ $(document).on('click', '.btn-ver', async function(){
       <div class="ver-campo"><span class="ver-label">Fecha Creación</span><span class="ver-valor">${p.fecha}</span></div>
       <div class="ver-campo"><span class="ver-label">Fecha Entrega</span><span class="ver-valor">${p.fecha_entrega?new Date(p.fecha_entrega+'T00:00').toLocaleDateString('es-CO'):'—'}</span></div>
       <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
-      <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono||0).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></div>
-      <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></div>`;
+      <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono||0).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></div>
+      <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></div>`;
     document.getElementById('verDetallesBody').innerHTML=p.detalles.map(d=>`
       <tr><td>${d.producto_nombre} ${d.es_personalizado ? '<span class="badge-estado badge-pendiente">Personalizado</span>' : ''}</td><td>${d.cantidad}</td>
-      <td><span class="precio-display">$${parseFloat(d.precio_unitario).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></td>
-      <td><span class="precio-display">$${parseFloat(d.sub_total).toLocaleString('es-CO',{minimumFractionDigits:2})}</span></td>
+      <td><span class="precio-display">$${parseFloat(d.precio_unitario).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></td>
+      <td><span class="precio-display">$${parseFloat(d.sub_total).toLocaleString('es-CO',{minimumFractionDigits:0})}</span></td>
       <td style="color:var(--color-texto-muted);font-size:0.85rem">${d.especificaciones||d.observaciones||'—'}</td></tr>
     `).join('');
-    document.getElementById('verTotal').textContent=`$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+    document.getElementById('verTotal').textContent=`$${parseFloat(p.total).toLocaleString('es-CO',{minimumFractionDigits:0})}`;
     openModal('modalVer');
-  }catch(e){showToast('Error al cargar detalle','error');}
+  }catch(e){window.showToast('Error al cargar detalle','error');}
 });
 
 // 5. Botón EDITAR
@@ -117,7 +130,7 @@ $(document).on('click', '.btn-editar', async function(){
   try{
     const res=await fetch(URL_VER(this.dataset.id));
     const data=await res.json();
-    if(!data.ok){showToast(data.error,'error');return;}
+    if(!data.ok){window.showToast(data.error,'error');return;}
     const p=data.pedido;
     modoEdicion=true;
     pedidoEditandoId=this.dataset.id;
@@ -133,7 +146,7 @@ $(document).on('click', '.btn-editar', async function(){
     if(abonoInput)abonoInput.value=parseFloat(p.abono||0);
     recalcular();
     openModal('modalForm');
-  }catch(e){showToast('Error al cargar pedido','error');}
+  }catch(e){window.showToast('Error al cargar pedido','error');}
 });
 
 // ✅ BUG CORREGIDO PRINCIPAL: el modal de pago no abría porque el listener
@@ -153,9 +166,9 @@ $(document).on('click', '.btn-pagar', function(e){
   pedidoPagoPendiente = parseFloat($(this).data('saldo')) || 0;
 
   document.getElementById('pagoIdPedido').textContent = `Pedido #${pedidoPagoId}`;
-  document.getElementById('pagoTotalPedido').textContent = `$${total.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
-  document.getElementById('pagoPagado').textContent = `$${abono.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
-  document.getElementById('pagoPendiente').textContent = `$${pedidoPagoPendiente.toLocaleString('es-CO', {minimumFractionDigits: 2})}`;
+  document.getElementById('pagoTotalPedido').textContent = `$${total.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+  document.getElementById('pagoPagado').textContent = `$${abono.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
+  document.getElementById('pagoPendiente').textContent = `$${pedidoPagoPendiente.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
   document.getElementById('pagoMonto').value = pedidoPagoPendiente.toFixed(2);
   document.getElementById('pagoAlerta').style.display = 'none';
 
@@ -196,7 +209,7 @@ $(document).on('click', '#btnGuardarPago', async function(){
 
     if(data.ok){
       closeModal('modalPago');
-      showToast(data.message);
+      window.showToast(data.message);
       setTimeout(()=>location.reload(), 1200);
     } else {
       alerta.textContent = data.error;
@@ -216,7 +229,7 @@ $(document).on('click', '#btnGuardarPago', async function(){
 
 function validarAbono(total, abono){
   const minimo = total * 0.5;
-  if(abono < minimo) return {valido:false, mensaje:`El abono debe ser al menos el 50% del total (mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:2})})`};
+  if(abono < minimo) return {valido:false, mensaje:`El abono debe ser al menos el 50% del total (mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:0})})`};
   if(abono > total) return {valido:false, mensaje:'El abono no puede ser mayor al total del pedido.'};
   return {valido:true, mensaje:''};
 }
@@ -239,7 +252,7 @@ function validarPedidoCompleto(items, total, abono, clienteId){
     }
   }
   const minimoAbono = total * 0.5;
-  if(abono < minimoAbono) errores.push(`El abono debe ser al menos el 50% del total (mínimo $${minimoAbono.toLocaleString('es-CO',{minimumFractionDigits:2})})`);
+  if(abono < minimoAbono) errores.push(`El abono debe ser al menos el 50% del total (mínimo $${minimoAbono.toLocaleString('es-CO',{minimumFractionDigits:0})})`);
   if(abono > total) errores.push('El abono no puede ser mayor al total del pedido');
   return errores;
 }
@@ -288,7 +301,7 @@ function validarAbonoEnTiempoReal(){
     const helpText = document.getElementById('abonoHelp');
     if(abono > 0 && abono < minimo){
       this.style.borderColor = 'var(--color-error)';
-      if(helpText){ helpText.style.color = 'var(--color-error)'; helpText.textContent = `El abono debe ser mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:2})}`; }
+      if(helpText){ helpText.style.color = 'var(--color-error)'; helpText.textContent = `El abono debe ser mínimo $${minimo.toLocaleString('es-CO',{minimumFractionDigits:0})}`; }
     } else {
       this.style.borderColor = '';
       if(helpText){ helpText.style.color = 'var(--color-texto-muted)'; helpText.textContent = 'El abono debe ser al menos el 50% del total del pedido'; }
@@ -389,7 +402,7 @@ function recalcular(){
       }
     }
   });
-  const formatted = `$${t.toLocaleString('es-CO',{minimumFractionDigits:2})}`;
+  const formatted = `$${t.toLocaleString('es-CO',{minimumFractionDigits:0})}`;
   const formTotal = document.getElementById('formTotal');
   if(formTotal) formTotal.textContent = formatted;
   const formTotalDisplay = document.getElementById('formTotalDisplay');
@@ -519,7 +532,7 @@ if(btnGuardar){
       if(btn){ btn.disabled = false; btn.innerHTML = originalHtml; }
       if(data.ok){
         closeModal('modalForm');
-        showToast(data.message);
+        window.showToast(data.message);
         setTimeout(()=>location.reload(), 1200);
       } else {
         if(alerta){ alerta.textContent = data.error; alerta.style.display = 'block'; }

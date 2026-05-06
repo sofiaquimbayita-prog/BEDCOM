@@ -1034,46 +1034,7 @@ input:checked + .slider:before {
   }
 }
 
-/* ==================================================
-   NOTIFICACIONES TOAST (igual que proveedores)
-   ================================================== */
-.messages-container {
-  position: fixed; top: 85px; right: 25px; z-index: 10000;
-  display: flex; flex-direction: column; gap: 12px;
-}
 
-.message {
-  min-width: 320px; padding: 16px 20px; border-radius: 14px;
-  background: #1e293b; color: white; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05);
-  animation: slideInToast 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.message-content { display: flex; align-items: center; gap: 12px; }
-.message-content i { font-size: 20px; }
-
-.message.success { border-left: 5px solid #10b981; }
-.message.success .message-content i { color: #10b981; }
-.message.error { border-left: 5px solid #ef4444; }
-.message.error .message-content i { color: #ef4444; }
-.message.warning { border-left: 5px solid #f59e0b; }
-.message.warning .message-content i { color: #f59e0b; }
-.message.info { border-left: 5px solid #38bdf8; }
-.message.info .message-content i { color: #38bdf8; }
-
-.close-toast {
-  background: rgba(255, 255, 255, 0.1); border: none; color: rgba(255, 255, 255, 0.6);
-  width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center;
-  justify-content: center; cursor: pointer; transition: all 0.2s ease; margin-left: 15px;
-}
-
-.close-toast:hover { background: rgba(239, 68, 68, 0.2); color: #ef4444; transform: rotate(90deg); }
-.close-toast i { font-size: 14px; }
-
-@media (max-width: 600px) {
-  .messages-container { right: 12px; left: 12px; max-width: calc(100% - 24px); top: 70px; }
-  .message { min-width: auto; }
-}
 
 /* ==================================================
    RESPONSIVE - TABLET (768px y menos)
