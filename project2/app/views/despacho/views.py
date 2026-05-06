@@ -143,14 +143,16 @@ class DespachoCreateView(View):
             empresa = data.get('empresa_transporte', '').strip()
             if not empresa or len(empresa) < 2:
                 return JsonResponse({'ok': False, 'field': 'empresa', 'error': 'Nombre del acarreista requerido (mín. 2 caracteres).'})
+            if not re.match(r'^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]{2,80}$', empresa):
+                return JsonResponse({'ok': False, 'field': 'empresa', 'error': 'Nombre del acarreista: solo letras, números y espacios.'})
             
             telefono = re.sub(r'\D', '', str(data.get('telefono', '') or ''))
             if not re.match(r'^\d{10}$', telefono):
                 return JsonResponse({'ok': False, 'field': 'telefono', 'error': 'Teléfono debe tener exactamente 10 dígitos numéricos.'})
             
             numero_guia = data.get('numero_guia', '').strip()
-            if not numero_guia or not re.match(r'^[A-Z0-9\-\s]{1,20}$', numero_guia, re.I):
-                return JsonResponse({'ok': False, 'field': 'guia', 'error': 'Número de placa/guía inválido.'})
+            if not numero_guia or not re.match(r'^[A-Z0-9]{6}$', numero_guia, re.I):
+                return JsonResponse({'ok': False, 'field': 'guia', 'error': 'La placa debe tener exactamente 6 letras o números.'})
             
             try:
                 costo_envio = parse_cop_amount(data.get('costo_envio', 0))

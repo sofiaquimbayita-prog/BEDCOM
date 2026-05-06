@@ -6,7 +6,6 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}?v=4">
-<link rel="stylesheet" href="{% static 'ap1/css/despacho_modal_fix.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}?v=4">
 
 <div id="js-config"
@@ -148,7 +147,7 @@
 
     <div class="form-grupo">
       <label>Nombre del acarreista <span style="color:var(--color-error)">*</span></label>
-      <input type="text" id="inpCrearEmpresa" class="form-input" placeholder="Ej. Camión de Sergio" required>
+      <input type="text" id="inpCrearEmpresa" class="form-input" placeholder="Ej. Camión de Sergio" maxlength="80" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]{2,80}" title="Solo letras, números y espacios" required>
       <span class="error-msg" id="error-empresa" style="display:none"></span>
     </div>
 
@@ -160,7 +159,7 @@
 
     <div class="form-grupo">
       <label>Placa del vehículo <span style="color:var(--color-error)">*</span></label>
-      <input type="text" id="inpCrearGuia" class="form-input" placeholder="Ej. ABC123" pattern="[A-Z0-9]{1,8}" maxlength="8" required title="Solo letras/números, máx 8 caracteres">
+      <input type="text" id="inpCrearGuia" class="form-input" placeholder="Ej. ABC123" pattern="[A-Z0-9]{6}" maxlength="6" required title="La placa debe tener exactamente 6 letras o números">
       <span class="error-msg" id="error-guia" style="display:none"></span>
     </div>
 

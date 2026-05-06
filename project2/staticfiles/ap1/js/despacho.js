@@ -16,18 +16,53 @@ const PENDIENTES = parseInt(cfg.pendientes || '0', 10);
 
 /* ── DataTable + Delegación de eventos ─────────────── */
 $(document).ready(function () {
+  const tablaDespachos = $('#tablaDespachos');
+  const modalCrearDespacho = $('#modalCrearDespacho');
+
+  const abrirModalCrearDespacho = function () {
+    $('#inpCrearPedidoId').val('');
+    $('#inpCrearEmpresa').val('');
+    $('#inpCrearTelefono').val('');
+    $('#inpCrearGuia').val('');
+    $('#inpCrearCosto').val('0');
+    $('.error-msg').hide().text('');
+    $('.form-input').removeClass('input-error input-success');
+    modalCrearDespacho.addClass('mostrar');
+  };
+
+  $(document).on('click', '#btnNuevoDespacho', abrirModalCrearDespacho);
 
   /* FIX 1: Se añade el cierre correcto "})" que faltaba.
      FIX 2: Se elimina "{ visible: false, targets: 7 }" que ocultaba
              erróneamente la columna "Acciones". */
-  $('#tablaDespachos').DataTable({
-    language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
-    pageLength: 25,
-    order: [[0, 'desc']],
-    columnDefs: [
-      { orderable: false, targets: [6, 7] }  // Estado y Acciones: no ordenables
-    ]
-  });
+  if ($.fn.DataTable && tablaDespachos.length) {
+    try {
+      tablaDespachos.DataTable({
+        language: {
+          search: 'Buscar:',
+          lengthMenu: 'Mostrar _MENU_ registros',
+          info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+          infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+          infoFiltered: '(filtrado de _MAX_ registros totales)',
+          zeroRecords: 'No se encontraron registros',
+          emptyTable: 'No hay despachos registrados',
+          paginate: {
+            first: 'Primero',
+            previous: 'Anterior',
+            next: 'Siguiente',
+            last: 'Ultimo'
+          }
+        },
+        pageLength: 25,
+        order: [[0, 'desc']],
+        columnDefs: [
+          { orderable: false, targets: [6, 7] }  // Estado y Acciones: no ordenables
+        ]
+      });
+    } catch (e) {
+      console.error('No se pudo inicializar DataTable de despachos:', e);
+    }
+  }
 
   /* ── Modal Detalle ──────────────────────────────────
      FIX 3: Delegación de eventos en lugar de querySelectorAll.
@@ -136,7 +171,9 @@ $(document).ready(function () {
         selectEl.dataset.estadoActual = nuevoEstado;
 
         // DataTable: refrescar para que el orden refleje el cambio
-        setTimeout(() => $('#tablaDespachos').DataTable().draw(false), 600);
+        if ($.fn.DataTable && $.fn.DataTable.isDataTable('#tablaDespachos')) {
+          setTimeout(() => tablaDespachos.DataTable().draw(false), 600);
+        }
 
       } else {
         // Revertir si el servidor rechazó el cambio
@@ -151,19 +188,13 @@ $(document).ready(function () {
   });
 
   /* ── Crear Nuevo Despacho ───────────────────────────── */
-  $('#btnNuevoDespacho').on('click', function(){
-    $('#inpCrearPedidoId').val('');
-    $('#inpCrearEmpresa').val('');
-    $('#inpCrearTelefono').val('');
-    $('#inpCrearGuia').val('');
-    $('#inpCrearCosto').val('0');
-    $('.error-msg').hide().text('');
-    $('.form-input').removeClass('input-error input-success');
-    $('#modalCrearDespacho').addClass('mostrar');
-  });
-
+  const EMPRESA_REGEX = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]{2,80}$/;
+  const normalizeEmpresa = value => String(value || '')
+    .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .slice(0, 80);
   const normalizeTelefono = value => String(value || '').replace(/\D/g, '').slice(0, 10);
-  const normalizeGuia = value => String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+  const normalizeGuia = value => String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6);
   const normalizeCosto = value => {
     let text = String(value || '').trim();
     text = text.replace(/[^0-9.,]/g, '');
@@ -191,14 +222,53 @@ $(document).ready(function () {
     return text;
   };
   const setFieldState = (field, state) => {
-    field.toggleClass('input-error', state === 'error');
-    field.toggleClass('input-success', state === 'success');
+    field.removeClass('input-error input-success');
+    if (state === 'error') field.addClass('input-error');
+    if (state === 'success') field.addClass('input-success');
   };
+
+  $(document).on('change blur', '#inpCrearPedidoId', function() {
+    setFieldState($(this), this.value ? 'success' : 'error');
+  });
+
+  $(document).on('input', '#inpCrearEmpresa', function() {
+    const clean = normalizeEmpresa(this.value);
+    if (this.value !== clean) this.value = clean;
+    setFieldState($(this), EMPRESA_REGEX.test(clean.trim()) ? 'success' : 'error');
+  });
+
+  $(document).on('blur', '#inpCrearEmpresa', function() {
+    $(this).trigger('input');
+  });
+
+  $(document).on('keydown', '#inpCrearEmpresa', function(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
+    if (allowedKeys.includes(e.keyCode)) return;
+    if ((this.value || '').length >= 80) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key && e.key.length === 1 && !/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]$/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('paste', '#inpCrearEmpresa', function(e) {
+    const paste = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+    if (/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ]/.test(paste)) {
+      e.preventDefault();
+    }
+  });
 
   $(document).on('input', '#inpCrearTelefono', function() {
     const clean = normalizeTelefono(this.value);
     if (this.value !== clean) this.value = clean;
     setFieldState($(this), clean.length === 10 ? 'success' : 'error');
+  });
+
+  $(document).on('blur', '#inpCrearTelefono', function() {
+    $(this).trigger('input');
   });
 
   $(document).on('keydown', '#inpCrearTelefono', function(e) {
@@ -224,14 +294,18 @@ $(document).ready(function () {
   $(document).on('input', '#inpCrearGuia', function() {
     const clean = normalizeGuia(this.value);
     if (this.value !== clean) this.value = clean;
-    setFieldState($(this), clean.length > 0 ? 'success' : 'error');
+    setFieldState($(this), clean.length === 6 ? 'success' : 'error');
+  });
+
+  $(document).on('blur', '#inpCrearGuia', function() {
+    $(this).trigger('input');
   });
 
   $(document).on('keydown', '#inpCrearGuia', function(e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const allowedKeys = [8, 9, 13, 27, 35, 36, 37, 38, 39, 40, 46];
     if (allowedKeys.includes(e.keyCode)) return;
-    if ((this.value || '').length >= 8) {
+    if ((this.value || '').length >= 6) {
       e.preventDefault();
       return;
     }
@@ -252,6 +326,10 @@ $(document).ready(function () {
     if (this.value !== clean) this.value = clean;
     const num = Number(clean);
     setFieldState($(this), clean !== '' && !Number.isNaN(num) && num >= 0 && num <= 9999999999 ? 'success' : 'error');
+  });
+
+  $(document).on('blur', '#inpCrearCosto', function() {
+    $(this).trigger('input');
   });
 
   $(document).on('keydown', '#inpCrearCosto', function(e) {
@@ -295,9 +373,10 @@ $(document).ready(function () {
     } else {
       setFieldState(fields.pedido, 'success');
     }
-    const emp = fields.empresa.val().trim();
-    if (!emp || emp.length < 2) {
-      errors.empresa = 'Nombre del acarreista requerido (mín 2 caracteres)';
+    const emp = normalizeEmpresa(fields.empresa.val()).trim();
+    fields.empresa.val(emp);
+    if (!EMPRESA_REGEX.test(emp)) {
+      errors.empresa = 'Nombre del acarreista: solo letras, números y espacios (2 a 80 caracteres)';
       valid = false;
       setFieldState(fields.empresa, 'error');
     } else {
@@ -317,8 +396,8 @@ $(document).ready(function () {
 
     const gui = normalizeGuia(fields.guia.val());
     fields.guia.val(gui);
-    if (!/^[A-Z0-9]{1,8}$/.test(gui)) {
-      errors.guia = 'Placa: solo letras y números (máx 8 caracteres)';
+    if (!/^[A-Z0-9]{6}$/.test(gui)) {
+      errors.guia = 'La placa debe tener exactamente 6 letras o números';
       valid = false;
       setFieldState(fields.guia, 'error');
     } else {
@@ -339,7 +418,7 @@ $(document).ready(function () {
       // Show errors
       Object.keys(errors).forEach(key => {
         $(`#error-${key}`).text(errors[key]).show();
-        fields[key].addClass('input-error');
+        setFieldState(fields[key], 'error');
       });
       fields.pedido.focus();
       showToast('Corrija los errores en el formulario', 'error');
@@ -372,7 +451,8 @@ $(document).ready(function () {
       } else if (data.field) {
         // Server field error
         $(`#error-${data.field}`).text(data.error).show();
-        fields[data.field].addClass('input-error').focus();
+        setFieldState(fields[data.field], 'error');
+        fields[data.field].focus();
         showToast(data.error, 'error');
         btn.prop('disabled', false).html(originalHtml);
       } else {

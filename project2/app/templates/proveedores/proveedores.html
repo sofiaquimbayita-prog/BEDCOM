@@ -1,11 +1,11 @@
 {% extends "includes/base.html" %}
 {% load static %}
 {% block header_title %}Proveedores{% endblock %}
-{% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
+{% endblock %}
 
 <main class="proveedores">
     <div class="toolbar">
