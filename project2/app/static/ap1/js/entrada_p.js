@@ -8,8 +8,6 @@ window.abrirModalEliminar = abrirModalEliminar;
 window.abrirModalVer = abrirModalVer;
 window.abrirModalReactivar = abrirModalReactivar;
 window.cerrarModal = cerrarModal;
-window.mostrarMensaje = mostrarMensaje;
-window.cerrarToast = cerrarToast;
 window.mostrarStockActual = mostrarStockActual;
 window.calcularNuevoStock = calcularNuevoStock;
 
@@ -86,57 +84,10 @@ function cerrarModal(modalId) {
     $('body').css('overflow', 'auto');
 }
 
-/**
- * Muestra un mensaje toast
- */
-function mostrarMensaje(tipo, texto) {
-    const container = $('#toast-container');
-    if (container.length === 0) {
-        $('body').append('<div class="messages-container" id="toast-container"></div>');
-    }
-    
-    const iconos = {
-        success: 'fa-check-circle',
-        error: 'fa-times-circle',
-        warning: 'fa-exclamation-triangle',
-        info: 'fa-info-circle'
-    };
-    
-    const mensaje = `
-        <div class="message ${tipo}">
-            <div class="message-content">
-                <i class="fas ${iconos[tipo] || iconos.info}"></i>
-                <span class="text">${texto}</span>
-            </div>
-            <button type="button" class="close-toast" onclick="cerrarToast(this)">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    $('#toast-container').append(mensaje);
-    
-    // Auto cerrar después de 5 segundos
-    setTimeout(function() {
-        $('.message').last().fadeOut(300, function() {
-            $(this).remove();
-        });
-    }, 5000);
-}
+// Toast → usa window.mostrarMensaje() y window.showToast() global (base.html)
 
-/**
- * Cierra un toast específico
- */
-function cerrarToast(btn) {
-    const message = $(btn).closest('.message');
-    message.fadeOut(300, function() {
-        $(this).remove();
-    });
-}
-
-/**
- * Muestra el stock actual del producto seleccionado
- */
+// Variable global para DataTable
+var dataTableEntradas = null;
 function mostrarStockActual() {
     const selectProducto = document.getElementById('producto');
     const stockActual = document.getElementById('stock-actual');
@@ -260,7 +211,7 @@ function getCSRFToken() {
             if (name === 'csrftoken') token = decodeURIComponent(value);
         });
     }
-    console.log('🔑 CSRF Token:', token ? 'Found' : 'Missing');
+    console.log(' CSRF Token:', token ? 'Found' : 'Missing');
     return token;
 }
 
@@ -291,49 +242,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   };
 
-  // ============================
-  // TOAST NOTIFICATIONS
-  // ============================
-  
-  // Función para cerrar toast
-  window.cerrarToast = function(btn) {
-    const toast = btn.closest('.message');
-    if (toast) {
-      toast.style.animation = 'slideOut 0.3s ease forwards';
-      setTimeout(() => {
-        toast.remove();
-      }, 300);
-    }
-  };
-
-  // Agregar animación de salida
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Auto-cerrar toast después de 5 segundos
-  const toasts = document.querySelectorAll('.message');
-  toasts.forEach(toast => {
-    setTimeout(() => {
-      if (toast && toast.parentElement) {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-          toast.remove();
-        }, 300);
-      }
-    }, 5000);
-  });
+  // Toast → handled globally by base.html window.showToast()
 
   // PERFIL Y LOGOUT - with null checks
   const perfilBtn = document.getElementById("perfilBtn");
@@ -450,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // INICIALIZACIÓN ADICIONAL
   // ============================
   
-    // 🔧 FIXED: Global handlers for modals (reliable binding)
+    //  FIXED: Global handlers for modals (reliable binding)
     $(document).on('click', '#btnConfirmarAnular', function(e) {
         e.preventDefault();
         const id = $('#delete_entrada_id').val();

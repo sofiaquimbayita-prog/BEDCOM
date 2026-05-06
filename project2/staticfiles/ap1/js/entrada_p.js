@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // INICIALIZACIÓN ADICIONAL
   // ============================
   
-    // 🔧 FIXED: Global handlers for modals (reliable binding)
+    //  FIXED: Global handlers for modals (reliable binding)
     $(document).on('click', '#btnConfirmarAnular', function(e) {
         e.preventDefault();
         const id = $('#delete_entrada_id').val();

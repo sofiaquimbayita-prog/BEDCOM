@@ -1,56 +1,3 @@
-// Funciones globales para Toast
-function showToast(message, type) {
-    var toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toastContainer';
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    var toast = document.createElement('div');
-    toast.className = 'toast ' + type;
-    
-    var icon = '';
-    switch(type) {
-        case 'success':
-            icon = '<i class="fas fa-check-circle"></i>';
-            break;
-        case 'error':
-            icon = '<i class="fas fa-exclamation-circle"></i>';
-            break;
-        case 'warning':
-            icon = '<i class="fas fa-exclamation-triangle"></i>';
-            break;
-        case 'info':
-            icon = '<i class="fas fa-info-circle"></i>';
-            break;
-    }
-    
-    toast.innerHTML = icon + '<span>' + message + '</span><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
-    
-    toastContainer.appendChild(toast);
-    
-    setTimeout(function() {
-        if (toast.parentElement) {
-            toast.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(function() {
-                if (toast.parentElement) {
-                    toast.remove();
-                }
-            }, 300);
-        }
-    }, 5000);
-}
-
-function showErrorToast(message) {
-    showToast(message, 'error');
-}
-
-function showSuccessToast(message) {
-    showToast(message, 'success');
-}
-
 // Función para obtener el token CSRF
 function getCookie(name) {
     var cookieValue = null;
@@ -71,25 +18,10 @@ function getCookie(name) {
 function anularSalida(id) {
     console.log('🔄 AnularSalida llamada con ID:', id);
     
-    if (typeof Swal === 'undefined') {
-        console.warn('SweetAlert2 no cargado - fallback confirm');
-        if (!confirm('¿Anular salida ID ' + id + '? Stock se reintegrará.')) return;
+    // Usar confirm nativo para mantener consistencia y eliminar SweetAlert2
+    if (confirm('¿Estás seguro de que deseas anular la salida #' + id + '? El stock se reintegrará al producto.')) {
         _doAnularFetch(id);
-        return;
     }
-    
-    Swal.fire({
-        title: '¿Anular salida #' + id + '?',
-        text: 'Stock se reintegrará al producto.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, anular',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) _doAnularFetch(id);
-    });
 }
 
 function _doAnularFetch(id) {
@@ -109,15 +41,15 @@ function _doAnularFetch(id) {
     .then(data => {
         console.log(' Data received:', data);
         if (data.success) {
-            showSuccessToast(data.message || 'Anulada correctamente');
+            window.showToast(data.message || 'Anulada correctamente', 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            showErrorToast(data.message || 'Error backend');
+            window.showToast(data.message || 'Error backend', 'error');
         }
     })
     .catch(error => {
         console.error('❌ Anular error:', error);
-        showErrorToast('Error conexión: ' + error.message);
+        window.showToast('Error conexión: ' + error.message, 'error');
     });
 }
 
@@ -174,7 +106,7 @@ function enviarFormularioSalida() {
     .then(data => {
         if (data.success) {
             cerrarModalSalida();
-            showSuccessToast(data.message);
+            window.showToast(data.message, 'success');
             setTimeout(function() {
                 location.reload();
             }, 1500);
@@ -187,12 +119,12 @@ function enviarFormularioSalida() {
                 }
                 errorMessage = errores.join('\n');
             }
-            showErrorToast(errorMessage);
+            window.showToast(errorMessage, 'error');
         }
     })
     .catch(function(error) {
         console.error('Error:', error);
-        showErrorToast("Ocurrió un error al procesar la solicitud");
+        window.showToast("Ocurrió un error al procesar la solicitud", 'error');
     });
 }
 
@@ -202,9 +134,7 @@ window.toggleAnulados = toggleAnulados;
 window.abrirModalSalida = abrirModalSalida;
 window.cerrarModalSalida = cerrarModalSalida;
 window.enviarFormularioSalida = enviarFormularioSalida;
-window.showToast = showToast;
-window.showErrorToast = showErrorToast;
-window.showSuccessToast = showSuccessToast;
+
 
 // Código que se ejecuta cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', function() {
@@ -529,31 +459,31 @@ document.addEventListener('DOMContentLoaded', function() {
             let firstError = null;
 
             if (!validarProducto()) {
-                showErrorToast("Debe seleccionar un producto");
+                window.showToast("Debe seleccionar un producto", 'error');
                 isValid = false;
                 firstError = productoSelect;
             }
 
             if (isValid && !validarCantidad()) {
-                showErrorToast("La cantidad debe ser mayor a 0 y no exceder el stock disponible");
+                window.showToast("La cantidad debe ser mayor a 0 y no exceder el stock disponible", 'error');
                 isValid = false;
                 if (!firstError) firstError = cantidadInput;
             }
 
             if (isValid && !validarFecha()) {
-                showErrorToast("La fecha no puede ser futura");
+                window.showToast("La fecha no puede ser futura", 'error');
                 isValid = false;
                 if (!firstError) firstError = fechaInput;
             }
 
             if (isValid && !validarMotivo()) {
-                showErrorToast("El motivo debe tener al menos 5 caracteres");
+                window.showToast("El motivo debe tener al menos 5 caracteres", 'error');
                 isValid = false;
                 if (!firstError) firstError = motivoInput;
             }
 
             if (isValid && !validarResponsable()) {
-                showErrorToast("El nombre del responsable debe tener mínimo 3 caracteres");
+                window.showToast("El nombre del responsable debe tener mínimo 3 caracteres", 'error');
                 isValid = false;
                 if (!firstError) firstError = responsableInput;
             }
@@ -578,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     cerrarModalSalida();
-                    showSuccessToast(data.message);
+                    window.showToast(data.message, 'success');
                     setTimeout(function() {
                         location.reload();
                     }, 1500);
@@ -593,12 +523,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage = errores.join('\n');
                     }
 
-                    showErrorToast(errorMessage);
+                    window.showToast(errorMessage, 'error');
                 }
             })
             .catch(function(error) {
                 console.error('Error:', error);
-                showErrorToast("Ocurrió un error al procesar la solicitud");
+                window.showToast("Ocurrió un error al procesar la solicitud", 'error');
             });
         });
     }

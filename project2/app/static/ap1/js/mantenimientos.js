@@ -9,18 +9,8 @@ const URL_CREAR = cfg.urlCrear || '';
 const URL_ESTADO = cfg.urlEstado || '';
 const URL_DETALLE = cfg.urlDetalle || '';
 
-/* ── Toast ─────────────────────────────────────────── */
-function showToast(msg, tipo = 'success') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `message message--${tipo}`;
-  toast.innerHTML = `
-    <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-    <span>${msg}</span>
-  `;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-}
+/* ── Toast → usa window.showToast() global (base.html) ── */
+
 
 $(document).ready(function () {
 <<<<<<< HEAD:project2/app/static/ap1/js/mantenimientos.js

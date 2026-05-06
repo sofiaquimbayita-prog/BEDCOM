@@ -10,10 +10,8 @@ function limitDigits(input, maxLength) {
   input.value = input.value.replace(/[^0-9]/g, "").slice(0, maxLength);
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".message").forEach((msg) => {
-    setTimeout(() => cerrarToast(msg.querySelector(".close-toast")), 5000);
-  });
   validarEnTiempoReal();
 });
 
@@ -116,32 +114,8 @@ document
     }
   });
 
-function cerrarToast(btn) {
-  btn.closest(".message").style.animation = "slideOutToast .3s";
-  setTimeout(() => btn.closest(".message").remove(), 300);
-}
+// Toast → usa window.mostrarMensaje() global (base.html)
 
-function mostrarMensaje(tipo, texto) {
-  let cont =
-    document.getElementById("toast-container") ||
-    (() => {
-      let c = document.createElement("div");
-      c.id = "toast-container";
-      c.className = "messages-container";
-      document.querySelector(".contenedor").prepend(c);
-      return c;
-    })();
-  let msg = document.createElement("div");
-  msg.className = "message " + tipo;
-  msg.innerHTML =
-    '<div class="message-content"><i class="fas fa-' +
-    (tipo == "success" ? "check" : "times") +
-    '-circle"></i><span>' +
-    texto +
-    '</span></div><button class="close-toast" onclick="cerrarToast(this)"><i class="fas fa-times"></i></button>';
-  cont.appendChild(msg);
-  setTimeout(() => cerrarToast(msg.querySelector(".close-toast")), 5000);
-}
 
 function togglePassword(id, el) {
             const input = document.getElementById(id);

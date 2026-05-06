@@ -88,60 +88,10 @@ function abrirModalSalida() {
 }
 
 // ===============================
-// FUNCIONES DE NOTIFICACIONES TOAST
+// TOAST → usa window.showToast() global (base.html)
+// window.showErrorToast() y window.showSuccessToast() 
+// ya están definidas como aliases globales.
 // ===============================
-function showToast(message, type) {
-    var toastContainer = document.getElementById('toastContainer');
-
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toastContainer';
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    var toast = document.createElement('div');
-    toast.className = 'toast ' + type;
-    
-    var icon = '';
-    switch(type) {
-        case 'success':
-            icon = '<i class="fas fa-check-circle"></i>';
-            break;
-        case 'error':
-            icon = '<i class="fas fa-exclamation-circle"></i>';
-            break;
-        case 'warning':
-            icon = '<i class="fas fa-exclamation-triangle"></i>';
-            break;
-        case 'info':
-            icon = '<i class="fas fa-info-circle"></i>';
-            break;
-    }
-    
-    toast.innerHTML = icon + '<span>' + message + '</span><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>';
-    
-    toastContainer.appendChild(toast);
-    
-    setTimeout(function() {
-        if (toast.parentElement) {
-            toast.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(function() {
-                if (toast.parentElement) {
-                    toast.remove();
-                }
-            }, 300);
-        }
-    }, 5000);
-}
-
-function showErrorToast(message) {
-    showToast(message, 'error');
-}
-
-function showSuccessToast(message) {
-    showToast(message, 'success');
-}
 
 // ===============================
 // FUNCION PARA ENVIAR EL FORMULARIO
@@ -171,7 +121,7 @@ function enviarFormularioSalida() {
         if (data.success) {
 
             cerrarModalSalida();
-            showSuccessToast(data.message);
+            window.showToast(data.message, 'success');
 
             setTimeout(function() {
                 location.reload();
@@ -201,13 +151,13 @@ function enviarFormularioSalida() {
                 errorMessage = errores.join('<br>');
             }
 
-            showErrorToast(errorMessage);
+            window.showToast(errorMessage, 'error');
         }
 
     })
     .catch(function(error) {
         console.error('Error:', error);
-        showErrorToast("Ocurrió un error al procesar la solicitud");
+        window.showToast("Ocurrió un error al procesar la solicitud", 'error');
     });
 }
 
@@ -215,6 +165,3 @@ function enviarFormularioSalida() {
 window.cerrarModalSalida = cerrarModalSalida;
 window.abrirModalSalida = abrirModalSalida;
 window.enviarFormularioSalida = enviarFormularioSalida;
-window.showToast = showToast;
-window.showErrorToast = showErrorToast;
-window.showSuccessToast = showSuccessToast;

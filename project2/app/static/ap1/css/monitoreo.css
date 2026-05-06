@@ -340,9 +340,9 @@
 
 .bottom-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 24px;
-    align-items: start; /* start evita que se estiren en altura desigual */
+    align-items: start;
 }
 
 /* Pantalla mediana: una columna, apiladas */
@@ -361,8 +361,7 @@
 }
 
 /* Paneles dentro del grid ocupan el ancho completo de su celda */
-.notif-panel,
-.tabla-panel {
+.notif-panel {
     width: 100%;
     min-width: 0; /* evita desbordamiento en grid */
 }
@@ -413,21 +412,112 @@
     text-align: center;
 }
 
-.panel-refresh {
+/* Table wrapper (used by notifications DataTable) */
+.table-wrap {
+    padding: 0;
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-wrap th {
+    padding: 14px 16px;
+    text-align: left;
     font-size: 12px;
+    font-weight: 600;
     color: var(--mon-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--mon-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--mon-surface);
+    box-shadow: 0 1px 0 var(--mon-border);
 }
 
-.panel-refresh i {
-    animation: spin 3s linear infinite;
+.table-wrap td {
+    padding: 16px;
+    font-size: 14px;
+    color: var(--mon-text);
+    border-bottom: 1px solid var(--mon-border);
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.table-wrap tbody tr:hover {
+    background: var(--mon-surface-hover);
+}
+
+.table-wrap tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Notification table buttons */
+.btn-small {
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  width: 40px;
+  height: 40px;
+}
+
+.btn-small:hover {
+  color: #38bdf8;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.btn-small.danger {
+  color: #94a3b8;
+}
+
+.btn-small.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-small.reopen:hover {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-check-now {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mon-border);
+  color: var(--mon-text);
+  padding: 8px 16px;
+  border-radius: var(--mon-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-check-now:hover {
+  background: var(--mon-primary);
+  border-color: var(--mon-primary);
+  color: white;
+  transform: translateY(-1px);
 }
 
 /* Alertas Panel */
@@ -547,155 +637,7 @@
     color: var(--mon-success);
 }
 
-/* Tabla Panel */
-.table-wrap {
-    padding: 0; /* Padding movido para mejor control del scroll */
-    overflow-x: auto;
-    max-height: 400px; /* Altura máxima antes de hacer scroll */
-    overflow-y: auto;
-}
 
-.table-wrap table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table-wrap th {
-    padding: 14px 16px;
-    text-align: left;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--mon-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--mon-border);
-    position: sticky; /* Fija el encabezado arriba */
-    top: 0;
-    z-index: 10;
-    background: var(--mon-surface); /* Fondo del mismo color que la tarjeta */
-    box-shadow: 0 1px 0 var(--mon-border); /* Línea separadora inferior */
-}
-
-.table-wrap td {
-    padding: 16px;
-    font-size: 14px;
-    color: var(--mon-text);
-    border-bottom: 1px solid var(--mon-border);
-}
-
-/* Notification table buttons - matching productos style */
-.btn-small {
-  border: none;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  width: 40px;
-  height: 40px;
-}
-
-.btn-small:hover {
-  color: #38bdf8;
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
-}
-
-.btn-small.danger {
-  color: #94a3b8;
-}
-
-.btn-small.danger:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-}
-
-.btn-small.reopen:hover {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-}
-
-.btn-check-now {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--mon-border);
-  color: var(--mon-text);
-  padding: 8px 16px;
-  border-radius: var(--mon-radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 13px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-check-now:hover {
-  background: var(--mon-primary);
-  border-color: var(--mon-primary);
-  color: white;
-  transform: translateY(-1px);
-}
-
-.table-wrap tbody tr:hover {
-    background: var(--mon-surface-hover);
-}
-
-.table-wrap tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* Estado badges */
-.estado {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.estado.activo {
-    background: rgba(34, 197, 94, 0.1);
-    color: var(--mon-success);
-}
-
-.estado.pendiente {
-    background: rgba(234, 179, 8, 0.1);
-    color: var(--mon-warning);
-}
-
-.estado.error {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--mon-danger);
-}
-
-/* Row progress bar */
-.row-progress-wrap {
-    height: 6px;
-    background: var(--mon-surface-hover);
-    border-radius: 99px;
-    overflow: hidden;
-    width: 100px;
-}
-
-.row-progress {
-    height: 100%;
-    width: 0%;
-    border-radius: 99px;
-    transition: width 1s ease;
-    box-shadow: none;
-}
 
 /* Animaciones */
 @keyframes fadeUp {

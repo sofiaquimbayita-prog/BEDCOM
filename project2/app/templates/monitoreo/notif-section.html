@@ -229,20 +229,8 @@ setInterval(() => {
     }
 }, 30000);
 
-// Global toast/error helpers (if not defined elsewhere)
-function showToast(msg) {
-    const toast = document.createElement('div');
-    toast.className = 'message success fixed-toast';
-    toast.innerHTML = `<i class="fas fa-check"></i> ${msg} <button onclick="this.parentElement.remove()">×</button>`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-}
-
-function showNotifError(msg) {
-    const toast = document.createElement('div');
-    toast.className = 'message error fixed-toast';
-    toast.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg} <button onclick="this.parentElement.remove()">×</button>`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
-}
+// Toast/error helpers — delegate to global system in base.html
+// window.showToast() and window.showErrorToast() are already defined globally.
+// showNotifError uses the global toast:
+function showNotifError(msg) { window.showToast(msg, 'error'); }
 </script>

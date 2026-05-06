@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         spacingLg: false,
         dyslexia: false,
         reduceMotion: false,
-        speechEnabled: false
+        speechEnabled: false,
+        grayscale: false
     };
 
     let state = { ...defaultState };
@@ -32,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         spacingLg: document.getElementById('acc-spacing-lg'),
         dyslexia: document.getElementById('acc-dyslexia'),
         reduceMotion: document.getElementById('acc-reduce-motion'),
-        speechEnabled: document.getElementById('acc-speech-enabled')
+        speechEnabled: document.getElementById('acc-speech-enabled'),
+        grayscale: document.getElementById('acc-grayscale')
     };
 
     // 4. Lógica Principal: Inicializar y Aplicar
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         docBody.classList.toggle('acc-spacing-lg', state.spacingLg);
         docBody.classList.toggle('acc-dyslexia', state.dyslexia);
         docBody.classList.toggle('acc-reduce-motion', state.reduceMotion);
+        docBody.classList.toggle('acc-grayscale', state.grayscale);
 
         // Control de TTS
         toggleTTSListeners(state.speechEnabled);
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.dyslexia.checked = state.dyslexia;
         controls.reduceMotion.checked = state.reduceMotion;
         controls.speechEnabled.checked = state.speechEnabled;
+        controls.grayscale.checked = state.grayscale;
 
         controls.textSizeNormal.classList.toggle('active', state.textSize === 'normal');
         controls.textSizeLg.classList.toggle('active', state.textSize === 'lg');
@@ -137,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'spacingLg': controls.spacingLg,
             'dyslexia': controls.dyslexia,
             'reduceMotion': controls.reduceMotion,
-            'speechEnabled': controls.speechEnabled
+            'speechEnabled': controls.speechEnabled,
+            'grayscale': controls.grayscale
         };
 
         for (const [key, element] of Object.entries(switchMap)) {

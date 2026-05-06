@@ -18,7 +18,6 @@ from app.views.mantenimientos.views import (
 
 urlpatterns = [
     # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
-    path('api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial_alias'),
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis_alias'),
 
 
@@ -100,7 +99,6 @@ urlpatterns = [
     # --- MONITOREO ---
     path('monitoreo/', monitoreo.MonitoreoView.as_view(), name='monitoreo'),
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis'),
-    path('monitoreo/api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial'),
     path('monitoreo/test-notif/', monitoreo.test_notificacion, name='test_notif'),
     # --- NUEVAS URLs NOTIFICACIONES - PASO 3 ---
     path('monitoreo/api/notificaciones/', monitoreo.api_notificaciones, name='api_notificaciones'),

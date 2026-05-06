@@ -68,116 +68,14 @@
         </div>
     </section>
     
-    <!-- FILA INFERIOR: notificaciones + tabla en grid responsive -->
+    <!-- FILA INFERIOR: notificaciones -->
     <section class="bottom-grid">
         <!-- NOTIFICACIONES SECTION -->
         {% include 'monitoreo/notif-section.html' %}
-
-        <!-- TABLA -->
-        <div class="panel tabla-panel">
-            <div class="panel-header">
-                <span class="panel-title"><i class="fas fa-chart-line"></i> Historial en Tiempo Real</span>
-                <span class="panel-refresh" onclick="actualizarHistorialAhora()" style="cursor: pointer;" title="Actualizar datos"><i class="fas fa-sync-alt" id="icon-refresh"></i> <span id="text-refresh">Auto (60s)</span></span>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Módulo</th>
-                            <th>Acción</th>
-                            <th>Fecha</th>
-                            <th>Responsable</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historial-body">
-                        {% for accion in historial_acciones %}
-                        <tr>
-                            <td>{{ accion.get_modulo_display|default:"General" }}</td>
-                            <td>{{ accion.descripcion|default:"-" }}</td>
-                            <td>{{ accion.fecha|date:"d/m/Y H:i" }}</td>
-                            <td>{{ accion.usuario.username|default:"Sistema" }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
-                                No hay acciones recientes. Realiza algún movimiento (crear/editar producto) para ver el historial.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    <!-- Body oculto para compatibilidad con script JS que busca tabla-body -->
-                    <tbody id="tabla-body" style="display:none;"></tbody>
-                </table>
-            </div>
-        </div>
     </section>
 </main>
 
 <script>
-    // Definir la variable 'procesos' con los datos reales de Django para que monitoreo.js pueda usarla
-    var procesos = [
-        {% for accion in historial_acciones %}
-        {
-            modulo: "{{ accion.get_modulo_display|default:'General'|escapejs }}",
-            accion: "{{ accion.descripcion|default:'Registro'|escapejs }}",
-            fecha: "{{ accion.fecha|date:'d/m/Y H:i' }}",
-            responsable: "{{ accion.usuario.username|default:'Sistema'|escapejs }}"
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
-
-    // Función para actualizar el historial vía AJAX
-    function actualizarHistorialAhora() {
-        const icon = document.getElementById('icon-refresh');
-        const text = document.getElementById('text-refresh');
-        
-        // Efecto visual de carga
-        icon.classList.add('fa-spin');
-        text.innerText = "Actualizando...";
-
-        fetch('/vistas/monitoreo/api/historial-tiempo-real/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const tbody = document.getElementById('historial-body');
-                    let html = '';
-
-                    if (data.data.length === 0) {
-                        html = `<tr>
-                                    <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
-                                        No hay acciones recientes.
-                                    </td>
-                                </tr>`;
-                    } else {
-                        // Sort by date desc (newest first)
-                        data.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-                        data.data.forEach(item => {
-                            html += `<tr>
-                                <td>${item.modulo}</td>
-                                <td>${item.descripcion}</td>
-                                <td>${item.fecha}</td>
-                                <td>${item.usuario}</td>
-                            </tr>`;
-                        });
-                    }
-                    
-                    // Actualizar el contenido de la tabla
-                    tbody.innerHTML = html;
-                }
-            })
-            .catch(error => console.error('Error actualizando historial:', error))
-            .finally(() => {
-                // Quitar efecto de carga
-                setTimeout(() => {
-                    icon.classList.remove('fa-spin');
-                    text.innerText = "Auto (60s)";
-                }, 500);
-            });
-    }
-
-    // Ejecutar automáticamente cada 1 minuto (60s)
-    setInterval(actualizarHistorialAhora, 60000);
-
     // Polling para KPIs cada 1 minuto (safe version)
     function actualizarKPIs() {
         fetch('/vistas/monitoreo/api/kpis/')

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/header-nav.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/notifications.css' %}" />
+    <link rel="stylesheet" href="{% static 'ap1/css/global_messages.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/accesibilidad.css' %}" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -118,6 +119,94 @@
 <body>
     <div class="bg"></div>
     <div class="overlay"></div>
+
+    <!-- GLOBAL TOAST CONTAINER (populated by JS only) -->
+    <div id="global-toast-container"></div>
+
+    <script>
+    /* ═══════════════════════════════════════════════════════
+       GLOBAL TOAST SYSTEM — window.showToast()
+       Único punto de entrada para TODAS las notificaciones.
+       z-index 999999 → siempre visible sobre modales.
+       ═══════════════════════════════════════════════════════ */
+    (function() {
+        var _shiftTimer = null;
+
+        function _dismiss(toast) {
+            if (toast._dismissed) return;
+            toast._dismissed = true;
+            toast.classList.add('toast-exit');
+            setTimeout(function() {
+                toast.remove();
+                var c = document.getElementById('global-toast-container');
+                if (c && c.children.length === 0) {
+                    c.classList.remove('toast-shifted');
+                    clearTimeout(_shiftTimer);
+                    _shiftTimer = null;
+                }
+            }, 400);
+        }
+
+        window.showToast = function(msg, tipo) {
+            tipo = tipo || 'success';
+            if (tipo === 'danger') tipo = 'error';
+
+            var container = document.getElementById('global-toast-container');
+            if (!container) return;
+
+            var iconMap = {
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                error:   'fa-times-circle',
+                info:    'fa-info-circle'
+            };
+
+            var toast = document.createElement('div');
+            toast.className = 'toast-item toast-' + tipo;
+            toast.innerHTML =
+                '<div class="toast-content">' +
+                    '<span class="toast-icon"><i class="fas ' + (iconMap[tipo] || iconMap.info) + '"></i></span>' +
+                    '<span class="toast-text">' + msg + '</span>' +
+                '</div>' +
+                '<button type="button" class="toast-close"><i class="fas fa-times"></i></button>';
+
+            toast.querySelector('.toast-close').onclick = function() { _dismiss(toast); };
+            container.appendChild(toast);
+
+            /* Entrance animation */
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    toast.classList.add('toast-visible');
+                });
+            });
+
+            /* Slide container to right after 1.2s */
+            if (!_shiftTimer) {
+                _shiftTimer = setTimeout(function() {
+                    container.classList.add('toast-shifted');
+                }, 1200);
+            }
+
+            /* Auto-dismiss after 5.5s */
+            setTimeout(function() { _dismiss(toast); }, 5500);
+        };
+
+        /* ── Aliases for backwards compatibility ── */
+        window.mostrarMensaje = function(tipo, texto) { window.showToast(texto, tipo); };
+        window.showErrorToast = function(msg) { window.showToast(msg, 'error'); };
+        window.showSuccessToast = function(msg) { window.showToast(msg, 'success'); };
+    })();
+    </script>
+
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+            window.showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
 
     {% block header %}
         {% include 'includes/header.html' %} 
@@ -242,6 +331,10 @@
                 <div class="acc-item">
                     <span>Modo Claro</span>
                     <label class="acc-switch"><input type="checkbox" id="acc-light-mode"><span class="acc-slider"></span></label>
+                </div>
+                <div class="acc-item">
+                    <span>Escalada de Grises</span>
+                    <label class="acc-switch"><input type="checkbox" id="acc-grayscale"><span class="acc-slider"></span></label>
                 </div>
             </div>
 

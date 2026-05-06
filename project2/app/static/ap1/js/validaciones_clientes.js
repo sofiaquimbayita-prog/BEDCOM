@@ -209,7 +209,7 @@ class ClienteValidator {
             const monto = parseFloat(valor);
             if (window.pedidoPagoPendiente && monto > window.pedidoPagoPendiente) {
                 montoInput.style.borderColor = 'var(--color-inactivar)';
-                this.showToast('El monto no puede superar el saldo pendiente', 'error');
+                window.showToast('El monto no puede superar el saldo pendiente', 'error');
             } else {
                 montoInput.style.borderColor = '';
             }
@@ -263,12 +263,7 @@ class ClienteValidator {
         }
     }
 
-    showToast(msg, tipo = 'error') {
-        // Usar la función showToast existente si está disponible
-        if (typeof window.showToast === 'function') {
-            window.showToast(msg, tipo);
-        }
-    }
+    // showToast: usa directamente window.showToast() global (definido en base.html).
 }
 
 // ═══════════════════════════════════════════════════════

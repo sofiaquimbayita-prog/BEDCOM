@@ -113,7 +113,7 @@
 </main>
 
 <!-- Modales con z-index escalonado para apertura individual -->
-<!-- Modal anular eliminado: usar SweetAlert desde SalidaP.js -->
+<!-- Modal anular: confirmación nativa — usa window.showToast() de base.html -->
 <div style="position: relative; z-index: 10010;">
 {% include 'salida_p/modal_nueva_salida.html' %}
 </div>
@@ -124,8 +124,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
 <script src="{% static 'ap1/js/modal_detalle_salida.js' %}"></script>
-<script src="{% static 'ap1/js/SalidaP.js' %}?v=4"></script>
+<script src="{% static 'ap1/js/SalidaP.js' %}?v=5"></script>
 {% endblock %}

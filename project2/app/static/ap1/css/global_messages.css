@@ -1,0 +1,155 @@
+/* ═══════════════════════════════════════════════════════
+   GLOBAL TOAST NOTIFICATION SYSTEM — BEDCOM
+   z-index: 999999  →  ALWAYS above modals & overlays
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+    --toast-success: #10b981;
+    --toast-error:   #ef4444;
+    --toast-warning: #f59e0b;
+    --toast-info:    #38bdf8;
+    --toast-bg:      rgba(15, 23, 42, 0.96);
+    --toast-text:    #f1f5f9;
+}
+
+/* ── Container ────────────────────────────────────────── */
+#global-toast-container {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999999; /* Above ALL modals (10003-10005) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+    width: 100%;
+    max-width: 440px;
+    transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* After 1.2s JS adds this class → slides container to right */
+#global-toast-container.toast-shifted {
+    left: calc(100% - 30px);
+    transform: translateX(-100%);
+}
+
+/* ── Toast Item ───────────────────────────────────────── */
+.toast-item {
+    width: 100%;
+    max-width: 420px;
+    min-width: 300px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: var(--toast-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--toast-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    font-family: 'Inter', sans-serif;
+
+    /* Initial hidden state */
+    opacity: 0;
+    transform: translateY(-18px) scale(0.95);
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* JS adds this class after rAF → smooth entrance */
+.toast-item.toast-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* JS adds this class to dismiss → smooth exit */
+.toast-item.toast-exit {
+    opacity: 0;
+    transform: translateX(50px) scale(0.94);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+}
+
+/* ── Content Layout ───────────────────────────────────── */
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-text {
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* ── Close Button ─────────────────────────────────────── */
+.toast-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+
+.toast-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+/* ── Type Accents ─────────────────────────────────────── */
+.toast-success { border-left: 4px solid var(--toast-success); }
+.toast-success .toast-icon { color: var(--toast-success); }
+
+.toast-error { border-left: 4px solid var(--toast-error); }
+.toast-error .toast-icon { color: var(--toast-error); }
+
+.toast-warning { border-left: 4px solid var(--toast-warning); }
+.toast-warning .toast-icon { color: var(--toast-warning); }
+
+.toast-info { border-left: 4px solid var(--toast-info); }
+.toast-info .toast-icon { color: var(--toast-info); }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 767px) {
+    #global-toast-container {
+        left: 12px;
+        right: 12px;
+        width: calc(100% - 24px);
+        max-width: none;
+        transform: none;
+    }
+    /* On mobile, don't shift — stay top center */
+    #global-toast-container.toast-shifted {
+        left: 12px;
+        transform: none;
+    }
+    .toast-item {
+        min-width: unset;
+        max-width: none;
+    }
+}
