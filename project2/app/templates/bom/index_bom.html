@@ -29,10 +29,12 @@
 {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
+{% endblock %}
 
+{% block content %}
 <main class="bom-gestion">
     
         <div class="crear-receta">
