@@ -88,6 +88,7 @@ $(document).ready(function () {
 
   /* ── Crear Mantenimiento ───────────────────────────────── */
   $('#btnNuevaMantenimiento').click(function(){
+    document.getElementById('modalCrear').classList.add('mostrar');
   });
 
   $('#btnGuardar').click(async function(){
