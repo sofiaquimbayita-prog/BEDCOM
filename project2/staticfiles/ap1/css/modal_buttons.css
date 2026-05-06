@@ -1,0 +1,63 @@
+.modal-trigger-button {
+  background: var(--color-superficie, rgba(30,41,59,0.9)) !important;
+  color: var(--color-texto, #ffffff) !important;
+  border: none !important;
+  border-radius: var(--borde-md, 8px) !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  min-height: 44px !important;
+  padding: 12px 20px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  text-decoration: none !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.1 !important;
+  transition: all var(--transicion-normal, 0.3s ease) !important;
+}
+
+.modal-trigger-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+  transition: left 0.5s ease !important;
+  pointer-events: none !important;
+}
+
+.modal-trigger-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(14,165,233,0.5) !important;
+  background: linear-gradient(135deg, #363c3e 0%, #17272e 100%) !important;
+  color: var(--color-texto, #ffffff) !important;
+}
+
+.modal-trigger-button:hover::before {
+  left: 100% !important;
+}
+
+.modal-trigger-button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.25), 0 8px 25px rgba(14,165,233,0.35) !important;
+}
+
+.modal-trigger-button.modal-trigger-button--compact {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 15px !important;
+}
+
+.modal-trigger-button.modal-trigger-button--compact:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+}

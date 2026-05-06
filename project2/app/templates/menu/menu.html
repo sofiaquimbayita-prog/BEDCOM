@@ -5,19 +5,13 @@
 
 {% block header_title %}MENÚ PRINCIPAL{% endblock %}
 
-{% block extra_header %}
-  {% comment %}Hide home button on menu page{% endcomment %}
-  <style>
-    .perfil-container .home-btn { display: none !important; }
-  </style>
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
 {% endblock %}
 
 {% comment %} Header toggle ya incluido globalmente {% endcomment %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
-
-
 <main class="container menu">
     <div class="menu-layout">
         
