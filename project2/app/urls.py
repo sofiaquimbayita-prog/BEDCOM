@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.views.generic.base import RedirectView
 from django.contrib.auth import views as auth_views
 from .views import calendario, insumos, menu, proveedores, productos, reportes, categorias, respaldos, salida_p, bom, inventario, logistica, entrada_p, gestion, suministros, monitoreo, pedido, clientes, despacho
 from app.views.respaldos.views import modal_respaldos
@@ -20,7 +21,7 @@ urlpatterns = [
     # ALIAS PATHS for monitoreo APIs (to fix frontend 404s to wrong paths)
     path('api/historial-tiempo-real/', monitoreo.api_historial_tiempo_real, name='api_historial_alias'),
     path('monitoreo/api/kpis/', monitoreo.api_kpis, name='api_kpis_alias'),
-
+    path('', RedirectView.as_view(url='login/', permanent=False)),
 
     # --- ENTRADA DE PRODUCTOS ---
     path('entrada_p/', entrada_p.EntradaListView.as_view(), name='entrada_p'),
