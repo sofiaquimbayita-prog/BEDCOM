@@ -254,7 +254,7 @@ $(document).ready(function() {
         }
         
         // Validación 2: No permitir solo espacios
-        if (descripcionTrimmed.isspace()) {
+        if (/^\s*$/.test(descripcionTrimmed)) {
             $newErrorDiv.html('<i class="fas fa-exclamation-circle"></i> La descripción no puede contener solo espacios.');
             $input.css('border-color', '#ef4444');
             return false;

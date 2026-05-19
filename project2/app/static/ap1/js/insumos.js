@@ -103,6 +103,8 @@ $(document).ready(function () {
         'und','par','docena','caja','paq','rollo','bolsa',
     ]);
 
+    const REGEX_NOMBRE_INSUMO = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.]+$/;
+
     function validarNombre(id, idActual = null) {
         const val = $('#' + id).val().trim();
 
@@ -115,10 +117,21 @@ $(document).ready(function () {
         if (val.length > 100)
             return mostrarError(id, 'El nombre no puede superar los 100 caracteres.');
 
+        if (!REGEX_NOMBRE_INSUMO.test(val))
+            return mostrarError(id, 'El nombre solo puede contener letras, números, espacios y guiones.');
+
         if (nombreInsumoDuplicado(val, idActual))
             return mostrarError(id, 'Ya existe un insumo con ese nombre.');
 
         limpiarEstado(id);
+    }
+
+    // Filtrar caracteres especiales en nombre en tiempo real
+    function filtrarCaracteresNombre(id) {
+        const $campo = $('#' + id);
+        const val = $campo.val();
+        const filtrado = val.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.]/g, '');
+        if (val !== filtrado) $campo.val(filtrado);
     }
 
     function nombreInsumoDuplicado(nombre, idActual = null) {
@@ -172,7 +185,8 @@ $(document).ready(function () {
     }
 
     // Agregar
-    $('#ag_nombre').on('blur input', () => validarNombre('ag_nombre'));
+    $('#ag_nombre').on('blur', () => validarNombre('ag_nombre'));
+    $('#ag_nombre').on('input', () => filtrarCaracteresNombre('ag_nombre'));
     $('#ag_cantidad').on('blur input', () => validarCantidad('ag_cantidad'));
     $('#ag_precio').on('blur input', () => validarPrecio('ag_precio'));
     $('#ag_unidad').on('blur change', () => validarUnidad('ag_unidad'));
@@ -180,10 +194,11 @@ $(document).ready(function () {
     $('#ag_descripcion').on('input', () => filtrarCaracteresEspeciales('ag_descripcion'));
 
     // Editar
-    $('#ed_nombre').on('blur input', () => {
+    $('#ed_nombre').on('blur', () => {
         const id = formEditar.action.match(/\d+/)?.[0];
         validarNombre('ed_nombre', id);
     });
+    $('#ed_nombre').on('input', () => filtrarCaracteresNombre('ed_nombre'));
     $('#ed_cantidad').on('blur input', () => validarCantidad('ed_cantidad'));
     $('#ed_precio').on('blur input', () => validarPrecio('ed_precio'));
     $('#ed_unidad').on('blur change', () => validarUnidad('ed_unidad'));

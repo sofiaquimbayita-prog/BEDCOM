@@ -354,6 +354,12 @@ function buildOpts(selId=''){
   return `<option value="">— Producto —</option>` + PRODUCTOS_DATA.map(p=>`<option value="${p.id}" data-precio="${p.precio}" data-stock="${p.stock}" ${p.id==selId?'selected':''}>${p.nombre}</option>`).join('');
 }
 
+/* ─── Sanitizador de notas/especificaciones ──────────────────────────── */
+const REGEX_NOTAS = /[<>{}[\]$%&"'`\\]/g;
+function sanitizarNotas(valor) {
+  return String(valor || '').replace(REGEX_NOTAS, '').slice(0, 300);
+}
+
 function crearFila(item={}){
   const tr = document.createElement('tr');
   const isCustom = item.es_personalizado ? 'checked' : '';
@@ -405,6 +411,11 @@ function crearFila(item={}){
   
   tr.querySelector('.inp-precio').addEventListener('input', recalcular);
   tr.querySelector('.inp-cantidad').addEventListener('input', recalcular);
+  // Sanitizar caracteres especiales en notas en tiempo real
+  tr.querySelector('.inp-notas').addEventListener('input', function() {
+    const sanitizado = sanitizarNotas(this.value);
+    if (this.value !== sanitizado) this.value = sanitizado;
+  });
   tr.querySelector('.btn-quitar-fila').addEventListener('click', () => { tr.remove(); recalcular(); });
   return tr;
 }
