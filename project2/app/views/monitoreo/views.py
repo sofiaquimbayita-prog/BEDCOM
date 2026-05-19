@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 # Importamos los modelos necesarios
 # Asegúrate de que 'app' sea el nombre correcto de tu aplicación donde están los modelos
-from app.models import historial_acciones, producto, insumo, entrada, salida_producto, calendario, Notificacion
+from app.models import producto, insumo, entrada, salida_producto, calendario, Notificacion
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
@@ -20,9 +20,6 @@ class MonitoreoView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = 'MONITOREO'
         
-        # 1. CARGAR HISTORIAL (Renderizado inicial)
-        # Obtenemos las últimas 50 acciones, ordenadas de la más reciente a la más antigua
-        context['historial_acciones'] = historial_acciones.objects.select_related('usuario').order_by('-fecha')[:50]
 
         # 2. CARGAR KPIs (Indicadores)
         # Total stock units (todos productos activos)
@@ -141,29 +138,6 @@ class MonitoreoView(TemplateView):
                 relacionada_id=e.id,
                 relacionada_tipo='calendario'
             )
-
-@login_required
-def api_historial_tiempo_real(request):
-    """
-    Endpoint API que devuelve el historial en JSON para el script JS de monitoreo.html
-    """
-    try:
-        # Obtenemos las últimas 20 acciones para la actualización AJAX
-        acciones = historial_acciones.objects.select_related('usuario').order_by('-fecha')[:20]
-        
-        data = []
-        for accion in acciones:
-            data.append({
-                'modulo': accion.get_modulo_display(),
-                'descripcion': accion.descripcion,
-                'fecha': accion.fecha.strftime('%d/%m/%Y %H:%M'),
-                'usuario': accion.usuario.username if accion.usuario else 'Sistema'
-            })
-        
-        return JsonResponse({'success': True, 'data': data})
-        
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
 
 
 

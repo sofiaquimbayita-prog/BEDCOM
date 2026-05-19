@@ -211,14 +211,6 @@ class DespachoCreateView(View):
                 pedido_obj.estado = 'Despachado'
                 pedido_obj.save()
 
-                # Generar Log Historial
-                if request.user.is_authenticated:
-                    historial_acciones.objects.create(
-                        modulo='despachos',
-                        tipo_accion='crear',
-                        descripcion=f'Creó despacho #{despacho_obj.id} para Pedido #{pedido_obj.id}',
-                        usuario=request.user
-                    )
 
                 # Correo al Cliente (Asíncrono)
                 if getattr(pedido_obj.cliente, 'email', None):
@@ -300,13 +292,6 @@ class DespachoUpdateEstadoView(View):
                 obj.estado = nuevo_estado
                 obj.save()
 
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='despachos',
-                    tipo_accion='editar',
-                    descripcion=f'Actualizó estado del despacho #{obj.id} a {nuevo_estado}',
-                    usuario=request.user
-                )
 
             return JsonResponse({
                 'ok': True,

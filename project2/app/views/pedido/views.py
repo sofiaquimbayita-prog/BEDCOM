@@ -22,7 +22,7 @@ def safe_date_str(value):
         return value.strftime('%Y-%m-%d')
     return str(value)
 
-from ...models import pedido, detalle_pedido, producto, cliente, pago, Notificacion, usuario, historial_acciones
+from ...models import pedido, detalle_pedido, producto, cliente, pago, Notificacion, usuario
 
 
 # ─────────────────────────────────────────────
@@ -207,14 +207,6 @@ class PedidoCreateView(View):
                 if abono > 0:
                     pago.objects.create(pedido=nuevo_pedido, monto=abono)
 
-            # --- HISTORIAL Y CORREOS ---
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='pedidos',
-                    tipo_accion='crear',
-                    descripcion=f'Creó el pedido #{nuevo_pedido.id} para {cli.nombre}',
-                    usuario=request.user
-                )
 
             # 2. Correo al Cliente (Asíncrono)
             if cli.email:
@@ -355,13 +347,6 @@ class PedidoUpdateView(View):
                         
                 obj_pedido.save()
 
-                if request.user.is_authenticated:
-                    historial_acciones.objects.create(
-                        modulo='pedidos',
-                        tipo_accion='editar',
-                        descripcion=f'Editó el pedido #{obj_pedido.id}',
-                        usuario=request.user
-                    )
 
             return JsonResponse({
                 'ok': True,
@@ -419,13 +404,6 @@ class PedidoStateChangeView(View):
                     obj_pedido.estado = nuevo_estado
                     obj_pedido.save()
 
-                if request.user.is_authenticated:
-                    historial_acciones.objects.create(
-                        modulo='pedidos',
-                        tipo_accion='editar',
-                        descripcion=f'Cambió estado del pedido #{obj_pedido.id} a {nuevo_estado}',
-                        usuario=request.user
-                    )
 
             return JsonResponse({
                 'ok': True,
@@ -476,13 +454,6 @@ class PagoUpdateView(View):
                         obj_pedido.estado = 'En Fabricación'
                 obj_pedido.save()
 
-                if request.user.is_authenticated:
-                    historial_acciones.objects.create(
-                        modulo='pedidos',
-                        tipo_accion='editar',
-                        descripcion=f'Registró abono de ${monto} al pedido #{obj_pedido.id}',
-                        usuario=request.user
-                    )
 
             return JsonResponse({
                 'ok': True,

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.safestring import mark_safe
 
 # Importación de tus modelos
-from ...models import producto, categoria, bom, reporte, usuario, historial_acciones
+from ...models import producto, categoria, bom, reporte, usuario
 
 
 NOMBRE_PATTERN = re.compile(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+$')
@@ -120,18 +120,8 @@ class producto_create_view(SuccessMessageMixin, CreateView):
         if not has_receta:
             warning_message = mark_safe(f'Producto "<strong>{self.object.nombre}</strong>" creado exitosamente. <a href="/vistas/bom/" class="alert-link" target="_blank">Crear Receta (BOM) ahora</a> para poder usarlo en entradas/salidas.')
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if self.request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='productos',
-                    tipo_accion='crear',
-                    descripcion=f'Creó el producto "{self.object.nombre}"',
-                    usuario=self.request.user
-                )
-            except Exception as e:
-                print(f"Error al registrar historial: {e}")
-        
+
+
         # Responder según el tipo de request
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             response = {'success': True, 'message': 'Producto creado correctamente'}
@@ -232,18 +222,8 @@ class producto_update_view(SuccessMessageMixin, UpdateView):
         # Guardar
         self.object = form.save()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if self.request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='productos',
-                    tipo_accion='editar',
-                    descripcion=f'Editó el producto "{self.object.nombre}"',
-                    usuario=self.request.user
-                )
-            except Exception as e:
-                print(f"Error al registrar historial: {e}")
-        
+
+
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             response = {'success': True, 'message': 'Producto actualizado correctamente'}
             if warning_message:
@@ -291,17 +271,6 @@ class producto_delete_view(DeleteView):
         self.object.estado = False
         self.object.save()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='productos',
-                    tipo_accion='inactivar',
-                    descripcion=f'Inactivó el producto "{self.object.nombre}"',
-                    usuario=request.user
-                )
-            except Exception as e:
-                print(f"Error al registrar historial: {e}")
 
         messages.success(request, f"El producto '{self.object.nombre}' fue inactivado correctamente.")
         return HttpResponseRedirect(success_url)
@@ -331,17 +300,6 @@ class producto_activate_view(SuccessMessageMixin, DeleteView):
         self.object.estado = True
         self.object.save()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='productos',
-                    tipo_accion='activar',
-                    descripcion=f'Activó el producto "{self.object.nombre}"',
-                    usuario=request.user
-                )
-            except Exception as e:
-                print(f"Error al registrar historial: {e}")
 
         messages.success(request, f"El producto '{self.object.nombre}' fue activado correctamente.")
         return HttpResponseRedirect(self.get_success_url())

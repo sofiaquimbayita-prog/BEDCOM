@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
 # IMPORTACIÓN CORREGIDA: Apuntamos a la raíz de la app para encontrar los modelos
-from app.models import pedido, detalle_pedido, despacho, compra, insumo, historial_acciones
+from app.models import pedido, detalle_pedido, despacho, compra, insumo
 
 
 def clean_text(value):
@@ -111,17 +111,6 @@ class ReporteVentasView(View):
             'js_expenses_values': json.dumps([d['gastos'] for d in data_final.values()]),
         }
 
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='reportes',
-                    tipo_accion='consultar',
-                    descripcion='Consultó el Dashboard de Reportes y Estadísticas',
-                    usuario=request.user
-                )
-            except Exception as e:
-                print(f"Error historial reportes: {e}")
 
         return render(request, 'reportes/index_reportes.html', context)
 

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.shortcuts import render
 from webpush import send_user_notification
 
-from app.models import (historial_acciones, producto, insumo, entrada, salida_producto, calendario, Notificacion, bom, pedido, despacho)
+from app.models import (producto, insumo, entrada, salida_producto, calendario, Notificacion, bom, pedido, despacho)
 
 from django.utils import timezone
 from datetime import timedelta

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, View
 from django.utils import timezone
 
-from ...models import mantenimiento, pedido, producto, Notificacion, usuario, historial_acciones
+from ...models import mantenimiento, pedido, producto, Notificacion, usuario
 
 # ── Caracteres permitidos en descripción ──────────────────────────────────────
 _DESCRIPCION_RE = re.compile(r'^[a-zA-Z0-9\sÁÉÍÓÚáéíóúÑñ.,\-]+$')
@@ -128,14 +128,7 @@ class MantenimientoCreateView(View):
                     target_id=obj.id,
                 )
 
-            # ── Historial ─────────────────────────────────────────────────────
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='mantenimientos',
-                    tipo_accion='crear',
-                    descripcion=f'Registró mantenimiento #{obj.id} para {prod.nombre}',
-                    usuario=request.user,
-                )
+
 
             return JsonResponse({
                 'ok': True,
@@ -179,14 +172,7 @@ class MantenimientoUpdateEstadoView(View):
             obj.estado_reparacion = nuevo_estado
             obj.save(update_fields=['estado_reparacion'])
 
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='mantenimientos',
-                    tipo_accion='editar',
-                    descripcion=(f'Cambió estado de mantenimiento #{obj.id} '
-                                 f'a {obj.get_estado_reparacion_display()}'),
-                    usuario=request.user,
-                )
+
 
             return JsonResponse({
                 'ok': True,

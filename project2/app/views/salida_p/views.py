@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db import transaction
 
 from django.contrib.auth.decorators import login_required
-from app.models import producto, salida_producto, usuario, historial_acciones, bom, insumo
+from app.models import producto, salida_producto, usuario, bom, insumo
 from app.forms import SalidaProductoForm
 
 
@@ -104,14 +104,6 @@ class SalidaProductoCreateView(View):
                 salida.id_producto = producto_obj
                 salida.save()
 
-            # REGISTRO HISTORIAL - AGREGADO
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='salidas',
-                    tipo_accion='crear',
-                    descripcion=f'Registró salida de {salida.cantidad} un. de "{producto_obj.nombre}" (motivo: {motivo[:50]})',
-                    usuario=request.user
-                )
 
             return JsonResponse({
                 'success': True,
@@ -161,14 +153,6 @@ class SalidaProductoAnularView(View):
                 salida.estado = False
                 salida.save()
 
-            # REGISTRO HISTORIAL - AGREGADO
-            if request.user.is_authenticated:
-                historial_acciones.objects.create(
-                    modulo='salidas',
-                    tipo_accion='eliminar',
-                    descripcion=f'Anuló salida #{salida.id} de "{salida.id_producto.nombre}"',
-                    usuario=request.user
-                )
 
             return JsonResponse({
                 'success': True,

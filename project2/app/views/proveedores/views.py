@@ -6,8 +6,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from ...models import proveedor
-from ...forms import ProveedorForm
-from ...models import historial_acciones
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProveedorListView(ListView):
@@ -40,12 +38,6 @@ class ProveedorCreateView(View):
                 proveedor_obj.save()
                 logger.error("PROVEEDOR SAVED WITH ID: " + str(proveedor_obj.id))
 
-                historial_acciones.objects.create(
-                    usuario=request.user,
-                    modulo='proveedores',
-                    tipo_accion='crear',
-                    descripcion=f'Creación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
-                )
 
                 return JsonResponse({
                     'success': True,
@@ -91,12 +83,7 @@ class ProveedorUpdateView(View):
 
             if form.is_valid():
                 proveedor_obj = form.save()
-                historial_acciones.objects.create(
-                    usuario=request.user,
-                    modulo='proveedores',
-                    tipo_accion='editar',
-                    descripcion=f'Edición de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
-                )
+
                 return JsonResponse({
                     'success': True,
                     'message': 'Proveedor actualizado exitosamente',
@@ -133,12 +120,6 @@ class ProveedorDeleteView(View):
             proveedor_obj.estado = False
             proveedor_obj.save()
 
-            historial_acciones.objects.create(
-                usuario=request.user,
-                modulo='proveedores',
-                tipo_accion='inactivar',
-                descripcion=f'Inactivación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
-            )
 
             messages.success(request, 'Proveedor desactivado correctamente')
             return JsonResponse({'success': True, 'message': 'Proveedor desactivado correctamente'})
@@ -154,12 +135,6 @@ class ProveedorActivateView(View):
             proveedor_obj.estado = True
             proveedor_obj.save()
 
-            historial_acciones.objects.create(
-                usuario=request.user,
-                modulo='proveedores',
-                tipo_accion='activar',
-                descripcion=f'Activación de proveedor {proveedor_obj.nombre} (ID: {proveedor_obj.id})'
-            )
 
             messages.success(request, 'Proveedor activado correctamente')
             return JsonResponse({'success': True, 'message': 'Proveedor activado correctamente'})

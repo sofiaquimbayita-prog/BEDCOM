@@ -13,7 +13,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-from app.models import bom, producto, insumo, categoria, historial_acciones
+from app.models import bom, producto, insumo, categoria
 
 
 @method_decorator(login_required, name='dispatch')
@@ -86,17 +86,7 @@ class BomCreateView(SuccessMessageMixin, CreateView):
         response = super().form_valid(form)
         self.object.producto.limpiar_cache_receta()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if self.request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='bom',
-                    tipo_accion='crear',
-                    descripcion=f'Agregó insumo "{self.object.insumo.nombre}" a "{self.object.producto.nombre}"',
-                    usuario=self.request.user
-                )
-            except Exception as e:
-                logger.error(f"Error historial BOM: {e}")
+
         return response
 
     def form_invalid(self, form):
@@ -172,14 +162,7 @@ def bom_crear_receta(request):
         
         if created_count > 0:
             producto_obj.limpiar_cache_receta()
-            if request.user.is_authenticated:
-                action_desc = f'Creó/Actualizó receta para "{producto_obj.nombre}"' + (f' (nuevo producto)' if producto_data else '')
-                historial_acciones.objects.create(
-                    modulo='bom',
-                    tipo_accion='crear',
-                    descripcion=action_desc,
-                    usuario=request.user
-                )
+
             return JsonResponse({
                 'success': True,
                 'message': f'Receta creada/actualizada con {created_count} insumos{" para nuevo producto " + producto_obj.nombre if producto_data else ""}',
@@ -253,17 +236,6 @@ def bom_editar_receta(request):
             # LIMPIAR CACHE DEL PRODUCTO
             producto_obj.limpiar_cache_receta()
             
-            # REGISTRAR ACCIÓN EN HISTORIAL
-            if request.user.is_authenticated:
-                try:
-                    historial_acciones.objects.create(
-                        modulo='bom',
-                        tipo_accion='editar',
-                        descripcion=f'Editó receta de "{producto_obj.nombre}"',
-                        usuario=request.user
-                    )
-                except Exception as e:
-                    print(f"Error historial BOM: {e}")
 
             return JsonResponse({
                 'success': True, 
@@ -307,17 +279,7 @@ class BomUpdateView(SuccessMessageMixin, UpdateView):
         if original_producto.pk != self.object.producto.pk:
             original_producto.limpiar_cache_receta()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if self.request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='bom',
-                    tipo_accion='editar',
-                    descripcion=f'Editó insumo "{self.object.insumo.nombre}" en "{self.object.producto.nombre}"',
-                    usuario=self.request.user
-                )
-            except Exception as e:
-                print(f"Error historial BOM: {e}")
+
         return response
 
 
@@ -340,17 +302,6 @@ class BomDeleteView(DeleteView):
         if related_producto:
             related_producto.limpiar_cache_receta()
 
-        # REGISTRAR ACCIÓN EN HISTORIAL
-        if request.user.is_authenticated:
-            try:
-                historial_acciones.objects.create(
-                    modulo='bom',
-                    tipo_accion='eliminar',
-                    descripcion=f'Eliminó insumo "{nombre_insumo}" de "{nombre_producto}"',
-                    usuario=request.user
-                )
-            except Exception as e:
-                print(f"Error historial BOM: {e}")
 
         messages.success(request, f"Relación BOM eliminada correctamente.")
         
@@ -412,16 +363,6 @@ def bom_eliminar_receta(request):
             if producto_obj:
                 producto_obj.limpiar_cache_receta()
 
-            if request.user.is_authenticated:
-                try:
-                    historial_acciones.objects.create(
-                        modulo='bom',
-                        tipo_accion='eliminar',
-                        descripcion=f'Eliminó receta de "{nombre_prod}"',
-                        usuario=request.user
-                    )
-                except Exception as e:
-                    print(f"Error historial BOM: {e}")
 
             return JsonResponse({
                 'success': True, 

@@ -502,62 +502,6 @@ class salida_producto(models.Model):
         ordering = ['-fecha']
 
 
-# --- MODELO DE HISTORIAL DE ACCIONES (LOG) ---
-
-class historial_acciones(models.Model):
-    TIPO_ACCION_CHOICES = [
-        ('crear', 'Crear'),
-        ('editar', 'Editar'),
-        ('eliminar', 'Eliminar'),
-        ('activar', 'Activar'),
-        ('inactivar', 'Inactivar'),
-        ('login', 'Inicio de Sesión'),
-        ('logout', 'Cierre de Sesión'),
-        ('exportar', 'Exportar'),
-        ('importar', 'Importar'),
-        ('respaldo', 'Respaldo'),
-        ('restaurar', 'Restaurar'),
-    ]
-
-    MODULO_CHOICES = [
-        ('productos', 'Productos'),
-        ('categorias', 'Categorías'),
-        ('insumos', 'Insumos'),
-        ('proveedores', 'Proveedores'),
-        ('entradas', 'Entradas'),
-        ('salidas', 'Salidas'),
-        ('calendario', 'Calendario'),
-        ('inventario', 'Inventario'),
-        ('bom', 'BOM/Recetas'),
-        ('usuarios', 'Usuarios'),
-        ('reportes', 'Reportes'),
-        ('respaldos', 'Respaldos'),
-        ('sistema', 'Sistema'),
-        ('notificaciones', 'Notificaciones'),
-        ('pedidos', 'Pedidos'),
-        ('despachos', 'Despachos'),
-        ('mantenimientos', 'Mantenimientos'),
-        ('clientes', 'Clientes'),
-    ]
-
-    fecha = models.DateTimeField(auto_now_add=True)
-    usuario = models.ForeignKey(
-        usuario, on_delete=models.CASCADE, related_name='historial_acciones')
-    tipo_accion = models.CharField(max_length=20, choices=TIPO_ACCION_CHOICES)
-    modulo = models.CharField(max_length=20, choices=MODULO_CHOICES)
-    descripcion = models.CharField(max_length=255)
-    detalles = models.TextField(blank=True, null=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.usuario.username} - {self.get_tipo_accion_display()} en {self.get_modulo_display()} - {self.fecha.strftime('%d/%m/%Y %H:%M')}"
-
-    class Meta:
-        verbose_name = "Historial de Acción"
-        verbose_name_plural = "Historial de Acciones"
-        db_table = "historial_acciones"
-        ordering = ['-fecha']
-
 
 # =====================================================
 # NUEVO MODELO: NOTIFICACIONES COMPLETAS

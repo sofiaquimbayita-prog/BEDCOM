@@ -2,7 +2,7 @@ import re
 from django.shortcuts import render
 from django.views import View as DjangoView
 from django.conf import settings
-from app.models import bom, categoria, cliente, entrada, insumo, pedido, producto, proveedor, salida_producto, historial_acciones
+from app.models import bom, categoria, cliente, entrada, insumo, pedido, producto, proveedor, salida_producto
 from app.utils import exportar_pdf, exportar_excel, exportar_pdf_estadisticas
 from django.db.models import Sum, F, FloatField
 from django.db.models.functions import ExtractMonth, Cast
@@ -43,14 +43,7 @@ class ExportarCategoriasPDF(DjangoView):
         
         nombre_archivo = f'Reporte_Categorias_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Categorías',
-                usuario=request.user
-            )
+
 
         # 3. Llamar a la utilidad con el contexto extra
         return exportar_pdf(
@@ -69,14 +62,7 @@ class ExportarCategoriasExcel(DjangoView):
         
         nombre_archivo = f'Reporte_Categorias_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Categorías',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE CATEGORÍAS',
@@ -95,14 +81,7 @@ class ExportarInsumosPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Insumos_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Insumos',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='INVENTARIO DE INSUMOS CRÍTICOS',
@@ -120,14 +99,7 @@ class ExportarInsumosExcel(DjangoView):
         
         nombre_archivo = f'Reporte_Insumos_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Insumos',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='INVENTARIO DE INSUMOS CRÍTICOS',
@@ -147,14 +119,7 @@ class ExportarProductosPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Productos_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Productos',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE PRODUCTOS - BEDCOM',
@@ -173,14 +138,7 @@ class ExportarProductosExcel(DjangoView):
         
         nombre_archivo = f'Reporte_Productos_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Productos',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE PRODUCTOS',
@@ -200,14 +158,7 @@ class ExportarProveedoresPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Proveedores_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Proveedores',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE PROVEEDORES - BEDCOM',
@@ -226,14 +177,7 @@ class ExportarProveedoresExcel(DjangoView):
         
         nombre_archivo = f'Reporte_Proveedores_{datetime.now().strftime("%d_%m_%Y")}'
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Proveedores',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE PROVEEDORES',
@@ -262,13 +206,7 @@ class ExportarBOMPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_BOM_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de BOM/Recetas',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE BOM / RECETAS - BEDCOM',
@@ -296,13 +234,7 @@ class ExportarBOMExcel(DjangoView):
 
         nombre_archivo = f'Reporte_BOM_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de BOM/Recetas',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE BOM / RECETAS',
@@ -332,13 +264,7 @@ class ExportarInventarioPDF(DjangoView):
         nombre_archivo = f'Reporte_Inventario_{datetime.now().strftime("%d_%m_%Y")}'
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Inventario',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE INVENTARIO - BEDCOM',
@@ -367,13 +293,7 @@ class ExportarInventarioExcel(DjangoView):
         columnas = ['ID', 'Tipo', 'Nombre', 'Categoría', 'Stock', 'Precio']
         nombre_archivo = f'Reporte_Inventario_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Inventario',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE INVENTARIO',
@@ -396,13 +316,7 @@ class ExportarClientesPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Clientes_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Clientes',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE CLIENTES - BEDCOM',
@@ -424,13 +338,7 @@ class ExportarClientesExcel(DjangoView):
 
         nombre_archivo = f'Reporte_Clientes_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Clientes',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE CLIENTES',
@@ -462,13 +370,7 @@ class ExportarPedidosPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Pedidos_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Pedidos',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE PEDIDOS - BEDCOM',
@@ -499,13 +401,7 @@ class ExportarPedidosExcel(DjangoView):
 
         nombre_archivo = f'Reporte_Pedidos_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Pedidos',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE PEDIDOS',
@@ -538,13 +434,7 @@ class ExportarEntradasPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Entradas_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Entradas',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE ENTRADAS - BEDCOM',
@@ -576,13 +466,7 @@ class ExportarEntradasExcel(DjangoView):
 
         nombre_archivo = f'Reporte_Entradas_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Entradas',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE ENTRADAS',
@@ -613,13 +497,7 @@ class ExportarSalidasPDF(DjangoView):
         logo_url = request.build_absolute_uri(settings.STATIC_URL + 'ap1/img/icono.png')
         nombre_archivo = f'Reporte_Salidas_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Salidas',
-                usuario=request.user
-            )
+
 
         return exportar_pdf(
             titulo='REPORTE DE SALIDAS - BEDCOM',
@@ -649,13 +527,7 @@ class ExportarSalidasExcel(DjangoView):
 
         nombre_archivo = f'Reporte_Salidas_{datetime.now().strftime("%d_%m_%Y")}'
 
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Salidas',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE DE SALIDAS',
@@ -736,14 +608,7 @@ class ExportarEstadisticasPDF(DjangoView):
             ('Despachos en Proceso', str(despachos_proceso)),
         ]
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó PDF de Estadísticas Generales',
-                usuario=request.user
-            )
+
 
         return exportar_pdf_estadisticas(
             titulo='REPORTE GENERAL DE ESTADÍSTICAS - BEDCOM',
@@ -823,14 +688,7 @@ class ExportarEstadisticasExcel(DjangoView):
             ('Despachos en Proceso', str(despachos_proceso)),
         ]
         
-        # REGISTRO HISTORIAL
-        if request.user.is_authenticated:
-            historial_acciones.objects.create(
-                modulo='reportes',
-                tipo_accion='consultar',
-                descripcion='Exportó Excel de Estadísticas Generales',
-                usuario=request.user
-            )
+
 
         return exportar_excel(
             titulo='REPORTE GENERAL DE ESTADÍSTICAS',
