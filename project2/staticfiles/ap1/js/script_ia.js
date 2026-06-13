@@ -115,13 +115,78 @@ window.escucharVoz = async function() {
             }
         };
 
+        // Para SpeechRecognition, "network" suele significar que el servicio de Google/ STT no pudo alcanzarse.
+        // Aun con internet, puede fallar por proxy/VPN/firewall, bloqueo del navegador, o contexto (HTTPS/origen).
+        let recognitionRetryCount = 0;
+        const maxRecognitionRetries = 2;
+        const retryDelayMs = 800;
+
         recognition.onerror = (event) => {
             const err = event && event.error ? event.error : 'unknown';
             console.error('Speech error:', err);
 
+            // Reintento SOLO para network (2 veces) para evitar UX mala por fallos transitorios.
+            if (err === 'network' && recognitionRetryCount < maxRecognitionRetries) {
+                recognitionRetryCount++;
+                iaQuery.placeholder = 'Problema temporal de red con reconocimiento... reintentando';
+                btnVoz.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                try {
+                    recognition.stop();
+                } catch (e) {}
+
+                setTimeout(() => {
+                    if (!recognition) {
+                        // Crear de nuevo para que el motor no quede en estado raro
+                        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                        recognition.lang = 'es-ES';
+                        recognition.continuous = true;
+                        recognition.interimResults = true;
+
+                        recognition.onstart = () => {
+                            iaQuery.placeholder = 'Habla ahora...';
+                            btnVoz.innerHTML = '<i class="fa-solid fa-stop"></i>';
+                        };
+                        recognition.onspeechend = () => {
+                            console.log('Fin de habla detectado');
+                        };
+                        recognition.onresult = (event) => {
+                            let interimText = '';
+                            let finalText = '';
+
+                            for (let i = event.resultIndex; i < event.results.length; i++) {
+                                const transcript = event.results[i][0].transcript;
+                                if (event.results[i].isFinal) {
+                                    finalText += transcript;
+                                } else {
+                                    interimText += transcript;
+                                }
+                            }
+
+                            if (interimText) {
+                                iaQuery.placeholder = interimText + '...';
+                            }
+
+                            if (finalText.trim()) {
+                                iaQuery.value = finalText.trim();
+                                recognition.stop();
+                                window.enviarConsultaIA();
+                            }
+                        };
+                        recognition.onerror = recognition.onerror;
+                        recognition.onend = () => {
+                            detenerMicrofono();
+                        };
+
+                        recognition.start();
+                    }
+                }, retryDelayMs);
+                return;
+            }
+
             let msg = `Error: ${err}`;
             if (err === 'network') {
-                msg = 'Sin internet o sin conexión para reconocimiento de voz (SpeechRecognition).';
+                msg = 'No se pudo conectar el servicio de reconocimiento de voz. Aunque tengas internet, puede fallar por proxy/VPN/firewall o bloqueo del navegador. Puedes escribir la pregunta manualmente y enviarla.';
             } else if (err === 'not-allowed' || err === 'service-not-allowed') {
                 msg = 'Permiso de micrófono denegado. Activa el micrófono para este sitio.';
             } else if (err === 'no-speech') {

@@ -264,7 +264,7 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="#" class="sidebar-menu-item"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
+            <a href="javascript:void(0)" class="sidebar-menu-item" onclick="abrirModalMiPerfil()"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
             <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
         </nav>
     </div>
@@ -393,6 +393,154 @@
     <script src="{% static 'ap1/js/modal_buttons.js' %}"></script>
 
     <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                enviarConsultaIA();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // MODAL MI PERFIL (usuario logueado)
+        // ─────────────────────────────────────────────────────────────
+        window.abrirModalMiPerfil = function() {
+            const modal = $('#modalPerfil');
+            if (!modal.length) return;
+
+            // Si no hay usuario autenticado, no hacemos nada
+            const userId = {{ request.user.id|default:'null' }};
+            if (!userId) {
+                window.showToast('Debes iniciar sesión para ver tu perfil', 'error');
+                return;
+            }
+
+            // Cerrar sidebar de perfil si está abierta (opcional)
+            try { window.toggleProfileSidebar(); } catch (e) {}
+
+            // Mostrar modal
+            modal.css('display', 'flex').removeClass('oculto').addClass('show');
+            $('body').addClass('modal-open');
+
+            // Cargar datos actuales del perfil
+            fetch(`/usuarios/detalle_json/${userId}/`)
+                .then(r => r.json())
+                .then(data => {
+                    // Mapeo de campos del modal
+                    $('#perfilCedula').val(data.cedula || '');
+                    $('#perfilRol').val(data.rol || '');
+                    $('#perfilNombre').val(data.username || '');
+                    $('#perfilEmail').val(data.email || '');
+                    $('#perfilTelefono').val(data.telefono || '');
+                    $('#perfilFirstName').val(data.first_name || '');
+                    $('#perfilLastName').val(data.last_name || '');
+                    $('#perfilEstado').val(data.estado || '');
+
+                    // Si el endpoint no trae telefono, dejamos vacío
+                
+
+                    // Foto preview (si el endpoint la expone, de lo contrario quedará en blanco)
+                    const fotoPreviewImg = document.getElementById('fotoPreview');
+                    if (fotoPreviewImg) {
+                        // En este proyecto la foto viene desde usuario_perfil en base.html,
+                        // así que si existe en esa variable, intentamos usarla.
+                        const fotoUrl = ("{{ usuario_perfil.foto_perfil.url|default:'' }}");
+                        if (fotoUrl) {
+                            fotoPreviewImg.src = fotoUrl;
+                            fotoPreviewImg.style.display = 'block';
+                            const fotoIcon = document.getElementById('fotoIcon');
+                            if (fotoIcon) fotoIcon.style.display = 'none';
+                        } else {
+                            fotoPreviewImg.style.display = 'none';
+                            const fotoIcon = document.getElementById('fotoIcon');
+                            if (fotoIcon) fotoIcon.style.display = 'flex';
+                        }
+                    }
+                })
+                .catch(() => window.showToast('Error al cargar tu perfil', 'error'));
+        };
+
+        window.cerrarModalMiPerfil = function() {
+            const modal = $('#modalPerfil');
+            if (!modal.length) return;
+            modal.removeClass('show').hide().addClass('oculto');
+            $('body').removeClass('modal-open');
+        };
+
+        // Cerrar con botón Cancelar
+        $(document).on('click', '#cancelarPerfil', function() {
+            window.cerrarModalMiPerfil();
+        });
+
+        // Cerrar al click en overlay (si existe el overlay dentro del modal)
+        $(document).on('click', '#modalPerfil .modal-overlay', function() {
+            window.cerrarModalMiPerfil();
+        });
+
+        // Submit AJAX del formulario de perfil
+        $(document).on('submit', '#formPerfil', function(e) {
+            e.preventDefault();
+            const form = this;
+            const userId = {{ request.user.id|default:'null' }};
+            if (!userId) {
+                window.showToast('Sesión inválida. Inicia sesión nuevamente.', 'error');
+                return;
+            }
+
+            // Validación mínima
+            const requiredInputs = form.querySelectorAll('[required]');
+            for (const inp of requiredInputs) {
+                if (!inp.value || !inp.value.toString().trim()) {
+                    window.showToast('Completa los campos obligatorios', 'error');
+                    return;
+                }
+            }
+
+            // Mapear nombre_usuario -> username (porque el modal usa nombre_usuario)
+            const usernameVal = document.getElementById('perfilNombre')?.value || '';
+            const cedulaVal = document.getElementById('perfilCedula')?.value || '';
+            const emailVal = document.getElementById('perfilEmail')?.value || '';
+            const telefonoVal = document.getElementById('perfilTelefono')?.value || '';
+            const firstNameVal = document.getElementById('perfilFirstName')?.value || '';
+            const lastNameVal = document.getElementById('perfilLastName')?.value || '';
+            const passwordVal = document.getElementById('perfilPassword')?.value || '';
+            const confirmPasswordVal = document.getElementById('perfilConfirmPassword')?.value || '';
+
+            const payload = new FormData(form);
+            payload.set('username', usernameVal);
+            payload.set('cedula', cedulaVal);
+            payload.set('email', emailVal);
+            payload.set('telefono', telefonoVal);
+            payload.set('first_name', firstNameVal);
+            payload.set('last_name', lastNameVal);
+            payload.set('password', passwordVal);
+            payload.set('confirm_password', confirmPasswordVal);
+
+            // Eliminar campos que no corresponden al backend (opcional)
+            payload.delete('nombre_usuario');
+
+            fetch(`/usuarios/editar/${userId}/`, {
+                method: 'POST',
+                body: payload,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                }
+            })
+            .then(r => r.json().catch(() => ({})))
+            .then(data => {
+                if (data.success) {
+                    window.showToast(data.message || 'Perfil actualizado', 'success');
+                    // Refrescar estado rápido
+                    window.abrirModalMiPerfil();
+                    // cerrar después de un momento
+                    setTimeout(() => window.cerrarModalMiPerfil(), 600);
+                } else {
+                    window.showToast(data.message || 'Error al actualizar perfil', 'error');
+                }
+            })
+            .catch(() => window.showToast('Error de conexión al actualizar perfil', 'error'));
+        });
+
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
