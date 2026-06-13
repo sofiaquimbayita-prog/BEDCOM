@@ -72,6 +72,10 @@ window.escucharVoz = async function() {
         btnVoz.style.background = "#ef4444";
         iaQuery.placeholder = "Iniciando reconocimiento...";
 
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+            throw new Error('SpeechRecognition no soportado en este navegador');
+        }
+
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'es-ES';
         recognition.continuous = true;
@@ -112,8 +116,21 @@ window.escucharVoz = async function() {
         };
 
         recognition.onerror = (event) => {
-            console.error('Speech error:', event.error);
-            iaQuery.placeholder = `Error: ${event.error}`;
+            const err = event && event.error ? event.error : 'unknown';
+            console.error('Speech error:', err);
+
+            let msg = `Error: ${err}`;
+            if (err === 'network') {
+                msg = 'Sin internet o sin conexión para reconocimiento de voz (SpeechRecognition).';
+            } else if (err === 'not-allowed' || err === 'service-not-allowed') {
+                msg = 'Permiso de micrófono denegado. Activa el micrófono para este sitio.';
+            } else if (err === 'no-speech') {
+                msg = 'No se detectó voz. Intenta hablar más cerca del micrófono.';
+            } else if (err === 'audio-capture') {
+                msg = 'No se pudo capturar audio del micrófono. Revisa el dispositivo de entrada.';
+            }
+
+            iaQuery.placeholder = msg;
             btnVoz.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
         };
 

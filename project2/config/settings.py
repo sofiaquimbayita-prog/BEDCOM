@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g
 # IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['jaunt-ducky-vocation.ngrok-free.dev', 'localhost', '127.0.0.1', 'testserver']
 
 # --------------------------------------------------------------------------
 # 3. DEFINICIÓN DE APLICACIONES
@@ -167,7 +167,9 @@ WEBPUSH_SETTINGS = {
     "VAPID_PRIVATE_KEY": "3vNfCBBg7NEK0II_mlty6WjkpXSt-_8f9aKjRBHh7W4",
     "VAPID_ADMIN_EMAIL": "porprobar221@gmail.com"
 }
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://jaunt-ducky-vocation.ngrok-free.dev',
+]
 # --------------------------------------------------------------------------
 # 11. CONFIGURACIÓN LUNA IA (EDGE TTS)
 # Carpeta para guardar audios generados temporalmente
