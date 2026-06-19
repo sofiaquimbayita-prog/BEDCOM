@@ -12,15 +12,19 @@ const CSRF_TOKEN         = document.querySelector('[name=csrfmiddlewaretoken]')?
 let tabla;
 document.addEventListener('DOMContentLoaded', function () {
 
-  tabla = $('#tablaClientes').DataTable({
-    language: {
-      url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-    },
-    order: [[1, 'asc']],
-    columnDefs: [{ orderable: false, targets: -1 }],
-    pageLength: 15,
-  });
+  // Evita romper la página si DataTables no está cargado
+  if ($.fn.DataTable) {
+    tabla = $('#tablaClientes').DataTable({
+      language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+      },
+      order: [[1, 'asc']],
+      columnDefs: [{ orderable: false, targets: -1 }],
+      pageLength: 15,
+    });
+  }
 
+  // Aunque DataTables falle, igual debemos pintar la deuda
   ocultarInactivos();
   cargarDeudas();
 });
@@ -32,12 +36,13 @@ document.getElementById('toggleInactivos').addEventListener('change', function (
 
 function ocultarInactivos() {
   document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = 'none');
-  tabla.rows().invalidate().draw(false);
+  if (tabla) tabla.rows().invalidate().draw(false);
 }
 function mostrarTodos() {
   document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = '');
-  tabla.rows().invalidate().draw(false);
+  if (tabla) tabla.rows().invalidate().draw(false);
 }
+
 
 /* ─── Cargar deudas en tabla ─── */
 async function cargarDeudas() {
