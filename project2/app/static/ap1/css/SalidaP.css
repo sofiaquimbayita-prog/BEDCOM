@@ -31,7 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   /* Fondo simulado de la imagen */
-  background-image: url('https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1920');
+  background: url("../img/fondo.jpg") no-repeat center center / cover;
   background-size: cover;
   background-position: center;
 }
@@ -404,16 +404,19 @@ border:2px solid #22c55e !important;
 /* ===============================
    TABLA DE HISTORIAL DE SALIDAS
 ================================ */
+/*
+  Importante:
+  No definimos imagen de fondo a nivel de página para que el "fondo" de Salida de Productos
+  quede igual al del resto del proyecto (definido globalmente en base.html).
+*/
 .main-content {
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
-    background: #1e293b;
+    background: transparent;
     min-height: 100vh;
-    background-image: url('https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1920');
-    background-size: cover;
-    background-position: center;
 }
+
 
 .table-container {
     margin-top: 20px;
