@@ -1,0 +1,85 @@
+/* Override theme para Productos — paleta corporativa oscura */
+:root{
+  --bg-main: #1E293B;
+  --bg-main-trans: rgba(30,41,59,0.9);
+  --text-main: #E5E7EB;
+  --text-secondary: #94A3B8;
+  --price-color: #00B7FF;
+  --stock-color: #E5E7EB;
+  --badge-active: #10B981;
+  --badge-active-bg: rgba(16,185,129,0.15);
+  --action-bg: rgba(255,255,255,0.04);
+  --action-hover: #00B7FF;
+  --borde: #334155;
+}
+
+/* Superficies y texto */
+.container-tabla, .modal-content, .select2-dropdown{
+  background-color: var(--bg-main-trans) !important;
+  color: var(--text-main) !important;
+}
+
+body, .dataTables_wrapper, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_filter label, .dataTables_wrapper .dataTables_length label{
+  color: var(--text-main) !important;
+}
+
+/* Badges */
+.status-badge{
+  padding: 4px 10px;
+  border-radius: 18px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-main);
+}
+
+.status-badge.status-active{
+  background: var(--badge-active-bg);
+  color: var(--badge-active);
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.status-badge.status-inactive{ color: #ef4444; background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.18); }
+
+.badge{ color: var(--text-main); background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); }
+
+/* Precios, categorías, stock */
+.price-highlight{ color: var(--price-color) !important; font-weight:700 !important; }
+#tablaProductos td:nth-child(6){ color: var(--text-secondary) !important; }
+#tablaProductos td:nth-child(4){ color: var(--stock-color) !important; }
+
+/* Producto nombre */
+.producto-nombre{ color: var(--text-main) !important; background: rgba(255,255,255,0.02) !important; border-left: 3px solid var(--text-secondary) !important; }
+
+/* Acciones: fondos semitransparentes grises + hover azul suave */
+.view-btn, .edit-btn, .delete-btn, .activate-btn, .bom-btn, .acciones button{
+  background: var(--action-bg) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid rgba(255,255,255,0.02) !important;
+}
+
+.view-btn:hover, .edit-btn:hover, .delete-btn:hover, .activate-btn:hover, .bom-btn:hover{
+  color: var(--action-hover) !important;
+  background: rgba(0,183,255,0.06) !important;
+  box-shadow: 0 6px 18px rgba(0,183,255,0.12) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+}
+
+/* Botones modal */
+.btn-cancel, .btn-save, .button-3{
+  background:#334155(255, 255, 255, 0.04) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--borde) !important;
+}
+.btn-cancel:hover, .btn-save:hover, .button-3:hover{
+  border-color: var(--action-hover) !important;
+  box-shadow: 0 10px 30px rgba(0,183,255,0.08) !important;
+}
+
+/* Mantener glassmorphism y sombras sutiles */
+.container-tabla, .modal-content{ backdrop-filter: blur(6px); box-shadow: 0 10px 30px rgba(2,6,23,0.6) !important; }
+
+/* Asegurar inputs con paleta */
+.modal-content input, .modal-content textarea, .select2-container--default .select2-selection--single{ background: var(--bg-main) !important; color: var(--text-main) !important; border: 1px solid var(--borde) !important; }
+
+/* Small adjustments for datatables focus */
+.dataTables_wrapper .dataTables_filter input:focus{ box-shadow: 0 0 0 2px rgba(0,183,255,0.12) !important; border-color: var(--action-hover) !important; }
