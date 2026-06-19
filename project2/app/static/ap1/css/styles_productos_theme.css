@@ -54,7 +54,7 @@ body, .dataTables_wrapper, .dataTables_wrapper .dataTables_info, .dataTables_wra
 .view-btn, .edit-btn, .delete-btn, .activate-btn, .bom-btn, .acciones button{
   background: var(--action-bg) !important;
   color: var(--text-secondary) !important;
-  border: 1px solid rgba(255,255,255,0.02) !important;
+  border: 5px solid rgba(255,255,255,0.02) !important;
 }
 
 .view-btn:hover, .edit-btn:hover, .delete-btn:hover, .activate-btn:hover, .bom-btn:hover{
