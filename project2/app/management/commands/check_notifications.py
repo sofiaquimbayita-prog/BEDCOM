@@ -41,5 +41,5 @@ class Command(BaseCommand):
                 logger.error(f'Excepción al verificar triggers para {user.username}: {str(e)}')
         
         self.stdout.write(
-            self.style.SUCCESS(f'✅ Completado: {total_created} nuevas notificaciones creadas y {total_resolved} auto-resueltas para todos los usuarios')
+            self.style.SUCCESS(f' Completado: {total_created} nuevas notificaciones creadas y {total_resolved} auto-resueltas para todos los usuarios')
         )

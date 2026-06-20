@@ -20,11 +20,11 @@ let _currentNotifsData = null; // Cache of the grouped notifications list
 function initClock() {
     const clockEl = $("#fecha-hora");
     if (!clockEl) return;
-    
+
     const updateTime = () => {
         const now = new Date();
-        clockEl.innerHTML = `<i class="far fa-clock"></i> ` + now.toLocaleString("es-CO", { 
-            weekday: "short", day: "numeric", month: "short", 
+        clockEl.innerHTML = `<i class="far fa-clock"></i> ` + now.toLocaleString("es-CO", {
+            weekday: "short", day: "numeric", month: "short",
             hour: "2-digit", minute: "2-digit", second: "2-digit"
         });
     };
@@ -36,18 +36,18 @@ function initClock() {
 function animateCounter(elementId, targetVal, duration = 1000) {
     const el = document.getElementById(elementId);
     if (!el) return;
-    
+
     const startVal = parseInt(el.textContent) || 0;
     if (startVal === targetVal) return;
-    
+
     const startTime = performance.now();
-    
+
     const update = (now) => {
         const elapsed = Math.min((now - startTime) / duration, 1);
         const ease = 1 - Math.pow(1 - elapsed, 3); // ease-out cubic
         const currentVal = Math.round(startVal + ease * (targetVal - startVal));
         el.textContent = currentVal.toLocaleString();
-        
+
         if (elapsed < 1) {
             requestAnimationFrame(update);
         }
@@ -75,9 +75,9 @@ function syncKpiCards() {
 function renderPrioritiesSidebar(data) {
     const container = document.getElementById('prioridades-hoy-container');
     if (!container) return;
-    
+
     const grupos = data.grupos || [];
-    
+
     // Extraer alertas críticas de inventario pendientes
     let criticalItems = [];
     grupos.forEach(grupo => {
@@ -94,7 +94,7 @@ function renderPrioritiesSidebar(data) {
             });
         }
     });
-    
+
     if (criticalItems.length === 0) {
         container.innerHTML = `
             <div class="priority-empty">
@@ -104,13 +104,13 @@ function renderPrioritiesSidebar(data) {
         `;
         return;
     }
-    
+
     let html = '<div class="priorities-list">';
     criticalItems.slice(0, 4).forEach(item => {
         const isProduct = item.tipo === 'bajo_stock_producto';
         const urlDestino = isProduct ? '/vistas/productos/' : '/vistas/insumos/';
         const labelText = isProduct ? 'Producto Crítico' : 'Insumo Crítico';
-        
+
         html += `
             <div class="priority-item-card" onclick="window.location.href='${urlDestino}'" title="Ir al módulo correspondiente">
                 <div class="priority-icon-indicator danger-priority">
@@ -131,24 +131,24 @@ function renderPrioritiesSidebar(data) {
 function applyFilters() {
     const container = document.getElementById('notif-grouped-view');
     if (!container) return;
-    
+
     const groups = container.querySelectorAll('.notif-group-card');
     let totalVisibleItems = 0;
-    
+
     groups.forEach(group => {
         const groupType = group.dataset.tipo;
         const items = group.querySelectorAll('.notif-nested-item-row');
         let visibleItemsInGroup = 0;
-        
+
         // Determinar si la categoría del grupo coincide con el filtro de categoría
-        let categoryMatches = (_activeCategory === 'all' || 
-            _activeCategory === groupType || 
+        let categoryMatches = (_activeCategory === 'all' ||
+            _activeCategory === groupType ||
             (_activeCategory === 'calendario' && (groupType === 'calendario_hoy' || groupType === 'calendario_manaña')));
-            
+
         items.forEach(item => {
             const isRead = item.classList.contains('read-item');
             const isUnread = item.classList.contains('unread-item');
-            
+
             // 1. Filtro por pestaña (Estado)
             let tabMatches = false;
             if (_activeFilterTab === 'all') {
@@ -162,7 +162,7 @@ function applyFilters() {
                 const isCriticalType = ['bajo_stock_producto', 'bajo_stock_insumo', 'pago_pendiente', 'pendido_despacho'].includes(groupType);
                 tabMatches = isUnread && isCriticalType;
             }
-            
+
             // 2. Filtro por búsqueda de texto
             let searchMatches = true;
             if (_searchText) {
@@ -170,7 +170,7 @@ function applyFilters() {
                 const msgText = item.querySelector('.item-notification-message')?.textContent.toLowerCase() || '';
                 searchMatches = titleText.includes(_searchText) || msgText.includes(_searchText);
             }
-            
+
             // Aplicar visibilidad si coincide con categoría, pestaña y búsqueda
             if (categoryMatches && tabMatches && searchMatches) {
                 item.style.display = 'flex';
@@ -180,17 +180,17 @@ function applyFilters() {
                 item.style.display = 'none';
             }
         });
-        
+
         // Si el grupo tiene elementos visibles y coincide con los filtros, mostrar la cabecera del grupo
         if (visibleItemsInGroup > 0) {
             group.style.display = 'block';
-            
+
             // Actualizar badge dinámico en cabecera del grupo (solo cuenta los visibles)
             const badgeVisible = group.querySelector('.notif-badge-count');
             if (badgeVisible) {
                 badgeVisible.textContent = visibleItemsInGroup;
             }
-            
+
             // Auto-expandir grupo si estamos buscando o filtrando específicamente
             if (_searchText || _activeFilterTab !== 'all' || _activeCategory !== 'all') {
                 group.classList.add('expanded');
@@ -199,7 +199,7 @@ function applyFilters() {
             group.style.display = 'none';
         }
     });
-    
+
     // Mostrar empty state si no hay coincidencias
     let emptyStateEl = document.getElementById('notif-empty-state-search');
     if (totalVisibleItems === 0) {
@@ -223,10 +223,10 @@ function applyFilters() {
 function renderGroupedNotifications(data) {
     const container = document.getElementById('notif-grouped-view');
     if (!container) return;
-    
+
     const grupos = data.grupos || [];
     _currentNotifsData = data;
-    
+
     if (grupos.length === 0) {
         container.innerHTML = `
             <div class="notif-empty-state-premium">
@@ -238,13 +238,13 @@ function renderGroupedNotifications(data) {
         renderPrioritiesSidebar(data);
         return;
     }
-    
+
     let html = '';
-    
+
     grupos.forEach(grupo => {
         const hasUnread = grupo.no_leidas > 0;
         const badgeClass = hasUnread ? 'notif-badge-unread-premium' : 'notif-badge-count';
-        
+
         html += `
         <div class="notif-group-card" data-tipo="${grupo.tipo}">
             <div class="notif-group-header-glass" onclick="toggleAccordionCard(this)" style="--group-color: ${grupo.color}">
@@ -266,17 +266,17 @@ function renderGroupedNotifications(data) {
             </div>
             <div class="notif-group-card-body">
                 <ul class="notif-nested-items-list">`;
-        
+
         grupo.items.forEach(item => {
             const readClass = item.leida ? 'read-item' : 'unread-item';
             const dotClass = item.leida ? 'read-dot' : 'unread-dot';
-            
+
             // Formatear fecha relativa amigable
             const dateObj = new Date(item.fecha_notif);
             const fechaString = dateObj.toLocaleString('es-CO', {
                 day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
             });
-            
+
             html += `
                     <li class="notif-nested-item-row ${readClass}" id="notif-row-${item.id}">
                         <div class="item-left-details">
@@ -301,18 +301,18 @@ function renderGroupedNotifications(data) {
                         </div>
                     </li>`;
         });
-        
+
         html += `
                 </ul>
             </div>
         </div>`;
     });
-    
+
     container.innerHTML = html;
-    
+
     // Aplicar filtros de inmediato para conservar filtros activos tras recarga
     applyFilters();
-    
+
     // Renderizar la barra lateral de prioridades
     renderPrioritiesSidebar(data);
 }
@@ -321,7 +321,7 @@ function renderGroupedNotifications(data) {
 function toggleAccordionCard(headerEl) {
     const card = headerEl.closest('.notif-group-card');
     if (!card) return;
-    
+
     card.classList.toggle('expanded');
 }
 
@@ -345,56 +345,56 @@ function markIndividualRead(id) {
     if (row) {
         row.classList.add('marking-read');
     }
-    
+
     fetch(`/vistas/notificaciones/api/notif-read/${id}/`, {
         method: 'POST',
-        headers: { 
+        headers: {
             'X-CSRFToken': getCsrfToken(),
             'Content-Type': 'application/json'
         }
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            // Sincronizar sistema global y recargar bandeja
-            if (window.BedcomNotifs) {
-                window.BedcomNotifs.forceCheck();
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Sincronizar sistema global y recargar bandeja
+                if (window.BedcomNotifs) {
+                    window.BedcomNotifs.forceCheck();
+                }
+                syncKpiCards();
             }
-            syncKpiCards();
-        }
-    })
-    .catch(err => {
-        console.error('Mark read error:', err);
-        if (row) row.classList.remove('marking-read');
-    });
+        })
+        .catch(err => {
+            console.error('Mark read error:', err);
+            if (row) row.classList.remove('marking-read');
+        });
 }
 
 // ── MARK FULL GROUP AS READ ───────────────────────────────────────────
 function markGroupAsRead(tipo) {
     fetch(`/vistas/notificaciones/api/notif-group-read/${tipo}/`, {
         method: 'POST',
-        headers: { 
+        headers: {
             'X-CSRFToken': getCsrfToken(),
             'Content-Type': 'application/json'
         }
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            window.showToast(`✅ ${data.marcadas} notificaciones marcadas como leídas`);
-            if (window.BedcomNotifs) {
-                window.BedcomNotifs.forceCheck();
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.showToast(` ${data.marcadas} notificaciones marcadas como leídas`);
+                if (window.BedcomNotifs) {
+                    window.BedcomNotifs.forceCheck();
+                }
+                syncKpiCards();
             }
-            syncKpiCards();
-        }
-    })
-    .catch(err => console.error('Mark group read error:', err));
+        })
+        .catch(err => console.error('Mark group read error:', err));
 }
 
 // ── REDIRECT INTELLIGENTLY ────────────────────────────────────────────
 function redirectToAction(tipo) {
     let urlDestino = '/vistas/notificaciones/';
-    switch(tipo) {
+    switch (tipo) {
         case 'bajo_stock_insumo': urlDestino = '/vistas/insumos/'; break;
         case 'bajo_stock_producto': urlDestino = '/vistas/productos/'; break;
         case 'calendario_hoy':
@@ -412,24 +412,24 @@ function redirectToAction(tipo) {
 function checkTriggersNow() {
     const btn = document.getElementById('btn-check-triggers');
     const badge = document.getElementById('check-status-badge');
-    
+
     if (btn) {
         btn.classList.add('checking');
         btn.disabled = true;
         const textSpan = btn.querySelector('span');
         if (textSpan) textSpan.textContent = 'Verificando...';
     }
-    
+
     if (badge) {
         badge.textContent = 'Sincronizando triggers...';
         badge.className = 'status-loading';
     }
-    
+
     // Forzar ejecución del ciclo de triggers globales
     if (window.BedcomNotifs) {
         window.BedcomNotifs.forceCheck();
     }
-    
+
     // Esperar a que se procese el API de fondo y sincronizar bandeja
     setTimeout(() => {
         fetch('/vistas/notificaciones/api/notificaciones-agrupadas/')
@@ -437,14 +437,14 @@ function checkTriggersNow() {
             .then(data => {
                 renderGroupedNotifications(data);
                 syncKpiCards();
-                
+
                 if (btn) {
                     btn.classList.remove('checking');
                     btn.disabled = false;
                     const textSpan = btn.querySelector('span');
                     if (textSpan) textSpan.textContent = 'Verificar Ahora';
                 }
-                
+
                 if (badge) {
                     badge.textContent = '✓ Sistema Actualizado';
                     badge.className = 'status-ok';
@@ -471,19 +471,19 @@ window.checkTriggersNow = checkTriggersNow;
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Iniciar reloj premium
     initClock();
-    
+
     // 2. Animar contadores iniciales (contexto inyectado en HTML)
     document.querySelectorAll('.metric-value[data-target]').forEach(el => {
         const target = parseInt(el.dataset.target) || 0;
         animateCounter(el.id, target, 1200);
     });
-    
+
     // 3. Cargar bandeja de notificaciones agrupadas al inicio
     fetch('/vistas/notificaciones/api/notificaciones-agrupadas/')
         .then(res => res.json())
         .then(data => renderGroupedNotifications(data))
         .catch(err => console.error('Error in initial fetch:', err));
-        
+
     // 4. Suscribirse a actualizaciones del servicio centralizado global
     if (window.BedcomNotifs) {
         window.BedcomNotifs.onUpdate((data) => {
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // A. Buscador en vivo
     const searchInput = document.getElementById('notif-search-input');
     const clearSearchBtn = document.getElementById('clear-search-btn');
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             _searchText = e.target.value.trim().toLowerCase();
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFilters();
         });
     }
-    
+
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', () => {
             if (searchInput) {
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tabBtn = e.currentTarget;
             tabButtons.forEach(b => b.classList.remove('active'));
             tabBtn.classList.add('active');
-            
+
             _activeFilterTab = tabBtn.dataset.filter;
             applyFilters();
         });

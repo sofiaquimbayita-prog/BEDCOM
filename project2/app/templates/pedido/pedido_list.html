@@ -14,7 +14,8 @@
       <div class="switch-container" title="Mostrar pedidos anulados">
         <span class="switch-text">Mostrar Anulados</span>
         <label class="switch-control">
-          <input type="checkbox" id="toggleAnulados">
+          <input type="checkbox" id="toggleAnulados" {% if mostrar_anulados %}checked{% endif %}
+            onchange="window.location.href=this.checked?'?anulados=1':'?'">
           <span class="slider"></span>
         </label>
       </div>
@@ -48,10 +49,10 @@
           <td>{{ p.fecha|date:"d/m/Y H:i" }}</td>
           <td>{{ p.cliente.nombre }}</td>
           <td><span style="color:var(--color-exito);font-weight:700">${{ p.total }}</span></td>
-          <td><span style="color:var(--color-advertencia);font-weight:700">${{ p.abono|default:"0" }}</span></td>
+          <td><span style="color:var(--color-advertencia);font-weight:700">${{ p.abono|default:"0.00" }}</span></td>
           <td>
             <span class="saldo {% if p.saldo_pendiente > 0 %}pendiente{% else %}pagado{% endif %}">
-              ${{ p.saldo_pendiente|floatformat:0 }}
+              ${{ p.saldo_pendiente|floatformat:2 }}
             </span>
           </td>
           <td>
@@ -300,6 +301,7 @@
 
 
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
 <script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script>

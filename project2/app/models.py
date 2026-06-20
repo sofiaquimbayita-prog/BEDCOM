@@ -325,6 +325,18 @@ class pedido(models.Model):
     def saldo_pendiente(self):
         return self.total - (self.abono or 0)
 
+    @property
+    def total_formateado(self):
+        return f"{self.total:,.0f}".replace(",", ".")
+
+    @property
+    def abono_formateado(self):
+        return f"{self.abono or 0:,.0f}".replace(",", ".")
+
+    @property
+    def saldo_pendiente_formateado(self):
+        return f"{self.saldo_pendiente:,.0f}".replace(",", ".")
+
     class Meta:
         verbose_name = "Pedido"
         verbose_name_plural = "Pedidos"

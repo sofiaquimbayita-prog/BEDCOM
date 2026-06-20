@@ -93,17 +93,25 @@ class PedidoListView(ListView):
     model = pedido
     template_name = 'pedido/pedido_list.html'
     context_object_name = 'pedidos'
-    ordering = ['-fecha']
+
+    def get_queryset(self):
+        mostrar_anulados = self.request.GET.get('anulados') == '1'
+        if mostrar_anulados:
+            return pedido.objects.filter(estado='Anulado').order_by('-fecha')
+        return pedido.objects.exclude(estado='Anulado').order_by('-fecha')
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        
+
+        # Flag para el switch en la plantilla
+        ctx['mostrar_anulados'] = self.request.GET.get('anulados') == '1'
+
         # Serialize clients to JSON
         clientes_qs = cliente.objects.filter(estado=True).order_by('nombre')
         ctx['clientes'] = clientes_qs
-        clientes_list = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono, 'direccion': c.direccion} for c in clientes_qs]
+        clientes_list = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono, 'direccion': c.direccion, 'es_especial': c.es_especial} for c in clientes_qs]
         ctx['clientes_json'] = clientes_list
-        
+
         # Serialize products to JSON
         productos_qs = list(producto.objects.filter(estado=True).order_by('nombre').values('id', 'nombre', 'precio', 'stock'))
         # Convert Decimals to float for JSON
@@ -112,7 +120,7 @@ class PedidoListView(ListView):
                 p['precio'] = float(p['precio'])
         ctx['productos'] = productos_qs
         ctx['productos_json'] = productos_qs
-        
+
         ctx['today'] = timezone.now().date().isoformat()
         return ctx
 
