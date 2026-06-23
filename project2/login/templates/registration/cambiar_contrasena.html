@@ -51,11 +51,7 @@
 
 
 <!-- Botón de Ayuda - Esquina Inferior Derecha -->
-<div class="ayuda-container">
-    <button class="boton-ayuda">
-        <i class="fa-solid fa-question"></i>
-    </button>
-</div>
+
   <h1 class="titulo">CAMBIAR CONTRASEÑA</h1>
 
   <div class="contenedor">
@@ -166,6 +162,29 @@
     function validarEnTiempoReal() {
       const pass1 = document.getElementById('id_new_password1');
       const pass2 = document.getElementById('id_new_password2');
+      const form = document.getElementById('cambiarContrasenaForm');
+
+      function syncAll() {
+        if (pass1) {
+          const error1 = validarPassword(pass1.value);
+          if (error1) mostrarError(pass1, error1);
+          else ocultarError(pass1);
+        }
+
+        if (pass2) {
+          const error2 = validarPassword(pass2.value);
+          if (error2) mostrarError(pass2, error2);
+          else ocultarError(pass2);
+
+          validarMatchPasswords();
+        }
+
+        // Actualiza mensajes de HTML5
+        if (form) {
+          try { form.reportValidity(); } catch (e) {}
+        }
+      }
+
       if (pass1) {
         pass1.addEventListener('input', function() {
           const error = validarPassword(this.value);
@@ -173,22 +192,34 @@
           else ocultarError(this);
           validarMatchPasswords();
         });
-        pass1.addEventListener('blur', function() {
-          const error = validarPassword(this.value);
-          if (error) mostrarError(this, error);
-          else ocultarError(this);
-        });
+        pass1.addEventListener('blur', syncAll);
       }
+
       if (pass2) {
-        pass2.addEventListener('input', validarMatchPasswords);
-        pass2.addEventListener('blur', validarMatchPasswords);
+        pass2.addEventListener('input', function() {
+          validarMatchPasswords();
+        });
+        pass2.addEventListener('blur', syncAll);
       }
+
+      // Validar también si el usuario intenta enviar sin tocar campos
+      syncAll();
     }
 
-      document.getElementById('cambiarContrasenaForm').addEventListener('submit', function(e) {
+    // Inicializar validaciones al cargar
+    (function initPasswordValidation() {
+      const pass1 = document.getElementById('id_new_password1');
+      const pass2 = document.getElementById('id_new_password2');
+      const form = document.getElementById('cambiarContrasenaForm');
+      if (form && (pass1 || pass2)) validarEnTiempoReal();
+    })();
+
+    document.getElementById('cambiarContrasenaForm').addEventListener('submit', function(e) {
         let valido = this.checkValidity();
         if (!valido) {
           e.preventDefault();
+          // Forzar que el navegador muestre mensajes si aplica
+          try { this.reportValidity(); } catch (err) {}
           if (window.showToast) window.showToast('Corrige los errores antes de enviar.', 'error');
         }
       });

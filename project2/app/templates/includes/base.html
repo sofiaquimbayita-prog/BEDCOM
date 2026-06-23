@@ -1,11 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}BEDCOM{% endblock %}</title>
+    <title>{% block title %}BEDCOM{% endblock %}</title> 
+
+    <!-- Tailwind CSS (sin preflight/resets para no romper estilos existentes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        }
+      }
+    </script>
 
     <!-- Estilos del Proyecto -->
     <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
@@ -19,182 +28,212 @@
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/x-icon">
-
+    
     <style>
-        .oculto {
-            display: none !important;
-        }
+        .oculto { display: none !important; }
 
         /* --- CONTENEDOR MAESTRO DE MODALES --- */
-        .modal-perfil {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10010 !important;
-            display: none;
-            align-items: center;
-            justify-content: center;
+        .modal-perfil { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 10010 !important; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
             padding: 20px;
-            pointer-events: auto;
-            /* IMPORTANTE: Permitir eventos */
+            pointer-events: auto; /* IMPORTANTE: Permitir eventos */
         }
-
-        .modal-perfil.show {
-            display: flex;
-        }
+        .modal-perfil.show { display: flex; }
 
         /* --- OVERLAY (FONDO OSCURO) --- */
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            z-index: 1;
-            /* Capa base */
+        .modal-overlay { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(10px); 
+            z-index: 1; /* Capa base */
         }
-
+        
         /* --- CONTENID O DE LUNA (CAPA SUPERIOR) --- */
-        .modal-content-ia {
-            position: relative;
-            z-index: 5;
-            /* Asegura estar sobre el overlay */
-            background: #0f172a !important;
-            color: #fff !important;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow: hidden;
-            border: 1px solid #334155;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            pointer-events: auto;
-            /* Forzar clics */
+        .modal-content-ia { 
+            position: relative; 
+            z-index: 5; /* Asegura estar sobre el overlay */
+            background: #0f172a !important; 
+            color: #fff !important; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 600px; 
+            max-height: 90vh; 
+            overflow: hidden; 
+            border: 1px solid #334155; 
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); 
+            pointer-events: auto; /* Forzar clics */
         }
 
-        #chatContainer {
-            background: #111827;
-            padding: 20px;
-            height: 350px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        #chatContainer { 
+            background: #111827; 
+            padding: 20px; 
+            height: 350px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
             border-bottom: 1px solid #1e293b;
         }
-
-        .msg-luna {
-            align-self: flex-start;
-            background: #1e293b;
-            color: #38bdf8;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            max-width: 85%;
-        }
-
-        .msg-user {
-            align-self: flex-end;
-            background: #38bdf8;
-            color: #0f172a;
-            padding: 12px;
-            border-radius: 12px;
-            max-width: 85%;
-        }
-
-        .thinking-msg {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
+        
+        .msg-luna { align-self: flex-start; background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 12px; border: 1px solid #334155; max-width: 85%; }
+        .msg-user { align-self: flex-end; background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; max-width: 85%; }
+        .thinking-msg { animation: pulse 1.5s ease-in-out infinite; }
+        
         .typing-dots::after {
             content: '';
             animation: typing 1.4s steps(4) infinite;
         }
-
         @keyframes typing {
-            0% {
-                content: '.';
-            }
-
-            25% {
-                content: '..';
-            }
-
-            50% {
-                content: '...';
-            }
-
-            75% {
-                content: '..';
-            }
-
-            100% {
-                content: '.';
-            }
+            0% { content: '.'; }
+            25% { content: '..'; }
+            50% { content: '...'; }
+            75% { content: '..'; }
+            100% { content: '.'; }
         }
-
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         /* Botón Flotante IA */
-        .btn-ia-flotante {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
-            cursor: pointer;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .btn-ia-flotante { 
+            position: fixed; bottom: 24px; right: 24px; 
+            width: 70px; height: 70px; border-radius: 50%; 
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%); 
+            border: none; color: white; font-size: 1.8rem; 
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5); 
+            cursor: pointer; z-index: 9999; 
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.3s ease;
         }
-
-        .btn-ia-flotante:hover {
-            transform: scale(1.1);
-        }
+        .btn-ia-flotante:hover { transform: scale(1.1); }
 
         /* Modal Logout */
         .modal-content-logout {
-            position: relative;
-            z-index: 5;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 30px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
+            position: relative; z-index: 5; background: #0f172a;
+            border: 1px solid #334155; border-radius: 12px; padding: 30px;
+            max-width: 420px; width: 100%; text-align: center;
+        }
+        body.modal-open { overflow: hidden; }
+
+        /* ═══════════════════════════════════════════════════════
+           ESTILOS GLOBALES DE RESPONSIVIDAD (OVERRIDE)
+           ═══════════════════════════════════════════════════════ */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden !important;
         }
 
-        body.modal-open {
-            overflow: hidden;
+        /* Envoltura segura para scroll horizontal de tablas */
+        .container-tabla, 
+        .table-responsive, 
+        div:has(> table), 
+        .dataTables_wrapper {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Adaptación de contenedores en móviles */
+        @media (max-width: 768px) {
+            .container-tabla, .container, .main-container {
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+                border-radius: 6px !important;
+            }
+            
+            /* Inputs y botones a ancho completo en móviles */
+            .modal-footer, .modal-confirmacion-botones {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .modal-footer button, .modal-confirmacion-botones button {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+        }
+
+        /* Animación correcta del Sidebar de Módulos (se desliza a la izquierda) */
+        .module-sidebar {
+            left: 0 !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .module-sidebar.oculto {
+            transform: translateX(-100%) !important;
+            opacity: 0 !important;
+        }
+
+        /* Animación correcta del Sidebar de Perfil (se desliza a la derecha) */
+        .profile-sidebar {
+            left: auto !important;
+            right: 0 !important;
+            transform: translateX(0) !important;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .profile-sidebar.oculto {
+            transform: translateX(100%) !important;
+            opacity: 0 !important;
+        }
+
+        /* Ajustes específicos de Topbar en móviles */
+        @media (max-width: 640px) {
+            .topbar-modern {
+                padding: 10px 14px !important;
+                min-height: 60px !important;
+            }
+            .topbar-content {
+                gap: 8px !important;
+            }
+            .home-btn {
+                display: flex !important;
+                width: 38px !important;
+                height: 38px !important;
+                min-width: 38px !important;
+                border-radius: 8px !important;
+            }
+            .nav-btn {
+                display: none !important;
+            }
+            .main-title {
+                font-size: 13px !important;
+                letter-spacing: 0.5px !important;
+            }
+            /* Reducir botón flotante Luna IA */
+            .btn-ia-flotante {
+                width: 55px !important;
+                height: 55px !important;
+                bottom: 16px !important;
+                right: 16px !important;
+                font-size: 1.3rem !important;
+            }
+            /* Adaptar modal de notificaciones a pantallas móviles */
+            #notifModal {
+                position: fixed !important;
+                top: 70px !important;
+                left: 10px !important;
+                right: 10px !important;
+                width: calc(100vw - 20px) !important;
+                max-width: none !important;
+                margin: 0 !important;
+            }
         }
     </style>
 
-    {% block head %}{% endblock %}
+    {% block head %}{% endblock %} 
 </head>
-
 <body>
     <div class="bg"></div>
     <div class="overlay"></div>
@@ -203,83 +242,83 @@
     <div id="global-toast-container"></div>
 
     <script>
-        /* ═══════════════════════════════════════════════════════
-           GLOBAL TOAST SYSTEM — window.showToast()
-           Único punto de entrada para TODAS las notificaciones.
-           z-index 999999 → siempre visible sobre modales.
-           ═══════════════════════════════════════════════════════ */
-        (function () {
-            var _shiftTimer = null;
+    /* ═══════════════════════════════════════════════════════
+       GLOBAL TOAST SYSTEM — window.showToast()
+       Único punto de entrada para TODAS las notificaciones.
+       z-index 999999 → siempre visible sobre modales.
+       ═══════════════════════════════════════════════════════ */
+    (function() {
+        var _shiftTimer = null;
 
-            function _dismiss(toast) {
-                if (toast._dismissed) return;
-                toast._dismissed = true;
-                toast.classList.add('toast-exit');
-                setTimeout(function () {
-                    toast.remove();
-                    var c = document.getElementById('global-toast-container');
-                    if (c && c.children.length === 0) {
-                        c.classList.remove('toast-shifted');
-                        clearTimeout(_shiftTimer);
-                        _shiftTimer = null;
-                    }
-                }, 400);
-            }
-
-            window.showToast = function (msg, tipo) {
-                tipo = tipo || 'success';
-                if (tipo === 'danger') tipo = 'error';
-
-                var container = document.getElementById('global-toast-container');
-                if (!container) return;
-
-                var iconMap = {
-                    success: 'fa-check-circle',
-                    warning: 'fa-exclamation-triangle',
-                    error: 'fa-times-circle',
-                    info: 'fa-info-circle'
-                };
-
-                var toast = document.createElement('div');
-                toast.className = 'toast-item toast-' + tipo;
-                toast.innerHTML =
-                    '<div class="toast-content">' +
-                    '<span class="toast-icon"><i class="fas ' + (iconMap[tipo] || iconMap.info) + '"></i></span>' +
-                    '<span class="toast-text">' + msg + '</span>' +
-                    '</div>' +
-                    '<button type="button" class="toast-close"><i class="fas fa-times"></i></button>';
-
-                toast.querySelector('.toast-close').onclick = function () { _dismiss(toast); };
-                container.appendChild(toast);
-
-                /* Entrance animation */
-                requestAnimationFrame(function () {
-                    requestAnimationFrame(function () {
-                        toast.classList.add('toast-visible');
-                    });
-                });
-
-                /* Slide container to right after 1.2s */
-                if (!_shiftTimer) {
-                    _shiftTimer = setTimeout(function () {
-                        container.classList.add('toast-shifted');
-                    }, 1200);
+        function _dismiss(toast) {
+            if (toast._dismissed) return;
+            toast._dismissed = true;
+            toast.classList.add('toast-exit');
+            setTimeout(function() {
+                toast.remove();
+                var c = document.getElementById('global-toast-container');
+                if (c && c.children.length === 0) {
+                    c.classList.remove('toast-shifted');
+                    clearTimeout(_shiftTimer);
+                    _shiftTimer = null;
                 }
+            }, 400);
+        }
 
-                /* Auto-dismiss after 5.5s */
-                setTimeout(function () { _dismiss(toast); }, 5500);
+        window.showToast = function(msg, tipo) {
+            tipo = tipo || 'success';
+            if (tipo === 'danger') tipo = 'error';
+
+            var container = document.getElementById('global-toast-container');
+            if (!container) return;
+
+            var iconMap = {
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                error:   'fa-times-circle',
+                info:    'fa-info-circle'
             };
 
-            /* ── Aliases for backwards compatibility ── */
-            window.mostrarMensaje = function (tipo, texto) { window.showToast(texto, tipo); };
-            window.showErrorToast = function (msg) { window.showToast(msg, 'error'); };
-            window.showSuccessToast = function (msg) { window.showToast(msg, 'success'); };
-        })();
+            var toast = document.createElement('div');
+            toast.className = 'toast-item toast-' + tipo;
+            toast.innerHTML =
+                '<div class="toast-content">' +
+                    '<span class="toast-icon"><i class="fas ' + (iconMap[tipo] || iconMap.info) + '"></i></span>' +
+                    '<span class="toast-text">' + msg + '</span>' +
+                '</div>' +
+                '<button type="button" class="toast-close"><i class="fas fa-times"></i></button>';
+
+            toast.querySelector('.toast-close').onclick = function() { _dismiss(toast); };
+            container.appendChild(toast);
+
+            /* Entrance animation */
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    toast.classList.add('toast-visible');
+                });
+            });
+
+            /* Slide container to right after 1.2s */
+            if (!_shiftTimer) {
+                _shiftTimer = setTimeout(function() {
+                    container.classList.add('toast-shifted');
+                }, 1200);
+            }
+
+            /* Auto-dismiss after 5.5s */
+            setTimeout(function() { _dismiss(toast); }, 5500);
+        };
+
+        /* ── Aliases for backwards compatibility ── */
+        window.mostrarMensaje = function(tipo, texto) { window.showToast(texto, tipo); };
+        window.showErrorToast = function(msg) { window.showToast(msg, 'error'); };
+        window.showSuccessToast = function(msg) { window.showToast(msg, 'success'); };
+    })();
     </script>
 
     {% if messages %}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             {% for message in messages %}
             window.showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
             {% endfor %}
@@ -288,8 +327,8 @@
     {% endif %}
 
     {% block header %}
-    {% include 'includes/header.html' %}
-    {% include 'includes/modal_perfil.html' %}
+        {% include 'includes/header.html' %} 
+        {% include 'includes/modal_perfil.html' %}
     {% endblock %}
     {% block extra_header %}{% endblock %}
 
@@ -297,62 +336,44 @@
     <div id="moduleSidebar" class="dropdown-sidebar oculto module-sidebar">
         <nav class="sidebar-modules">
             <div class="sidebar-group-title">DASHBOARDS</div>
-            <a href="{% url 'menu' %}" class="sidebar-module-item"><i class="fa-solid fa-house"></i><span>MENÚ
-                    PRINCIPAL</span></a>
-
+            <a href="{% url 'menu' %}" class="sidebar-module-item"><i class="fa-solid fa-house"></i><span>MENÚ PRINCIPAL</span></a>
+            
             <div class="sidebar-group-title">GESTIÓN DE INVENTARIO</div>
-            <a href="{% url 'productos' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-box"></i><span>PRODUCTOS</span></a>
-            <a href="{% url 'categorias' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-tags"></i><span>CATEGORÍAS</span></a>
-            <a href="{% url 'insumos' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-cogs"></i><span>INSUMOS</span></a>
-            <a href="{% url 'bom_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-sitemap"></i><span>BOM</span></a>
-
+            <a href="{% url 'productos' %}" class="sidebar-module-item"><i class="fa-solid fa-box"></i><span>PRODUCTOS</span></a>
+            <a href="{% url 'categorias' %}" class="sidebar-module-item"><i class="fa-solid fa-tags"></i><span>CATEGORÍAS</span></a>
+            <a href="{% url 'insumos' %}" class="sidebar-module-item"><i class="fa-solid fa-cogs"></i><span>INSUMOS</span></a>
+            <a href="{% url 'bom_list' %}" class="sidebar-module-item"><i class="fa-solid fa-sitemap"></i><span>BOM</span></a>
+            
             <div class="sidebar-group-title">COMPRAS Y PROVEEDORES</div>
-            <a href="{% url 'proveedores_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-truck"></i><span>PROVEEDORES</span></a>
-            <a href="{% url 'suministros' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-shopping-cart"></i><span>SUMINISTROS</span></a>
-
+            <a href="{% url 'proveedores_list' %}" class="sidebar-module-item"><i class="fa-solid fa-truck"></i><span>PROVEEDORES</span></a>
+            <a href="{% url 'suministros' %}" class="sidebar-module-item"><i class="fa-solid fa-shopping-cart"></i><span>SUMINISTROS</span></a>
+            
             <div class="sidebar-group-title">VENTAS Y CLIENTES</div>
-            <a href="{% url 'clientes_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-users"></i><span>CLIENTES</span></a>
-            <a href="{% url 'pedido_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-shopping-bag"></i><span>PEDIDOS</span></a>
-            <a href="{% url 'despacho_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-shipping-fast"></i><span>DESPACHO</span></a>
-
+            <a href="{% url 'clientes_list' %}" class="sidebar-module-item"><i class="fa-solid fa-users"></i><span>CLIENTES</span></a>
+            <a href="{% url 'pedido_list' %}" class="sidebar-module-item"><i class="fa-solid fa-shopping-bag"></i><span>PEDIDOS</span></a>
+            <a href="{% url 'despacho_list' %}" class="sidebar-module-item"><i class="fa-solid fa-shipping-fast"></i><span>DESPACHO</span></a>
+            
             <div class="sidebar-group-title">OPERACIONES</div>
-            <a href="{% url 'entrada_p' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-arrow-down"></i><span>ENTRADA PRODUCTOS</span></a>
-            <a href="{% url 'salida_producto' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-arrow-up"></i><span>SALIDA PRODUCTOS</span></a>
-
+            <a href="{% url 'entrada_p' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-down"></i><span>ENTRADA PRODUCTOS</span></a>
+            <a href="{% url 'salida_producto' %}" class="sidebar-module-item"><i class="fa-solid fa-arrow-up"></i><span>SALIDA PRODUCTOS</span></a>
+            
             <div class="sidebar-group-title">REPORTES Y GESTIÓN</div>
-            <a href="{% url 'reportes' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-chart-bar"></i><span>REPORTES</span></a>
-            <a href="{% url 'respaldos_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-save"></i><span>RESPALDOS</span></a>
-
+            <a href="{% url 'reportes' %}" class="sidebar-module-item"><i class="fa-solid fa-chart-bar"></i><span>REPORTES</span></a>
+            <a href="{% url 'respaldos_list' %}" class="sidebar-module-item"><i class="fa-solid fa-save"></i><span>RESPALDOS</span></a>
+            
             <div class="sidebar-group-title">MANTENIMIENTO</div>
-            <a href="{% url 'mantenimientos_list' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-tools"></i><span>MANTENIMIENTOS</span></a>
-            <a href="{% url 'calendario' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-calendar"></i><span>CALENDARIO</span></a>
-
+            <a href="{% url 'mantenimientos_list' %}" class="sidebar-module-item"><i class="fa-solid fa-tools"></i><span>MANTENIMIENTOS</span></a>
+            <a href="{% url 'calendario' %}" class="sidebar-module-item"><i class="fa-solid fa-calendar"></i><span>CALENDARIO</span></a>
+            
             <div class="sidebar-group-title">NOTIFICACIONES</div>
-            <a href="{% url 'notificaciones' %}" class="sidebar-module-item"><i
-                    class="fa-solid fa-bell"></i><span>NOTIFICACIONES</span></a>
+            <a href="{% url 'notificaciones' %}" class="sidebar-module-item"><i class="fa-solid fa-bell"></i><span>NOTIFICACIONES</span></a>
         </nav>
     </div>
 
     <div id="profileSidebar" class="dropdown-sidebar oculto profile-sidebar">
         <div class="sidebar-user-info">
             <div class="sidebar-avatar">
-                {% if usuario_perfil.foto_perfil %}<img src="{{ usuario_perfil.foto_perfil.url }}"
-                    class="foto-perfil-img">{% else %}<i class="fas fa-user"></i>{% endif %}
+                {% if usuario_perfil.foto_perfil %}<img src="{{ usuario_perfil.foto_perfil.url }}" class="foto-perfil-img">{% else %}<i class="fas fa-user"></i>{% endif %}
             </div>
             <div class="sidebar-text">
                 <span class="sidebar-name">{{ user.get_full_name|default:user.username }}</span>
@@ -360,10 +381,8 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="javascript:void(0)" class="sidebar-menu-item" onclick="abrirModalMiPerfil()"><i
-                    class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
-            <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item"><i
-                    class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
+            <a href="javascript:void(0)" class="sidebar-menu-item" onclick="abrirModalMiPerfil()"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
+            <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
         </nav>
     </div>
 
@@ -376,15 +395,11 @@
     <div id="modalLogout" class="modal-perfil oculto">
         <div class="modal-overlay" onclick="cerrarModalLogout()"></div>
         <div class="modal-content-logout">
-            <h2 style="color: white; margin-bottom: 15px;"><i class="fas fa-sign-out-alt" style="color: #ef4444;"></i>
-                ¿Cerrar Sesión?</h2>
+            <h2 style="color: white; margin-bottom: 15px;"><i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> ¿Cerrar Sesión?</h2>
             <p style="color: #94a3b8; margin-bottom: 25px;">Se cerrará tu sesión actual en el sistema BEDCOM.</p>
             <div style="display: flex; gap: 10px;">
-                <button onclick="cerrarModalLogout()"
-                    style="flex: 1; padding: 12px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 8px; cursor: pointer;">Cancelar</button>
-                <button onclick="confirmarLogout()"
-                    style="flex: 1; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cerrar
-                    Sesión</button>
+                <button onclick="cerrarModalLogout()" style="flex: 1; padding: 12px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                <button onclick="confirmarLogout()" style="flex: 1; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
             </div>
         </div>
     </div>
@@ -411,18 +426,15 @@
                 </div>
                 <div class="acc-item">
                     <span>Espaciado amplio</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-spacing-lg"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-spacing-lg"><span class="acc-slider"></span></label>
                 </div>
                 <div class="acc-item">
                     <span>Fuente legible (Dislexia)</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-dyslexia"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-dyslexia"><span class="acc-slider"></span></label>
                 </div>
                 <div class="acc-item">
                     <span>Lector de texto (Selección)</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-speech-enabled"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-speech-enabled"><span class="acc-slider"></span></label>
                 </div>
             </div>
 
@@ -430,18 +442,15 @@
                 <div class="acc-group-title">Colores y Contraste</div>
                 <div class="acc-item">
                     <span>Alto Contraste</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-high-contrast"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-high-contrast"><span class="acc-slider"></span></label>
                 </div>
                 <div class="acc-item">
                     <span>Modo Claro</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-light-mode"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-light-mode"><span class="acc-slider"></span></label>
                 </div>
                 <div class="acc-item">
                     <span>Escalada de Grises</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-grayscale"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-grayscale"><span class="acc-slider"></span></label>
                 </div>
             </div>
 
@@ -449,13 +458,11 @@
                 <div class="acc-group-title">Navegación e Interacción</div>
                 <div class="acc-item">
                     <span>Resaltar Enlaces</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-highlight-links"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-highlight-links"><span class="acc-slider"></span></label>
                 </div>
                 <div class="acc-item">
                     <span>Reducir Animaciones</span>
-                    <label class="acc-switch"><input type="checkbox" id="acc-reduce-motion"><span
-                            class="acc-slider"></span></label>
+                    <label class="acc-switch"><input type="checkbox" id="acc-reduce-motion"><span class="acc-slider"></span></label>
                 </div>
             </div>
 
@@ -474,33 +481,21 @@
     <div id="modalIA" class="modal-perfil oculto">
         <div class="modal-overlay" onclick="cerrarModalIA()"></div>
         <div class="modal-content-ia">
-            <div
-                style="padding: 20px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
-                <h2 style="margin: 0; color: #38bdf8; font-size: 1.25rem;"><i class="fa-solid fa-brain"></i> Asistente
-                    BEDCOM AI</h2>
-                <button onclick="cerrarModalIA()"
-                    style="background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; line-height: 1;">×</button>
+            <div style="padding: 20px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
+                <h2 style="margin: 0; color: #38bdf8; font-size: 1.25rem;"><i class="fa-solid fa-brain"></i> Asistente BEDCOM AI</h2>
+                <button onclick="cerrarModalIA()" style="background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; line-height: 1;">×</button>
             </div>
             <div id="chatContainer">
-                <div class="msg-luna">¡Hola! Soy <strong>Luna</strong>, tu asistente de BEDCOM. ¿En qué puedo ayudarte?
-                </div>
+                <div class="msg-luna">¡Hola! Soy <strong>Luna</strong>, tu asistente de BEDCOM. ¿En qué puedo ayudarte?</div>
             </div>
             <div style="padding: 20px; background: #1e293b;">
                 <div style="display: flex; gap: 10px; align-items: flex-end;">
-                    <button id="btnVoz" onclick="escucharVoz()"
-                        style="background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;"
-                        title="Voz"><i class="fa-solid fa-microphone"></i></button>
-                    <button id="btnMute" onclick="toggleMute()"
-                        style="background: #10b981; border: none; color: white; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;"
-                        title="IA sin mute - Clic para mutar">
+                    <button id="btnVoz" onclick="escucharVoz()" style="background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="Voz"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="btnMute" onclick="toggleMute()" style="background: #10b981; border: none; color: white; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="IA sin mute - Clic para mutar">
                         <i class="fa-solid fa-volume-high"></i>
                     </button>
-                    <textarea id="iaQuery" placeholder="Escribe tu consulta aquí..."
-                        style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px; font-family: inherit;"
-                        onkeydown="handleKeyPress(event)"></textarea>
-                    <button id="btnPreguntarIA" onclick="enviarConsultaIA()"
-                        style="background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;"
-                        title="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
+                    <textarea id="iaQuery" placeholder="Escribe tu consulta aquí..." style="flex-grow: 1; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: none; outline: none; height: 50px; font-family: inherit;" onkeydown="handleKeyPress(event)"></textarea>
+                    <button id="btnPreguntarIA" onclick="enviarConsultaIA()" style="background: #38bdf8; color: #0f172a; border: none; border-radius: 10px; width: 50px; height: 50px; cursor: pointer; flex-shrink: 0;" title="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
@@ -525,64 +520,63 @@
         // ─────────────────────────────────────────────────────────────
         // MODAL MI PERFIL (usuario logueado)
         // ─────────────────────────────────────────────────────────────
-        window.abrirModalMiPerfil = function () {
+        window.abrirModalMiPerfil = function() {
             const modal = $('#modalPerfil');
             if (!modal.length) return;
 
             // Si no hay usuario autenticado, no hacemos nada
-            const userId = {{ request.user.id|default: 'null'
-        }};
-        if (!userId) {
-            window.showToast('Debes iniciar sesión para ver tu perfil', 'error');
-            return;
-        }
+            const userId = {{ request.user.id|default:'null' }};
+            if (!userId) {
+                window.showToast('Debes iniciar sesión para ver tu perfil', 'error');
+                return;
+            }
 
-        // Cerrar sidebar de perfil si está abierta (opcional)
-        try { window.toggleProfileSidebar(); } catch (e) { }
+            // Cerrar sidebar de perfil si está abierta (opcional)
+            try { window.toggleProfileSidebar(); } catch (e) {}
 
-        // Mostrar modal
-        modal.css('display', 'flex').removeClass('oculto').addClass('show');
-        $('body').addClass('modal-open');
+            // Mostrar modal
+            modal.css('display', 'flex').removeClass('oculto').addClass('show');
+            $('body').addClass('modal-open');
 
-        // Cargar datos actuales del perfil
-        fetch(`/usuarios/detalle_json/${userId}/`)
-            .then(r => r.json())
-            .then(data => {
-                // Mapeo de campos del modal
-                $('#perfilCedula').val(data.cedula || '');
-                $('#perfilRol').val(data.rol || '');
-                $('#perfilNombre').val(data.username || '');
-                $('#perfilEmail').val(data.email || '');
-                $('#perfilTelefono').val(data.telefono || '');
-                $('#perfilFirstName').val(data.first_name || '');
-                $('#perfilLastName').val(data.last_name || '');
-                $('#perfilEstado').val(data.estado || '');
+            // Cargar datos actuales del perfil
+            fetch(`/usuarios/detalle_json/${userId}/`)
+                .then(r => r.json())
+                .then(data => {
+                    // Mapeo de campos del modal
+                    $('#perfilCedula').val(data.cedula || '');
+                    $('#perfilRol').val(data.rol || '');
+                    $('#perfilNombre').val(data.username || '');
+                    $('#perfilEmail').val(data.email || '');
+                    $('#perfilTelefono').val(data.telefono || '');
+                    $('#perfilFirstName').val(data.first_name || '');
+                    $('#perfilLastName').val(data.last_name || '');
+                    $('#perfilEstado').val(data.estado || '');
 
-                // Si el endpoint no trae telefono, dejamos vacío
+                    // Si el endpoint no trae telefono, dejamos vacío
+                
 
-
-                // Foto preview (si el endpoint la expone, de lo contrario quedará en blanco)
-                const fotoPreviewImg = document.getElementById('fotoPreview');
-                if (fotoPreviewImg) {
-                    // En este proyecto la foto viene desde usuario_perfil en base.html,
-                    // así que si existe en esa variable, intentamos usarla.
-                    const fotoUrl = ("{{ usuario_perfil.foto_perfil.url|default:'' }}");
-                    if (fotoUrl) {
-                        fotoPreviewImg.src = fotoUrl;
-                        fotoPreviewImg.style.display = 'block';
-                        const fotoIcon = document.getElementById('fotoIcon');
-                        if (fotoIcon) fotoIcon.style.display = 'none';
-                    } else {
-                        fotoPreviewImg.style.display = 'none';
-                        const fotoIcon = document.getElementById('fotoIcon');
-                        if (fotoIcon) fotoIcon.style.display = 'flex';
+                    // Foto preview (si el endpoint la expone, de lo contrario quedará en blanco)
+                    const fotoPreviewImg = document.getElementById('fotoPreview');
+                    if (fotoPreviewImg) {
+                        // En este proyecto la foto viene desde usuario_perfil en base.html,
+                        // así que si existe en esa variable, intentamos usarla.
+                        const fotoUrl = ("{{ usuario_perfil.foto_perfil.url|default:'' }}");
+                        if (fotoUrl) {
+                            fotoPreviewImg.src = fotoUrl;
+                            fotoPreviewImg.style.display = 'block';
+                            const fotoIcon = document.getElementById('fotoIcon');
+                            if (fotoIcon) fotoIcon.style.display = 'none';
+                        } else {
+                            fotoPreviewImg.style.display = 'none';
+                            const fotoIcon = document.getElementById('fotoIcon');
+                            if (fotoIcon) fotoIcon.style.display = 'flex';
+                        }
                     }
-                }
-            })
-            .catch(() => window.showToast('Error al cargar tu perfil', 'error'));
+                })
+                .catch(() => window.showToast('Error al cargar tu perfil', 'error'));
         };
 
-        window.cerrarModalMiPerfil = function () {
+        window.cerrarModalMiPerfil = function() {
             const modal = $('#modalPerfil');
             if (!modal.length) return;
             modal.removeClass('show').hide().addClass('oculto');
@@ -590,66 +584,65 @@
         };
 
         // Cerrar con botón Cancelar
-        $(document).on('click', '#cancelarPerfil', function () {
+        $(document).on('click', '#cancelarPerfil', function() {
             window.cerrarModalMiPerfil();
         });
 
         // Cerrar al click en overlay (si existe el overlay dentro del modal)
-        $(document).on('click', '#modalPerfil .modal-overlay', function () {
+        $(document).on('click', '#modalPerfil .modal-overlay', function() {
             window.cerrarModalMiPerfil();
         });
 
         // Submit AJAX del formulario de perfil
-        $(document).on('submit', '#formPerfil', function (e) {
+        $(document).on('submit', '#formPerfil', function(e) {
             e.preventDefault();
             const form = this;
-            const userId = {{ request.user.id|default: 'null'
-        }};
-        if (!userId) {
-            window.showToast('Sesión inválida. Inicia sesión nuevamente.', 'error');
-            return;
-        }
-
-        // Validación mínima
-        const requiredInputs = form.querySelectorAll('[required]');
-        for (const inp of requiredInputs) {
-            if (!inp.value || !inp.value.toString().trim()) {
-                window.showToast('Completa los campos obligatorios', 'error');
+            const userId = {{ request.user.id|default:'null' }};
+            if (!userId) {
+                window.showToast('Sesión inválida. Inicia sesión nuevamente.', 'error');
                 return;
             }
-        }
 
-        // Mapear nombre_usuario -> username (porque el modal usa nombre_usuario)
-        const usernameVal = document.getElementById('perfilNombre')?.value || '';
-        const cedulaVal = document.getElementById('perfilCedula')?.value || '';
-        const emailVal = document.getElementById('perfilEmail')?.value || '';
-        const telefonoVal = document.getElementById('perfilTelefono')?.value || '';
-        const firstNameVal = document.getElementById('perfilFirstName')?.value || '';
-        const lastNameVal = document.getElementById('perfilLastName')?.value || '';
-        const passwordVal = document.getElementById('perfilPassword')?.value || '';
-        const confirmPasswordVal = document.getElementById('perfilConfirmPassword')?.value || '';
-
-        const payload = new FormData(form);
-        payload.set('username', usernameVal);
-        payload.set('cedula', cedulaVal);
-        payload.set('email', emailVal);
-        payload.set('telefono', telefonoVal);
-        payload.set('first_name', firstNameVal);
-        payload.set('last_name', lastNameVal);
-        payload.set('password', passwordVal);
-        payload.set('confirm_password', confirmPasswordVal);
-
-        // Eliminar campos que no corresponden al backend (opcional)
-        payload.delete('nombre_usuario');
-
-        fetch(`/usuarios/editar/${userId}/`, {
-            method: 'POST',
-            body: payload,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            // Validación mínima
+            const requiredInputs = form.querySelectorAll('[required]');
+            for (const inp of requiredInputs) {
+                if (!inp.value || !inp.value.toString().trim()) {
+                    window.showToast('Completa los campos obligatorios', 'error');
+                    return;
+                }
             }
-        })
+
+            // Mapear nombre_usuario -> username (porque el modal usa nombre_usuario)
+            const usernameVal = document.getElementById('perfilNombre')?.value || '';
+            const cedulaVal = document.getElementById('perfilCedula')?.value || '';
+            const emailVal = document.getElementById('perfilEmail')?.value || '';
+            const telefonoVal = document.getElementById('perfilTelefono')?.value || '';
+            const firstNameVal = document.getElementById('perfilFirstName')?.value || '';
+            const lastNameVal = document.getElementById('perfilLastName')?.value || '';
+            const passwordVal = document.getElementById('perfilPassword')?.value || '';
+            const confirmPasswordVal = document.getElementById('perfilConfirmPassword')?.value || '';
+
+            const payload = new FormData(form);
+            payload.set('username', usernameVal);
+            payload.set('cedula', cedulaVal);
+            payload.set('email', emailVal);
+            payload.set('telefono', telefonoVal);
+            payload.set('first_name', firstNameVal);
+            payload.set('last_name', lastNameVal);
+            payload.set('password', passwordVal);
+            payload.set('confirm_password', confirmPasswordVal);
+
+            // Eliminar campos que no corresponden al backend (opcional)
+            payload.delete('nombre_usuario');
+
+            fetch(`/usuarios/editar/${userId}/`, {
+                method: 'POST',
+                body: payload,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                }
+            })
             .then(r => r.json().catch(() => ({})))
             .then(data => {
                 if (data.success) {
@@ -674,31 +667,31 @@
 
         // Resto del JS igual...
         // Sidebars, logout, IA functions completas
-        window.toggleModuleSidebar = function () { $('#moduleSidebar, #sidebarOverlay').toggleClass('oculto'); };
-        window.toggleProfileSidebar = function () { $('#profileSidebar, #profileOverlay').toggleClass('oculto'); };
-
-        window.abrirModalLogout = function () {
-            $('#modalLogout').css('display', 'flex').removeClass('oculto').addClass('show');
+        window.toggleModuleSidebar = function() { $('#moduleSidebar, #sidebarOverlay').toggleClass('oculto'); };
+        window.toggleProfileSidebar = function() { $('#profileSidebar, #profileOverlay').toggleClass('oculto'); };
+        
+        window.abrirModalLogout = function() { 
+            $('#modalLogout').css('display', 'flex').removeClass('oculto').addClass('show'); 
             $('body').addClass('modal-open');
         };
-        window.cerrarModalLogout = function () {
-            $('#modalLogout').removeClass('show').hide().addClass('oculto');
+        window.cerrarModalLogout = function() { 
+            $('#modalLogout').removeClass('show').hide().addClass('oculto'); 
             $('body').removeClass('modal-open');
         };
-        window.confirmarLogout = function () { window.location.href = '{% url "login:logout" %}'; };
+        window.confirmarLogout = function() { window.location.href = '{% url "login:logout" %}'; };
 
-        window.abrirModalIA = function () {
-            $('#modalIA').css('display', 'flex').removeClass('oculto').addClass('show');
+        window.abrirModalIA = function() { 
+            $('#modalIA').css('display', 'flex').removeClass('oculto').addClass('show'); 
             $('#iaQuery').focus();
         };
-        window.cerrarModalIA = function () {
-            $('#modalIA').removeClass('show').hide().addClass('oculto');
+        window.cerrarModalIA = function() { 
+            $('#modalIA').removeClass('show').hide().addClass('oculto'); 
             $('#iaQuery').val('');
         };
-
+        
         // IA functions - dynamic thinking
         window.currentThinkingMsg = null;
-        window.mostrarPensando = function () {
+        window.mostrarPensando = function() {
             // Dinámico AL FINAL
             const thinkingHtml = `<div class="msg-luna thinking-msg">
                 <strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots"></span>
@@ -707,19 +700,19 @@
             window.currentThinkingMsg = $('#chatContainer .msg-luna').last();
             $('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight);
         };
-        window.ocultarPensando = function () {
+        window.ocultarPensando = function() {
             if (window.currentThinkingMsg) {
                 window.currentThinkingMsg.remove();
                 window.currentThinkingMsg = null;
             }
         };
-        window.agregarMensajeUsuario = function (texto) {
+        window.agregarMensajeUsuario = function(texto) {
             const chatContainer = $('#chatContainer');
             const div = $(`<div class="msg-user">${texto}</div>`);
             chatContainer.append(div);
             chatContainer.scrollTop(chatContainer[0].scrollHeight);
         };
-        window.agregarMensajeLuna = function (texto) {
+        window.agregarMensajeLuna = function(texto) {
             window.ocultarPensando();
             const chatContainer = $('#chatContainer');
             const div = $(`<div class="msg-luna"><strong>Luna:</strong> ${texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>`);
@@ -728,7 +721,7 @@
         };
 
         // Inicializar botón mute al cargar página
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const btnMute = document.getElementById('btnMute');
             if (btnMute) {
                 toggleMute(); // Force update UI to current state
@@ -738,5 +731,4 @@
 
     {% block scripts %}{% endblock %}
 </body>
-
 </html>

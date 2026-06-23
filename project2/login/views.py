@@ -5,6 +5,10 @@ from django.contrib.auth import logout as auth_logout
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView
 from django.contrib import messages
+from django.contrib.auth.forms import SetPasswordForm
+import re
+from django.core.exceptions import ValidationError
+
 
 class LoginFormView(LoginView):
     template_name = 'login.html'
@@ -25,6 +29,44 @@ class CustomLogoutView(DjangoLogoutView):
             return HttpResponseRedirect(next_page)
         
         return super(DjangoLogoutView, self).dispatch(request, *args, **kwargs)
+
+
+class CambiarContrasenaForm(SetPasswordForm):
+    """Usa las mismas reglas de password que RegistroUsuarioForm."""
+
+    def clean_new_password1(self):
+        password1 = self.cleaned_data.get('new_password1')
+        if not password1:
+            return password1
+
+        # Mínimo 8
+        if len(password1) < 8:
+            raise ValidationError('La contraseña debe tener al menos 8 caracteres.')
+
+        # Mayúscula
+        if not re.search(r'[A-Z]', password1):
+            raise ValidationError('Debe contener al menos una letra mayúscula.')
+
+        # Número
+        if not re.search(r'\d', password1):
+            raise ValidationError('Debe contener al menos un número.')
+
+        # Especial
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password1):
+            raise ValidationError('Debe contener al menos un carácter especial.')
+
+        return password1
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('new_password1')
+        password2 = cleaned_data.get('new_password2')
+
+        if password1 and password2 and password1 != password2:
+            raise ValidationError("Las contraseñas no coinciden.")
+
+        return cleaned_data
+
 
 class RegistroUsuarioView(CreateView):
     form_class = None  # Se asigna dinámicamente
@@ -61,3 +103,4 @@ class RegistroUsuarioView(CreateView):
                 full_error += f' y {len(error_messages)-3} más. Corrige los campos marcados.'
             messages.error(self.request, full_error)
         return super().form_invalid(form)
+

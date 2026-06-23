@@ -12,10 +12,10 @@
 {% comment %} Header toggle ya incluido globalmente {% endcomment %}
 
 {% block content %}
-<main class="container menu">
-    <div class="menu-layout">
+<main class="container menu mx-auto px-4 py-8">
+    <div class="menu-layout grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center max-w-5xl mx-auto">
         
-            <a href="{% url 'suministros' %}" class="menu-card-link">
+            <a href="{% url 'suministros' %}" class="menu-card-link w-full max-w-[300px]">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Suministros">
@@ -28,7 +28,7 @@
                     </div>
                 </article>
             </a>
-            <a href="{% url 'logistica' %}" class="menu-card-link">
+            <a href="{% url 'logistica' %}" class="menu-card-link w-full max-w-[300px]">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Logística y Planeación">
@@ -42,7 +42,7 @@
                 </article>
             </a>
            
-            <a href="{% url 'gestion' %}" class="menu-card-link">
+            <a href="{% url 'gestion' %}" class="menu-card-link w-full max-w-[300px]">
                 <article class="menu-card">
                     <div class="menu-card-image">
                         <img src="{% static 'ap1/img/gestion.png' %}" alt="Módulo Gestión de Datos">
