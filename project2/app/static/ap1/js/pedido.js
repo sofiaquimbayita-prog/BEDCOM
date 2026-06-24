@@ -106,6 +106,8 @@ $(document).on('click', '.btn-ver', async function () {
     if (!data.ok) { window.showToast(data.error, 'error'); return; }
     const p = data.pedido;
     document.getElementById('verTitulo').textContent = `Pedido #${p.id}`;
+    const printPedidoId = document.getElementById('printPedidoId');
+    if (printPedidoId) printPedidoId.textContent = `#${p.id}`;
     document.getElementById('verInfoCliente').innerHTML = `
       <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
       <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${p.cliente_telefono}</span></div>
@@ -362,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const clienteSelect = document.getElementById('clienteSelect');
 if (clienteSelect) {
-  clienteSelect.innerHTML = '<option value="">— Seleccionar cliente —</option>' + CLIENTES_DATA.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+  clienteSelect.innerHTML = '<option value="">— Seleccionar cliente —</option>' + CLIENTES_DATA.map(c => `<option value="${c.id}">${c.nombre}${c.es_especial ? ' — Especial' : ''}</option>`).join('');
   clienteSelect.addEventListener('change', function () {
     const abonoInput = document.getElementById('abonoInput');
     if (abonoInput) {
@@ -598,8 +600,85 @@ if (btnGuardar) {
       if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
       if (data.ok) {
         closeModal('modalForm');
-        window.showToast(data.message);
-        setTimeout(() => location.reload(), 1200);
+        // Mostrar el modalPostGuardar en lugar de recargar inmediatamente
+        const postModalId = document.getElementById('postGuardarPedidoId');
+        if (postModalId) postModalId.textContent = `#${data.pedido.id}`;
+        
+        const emailInfo = document.getElementById('postGuardarEmailInfo');
+        const btnEmail = document.getElementById('btnEnviarCorreoPostGuardar');
+        const btnDescargar = document.getElementById('btnDescargarPostGuardar');
+        
+        if (data.cliente_email) {
+          emailInfo.innerHTML = `Cliente tiene correo registrado: <strong>${data.cliente_email}</strong>`;
+          btnEmail.style.display = 'inline-block';
+          btnEmail.onclick = async function() {
+            const originalHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            try {
+                const resEmail = await fetch(`/vistas/pedido/${data.pedido.id}/enviar-correo/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': CSRF_TOKEN }
+                });
+                const dataEmail = await resEmail.json();
+                if (dataEmail.ok) {
+                    window.showToast(dataEmail.message);
+                    this.innerHTML = '<i class="fas fa-check"></i> Enviado';
+                } else {
+                    window.showToast(dataEmail.error, 'error');
+                    this.innerHTML = originalHtml;
+                    this.disabled = false;
+                }
+            } catch (e) {
+                window.showToast('Error de red al enviar correo.', 'error');
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+            }
+          };
+        } else {
+          emailInfo.innerHTML = `<em>El cliente no tiene correo registrado. Solo puedes descargar el comprobante.</em>`;
+          btnEmail.style.display = 'none';
+        }
+        
+        btnDescargar.onclick = async function() {
+            try {
+                const p = data.pedido;
+                document.getElementById('verTitulo').textContent = `Pedido #${p.id}`;
+                const printPedidoId = document.getElementById('printPedidoId');
+                if (printPedidoId) printPedidoId.textContent = `#${p.id}`;
+                document.getElementById('verInfoCliente').innerHTML = `
+                  <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
+                  <div class="ver-campo"><span class="ver-label">Teléfono</span><span class="ver-valor">${p.cliente_telefono}</span></div>
+                  <div class="ver-campo"><span class="ver-label">Fecha Creación</span><span class="ver-valor">${p.fecha}</span></div>
+                  <div class="ver-campo"><span class="ver-label">Fecha Entrega</span><span class="ver-valor">${p.fecha_entrega ? new Date(p.fecha_entrega + 'T00:00').toLocaleDateString('es-CO') : '—'}</span></div>
+                  <div class="ver-campo"><span class="ver-label">Estado</span><span class="ver-valor"><span class="badge-estado badge-${p.estado.toLowerCase()}">${p.estado}</span></span></div>
+                  <div class="ver-campo"><span class="ver-label">Abono</span><span class="ver-valor">$${parseFloat(p.abono || 0).toFixed(2)}</span></div>
+                  <div class="ver-campo ver-campo--destacado"><span class="ver-label">Total</span><span class="ver-valor ver-valor--monto">$${parseFloat(p.total).toFixed(2)}</span></div>`;
+                document.getElementById('verDetallesBody').innerHTML = p.detalles.map(d => `
+                  <tr><td>${d.producto_nombre} ${d.es_personalizado ? '<span class="badge-estado badge-pendiente">Personalizado</span>' : ''}</td><td>${d.cantidad}</td>
+                  <td><span class="precio-display">$${parseFloat(d.precio_unitario).toFixed(2)}</span></td>
+                  <td><span class="precio-display">$${parseFloat(d.sub_total).toFixed(2)}</span></td>
+                  <td style="color:var(--color-texto-muted);font-size:0.85rem">${d.especificaciones || d.observaciones || '—'}</td></tr>
+                `).join('');
+                document.getElementById('verTotal').textContent = `$${parseFloat(p.total).toFixed(2)}`;
+                
+                const modalVer = document.getElementById('modalVer');
+                if (modalVer) {
+                    modalVer.classList.add('mostrar');
+                    setTimeout(() => {
+                        window.print();
+                        modalVer.classList.remove('mostrar');
+                    }, 300);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const btnCerrar = document.getElementById('btnCerrarPostGuardar');
+        btnCerrar.onclick = () => location.reload();
+
+        openModal('modalPostGuardar');
       } else {
         window.showToast(data.error || 'Error al guardar el pedido', 'error');
       }

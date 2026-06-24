@@ -146,6 +146,24 @@ class PedidoCreateView(View):
             if not items:
                 return JsonResponse({'ok': False, 'error': 'Agrega al menos un producto.'})
 
+            fecha_entrega = data.get('fecha_entrega')
+            abono = Decimal(str(data.get('abono', 0)))
+
+            # Pre-calcular el total para validación
+            total_estimado = Decimal('0')
+            for item in items:
+                prod_id = item.get('producto_id')
+                cantidad = int(item['cantidad'])
+                if prod_id:
+                    prod = get_object_or_404(producto, pk=prod_id)
+                    total_estimado += prod.precio * cantidad
+                else:
+                    total_estimado += Decimal(str(item.get('precio_unitario', 0))) * cantidad
+
+            errores = validar_pedido(items, abono, total_estimado)
+            if errores:
+                return JsonResponse({'ok': False, 'error': " ".join(errores)})
+
             with transaction.atomic():
                 cli = _resolver_cliente(data)
 
@@ -154,9 +172,6 @@ class PedidoCreateView(View):
                         'ok': False,
                         'error': 'El cliente ya tiene un pedido pendiente.'
                     })
-
-                fecha_entrega = data.get('fecha_entrega')
-                abono = Decimal(str(data.get('abono', 0)))
 
                 nuevo_pedido = pedido.objects.create(
                     cliente=cli,
@@ -216,48 +231,13 @@ class PedidoCreateView(View):
                     pago.objects.create(pedido=nuevo_pedido, monto=abono)
 
 
-            # 2. Correo al Cliente (Asíncrono)
-            if cli.email:
-                def send_pedido_email(pedido_id, c_nombre, c_email, p_total, p_abono, p_saldo):
-                    try:
-                        mensaje = (
-                            f"Hola {c_nombre},\n\n"
-                            f"¡Gracias por elegir BEDCOM!\n"
-                            f"Tu pedido #{pedido_id} ha sido registrado exitosamente en nuestro sistema.\n\n"
-                            f"Detalles del Pedido:\n"
-                            f"- Total: ${p_total:,.0f} COP\n"
-                            f"- Abono Inicial: ${p_abono:,.0f} COP\n"
-                            f"- Saldo Pendiente: ${p_saldo:,.0f} COP\n\n"
-                            f"Te notificaremos cuando tu pedido esté listo para despacho.\n\n"
-                            f"Atentamente,\nEl equipo de BEDCOM"
-                        )
-                        send_mail(
-                            subject=f'Confirmación de Pedido #{pedido_id} - BEDCOM',
-                            message=mensaje,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[c_email],
-                            fail_silently=True
-                        )
-                    except Exception as e:
-                        print("Error enviando correo de pedido:", e)
-                
-                threading.Thread(
-                        target=send_pedido_email,
-                        args=(
-                            nuevo_pedido.id,
-                            cli.nombre,
-                            cli.email,
-                            nuevo_pedido.total,
-                            nuevo_pedido.abono,
-                            nuevo_pedido.saldo_pendiente
-                        ),
-                        daemon=True  
-                    ).start()
+            # Se removió el envío automático de correo para dejarlo a elección del usuario en el modal post-guardado
 
             return JsonResponse({
                 'ok': True,
                 'message': f'Pedido #{nuevo_pedido.id} creado con éxito.',
-                'pedido': _pedido_to_dict(nuevo_pedido)
+                'pedido': _pedido_to_dict(nuevo_pedido),
+                'cliente_email': cli.email or ''
             })
 
         except Exception as e:
@@ -276,25 +256,55 @@ class PedidoUpdateView(View):
             if not items:
                 return JsonResponse({'ok': False, 'error': 'Agrega al menos un producto.'})
 
+            obj_pedido = get_object_or_404(pedido, pk=pk)
+            if obj_pedido.estado == 'Anulado':
+                return JsonResponse({'ok': False, 'error': 'No se puede editar un pedido anulado.'})
+
+            abono_nuevo = Decimal(str(data.get('abono', 0)))
+            
+            # Pre-calcular el total para validación
+            total_estimado = Decimal('0')
+            for item in items:
+                prod_id = item.get('producto_id')
+                cantidad = int(item['cantidad'])
+                if prod_id:
+                    prod = get_object_or_404(producto, pk=prod_id)
+                    total_estimado += prod.precio * cantidad
+                else:
+                    total_estimado += Decimal(str(item.get('precio_unitario', 0))) * cantidad
+
+            errores = validar_pedido(items, abono_nuevo, total_estimado)
+            if errores:
+                return JsonResponse({'ok': False, 'error': " ".join(errores)})
+
             with transaction.atomic():
-                obj_pedido = get_object_or_404(pedido, pk=pk)
                 fecha_entrega = data.get('fecha_entrega')
-                abono_nuevo = Decimal(str(data.get('abono', 0)))
                 abono_anterior = obj_pedido.abono or Decimal('0')
 
                 obj_pedido.abono = abono_nuevo
                 if fecha_entrega:
                     obj_pedido.fecha_entrega = fecha_entrega
 
-                # ✅ BUG CORREGIDO: si el abono cambió, actualizar también el
-                # primer registro en la tabla pago para mantener el historial sincronizado.
+                # Ajustar historial de pagos matemáticamente correcto
                 if abono_nuevo != abono_anterior:
-                    primer_pago = obj_pedido.pago_set.order_by('fecha_pago').first()
-                    if primer_pago:
-                        primer_pago.monto = abono_nuevo
-                        primer_pago.save()
-                    elif abono_nuevo > 0:
-                        pago.objects.create(pedido=obj_pedido, monto=abono_nuevo)
+                    diferencia = abono_nuevo - abono_anterior
+                    if diferencia > 0:
+                        # Si el abono subió, registrar la diferencia como un pago nuevo
+                        pago.objects.create(pedido=obj_pedido, monto=diferencia)
+                    else:
+                        # Si el abono bajó, descontar la diferencia de los pagos más recientes
+                        monto_a_restar = abs(diferencia)
+                        pagos_recientes = obj_pedido.pago_set.order_by('-fecha_pago', '-id')
+                        for p in pagos_recientes:
+                            if monto_a_restar <= 0:
+                                break
+                            if p.monto <= monto_a_restar:
+                                monto_a_restar -= p.monto
+                                p.delete()
+                            else:
+                                p.monto -= monto_a_restar
+                                p.save()
+                                monto_a_restar = Decimal('0')
 
                 # Restaurar stock de los detalles actuales (solo si no eran personalizados)
                 for d in obj_pedido.detalles.select_related('producto').all():
@@ -359,7 +369,8 @@ class PedidoUpdateView(View):
             return JsonResponse({
                 'ok': True,
                 'message': f'Pedido #{obj_pedido.id} actualizado correctamente.',
-                'pedido': _pedido_to_dict(obj_pedido)
+                'pedido': _pedido_to_dict(obj_pedido),
+                'cliente_email': obj_pedido.cliente.email or ''
             })
 
         except Exception as e:
@@ -486,7 +497,7 @@ def validar_pedido(items, abono, total):
     if len(items) > MAX_PRODUCTOS_POR_PEDIDO:
         errores.append(f"Máximo {MAX_PRODUCTOS_POR_PEDIDO} productos por pedido")
 
-    if abono < (total * 0.5):
+    if abono < (total * Decimal('0.5')):
         errores.append("El abono debe ser al menos el 50% del total")
 
     if abono > total:
@@ -497,3 +508,34 @@ def validar_pedido(items, abono, total):
         errores.append("No se puede repetir productos")
 
     return errores
+
+# ─────────────────────────────────────────────
+# API: Enviar comprobante por correo (POST)
+# ─────────────────────────────────────────────
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+
+def enviar_correo_pedido(request, pk):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+    try:
+        obj_pedido = get_object_or_404(pedido, pk=pk)
+        if not obj_pedido.cliente.email:
+            return JsonResponse({'ok': False, 'error': 'El cliente no tiene correo registrado.'})
+        
+        pedido_dict = _pedido_to_dict(obj_pedido)
+        
+        html_content = render_to_string('pedido/email_comprobante.html', {'pedido': pedido_dict})
+        
+        email = EmailMultiAlternatives(
+            subject=f'Comprobante de Pedido #{obj_pedido.id} - BEDCOM',
+            body=f'Adjunto se encuentra el comprobante de su pedido #{obj_pedido.id}.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[obj_pedido.cliente.email],
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send(fail_silently=False)
+        
+        return JsonResponse({'ok': True, 'message': 'Comprobante enviado por correo exitosamente.'})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)})

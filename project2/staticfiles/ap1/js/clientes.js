@@ -30,17 +30,32 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* ─── Toggle inactivos ─── */
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+  if (settings.nTable.id !== 'tablaClientes') return true;
+  var tr = settings.aoData[dataIndex].nTr;
+  if (!tr) return true;
+  var isInactivo = tr.getAttribute('data-inactivo') === 'true';
+  var mostrar = document.getElementById('toggleInactivos').checked;
+  
+  if (!mostrar && isInactivo) return false;
+  return true;
+});
+
 document.getElementById('toggleInactivos').addEventListener('change', function () {
-  this.checked ? mostrarTodos() : ocultarInactivos();
+  if (tabla) tabla.draw();
 });
 
 function ocultarInactivos() {
-  document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = 'none');
-  if (tabla) tabla.rows().invalidate().draw(false);
+  if (tabla) {
+    document.getElementById('toggleInactivos').checked = false;
+    tabla.draw();
+  }
 }
 function mostrarTodos() {
-  document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = '');
-  if (tabla) tabla.rows().invalidate().draw(false);
+  if (tabla) {
+    document.getElementById('toggleInactivos').checked = true;
+    tabla.draw();
+  }
 }
 
 

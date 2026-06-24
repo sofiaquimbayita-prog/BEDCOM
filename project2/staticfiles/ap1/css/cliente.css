@@ -144,6 +144,7 @@ input:checked + .slider::before { transform:translateX(20px); }
 .badge-pendiente{ background: rgba(245,158,11,0.15);       color: var(--color-advertencia); border: 1px solid rgba(245,158,11,0.35); }
 .badge-completado{background: var(--color-activar-glow);   color: var(--color-exito);     border: 1px solid var(--color-activar-brd); }
 .badge-anulado  { background: var(--color-inactivar-glow); color: var(--color-inactivar); border: 1px solid var(--color-inactivar-brd); }
+.badge-especial { background: var(--acento-glow);          color: var(--color-acento);    border: 1px solid var(--acento-glow-border); }
 
 /* ── 6. ICONOS DE ACCIÓN ── */
 .icons { display:flex; align-items:center; gap:8px; }

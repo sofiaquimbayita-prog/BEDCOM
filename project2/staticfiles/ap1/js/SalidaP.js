@@ -17,7 +17,7 @@ function getCookie(name) {
 // Función para anular una salida
 function anularSalida(id) {
     console.log('🔄 AnularSalida llamada con ID:', id);
-    
+
     // Usar confirm nativo para mantener consistencia y eliminar SweetAlert2
     if (confirm('¿Estás seguro de que deseas anular la salida #' + id + '? El stock se reintegrará al producto.')) {
         _doAnularFetch(id);
@@ -33,39 +33,39 @@ function _doAnularFetch(id) {
             'X-CSRFToken': getCookie('csrftoken')
         }
     })
-    .then(response => {
-        console.log('📥 Response status:', response.status);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        console.log(' Data received:', data);
-        if (data.success) {
-            window.showToast(data.message || 'Anulada correctamente', 'success');
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            window.showToast(data.message || 'Error backend', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('❌ Anular error:', error);
-        window.showToast('Error conexión: ' + error.message, 'error');
-    });
+        .then(response => {
+            console.log('📥 Response status:', response.status);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log(' Data received:', data);
+            if (data.success) {
+                window.showToast(data.message || 'Anulada correctamente', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                window.showToast(data.message || 'Error backend', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Anular error:', error);
+            window.showToast('Error conexión: ' + error.message, 'error');
+        });
 }
 
 // Función para el toggle de mostrar anulados
 function toggleAnulados() {
     var checkbox = document.getElementById('toggleAnulados');
     if (!checkbox) return;
-    
+
     var url = new URL(window.location.href);
-    
+
     if (checkbox.checked) {
         url.searchParams.set('mostrar_anulados', 'true');
     } else {
         url.searchParams.set('mostrar_anulados', 'false');
     }
-    
+
     window.location.href = url.toString();
 }
 
@@ -83,7 +83,7 @@ function cerrarModalSalida() {
         modal.style.display = 'none';
         var form = document.getElementById('formSalida');
         if (form) form.reset();
-        
+
         var stockInput = document.getElementById('stockDisponible');
         if (stockInput) stockInput.value = '';
     }
@@ -92,9 +92,9 @@ function cerrarModalSalida() {
 function enviarFormularioSalida() {
     var form = document.getElementById('formSalida');
     if (!form) return;
-    
+
     var formData = new FormData(form);
-    
+
     fetch(form.action, {
         method: 'POST',
         body: formData,
@@ -102,30 +102,30 @@ function enviarFormularioSalida() {
             'X-Requested-With': 'XMLHttpRequest',
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            cerrarModalSalida();
-            window.showToast(data.message, 'success');
-            setTimeout(function() {
-                location.reload();
-            }, 1500);
-        } else {
-            var errorMessage = data.message || "Error al registrar";
-            if (data.errors) {
-                var errores = [];
-                for (var campo in data.errors) {
-                    errores.push(campo + ": " + data.errors[campo].join(', '));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cerrarModalSalida();
+                window.showToast(data.message, 'success');
+                setTimeout(function () {
+                    location.reload();
+                }, 1500);
+            } else {
+                var errorMessage = data.message || "Error al registrar";
+                if (data.errors) {
+                    var errores = [];
+                    for (var campo in data.errors) {
+                        errores.push(campo + ": " + data.errors[campo].join(', '));
+                    }
+                    errorMessage = errores.join('\n');
                 }
-                errorMessage = errores.join('\n');
+                window.showToast(errorMessage, 'error');
             }
-            window.showToast(errorMessage, 'error');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        window.showToast("Ocurrió un error al procesar la solicitud", 'error');
-    });
+        })
+        .catch(function (error) {
+            console.error('Error:', error);
+            window.showToast("Ocurrió un error al procesar la solicitud", 'error');
+        });
 }
 
 // Asignar funciones al objeto window para que estén disponibles globalmente
@@ -137,8 +137,8 @@ window.enviarFormularioSalida = enviarFormularioSalida;
 
 
 // Código que se ejecuta cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // --- ELEMENTOS DE LA BARRA SUPERIOR ---
     const perfilBtn = document.getElementById('perfilBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
@@ -158,18 +158,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const productoSelect = document.getElementById("id_producto");
     const stockInput = document.getElementById("stockDisponible");
     const errorProducto = document.getElementById("errorProducto");
-    
+
     const fechaInput = document.getElementById("fecha");
     const errorFecha = document.getElementById("errorFecha");
-    
+
     const motivoInput = document.getElementById("motivo");
     const errorMotivo = document.getElementById("errorMotivo");
 
     // --- EVENTO NATIVO DEL SELECT ---
     if (productoSelect) {
-        productoSelect.addEventListener('change', function() {
+        productoSelect.addEventListener('change', function () {
             const selectedValue = this.value;
-            
+
             if (selectedValue) {
                 const selectedOption = this.options[this.selectedIndex];
                 const stock = selectedOption.getAttribute('data-stock');
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     stockInput.value = "";
                 }
-                
+
                 if (cantidadInput) {
                     cantidadInput.dispatchEvent(new Event('input'));
                 }
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function validarCantidad() {
         let stock = 0;
         const productoValor = productoSelect?.value;
-        
+
         if (productoValor) {
             const selectedOption = productoSelect.options[productoSelect.selectedIndex];
             const stockValue = selectedOption?.getAttribute('data-stock');
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cantidadInput.classList.add("input-error");
                 cantidadInput.classList.remove("input-ok");
                 return false;
-            } 
+            }
             else if (cantidad > stock) {
                 errorCantidad.textContent = "No hay suficiente stock disponible (máximo: " + stock + ")";
                 cantidadInput.classList.add("input-error");
@@ -299,12 +299,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (cantidadInput) {
-        cantidadInput.addEventListener("input", function() {
+        cantidadInput.addEventListener("input", function () {
             if (this.value < 0) {
                 this.value = Math.abs(this.value);
             }
         });
-        
+
         cantidadInput.addEventListener("input", validarCantidad);
     }
 
@@ -335,10 +335,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (responsableInput) {
         // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
-        responsableInput.addEventListener("input", function() {
+        responsableInput.addEventListener("input", function () {
             var valorActual = this.value;
             var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
-            
+
             if (!regex.test(valorActual) && valorActual.length > 0) {
                 // Remover caracteres no permitidos
                 this.value = valorActual.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]/g, '');
@@ -353,24 +353,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-        
+
         responsableInput.addEventListener("input", validarResponsable);
     }
 
     function validarFecha() {
         const fechaValor = fechaInput?.value;
-        
+
         if (fechaInput && errorFecha) {
             if (!fechaValor) {
                 errorFecha.textContent = "La fecha es requerida";
                 fechaInput.classList.add("input-error");
                 return false;
             }
-            
+
             const fechaSeleccionada = new Date(fechaValor);
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
-            
+
             if (fechaSeleccionada > hoy) {
                 errorFecha.textContent = "La fecha no puede ser futura";
                 fechaInput.classList.add("input-error");
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (fechaInput) {
         fechaInput.addEventListener("change", validarFecha);
-        
+
         const today = new Date().toISOString().split('T')[0];
         fechaInput.max = today;
         fechaInput.value = today;
@@ -428,10 +428,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (motivoInput) {
         // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
-        motivoInput.addEventListener("input", function() {
+        motivoInput.addEventListener("input", function () {
             var valorActual = this.value;
             var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]+$/;
-            
+
             if (!patron.test(valorActual) && valorActual.length > 0) {
                 // Remover caracteres no permitidos
                 this.value = valorActual.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]/g, '');
@@ -446,13 +446,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-        
+
         motivoInput.addEventListener("input", validarMotivo);
     }
 
     // --- ENVÍO DEL FORMULARIO ---
     if (formSalida) {
-        formSalida.addEventListener('submit', function(e) {
+        formSalida.addEventListener('submit', function (e) {
             e.preventDefault();
 
             let isValid = true;
@@ -504,35 +504,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest',
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    cerrarModalSalida();
-                    window.showToast(data.message, 'success');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    let errorMessage = data.message || "Error al registrar la salida";
-                    
-                    if (data.errors) {
-                        const errores = [];
-                        for (const [campo, mensajes] of Object.entries(data.errors)) {
-                            errores.push(campo + ": " + mensajes.join(', '));
-                        }
-                        errorMessage = errores.join('\n');
-                    }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        cerrarModalSalida();
+                        window.showToast(data.message, 'success');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        let errorMessage = data.message || "Error al registrar la salida";
 
-                    window.showToast(errorMessage, 'error');
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                window.showToast("Ocurrió un error al procesar la solicitud", 'error');
-            });
+                        if (data.errors) {
+                            const errores = [];
+                            for (const [campo, mensajes] of Object.entries(data.errors)) {
+                                errores.push(campo + ": " + mensajes.join(', '));
+                            }
+                            errorMessage = errores.join('\n');
+                        }
+
+                        window.showToast(errorMessage, 'error');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    window.showToast("Ocurrió un error al procesar la solicitud", 'error');
+                });
         });
     }
-    window.onload = function() {
+    window.onload = function () {
         // Función para ordenar la tabla al hacer clic en el encabezado
         function ordenarTabla(columna) {
 

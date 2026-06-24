@@ -3,8 +3,13 @@
 
 {% block header_title %}PEDIDOS{% endblock %}
 
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <main class="main-container">
 
@@ -102,6 +107,12 @@
 ══════════════════════════════ -->
 <div class="modal" id="modalVer">
   <div class="modal-contenido modal-contenido--wide">
+    <!-- Header para impresión -->
+    <div class="print-header">
+      <h1>BEDCOM</h1>
+      <p>Comprobante de Pedido <span id="printPedidoId"></span></p>
+    </div>
+
     <div class="modal-header modal-header--ver">
       <h2 class="modal-titulo modal-titulo--ver">
         <i class="fas fa-eye"></i> <span id="verTitulo">Detalle del Pedido</span>
@@ -138,7 +149,7 @@
       <button type="button" class="btn-cancelar" data-close="modalVer">Cerrar</button>
       <button type="button" class="btn-guardar" onclick="window.print()"
         style="background:var(--color-ver);color:#fff;">
-        <i class="fas fa-print"></i> Imprimir
+        <i class="fas fa-download"></i> Descargar
       </button>
     </div>
   </div>
@@ -251,6 +262,39 @@
 
 
 <!-- ══════════════════════════════
+     MODAL — POST GUARDADO
+══════════════════════════════ -->
+<div class="modal" id="modalPostGuardar">
+  <div class="modal-contenido" style="max-width: 500px; text-align: center;">
+    <div class="modal-header" style="border-bottom: none; justify-content: center; padding-top: 30px;">
+      <h2 class="modal-titulo" style="font-size: 1.5rem; color: var(--color-exito);">
+        <i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+        ¡Pedido Guardado Exitosamente!
+      </h2>
+    </div>
+    
+    <div style="padding: 20px; font-size: 1.1rem; color: var(--color-texto);">
+      El pedido <strong id="postGuardarPedidoId"></strong> ha sido registrado en el sistema.
+      <div id="postGuardarEmailInfo" style="margin-top: 15px; font-size: 0.95rem; color: var(--color-texto-muted);">
+        <!-- Info del correo dinámico -->
+      </div>
+    </div>
+
+    <div class="form-botones" style="justify-content: center; flex-wrap: wrap; gap: 15px; padding-bottom: 20px;">
+      <button type="button" class="btn-guardar" id="btnDescargarPostGuardar" style="background:var(--color-ver);color:#fff;">
+        <i class="fas fa-download"></i> Descargar Comprobante
+      </button>
+      <button type="button" class="btn-agregar" id="btnEnviarCorreoPostGuardar" style="display: none;">
+        <i class="fas fa-envelope"></i> Enviar por Correo
+      </button>
+      <button type="button" class="btn-cancelar" id="btnCerrarPostGuardar">
+        Continuar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
      MODAL — REGISTRAR PAGO
 ══════════════════════════════ -->
 <div class="modal" id="modalPago">
@@ -300,18 +344,6 @@
 
 
 
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
-<script>
-  // DataTables puede no estar disponible en algunos bundles.
-  // Esto evita que falle pedido.js.
-  window.__dtReady = !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable);
-</script>
-
-
-
 {# Variables de Django que el JS externo necesita #}
 {{ productos_json|json_script:"productos-data" }}
 {{ clientes_json|json_script:"clientes-data" }}
@@ -319,6 +351,14 @@
   data-url-ver-base="{% url 'pedido_detalle' 0 %}" data-url-editar-base="{% url 'editar_pedido' 0 %}"
   data-url-estado-base="{% url 'cambiar_estado' 0 %}" data-url-pago-base="{% url 'pedido_pago' 0 %}"
   data-url-despacho="{% url 'despacho_list' %}" style="display:none;"></div>
+{% endblock %}
 
-<script src="{% static 'ap1/js/pedido.js' %}"></script>
+{% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script>
+  // DataTables puede no estar disponible en algunos bundles.
+  // Esto evita que falle pedido.js.
+  window.__dtReady = !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable);
+</script>
+<script src="{% static 'ap1/js/pedido.js' %}?v=2.0"></script>
 {% endblock %}

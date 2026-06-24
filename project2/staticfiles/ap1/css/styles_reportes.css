@@ -47,6 +47,7 @@
 /* ================= HEADER DE REPORTES ================= */
 .reportes-header {
   display: flex;
+  margin-left: 0 auto;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
@@ -212,18 +213,44 @@
 /* ================= LAYOUT DE CARDS Y GRÁFICOS ================= */
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* 1. Cambiamos minmax para que las tarjetas crezcan más en pantallas grandes */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
-  align-items: start;
+  
+  /* 2. Ocupa casi el 100% de la pantalla, dejando solo un pequeño margen de cortesía */
+  width: 96%; 
+  max-width: none; /* Quitamos cualquier tope de pixeles */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  /* 2 columnas perfectas abajo que se estiran en pantallas grandes */
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
-  align-items: start;
+  
+  /* Ocupa el mismo ancho de lado a lado */
+  width: 96%;
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Ejemplo si tus tarjetas usan una clase común */
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Mantiene los títulos arriba y alertas abajo */
+  height: 100%; 
+}
+
+/* O directamente al bloque amarillo/rojo de adentro para centrar el texto */
+.alert-box {
+  margin: 0 auto; /* Centra el bloque de la alerta dentro de la tarjeta */
+  width: 100%;
+  max-width: 340px; /* Evita que la alerta se estire infinito hacia los lados */
 }
 
 /* ================= TARJETAS (CARDS) ================= */

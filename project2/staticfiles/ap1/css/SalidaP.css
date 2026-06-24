@@ -31,9 +31,10 @@ body {
   display: flex;
   flex-direction: column;
   /* Fondo simulado de la imagen */
-  background-image: url('https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1920');
+  background: url("../img/fondo.jpg") no-repeat center center / cover;
   background-size: cover;
   background-position: center;
+  
 }
 
 /* ===============================
@@ -410,9 +411,13 @@ border:2px solid #22c55e !important;
     box-sizing: border-box;
     background: #1e293b;
     min-height: 100vh;
-    background-image: url('https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1920');
+    background: url("../img/fondo.jpg") no-repeat center center / cover;
     background-size: cover;
     background-position: center;
+}
+.bg {
+  background: inherit;
+  filter: blur(2px) saturate(50%);
 }
 
 .table-container {

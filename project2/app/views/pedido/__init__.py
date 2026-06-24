@@ -6,4 +6,5 @@ from .views import (
     PedidoUpdateView,
     PedidoStateChangeView,
     PagoUpdateView,
+    enviar_correo_pedido,
 )

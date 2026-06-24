@@ -3,11 +3,14 @@
 
 {% block header_title %}DESPACHOS{% endblock %}
 
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
@@ -180,8 +183,9 @@
 
 
 
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}?v=4"></script>
+{% endblock %}
+
+{% block scripts %}
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}?v=4"></script>
 <script src="{% static 'ap1/js/despacho.js' %}?v=4"></script>
-
 {% endblock %}

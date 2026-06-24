@@ -101,9 +101,9 @@
   transition: left 0.5s ease;
 }
 
-.btn-agregar:hover {
+.btn-agregar.button-3:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   background: linear-gradient(135deg, #363c3e 0%, #17272e 100%);
 }
 
@@ -389,28 +389,28 @@ input:checked+.slider::before {
 .view-btn:hover {
   color: #38bdf8;
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .edit-btn:hover {
   background: rgba(251, 191, 36, 0.2);
   color: #fbbf24;
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .delete-btn:hover {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .reactivar-btn:hover {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* ==================================================

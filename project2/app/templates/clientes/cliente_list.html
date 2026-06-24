@@ -3,6 +3,10 @@
 
 {% block header_title %}CLIENTES{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/cliente.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
@@ -116,6 +120,9 @@
 
           <td>
             <span style="font-weight:600">{{ c.nombre }}</span>
+            {% if c.es_especial %}
+              <span class="badge-estado badge-especial" style="margin-left: 6px; font-size: 0.65rem; padding: 2px 6px;">Especial</span>
+            {% endif %}
           </td>
 
           <td>{{ c.telefono }}</td>
@@ -190,4 +197,8 @@
 <script src="{% static 'ap1/js/validaciones_clientes.js' %}"></script>
 <script src="{% static 'ap1/js/clientes.js' %}"></script>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 {% endblock %}

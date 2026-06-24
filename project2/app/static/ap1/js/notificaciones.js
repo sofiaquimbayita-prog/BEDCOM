@@ -1,14 +1,7 @@
 // notificaciones.js - BEDCOM Professional Notifications Module
 // Implements premium client-side multi-filter, dynamic sidebar, counters animation and triggers sync.
 
-// ── SAFE DOM SELECTOR HELPER ─────────────────────────────────────────
-function $(sel) {
-    const el = document.querySelector(sel);
-    if (!sel.startsWith('#clear') && !el) {
-        console.debug(`[Notifs JS] Optional DOM element not found: ${sel}`);
-    }
-    return el;
-}
+// ── SAFE DOM SELECTOR HELPER REMOVED TO PREVENT JQUERY $ CONFLICTS ───────────────────
 
 // ── GLOBAL STATE ──────────────────────────────────────────────────────
 let _activeFilterTab = 'all'; // all, pending, critical, attended
@@ -18,7 +11,7 @@ let _currentNotifsData = null; // Cache of the grouped notifications list
 
 // ── REALTIME CLOCK ────────────────────────────────────────────────────
 function initClock() {
-    const clockEl = $("#fecha-hora");
+    const clockEl = document.querySelector("#fecha-hora");
     if (!clockEl) return;
 
     const updateTime = () => {
@@ -78,10 +71,11 @@ function renderPrioritiesSidebar(data) {
 
     const grupos = data.grupos || [];
 
-    // Extraer alertas críticas de inventario pendientes
+    // Extraer alertas críticas pendientes
     let criticalItems = [];
+    const criticalTypes = ['bajo_stock_insumo', 'bajo_stock_producto', 'pago_pendiente', 'pendido_despacho'];
     grupos.forEach(grupo => {
-        if (grupo.tipo === 'bajo_stock_insumo' || grupo.tipo === 'bajo_stock_producto') {
+        if (criticalTypes.includes(grupo.tipo)) {
             grupo.items.forEach(item => {
                 if (!item.leida) {
                     criticalItems.push({
@@ -99,7 +93,7 @@ function renderPrioritiesSidebar(data) {
         container.innerHTML = `
             <div class="priority-empty">
                 <i class="fas fa-shield-alt" style="color: #10b981; font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
-                <span>No hay prioridades críticas de inventario pendientes hoy.</span>
+                <span>No hay prioridades críticas pendientes hoy.</span>
             </div>
         `;
         return;
@@ -107,18 +101,36 @@ function renderPrioritiesSidebar(data) {
 
     let html = '<div class="priorities-list">';
     criticalItems.slice(0, 4).forEach(item => {
-        const isProduct = item.tipo === 'bajo_stock_producto';
-        const urlDestino = isProduct ? '/vistas/productos/' : '/vistas/insumos/';
-        const labelText = isProduct ? 'Producto Crítico' : 'Insumo Crítico';
+        let urlDestino = '/vistas/insumos/';
+        let labelText = 'Insumo Crítico';
+        let actionText = 'Haga clic para reabastecer';
+        let iconClass = 'fa-exclamation-triangle';
+
+        if (item.tipo === 'bajo_stock_producto') {
+            urlDestino = '/vistas/productos/';
+            labelText = 'Producto Crítico';
+            actionText = 'Haga clic para reabastecer';
+            iconClass = 'fa-box-open';
+        } else if (item.tipo === 'pago_pendiente') {
+            urlDestino = '/vistas/pedido/';
+            labelText = 'Pago Pendiente';
+            actionText = 'Haga clic para gestionar pago';
+            iconClass = 'fa-money-bill-wave';
+        } else if (item.tipo === 'pendido_despacho') {
+            urlDestino = '/vistas/despacho/';
+            labelText = 'Despacho Pendiente';
+            actionText = 'Haga clic para despachar';
+            iconClass = 'fa-truck';
+        }
 
         html += `
             <div class="priority-item-card" onclick="window.location.href='${urlDestino}'" title="Ir al módulo correspondiente">
                 <div class="priority-icon-indicator danger-priority">
-                    <i class="fas ${isProduct ? 'fa-box-open' : 'fa-exclamation-triangle'}"></i>
+                    <i class="fas ${iconClass}"></i>
                 </div>
                 <div class="priority-details">
                     <span class="priority-title">${item.titulo}</span>
-                    <span class="priority-subtitle">${labelText} - Haga clic para reabastecer</span>
+                    <span class="priority-subtitle">${labelText} - ${actionText}</span>
                 </div>
             </div>
         `;

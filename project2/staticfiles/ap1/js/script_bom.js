@@ -23,6 +23,33 @@ let editRecetaInsumos = [];
 // ===================== INIT =====================
 $(document).ready(function () {
 
+    if ($.fn.dataTable && $.fn.dataTable.isDataTable('#tablaBom')) {
+        $('#tablaBom').DataTable().destroy();
+    }
+    if ($.fn.dataTable) {
+        $('#tablaBom').DataTable({
+            "responsive": true,
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sLast": "Último",
+                    "sNext": "Siguiente",
+                    "sPrevious": "Anterior"
+                }
+            },
+            "pageLength": 10,
+            "order": [[0, "asc"]]
+        });
+    }
+
     //  GLOBAL MODAL CLOSE FUNCTION (BOM modals use .modal + display:none)
     window.cerrarModal = function (id) {
         const modal = document.getElementById(id);
@@ -60,7 +87,7 @@ $(document).ready(function () {
                 if (res.success) {
                     cerrarModal('modalReceta');
                     mostrarMensaje('success', res.message);
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 2500);
                 } else {
                     mostrarMensaje('error', res.error || 'Error al guardar la receta');
                 }
@@ -94,7 +121,7 @@ $(document).ready(function () {
                 if (res.success) {
                     cerrarModal('modalEditBom');
                     mostrarMensaje('success', res.message);
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 2500);
                 } else {
                     mostrarMensaje('error', res.error || 'Error al actualizar la receta');
                 }
@@ -384,7 +411,7 @@ function eliminarRecetaCompleta(productoId, productoNombre) {
                 if (res.success) {
                     cerrarModal('modalDeleteBom');
                     mostrarMensaje('success', res.message);
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 2500);
                 } else {
                     mostrarMensaje('error', res.error || 'Error al eliminar la receta');
                 }

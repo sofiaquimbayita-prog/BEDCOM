@@ -114,21 +114,14 @@
 }
 
 .metric-card-glow {
-  position: absolute;
-  top: -50%; right: -50%;
-  width: 100px; height: 100px;
-  background: radial-gradient(circle, rgba(var(--color-blue-rgb), 0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  transition: all 0.5s ease;
-  z-index: 1;
-  pointer-events: none;
+  display: none !important;
 }
 
 /* Efectos Hover de las Tarjetas */
 .notif-metric-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(var(--color-blue-rgb), 0.35);
-  box-shadow: 0 12px 30px rgba(var(--color-blue-rgb), 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .total-card:hover { --color-blue-rgb: 56, 189, 248; }
@@ -325,9 +318,9 @@
 
 /* Botón Verificar Ahora (Premium) */
 .btn-trigger-manual-premium {
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  color: #c7d2fe;
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #ffffff;
   padding: 12px 18px;
   border-radius: 12px;
   font-weight: 600;
@@ -337,16 +330,16 @@
   gap: 8px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
 }
 
 .btn-trigger-manual-premium:hover {
-  background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
-  border-color: rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #38bdf8 0%, #1d4ed8 100%);
+  border-color: rgba(56, 189, 248, 0.4);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3);
 }
 
 .btn-trigger-manual-premium:active {
@@ -419,7 +412,7 @@
 }
 
 .pending-indicator { background: var(--color-amber); }
-.critical-indicator { background: var(--color-red); box-shadow: 0 0 6px var(--color-red); }
+.critical-indicator { background: var(--color-red); }
 .attended-indicator { background: var(--color-green); }
 
 .check-status-idle {
@@ -489,7 +482,6 @@
   color: var(--color-green);
   opacity: 0.8;
   margin-bottom: 20px;
-  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.25));
   animation: float 4s ease-in-out infinite;
 }
 
@@ -596,8 +588,8 @@
 }
 
 @keyframes pulse-border {
-  0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
-  50% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.25); }
+  0%, 100% { border-color: rgba(239, 68, 68, 0.2); }
+  50% { border-color: rgba(239, 68, 68, 0.8); }
 }
 
 .notif-group-actions-right {
@@ -710,7 +702,6 @@
 
 .item-reading-dot.unread-dot {
   background: var(--group-color, var(--color-blue));
-  box-shadow: 0 0 8px var(--group-color, var(--color-blue));
 }
 
 .item-reading-dot.read-dot {

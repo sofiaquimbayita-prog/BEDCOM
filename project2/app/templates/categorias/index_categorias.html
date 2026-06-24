@@ -5,10 +5,13 @@
 
 
 
-{% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_categorias.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <main class="productos">
     <div class="toolbar">
@@ -89,8 +92,10 @@
     {% include "categorias/modal_activar.html" %}
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/script_categorias.js' %}"></script>
 <script>
 $(document).ready(function() {

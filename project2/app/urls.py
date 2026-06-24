@@ -159,6 +159,7 @@ urlpatterns = [
     path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
     path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
     path('pedido/pago/<int:pk>/', pedido.PagoUpdateView.as_view(), name='pedido_pago'),
+    path('pedido/<int:pk>/enviar-correo/', pedido.enviar_correo_pedido, name='enviar_correo_pedido'),
 
     # --- DESPACHO ---
     path('despacho/', despacho.DespachoListView.as_view(), name='despacho_list'),

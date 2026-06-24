@@ -3,11 +3,13 @@
 
 {% block header_title %}Gestión BOM - Estructura de Productos{% endblock %}
 
-{% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <main class="bom-gestion">
     
@@ -303,14 +305,14 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
 
+{% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ap1/js/select2.min.js' %}"></script>
 <script>
     // Inicializar la lista de productos con receta desde el template Django
     var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};
 </script>
 <script src="{% static 'ap1/js/script_bom.js' %}"></script>
-
 {% endblock %}

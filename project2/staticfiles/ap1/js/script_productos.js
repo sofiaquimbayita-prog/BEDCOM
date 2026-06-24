@@ -89,7 +89,7 @@ function validarStock(stock) {
 // Función para mostrar errores por elemento (solo muestra el mensaje, no toca el borde)
 function mostrarErroresPorElemento(elemento, errores) {
     if (!elemento) return;
-    
+
     var errorDiv = elemento.parentElement.querySelector('.error-message');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
@@ -99,7 +99,7 @@ function mostrarErroresPorElemento(elemento, errores) {
         errorDiv.style.marginTop = '5px';
         elemento.parentElement.appendChild(errorDiv);
     }
-    
+
     if (errores.length > 0) {
         errorDiv.innerHTML = errores.join('<br>');
     } else {
@@ -111,7 +111,7 @@ function mostrarErroresPorElemento(elemento, errores) {
 function mostrarAdvertenciaModal(mensaje) {
     var modal = document.getElementById('modalAdd');
     if (!modal) return;
-    
+
     // Buscar o crear contenedor de mensajes
     var msgContainer = modal.querySelector('.modal-messages');
     if (!msgContainer) {
@@ -120,18 +120,18 @@ function mostrarAdvertenciaModal(mensaje) {
         msgContainer.style.padding = '10px';
         msgContainer.style.marginBottom = '10px';
         msgContainer.style.borderRadius = '4px';
-        
+
         // Insertar al inicio del contenido del formulario
         var form = modal.querySelector('form');
         if (form) {
             form.insertBefore(msgContainer, form.firstChild);
         }
     }
-    
+
     msgContainer.innerHTML = '<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba;">' + mensaje + '</div>';
-    
+
     // Auto隐藏 después de 5 segundos
-    setTimeout(function() {
+    setTimeout(function () {
         msgContainer.innerHTML = '';
     }, 5000);
 }
@@ -139,10 +139,10 @@ function mostrarAdvertenciaModal(mensaje) {
 // Función para limpiar errores
 function limpiarErrores(form) {
     var errorMessages = form.querySelectorAll('.error-message');
-    errorMessages.forEach(function(el) {
+    errorMessages.forEach(function (el) {
         el.innerHTML = '';
     });
-    
+
     // Limpiar mensajes del modal
     var modalMessages = form.parentElement.querySelector('.modal-messages');
     if (modalMessages) {
@@ -151,21 +151,21 @@ function limpiarErrores(form) {
 }
 
 // Funciones globales para modales
-window.abrirModal = function(idModal) {
+window.abrirModal = function (idModal) {
     var modal = document.getElementById(idModal);
     if (modal) {
         modal.style.display = 'flex';
-        
+
         // Inicializar Select2 cuando se abre el modal de agregar producto
         if (idModal === 'modalAdd') {
-            setTimeout(function() {
+            setTimeout(function () {
                 initSelect2EnModal('modalAdd');
             }, 100);
         }
     }
 };
 
-window.cerrarModal = function(idModal) {
+window.cerrarModal = function (idModal) {
     var modal = document.getElementById(idModal);
     if (modal) modal.style.display = 'none';
 };
@@ -188,7 +188,7 @@ function initSelect2EnModal(modalId) {
             });
         }
     }
-    
+
     // Inicializar Select2 para el modal de editar
     if (modalId === 'modalEdit') {
         var selectEditCategoria = $('#inputEditCategoria');
@@ -211,8 +211,8 @@ function initSelect2EnTodosLosModales() {
     initSelect2EnModal('modalEdit');
 }
 
-$(document).ready(function() {
-    
+$(document).ready(function () {
+
     if ($.fn.dataTable.isDataTable('#tablaProductos')) {
         $('#tablaProductos').DataTable().destroy();
     }
@@ -253,26 +253,32 @@ $(document).ready(function() {
 
     // ── Toggle Activos / Inactivos - Backend Sync ──
     // El backend filtra: ?mostrar_inactivos=true → estado=False | false → estado=True
-    $('#toggleInactivos').on('change', function() {
+    $('#toggleInactivos').off('change').on('change', function () {
         const mostrarInactivos = $(this).is(':checked');
         const url = new URL(window.location);
-        url.searchParams.set('mostrar_inactivos', mostrarInactivos);
+
+        if (mostrarInactivos) {
+            url.searchParams.set('mostrar_inactivos', 'true');
+        } else {
+            url.searchParams.delete('mostrar_inactivos');
+        }
+
         window.location.href = url.toString();
     });
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
-    $(document).on('submit', '#formAddProducto', function(e) {
-    e.preventDefault(); // Prevenir submit normal
-        
+    $(document).on('submit', '#formAddProducto', function (e) {
+        e.preventDefault(); // Prevenir submit normal
+
         limpiarErrores(this);
-        
+
         var nombre = this.querySelector('input[name="nombre"]');
         var descripcion = this.querySelector('textarea[name="descripcion"]');
         var precio = this.querySelector('input[name="precio"]');
         var stock = this.querySelector('input[name="stock"]');
         var categoria = this.querySelector('select[name="categoria"]');
-        
+
         var hasErrors = false;
-        
+
         if (nombre) {
             var erroresNombre = validarNombre(nombre.value);
             if (erroresNombre.length > 0) {
@@ -280,7 +286,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         // Descripcion es requerida
         if (descripcion) {
             var erroresDescripcion = validarDescripcion(descripcion.value);
@@ -289,7 +295,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (precio) {
             var erroresPrecio = validarPrecio(precio.value);
             if (erroresPrecio.length > 0) {
@@ -297,7 +303,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (stock) {
             var erroresStock = validarStock(stock.value);
             if (erroresStock.length > 0) {
@@ -305,24 +311,24 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (categoria && !categoria.value) {
             var erroresCategoria = ['La categoría es requerida'];
             mostrarErroresPorElemento(categoria, erroresCategoria);
             hasErrors = true;
         }
-        
+
         if (hasErrors) {
             return false;
         }
-        
+
         // Si stock es 0, mostrar advertencia pero permitir guardar
         var stockValor = parseInt(stock.value);
         var mostrarAdvertenciaStock0 = (stockValor === 0);
-        
+
         // Enviar formulario via AJAX
         var formData = new FormData(this);
-        
+
         fetch(this.action, {
             method: 'POST',
             body: formData,
@@ -330,75 +336,75 @@ $(document).ready(function() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            if (data.success) {
-                // Producto guardado exitosamente
-                cerrarModal('modalAdd');
-                
-                // Mostrar notificación de éxito
-                window.showToast(data.message || 'Producto creado correctamente', 'success');
-                
-                // Limpiar el formulario
-                document.getElementById('formAddProducto').reset();
-                
-                // Actualizar la tabla sin recargar la página
-                actualizarTablaProductos();
-            } else {
-                // Mostrar errores
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(function(field) {
-                        var input = document.querySelector('#formAddProducto [name="' + field + '"]');
-                        if (input) {
-                            var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
-                            mostrarErroresPorElemento(input, mensajes);
-                        }
-                    });
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    // Producto guardado exitosamente
+                    cerrarModal('modalAdd');
+
+                    // Mostrar notificación de éxito
+                    window.showToast(data.message || 'Producto creado correctamente', 'success');
+
+                    // Limpiar el formulario
+                    document.getElementById('formAddProducto').reset();
+
+                    // Actualizar la tabla sin recargar la página
+                    actualizarTablaProductos();
+                } else {
+                    // Mostrar errores
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(function (field) {
+                            var input = document.querySelector('#formAddProducto [name="' + field + '"]');
+                            if (input) {
+                                var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                                mostrarErroresPorElemento(input, mensajes);
+                            }
+                        });
+                    }
+
+                    // Verificar si hay mensaje de warning (stock 0)
+                    if (data.warning) {
+                        mostrarAdvertenciaModal(data.warning);
+                    }
+
+                    if (data.message) {
+                        mostrarAdvertenciaModal(data.message);
+                    }
                 }
-                
-                // Verificar si hay mensaje de warning (stock 0)
-                if (data.warning) {
-                    mostrarAdvertenciaModal(data.warning);
-                }
-                
-                if (data.message) {
-                    mostrarAdvertenciaModal(data.message);
-                }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            mostrarAdvertenciaModal('Error al conectar con el servidor. Por favor intenta de nuevo.');
-        });
-        
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                mostrarAdvertenciaModal('Error al conectar con el servidor. Por favor intenta de nuevo.');
+            });
+
         return false;
     });
 
     // Validación en Tiempo real para el formulario de agregar (solo en blur)
-    $(document).on('blur', '#formAddProducto input[name="nombre"]', function() {
+    $(document).on('blur', '#formAddProducto input[name="nombre"]', function () {
         var errores = validarNombre(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formAddProducto textarea[name="descripcion"]', function() {
+    $(document).on('blur', '#formAddProducto textarea[name="descripcion"]', function () {
         var errores = validarDescripcion(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formAddProducto input[name="precio"]', function() {
+    $(document).on('blur', '#formAddProducto input[name="precio"]', function () {
         var errores = validarPrecio(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formAddProducto input[name="stock"]', function() {
+    $(document).on('blur', '#formAddProducto input[name="stock"]', function () {
         var errores = validarStock(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
     // Validación en tiempo real para select en formulario de agregar
-    $(document).on('change', '#formAddProducto select[name="categoria"]', function() {
+    $(document).on('change', '#formAddProducto select[name="categoria"]', function () {
         var errores = [];
         if (!$(this).val()) {
             errores.push('La categoría es requerida');
@@ -407,19 +413,19 @@ $(document).ready(function() {
     });
 
     // Validar formulario editar producto (cargado dinámicamente)
-    $(document).on('submit', '#formEditarProducto', function(e) {
+    $(document).on('submit', '#formEditarProducto', function (e) {
         e.preventDefault();
-        
+
         limpiarErrores(this);
-        
+
         var nombre = this.querySelector('input[name="nombre"]');
         var descripcion = this.querySelector('textarea[name="descripcion"]');
         var precio = this.querySelector('input[name="precio"]');
         var stock = this.querySelector('input[name="stock"]');
         var categoria = this.querySelector('select[name="categoria"]');
-        
+
         var hasErrors = false;
-        
+
         if (nombre) {
             var erroresNombre = validarNombre(nombre.value);
             if (erroresNombre.length > 0) {
@@ -427,7 +433,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         // Descripcion es requerida
         if (descripcion) {
             var erroresDescripcion = validarDescripcion(descripcion.value);
@@ -436,7 +442,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (precio) {
             var erroresPrecio = validarPrecio(precio.value);
             if (erroresPrecio.length > 0) {
@@ -444,7 +450,7 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (stock) {
             var erroresStock = validarStock(stock.value);
             if (erroresStock.length > 0) {
@@ -452,20 +458,20 @@ $(document).ready(function() {
                 hasErrors = true;
             }
         }
-        
+
         if (categoria && !categoria.value) {
             var erroresCategoria = ['La categoría es requerida'];
             mostrarErroresPorElemento(categoria, erroresCategoria);
             hasErrors = true;
         }
-        
+
         if (hasErrors) {
             return false;
         }
-        
+
         // Enviar formulario via AJAX
         var formData = new FormData(this);
-        
+
         fetch(this.action, {
             method: 'POST',
             body: formData,
@@ -473,75 +479,75 @@ $(document).ready(function() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            if (data.success) {
-                cerrarModal('modalEdit');
-                window.showToast(data.message || 'Producto actualizado correctamente', 'success');
-                actualizarTablaProductos();
-            } else {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(function(field) {
-                        var input = document.querySelector('#formEditarProducto [name="' + field + '"]');
-                        if (input) {
-                            var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
-                            mostrarErroresPorElemento(input, mensajes);
-                        }
-                    });
-                }
-                
-                if (data.warning) {
-                    var modal = document.getElementById('modalEdit');
-                    var msgContainer = modal.querySelector('.modal-messages');
-                    if (!msgContainer) {
-                        msgContainer = document.createElement('div');
-                        msgContainer.className = 'modal-messages';
-                        msgContainer.style.padding = '10px';
-                        msgContainer.style.marginBottom = '10px';
-                        var form = modal.querySelector('form');
-                        if (form) form.insertBefore(msgContainer, form.firstChild);
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    cerrarModal('modalEdit');
+                    window.showToast(data.message || 'Producto actualizado correctamente', 'success');
+                    actualizarTablaProductos();
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(function (field) {
+                            var input = document.querySelector('#formEditarProducto [name="' + field + '"]');
+                            if (input) {
+                                var mensajes = Array.isArray(data.errors[field]) ? data.errors[field] : [data.errors[field]];
+                                mostrarErroresPorElemento(input, mensajes);
+                            }
+                        });
                     }
-                    msgContainer.innerHTML = '<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px;">' + data.warning + '</div>';
+
+                    if (data.warning) {
+                        var modal = document.getElementById('modalEdit');
+                        var msgContainer = modal.querySelector('.modal-messages');
+                        if (!msgContainer) {
+                            msgContainer = document.createElement('div');
+                            msgContainer.className = 'modal-messages';
+                            msgContainer.style.padding = '10px';
+                            msgContainer.style.marginBottom = '10px';
+                            var form = modal.querySelector('form');
+                            if (form) form.insertBefore(msgContainer, form.firstChild);
+                        }
+                        msgContainer.innerHTML = '<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px;">' + data.warning + '</div>';
+                    }
+
+                    if (data.message) {
+                        window.showToast(data.message, 'error');
+                    }
                 }
-                
-                if (data.message) {
-                    window.showToast(data.message, 'error');
-                }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            window.showToast('Error al conectar con el servidor.', 'error');
-        });
-        
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                window.showToast('Error al conectar con el servidor.', 'error');
+            });
+
         return false;
     });
 
     // Validación en tiempo real para el formulario de editar (solo en blur)
-    $(document).on('blur', '#formEditarProducto input[name="nombre"]', function() {
+    $(document).on('blur', '#formEditarProducto input[name="nombre"]', function () {
         var errores = validarNombre(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formEditarProducto textarea[name="descripcion"]', function() {
+    $(document).on('blur', '#formEditarProducto textarea[name="descripcion"]', function () {
         var errores = validarDescripcion(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formEditarProducto input[name="precio"]', function() {
+    $(document).on('blur', '#formEditarProducto input[name="precio"]', function () {
         var errores = validarPrecio(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
-    $(document).on('blur', '#formEditarProducto input[name="stock"]', function() {
+    $(document).on('blur', '#formEditarProducto input[name="stock"]', function () {
         var errores = validarStock(this.value);
         mostrarErroresPorElemento(this, errores);
     });
 
     // Validación en tiempo real para select en formulario de editar
-    $(document).on('change', '#formEditarProducto select[name="categoria"]', function() {
+    $(document).on('change', '#formEditarProducto select[name="categoria"]', function () {
         var errores = [];
         if (!$(this).val()) {
             errores.push('La categoría es requerida');
@@ -565,7 +571,7 @@ function bloquearSinReceta(button) {
 function abrirModalEditar(id) {
     const button = event.target.closest('button');
     if (bloquearSinReceta(button)) return;
-    
+
     var modal = document.getElementById('modalEdit');
     modal.style.display = 'flex';
     modal.innerHTML = '<div class="modal-content"><div style="color:white; padding:20px; text-align:center;"><i class="fas fa-spinner fa-spin"></i> Cargando datos del producto...</div></div>';
@@ -576,63 +582,63 @@ function abrirModalEditar(id) {
         method: 'GET',
         headers: { 'Accept': 'text/html' }
     })
-    .then(function(response) {
-        return response.text().then(function(html) {
-            return { ok: response.ok, html: html };
-        });
-    })
-    .then(function(result) {
-        modal.innerHTML = result.html;
-        
-        if (result.ok) {
-            var form = modal.querySelector('#formEditarProducto');
-            if (form) {
-                form.action = urlEditar;
-                
-                // Agregar eventos de validación en tiempo real (solo blur)
-                var nombreInput = form.querySelector('input[name="nombre"]');
-                var descripcionInput = form.querySelector('textarea[name="descripcion"]');
-                var precioInput = form.querySelector('input[name="precio"]');
-                var stockInput = form.querySelector('input[name="stock"]');
-                
-                if (nombreInput) {
-                    nombreInput.addEventListener('blur', function() {
-                        var errores = validarNombre(this.value);
-                        mostrarErroresPorElemento(this, errores);
-                    });
+        .then(function (response) {
+            return response.text().then(function (html) {
+                return { ok: response.ok, html: html };
+            });
+        })
+        .then(function (result) {
+            modal.innerHTML = result.html;
+
+            if (result.ok) {
+                var form = modal.querySelector('#formEditarProducto');
+                if (form) {
+                    form.action = urlEditar;
+
+                    // Agregar eventos de validación en tiempo real (solo blur)
+                    var nombreInput = form.querySelector('input[name="nombre"]');
+                    var descripcionInput = form.querySelector('textarea[name="descripcion"]');
+                    var precioInput = form.querySelector('input[name="precio"]');
+                    var stockInput = form.querySelector('input[name="stock"]');
+
+                    if (nombreInput) {
+                        nombreInput.addEventListener('blur', function () {
+                            var errores = validarNombre(this.value);
+                            mostrarErroresPorElemento(this, errores);
+                        });
+                    }
+
+                    if (descripcionInput) {
+                        descripcionInput.addEventListener('blur', function () {
+                            var errores = validarDescripcion(this.value);
+                            mostrarErroresPorElemento(this, errores);
+                        });
+                    }
+
+                    if (precioInput) {
+                        precioInput.addEventListener('blur', function () {
+                            var errores = validarPrecio(this.value);
+                            mostrarErroresPorElemento(this, errores);
+                        });
+                    }
+
+                    if (stockInput) {
+                        stockInput.addEventListener('blur', function () {
+                            var errores = validarStock(this.value);
+                            mostrarErroresPorElemento(this, errores);
+                        });
+                    }
+
+                    // Inicializar Select2 en el modal de edición después de cargar el contenido
+                    setTimeout(function () {
+                        initSelect2EnModal('modalEdit');
+                    }, 100);
                 }
-                
-                if (descripcionInput) {
-                    descripcionInput.addEventListener('blur', function() {
-                        var errores = validarDescripcion(this.value);
-                        mostrarErroresPorElemento(this, errores);
-                    });
-                }
-                
-                if (precioInput) {
-                    precioInput.addEventListener('blur', function() {
-                        var errores = validarPrecio(this.value);
-                        mostrarErroresPorElemento(this, errores);
-                    });
-                }
-                
-                if (stockInput) {
-                    stockInput.addEventListener('blur', function() {
-                        var errores = validarStock(this.value);
-                        mostrarErroresPorElemento(this, errores);
-                    });
-                }
-                
-                // Inicializar Select2 en el modal de edición después de cargar el contenido
-                setTimeout(function() {
-                    initSelect2EnModal('modalEdit');
-                }, 100);
             }
-        }
-    })
-    .catch(function(error) {
-        modal.innerHTML = '<div class="modal-content"><div style="color:#ef4444; padding:20px;">Error al conectar con el servidor.</div></div>';
-    });
+        })
+        .catch(function (error) {
+            modal.innerHTML = '<div class="modal-content"><div style="color:#ef4444; padding:20px;">Error al conectar con el servidor.</div></div>';
+        });
 }
 
 /* ==================================================
@@ -641,7 +647,7 @@ function abrirModalEditar(id) {
 function abrirModalEliminar(id, nombre, urlImagen) {
     const button = event.target.closest('button');
     if (bloquearSinReceta(button)) return;
-    
+
     var modal = document.getElementById('modalDelete');
     var txtNombre = document.getElementById('nombreProductoEliminar');
     var imgModal = document.getElementById('imgEliminar');
@@ -691,7 +697,7 @@ function abrirModalVer(nombre, descripcion, imagen, precio, stock, categoria) {
 function abrirModalActivar(id, nombre, urlImagen) {
     const button = event.target.closest('button');
     if (bloquearSinReceta(button)) return;
-    
+
     var modal = document.getElementById('modalActivar');
     var txtNombre = document.getElementById('nombreProductoActivar');
     var imgModal = document.getElementById('imgActivar');
@@ -723,18 +729,18 @@ function abrirModalActivar(id, nombre, urlImagen) {
 var targetSelectId = null;
 
 // Función para abrir el modal de creación rápida de categoría
-window.abrirModalQuickCategoria = function(selectId) {
+window.abrirModalQuickCategoria = function (selectId) {
     targetSelectId = selectId;
     var modal = document.getElementById('modalQuickCategoria');
     modal.style.display = 'flex';
-    
+
     // Limpiar el formulario
     var form = document.getElementById('formQuickCategoria');
     if (form) {
         form.reset();
         // Limpiar errores
         var errorSpans = form.querySelectorAll('.error-msg');
-        errorSpans.forEach(function(span) {
+        errorSpans.forEach(function (span) {
             span.textContent = '';
             span.style.display = 'none';
         });
@@ -762,20 +768,20 @@ function mostrarErroresQuickCategoria(errors) {
 }
 
 // Evento para crear categoría rápida via AJAX
-$(document).ready(function() {
-    $(document).on('submit', '#formQuickCategoria', function(e) {
+$(document).ready(function () {
+    $(document).on('submit', '#formQuickCategoria', function (e) {
         e.preventDefault();
-        
+
         var form = this;
         var formData = new FormData(form);
-        
+
         // Limpiar errores previos
         var errorSpans = form.querySelectorAll('.error-msg');
-        errorSpans.forEach(function(span) {
+        errorSpans.forEach(function (span) {
             span.textContent = '';
             span.style.display = 'none';
         });
-        
+
         fetch(form.action, {
             method: 'POST',
             body: formData,
@@ -783,51 +789,51 @@ $(document).ready(function() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            if (data.success) {
-                // Cerrar el modal de categoría
-                cerrarModal('modalQuickCategoria');
-                
-                // Mostrar notificación de éxito
-                window.showToast(data.message || 'Categoría creada correctamente', 'success');
-                
-                // Recargar las categorías en el select objetivo
-                if (targetSelectId) {
-                    var select = document.getElementById(targetSelectId);
-                    if (select) {
-                        // Verificar si es un Select2
-                        if ($(select).hasClass('select2-hidden-accessible')) {
-                            // Usar Select2 para agregar la opción
-                            var newOption = new Option(data.categoria_nombre, data.categoria_id, true, true);
-                            $(select).append(newOption).trigger('change');
-                        } else {
-                            // Usar método normal para select estándar
-                            var newOption = document.createElement('option');
-                            newOption.value = data.categoria_id;
-                            newOption.textContent = data.categoria_nombre;
-                            newOption.selected = true;
-                            select.appendChild(newOption);
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    // Cerrar el modal de categoría
+                    cerrarModal('modalQuickCategoria');
+
+                    // Mostrar notificación de éxito
+                    window.showToast(data.message || 'Categoría creada correctamente', 'success');
+
+                    // Recargar las categorías en el select objetivo
+                    if (targetSelectId) {
+                        var select = document.getElementById(targetSelectId);
+                        if (select) {
+                            // Verificar si es un Select2
+                            if ($(select).hasClass('select2-hidden-accessible')) {
+                                // Usar Select2 para agregar la opción
+                                var newOption = new Option(data.categoria_nombre, data.categoria_id, true, true);
+                                $(select).append(newOption).trigger('change');
+                            } else {
+                                // Usar método normal para select estándar
+                                var newOption = document.createElement('option');
+                                newOption.value = data.categoria_id;
+                                newOption.textContent = data.categoria_nombre;
+                                newOption.selected = true;
+                                select.appendChild(newOption);
+                            }
                         }
                     }
+                } else {
+                    // Mostrar errores
+                    if (data.errors) {
+                        mostrarErroresQuickCategoria(data.errors);
+                    }
+                    if (data.message) {
+                        window.showToast(data.message, 'error');
+                    }
                 }
-            } else {
-                // Mostrar errores
-                if (data.errors) {
-                    mostrarErroresQuickCategoria(data.errors);
-                }
-                if (data.message) {
-                    window.showToast(data.message, 'error');
-                }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            window.showToast('Error al conectar con el servidor.', 'error');
-        });
-        
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                window.showToast('Error al conectar con el servidor.', 'error');
+            });
+
         return false;
     });
 });
@@ -841,8 +847,8 @@ function filtrarCaracteresEspecialesProductos(id) {
 }
 
 // Agregar evento de filtrado en tiempo real para el campo de descripción
-$(document).ready(function() {
-    $('#inputDescripcion').on('input', function() {
+$(document).ready(function () {
+    $('#inputDescripcion').on('input', function () {
         filtrarCaracteresEspecialesProductos('inputDescripcion');
     });
 });
