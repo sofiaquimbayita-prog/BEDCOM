@@ -25,20 +25,7 @@ class producto_list_view(ListView):
     context_object_name = 'productos'
 
     def get_queryset(self):
-        """
-        Filtrar productos activos por defecto. Soporte para ?mostrar_inactivos=true
-        Switch ON: only inactive (estado=False)
-        Switch OFF: only active (estado=True)
-        """
-        mostrar_inactivos = self.request.GET.get('mostrar_inactivos', 'false').lower() == 'true'
-        
-        queryset = producto.objects.select_related('categoria').prefetch_related('bom_set')
-        
-        if mostrar_inactivos:
-            queryset = queryset.filter(estado=False)
-        else:
-            queryset = queryset.filter(estado=True)
-        return queryset.order_by('-id')
+        return producto.objects.select_related('categoria').prefetch_related('bom_set').order_by('-id')
 
 
     def get_context_data(self, **kwargs):

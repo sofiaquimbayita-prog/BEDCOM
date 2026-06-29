@@ -2,7 +2,7 @@
 // Implements premium client-side multi-filter, dynamic sidebar, counters animation and triggers sync.
 
 // ── SAFE DOM SELECTOR HELPER ─────────────────────────────────────────
-function $(sel) {
+function qs(sel) {
     const el = document.querySelector(sel);
     if (!sel.startsWith('#clear') && !el) {
         console.debug(`[Notifs JS] Optional DOM element not found: ${sel}`);
@@ -18,7 +18,7 @@ let _currentNotifsData = null; // Cache of the grouped notifications list
 
 // ── REALTIME CLOCK ────────────────────────────────────────────────────
 function initClock() {
-    const clockEl = $("#fecha-hora");
+    const clockEl = qs("#fecha-hora");
     if (!clockEl) return;
 
     const updateTime = () => {

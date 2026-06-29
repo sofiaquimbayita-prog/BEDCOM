@@ -8,5 +8,6 @@ from .views import (
     ClienteHistorialView,
     ClientePagosHistorialView,
     ClientePagoView,
-    ClienteDataView
+    ClienteDataView,
+    ClienteKPIView,
 )

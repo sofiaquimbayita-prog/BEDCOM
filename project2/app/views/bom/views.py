@@ -1,3 +1,4 @@
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -29,7 +30,7 @@ class BomListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo_pagina'] = 'Gestión BOM - Estructura de Productos'
+        context['titulo_pagina'] = 'Gestión de Ensamble'
         
         # Obtener todas las estructuras BOM agrupadas por producto
         # Esto permite mostrar una fila por receta (producto) con sus ingredientes
@@ -426,3 +427,31 @@ def bom_data(request):
         'recordsFiltered': total,
         'data': data
     })
+@method_decorator(login_required, name='dispatch')
+class BomDataListView(View):
+    """API simple que retorna productos con sus insumos agrupados (para DataTable client-side)."""
+    def get(self, request):
+        try:
+            boms = bom.objects.select_related('producto__categoria', 'insumo').order_by('producto__nombre', 'insumo__nombre')
+            products_dict = {}
+            for b in boms:
+                pid = b.producto.id
+                if pid not in products_dict:
+                    products_dict[pid] = {
+                        'id': pid,
+                        'producto_nombre': b.producto.nombre,
+                        'insumos': []
+                    }
+                products_dict[pid]['insumos'].append({
+                    'insumo_nombre': b.insumo.nombre,
+                    'cantidad': b.cantidad,
+                    'unidad_medida': b.unidad_medida,
+                    'bom_id': b.id
+                })
+            return JsonResponse({
+                'success': True,
+                'ensamblajes': list(products_dict.values()),
+                'total': len(products_dict)
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)

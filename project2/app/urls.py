@@ -127,6 +127,7 @@ urlpatterns = [
 
     # --- SALIDA DE PRODUCTOS ---
     path('salida/', salida_p.SalidaProductoView.as_view(), name='salida_producto'),
+    path('salida/data/', salida_p.SalidaDataView.as_view(), name='salida_data'),
     path('salida/crear/', salida_p.SalidaProductoCreateView.as_view(), name='salida_producto_create'),
     path('salida/anular/<int:pk>/', salida_p.SalidaProductoAnularView.as_view(), name='salida_producto_anular'),
     path('salida/detalle/<int:pk>/', salida_p.DetalleSalidaView.as_view(), name='salida_detalle'),
@@ -139,6 +140,7 @@ urlpatterns = [
     path('bom/eliminar-receta/', bom.bom_eliminar_receta, name='bom_eliminar_receta'),
     path('bom/por-producto/', bom.bom_por_producto, name='bom_por_producto'),
     path('bom/data/', bom.bom_data, name='bom_data'),
+    path('bom/data-json/', bom.BomDataListView.as_view(), name='bom_data_json'),
 
     # --- INVENTARIO ---
     path('inventario/', inventario.InventarioListView.as_view(), name='inventario'),
@@ -154,6 +156,7 @@ urlpatterns = [
 
     # --- PEDIDOS ---
     path('pedido/', pedido.PedidoListView.as_view(), name='pedido_list'),
+    path('pedido/data/', pedido.PedidoDataView.as_view(), name='pedido_data'),
     path('pedido/nuevo/', pedido.PedidoCreateView.as_view(), name='crear_pedido'),
     path('pedido/ver/<int:pk>/', pedido.PedidoDetailView.as_view(), name='pedido_detalle'),
     path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
@@ -162,6 +165,7 @@ urlpatterns = [
 
     # --- DESPACHO ---
     path('despacho/', despacho.DespachoListView.as_view(), name='despacho_list'),
+    path('despacho/data/', despacho.DespachoDataView.as_view(), name='despacho_data'),
     path('despacho/crear/', despacho.DespachoCreateView.as_view(), name='despacho_crear'),
     path('despacho/estado/<int:pk>/', despacho.DespachoUpdateEstadoView.as_view(), name='despacho_estado'),
     path('despacho/detalle/<int:pk>/', despacho.DespachoDetailView.as_view(), name='despacho_detalle'),
@@ -170,6 +174,7 @@ urlpatterns = [
     # --- CLIENTES ---
     path('clientes/', clientes.ClienteListView.as_view(), name='clientes_list'),
     path('clientes/data/', clientes.ClienteDataView.as_view(), name='clientes_data'),
+    path('clientes/kpi/', clientes.ClienteKPIView.as_view(), name='clientes_kpi'),
     path('clientes/obtener/<int:pk>/', clientes.ClienteDetailView.as_view(), name='clientes_obtener'),
     path('clientes/crear/', clientes.ClienteCreateView.as_view(), name='clientes_crear'),
     path('clientes/editar/<int:pk>/', clientes.ClienteUpdateView.as_view(), name='clientes_editar'),

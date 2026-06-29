@@ -540,6 +540,17 @@ table.dataTable tbody tr:last-child td {
   border-bottom: none;
 }
 
+table.dataTable.display tbody tr.odd {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* DataTable info */
+.dataTables_info {
+  color: var(--color-texto-muted) !important;
+  font-size: 0.85rem;
+  padding-top: 15px !important;
+}
+
 /* DataTable controls */
 .dataTables_wrapper .dataTables_filter input {
   background: var(--color-superficie-input) !important;

@@ -59,3 +59,18 @@ def api_consultar_ia(request):
 
     # Si intentan acceder por GET o cualquier otro método
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@login_required
+def api_historial(request):
+    """
+    Retorna el historial de chat del usuario autenticado (últimos 20 mensajes).
+    """
+    historial = HistorialChat.objects.filter(usuario=request.user).order_by('-fecha')[:20]
+
+
+    mensajes = []
+    for h in reversed(list(historial)):
+        mensajes.append({'rol': 'usuario', 'texto': h.mensaje_usuario})
+        mensajes.append({'rol': 'luna', 'texto': h.respuesta_ia})
+    return JsonResponse({'ok': True, 'mensajes': mensajes})

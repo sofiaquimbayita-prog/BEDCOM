@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    CSS - RESPALDOS MODULE
    Clean version without duplicates
    ============================================ */
@@ -22,6 +22,14 @@
   --radius: 18px;
   --radius-sm: 10px;
   --transition: all 0.3s ease;
+  --color-superficie: #1e293b;
+  --color-texto: #e2e8f0;
+  --color-texto-oscuro: #cbd5e1;
+  --color-acento: #38bdf8;
+  --acento-glow: rgba(56, 189, 248, 0.15);
+  --acento-glow-border: rgba(56, 189, 248, 0.2);
+  --borde-lg: 16px;
+  --sombra-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* ================= RESET & BASE ================= */
@@ -42,9 +50,9 @@ body {
 
 /* ================= CONTENT AREA ================= */
 .content {
-  margin-top: 85px;
-  padding: 30px 20px;
-  min-height: calc(100vh - 85px);
+  margin-top: 65px;
+  padding: 20px 20px;
+  min-height: calc(100vh - 65px);
 }
 
 .main-card-dark {
@@ -57,6 +65,31 @@ body {
 }
 
 /* ================= HEADER SECTION ================= */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(30, 41, 59, 0.9);
+  border-radius: 14px;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .toolbar-header {
   display: flex;
   justify-content: space-between;
@@ -208,7 +241,25 @@ input:checked + .slider:before {
   color: #fff;
   box-shadow: 0 8px 26px rgba(2, 6, 23, 0.12);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.small-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.small-card-icon i {
+  font-size: 20px;
+  color: #fff;
 }
 
 .small-card .label {
@@ -274,49 +325,54 @@ input:checked + .slider:before {
 
 /* ================= TABLE ================= */
 .table-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  box-shadow: 0 8px 30px rgba(6, 12, 24, 0.1);
+  background: var(--color-superficie);
+  border-radius: var(--borde-lg);
+  padding: 25px;
+  width: 95%;
+  margin: 30px auto;
+  overflow-x: auto;
+  box-shadow: var(--sombra-lg);
 }
 
 .respaldos-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
-.respaldos-table thead {
-  background: linear-gradient(90deg, #0f172a, #1e293b);
-}
-
-.respaldos-table th {
-  padding: 16px 18px;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
+.respaldos-table thead th {
+  color: var(--color-texto);
+  font-weight: 600;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  padding: 14px 12px;
+  border-bottom: 2px solid var(--acento-glow-border);
+  background: transparent;
 }
 
-.respaldos-table td {
-  padding: 16px 18px;
-  border-bottom: 1px solid rgba(11, 17, 23, 0.06);
-  font-size: 14px;
-  color: #0f172a;
+.respaldos-table tbody td {
+  padding: 14px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--color-texto-oscuro);
+  font-size: 0.9rem;
 }
 
-.respaldos-table tbody tr {
-  transition: var(--transition);
+.respaldos-table tbody tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.respaldos-table tbody tr:nth-child(even) {
+  background: transparent;
 }
 
 .respaldos-table tbody tr:hover {
-  background: rgba(96, 165, 250, 0.08);
-  transform: translateY(-1px);
+  background: var(--acento-glow) !important;
+  cursor: pointer;
 }
 
-.respaldos-table tbody tr:last-child td {
-  border-bottom: none;
+.respaldos-table tbody tr:hover td {
+  color: var(--color-acento) !important;
 }
 
 /* Row states */

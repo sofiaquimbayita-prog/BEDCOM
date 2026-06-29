@@ -166,6 +166,29 @@ class SalidaProductoAnularView(View):
             })
 
 @method_decorator(csrf_exempt, name='dispatch')
+class SalidaDataView(View):
+    def get(self, request):
+        solo_inactivos = request.GET.get('solo_inactivos', '').lower() == 'true'
+
+        if solo_inactivos:
+            salidas = salida_producto.objects.select_related('id_producto').filter(estado=False).order_by('-fecha')
+        else:
+            salidas = salida_producto.objects.select_related('id_producto').filter(estado=True).order_by('-fecha')
+
+        data = []
+        for s in salidas:
+            data.append({
+                'id': s.id,
+                'producto': s.id_producto.nombre if s.id_producto else '—',
+                'cantidad': s.cantidad,
+                'fecha': s.fecha.strftime('%d/%m/%Y'),
+                'motivo': s.motivo,
+                'responsable': s.responsable,
+                'estado': s.estado,
+            })
+        return JsonResponse({'data': data})
+
+@method_decorator(csrf_exempt, name='dispatch')
 class DetalleSalidaView(View):
     def get(self, request, pk):
         try:
@@ -196,18 +219,8 @@ class SalidaProductoView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Salida de Productos - BEDCOM"
         
-        # Mostrar todos los productos activos en el selector de salida.
         context['productos'] = producto.objects.filter(estado=True).order_by('nombre')
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()
-
-        mostrar_anulados = self.request.GET.get('mostrar_anulados', 'false').lower() == 'true'
-
-        if mostrar_anulados:
-            context['salidas'] = salida_producto.objects.select_related('id_producto').order_by('-fecha')
-        else:
-            context['salidas'] = salida_producto.objects.select_related('id_producto').filter(estado=True).order_by('-fecha')
-
-        context['mostrar_anulados'] = mostrar_anulados
         return context
 

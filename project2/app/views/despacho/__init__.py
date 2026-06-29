@@ -3,6 +3,7 @@ from .views import (
     DespachoCreateView,
     DespachoUpdateEstadoView,
     DespachoDetailView,
-    DespachosPorFechaView
+    DespachosPorFechaView,
+    DespachoDataView,
 )
 

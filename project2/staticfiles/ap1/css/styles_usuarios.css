@@ -381,7 +381,6 @@ input:-webkit-autofill {
   padding: 10px;
   border-radius: 50%;
   cursor: pointer;
-  color: white;
   white-space: nowrap;
 }
 

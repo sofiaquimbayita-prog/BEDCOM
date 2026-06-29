@@ -3,7 +3,7 @@
 
 {% block title %}Inventario{% endblock %}
 
-{% block header_title %}INVENTARIO{% endblock %}
+{% block header_title %}LOGÍSTICA{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
@@ -13,8 +13,38 @@
 .logistica-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem 1.5rem;
+  gap: 1.25rem 1rem;
   width: 100%;
+}
+
+/* Ajuste de tamaño: tarjetas más pequeñas que el resto */
+.menu-card {
+  max-width: 80%;
+}
+
+/* Baja altura general y se reduce el alto de la imagen */
+.menu-card-image {
+  height: 130px !important;
+}
+
+.menu-icon-badge {
+  top: 110px !important;
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 1.05rem !important;
+}
+
+.menu-card-content {
+  padding: 20px 18px 16px !important;
+}
+
+.menu-card-content h3 {
+  font-size: 1rem !important;
+}
+
+.menu-card-content .muted {
+  font-size: 0.85rem !important;
+  margin-top: 4px !important;
 }
 
 @media (max-width: 992px) {
@@ -26,6 +56,14 @@
 @media (max-width: 576px) {
   .logistica-grid {
       grid-template-columns: 1fr;
+  }
+
+  .menu-card-image {
+    height: 140px !important;
+  }
+
+  .menu-icon-badge {
+    top: 120px !important;
   }
 }
 </style>

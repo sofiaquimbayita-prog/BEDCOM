@@ -14,11 +14,13 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Variable global para DataTable
+var dataTableSalidas = null;
+
 // Función para anular una salida
 function anularSalida(id) {
     console.log('🔄 AnularSalida llamada con ID:', id);
 
-    // Usar confirm nativo para mantener consistencia y eliminar SweetAlert2
     if (confirm('¿Estás seguro de que deseas anular la salida #' + id + '? El stock se reintegrará al producto.')) {
         _doAnularFetch(id);
     }
@@ -42,7 +44,7 @@ function _doAnularFetch(id) {
             console.log(' Data received:', data);
             if (data.success) {
                 window.showToast(data.message || 'Anulada correctamente', 'success');
-                setTimeout(() => location.reload(), 1500);
+                recargarTabla();
             } else {
                 window.showToast(data.message || 'Error backend', 'error');
             }
@@ -53,20 +55,14 @@ function _doAnularFetch(id) {
         });
 }
 
-// Función para el toggle de mostrar anulados
+// Función para el toggle de mostrar anulados (sin recargar página)
 function toggleAnulados() {
     var checkbox = document.getElementById('toggleAnulados');
     if (!checkbox) return;
-
-    var url = new URL(window.location.href);
-
-    if (checkbox.checked) {
-        url.searchParams.set('mostrar_anulados', 'true');
-    } else {
-        url.searchParams.set('mostrar_anulados', 'false');
+    var soloInactivos = checkbox.checked;
+    if (dataTableSalidas) {
+        dataTableSalidas.ajax.url('/vistas/salida/data/?solo_inactivos=' + soloInactivos).load();
     }
-
-    window.location.href = url.toString();
 }
 
 // Funciones para el modal de nueva salida
@@ -107,9 +103,7 @@ function enviarFormularioSalida() {
             if (data.success) {
                 cerrarModalSalida();
                 window.showToast(data.message, 'success');
-                setTimeout(function () {
-                    location.reload();
-                }, 1500);
+                recargarTabla();
             } else {
                 var errorMessage = data.message || "Error al registrar";
                 if (data.errors) {
@@ -128,6 +122,15 @@ function enviarFormularioSalida() {
         });
 }
 
+// Función para recargar la tabla
+function recargarTabla() {
+    if (dataTableSalidas) {
+        dataTableSalidas.ajax.reload();
+    } else {
+        location.reload();
+    }
+}
+
 // Asignar funciones al objeto window para que estén disponibles globalmente
 window.anularSalida = anularSalida;
 window.toggleAnulados = toggleAnulados;
@@ -136,8 +139,89 @@ window.cerrarModalSalida = cerrarModalSalida;
 window.enviarFormularioSalida = enviarFormularioSalida;
 
 
-// Código que se ejecuta cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function () {
+// Inicializar DataTable con AJAX
+$(document).ready(function() {
+    if (typeof $.fn.DataTable !== 'undefined') {
+        dataTableSalidas = $('#tablaSalidas').DataTable({
+            language: {
+                processing: "Cargando datos...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ salidas",
+                infoEmpty: "No hay salidas disponibles",
+                infoFiltered: "(filtrado de _MAX_ salidas totales)",
+                emptyTable: "No hay datos disponibles en la tabla",
+                zeroRecords: "No se encontraron coincidencias",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                }
+            },
+            responsive: true,
+            dom: '<"top"fl<"clear">>rt<"bottom"ip<"clear">>',
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
+            order: [[2, 'desc']],
+            columnDefs: [
+                { orderable: false, targets: [3, 6] }
+            ],
+            ajax: {
+                url: '/vistas/salida/data/',
+                type: 'GET',
+                dataSrc: function(json) {
+                    return json.data || [];
+                },
+                error: function(xhr, error, thrown) {
+                    console.error('Error cargando datos:', thrown);
+                }
+            },
+            columns: [
+                {
+                    data: 'producto',
+                    render: function(data) {
+                        return '<strong>' + data + '</strong>';
+                    }
+                },
+                { data: 'cantidad' },
+                { data: 'fecha' },
+                {
+                    data: 'motivo',
+                    render: function(data) {
+                        if (data && data.length > 50) {
+                            return '<span title="' + data.replace(/"/g, '&quot;') + '">' + data.substring(0, 50) + '...</span>';
+                        }
+                        return data || '';
+                    }
+                },
+                { data: 'responsable' },
+                {
+                    data: 'estado',
+                    render: function(data) {
+                        if (data) {
+                            return '<span class="badge badge-active"><i class="fas fa-check"></i> Activo</span>';
+                        } else {
+                            return '<span class="badge badge-anulada"><i class="fas fa-times"></i> Anulada</span>';
+                        }
+                    }
+                },
+                {
+                    data: null,
+                    render: function(data) {
+                        var id = data.id;
+                        var html = '<div class="actions-cell">';
+                        html += '<button type="button" class="btn-action btn-view" onclick="abrirModalDetalle(' + id + ')" title="Ver detalles"><i class="fas fa-eye"></i></button>';
+                        if (data.estado) {
+                            html += '<button type="button" class="btn-action btn-anular" onclick="anularSalida(' + id + ')" title="Anular salida"><i class="fas fa-ban"></i></button>';
+                        }
+                        html += '</div>';
+                        return html;
+                    }
+                }
+            ]
+        });
+    }
 
     // --- ELEMENTOS DE LA BARRA SUPERIOR ---
     const perfilBtn = document.getElementById('perfilBtn');
@@ -334,13 +418,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (responsableInput) {
-        // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
         responsableInput.addEventListener("input", function () {
             var valorActual = this.value;
             var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]+$/;
 
             if (!regex.test(valorActual) && valorActual.length > 0) {
-                // Remover caracteres no permitidos
                 this.value = valorActual.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-\.]/g, '');
                 if (errorResponsable) {
                     errorResponsable.textContent = 'No se permiten caracteres especiales';
@@ -427,13 +509,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (motivoInput) {
-        // Validación en tiempo real: eliminar caracteres no permitidos mientras escribe
         motivoInput.addEventListener("input", function () {
             var valorActual = this.value;
             var patron = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]+$/;
 
             if (!patron.test(valorActual) && valorActual.length > 0) {
-                // Remover caracteres no permitidos
                 this.value = valorActual.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_.,;()]/g, '');
                 if (errorMotivo) {
                     errorMotivo.textContent = 'No se permiten caracteres especiales';
@@ -509,9 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.success) {
                         cerrarModalSalida();
                         window.showToast(data.message, 'success');
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1500);
+                        recargarTabla();
                     } else {
                         let errorMessage = data.message || "Error al registrar la salida";
 
@@ -532,39 +610,5 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     }
-    window.onload = function () {
-        // Función para ordenar la tabla al hacer clic en el encabezado
-        function ordenarTabla(columna) {
-
-            console.log('Ordenando por columna:', columna);  // Agrega esta línea para depuración
-
-            const tabla = document.querySelector(".salidas-table");
-            const tbody = tabla.querySelector("tbody");
-            const filas = Array.from(tbody.querySelectorAll("tr"));
-
-            // Alternar entre orden ascendente y descendente
-            const asc = tabla.classList.toggle("asc");
-            tabla.classList.toggle("desc", !asc);
-
-            filas.sort((a, b) => {
-                const celdaA = a.children[columna].innerText.trim();
-                const celdaB = b.children[columna].innerText.trim();
-
-                // Si los valores son números
-                if (!isNaN(celdaA) && !isNaN(celdaB)) {
-                    return asc ? celdaA - celdaB : celdaB - celdaA;
-                }
-
-                // Si son cadenas de texto
-                return asc
-                    ? celdaA.localeCompare(celdaB)
-                    : celdaB.localeCompare(celdaA);
-            });
-
-            filas.forEach(fila => tbody.appendChild(fila)); // Reorganizar las filas
-        }
-        // Asignamos la función al objeto window para que sea global
-        window.ordenarTabla = ordenarTabla; // Asegura que la función esté disponible globalmente
-    };
 });
 

@@ -98,7 +98,10 @@ $(document).ready(function() {
     });
 
     table.draw();
-    $('#toggleInactivos').on('change', () => table.draw());
+    $('#toggleInactivos').on('change', function() {
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
+        table.draw();
+    });
 
     // 5. ENVÍO DE FORMULARIOS POR AJAX
     $(document).on('submit', '#formAddUsuario, #formEditUsuario', function(e) {

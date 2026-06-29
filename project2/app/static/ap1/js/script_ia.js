@@ -179,17 +179,15 @@ window.enviarConsultaIA = function() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
     input.value = '';
 
-    // Show/create thinking indicator dynamically
+    // Show thinking indicator always at the end
     let thinkingIndicator = document.getElementById('thinkingIndicator');
-    if (!thinkingIndicator) {
-        thinkingIndicator = document.createElement('div');
-        thinkingIndicator.id = 'thinkingIndicator';
-        thinkingIndicator.className = 'msg-luna';
-        thinkingIndicator.style.cssText = 'color: #38bdf8; animation: pulse 1.5s ease-in-out infinite; background: transparent; border: none; padding: 12px 12px 12px 0;';
-        thinkingIndicator.innerHTML = '<strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>';
-        chatContainer.appendChild(thinkingIndicator);
-    }
-    thinkingIndicator.style.display = 'block';
+    if (thinkingIndicator) thinkingIndicator.remove();
+    thinkingIndicator = document.createElement('div');
+    thinkingIndicator.id = 'thinkingIndicator';
+    thinkingIndicator.className = 'msg-luna';
+    thinkingIndicator.style.cssText = 'color: #38bdf8; animation: pulse 1.5s ease-in-out infinite; background: transparent; border: none; padding: 12px 12px 12px 0;';
+    thinkingIndicator.innerHTML = '<strong>Luna:</strong> pensando <i class="fa-solid fa-spinner fa-spin me-2"></i><span class="typing-dots">...</span>';
+    chatContainer.appendChild(thinkingIndicator);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     fetch('/vistas/ia/asistente-inventario/api-consultar/', {
@@ -244,6 +242,29 @@ window.enviarConsultaIA = function() {
     });
 };
 
+window.cargarHistorial = async function () {
+    const chatContainer = document.getElementById('chatContainer');
+    if (!chatContainer) return;
+    try {
+        const res = await fetch('/vistas/ia/asistente-inventario/api-historial/');
+        const data = await res.json();
+        if (data.ok && data.mensajes && data.mensajes.length > 0) {
+            chatContainer.innerHTML = '';
+            data.mensajes.forEach(function (m) {
+                var el = document.createElement('div');
+                el.className = m.rol === 'luna' ? 'msg-luna' : 'msg-user';
+                var texto = m.rol === 'luna' ? '<strong>Luna:</strong><br>' + (typeof marked !== 'undefined' ? marked.parse(m.texto) : m.texto) : '<strong>Tú:</strong><br>' + m.texto;
+                el.innerHTML = texto;
+                chatContainer.appendChild(el);
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    } catch (e) {
+        console.log('No se pudo cargar el historial del chat');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Asistente Luna cargado.");
+    window.cargarHistorial();
 });

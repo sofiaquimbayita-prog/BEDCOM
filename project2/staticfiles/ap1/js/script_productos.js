@@ -240,24 +240,18 @@ $(document).ready(function() {
         "order": [[1, "asc"]]
     });
 
-    // ── Leer estado del toggle desde URL y reflejar en el checkbox ──
-    const urlParams = new URLSearchParams(window.location.search);
-    const mostrarInactivosFromUrl = urlParams.get('mostrar_inactivos') === 'true';
-    $('#toggleInactivos').prop('checked', mostrarInactivosFromUrl);
+    // ── Filtro client-side para toggle Activos / Inactivos ──
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var toggle = document.getElementById('toggleInactivos');
+        if (!toggle) return true;
+        var mostrarInactivos = toggle.checked;
+        var estado = (data[2] || "").trim();
+        return mostrarInactivos ? estado === "Inactivo" : estado === "Activo";
+    });
 
-    // Actualizar texto del switch según estado actual
-    const switchText = document.querySelector('.switch-text');
-    if (switchText) {
-        switchText.textContent = mostrarInactivosFromUrl ? 'Mostrando inactivos' : 'Mostrar inactivos';
-    }
-
-    // ── Toggle Activos / Inactivos - Backend Sync ──
-    // El backend filtra: ?mostrar_inactivos=true → estado=False | false → estado=True
     $('#toggleInactivos').on('change', function() {
-        const mostrarInactivos = $(this).is(':checked');
-        const url = new URL(window.location);
-        url.searchParams.set('mostrar_inactivos', mostrarInactivos);
-        window.location.href = url.toString();
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
+        table.draw();
     });
     // Validar formulario agregar producto - Prevenir submit normal y usar AJAX
     $(document).on('submit', '#formAddProducto', function(e) {

@@ -66,7 +66,7 @@ body, .dataTables_wrapper, .dataTables_wrapper .dataTables_info, .dataTables_wra
 
 /* Botones modal */
 .btn-cancel, .btn-save, .button-3{
-  background:#334155(255, 255, 255, 0.04) !important;
+  background: rgba(30, 41, 59, 0.9) !important;
   color: var(--text-main) !important;
   border: 1px solid var(--borde) !important;
 }

@@ -77,14 +77,36 @@
             padding: 20px; 
             height: 350px; 
             overflow-y: auto; 
+            overflow-x: hidden;
             display: flex; 
             flex-direction: column; 
             gap: 10px; 
             border-bottom: 1px solid #1e293b;
         }
         
-        .msg-luna { align-self: flex-start; background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 12px; border: 1px solid #334155; max-width: 85%; }
-        .msg-user { align-self: flex-end; background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; max-width: 85%; }
+        .msg-luna,
+        .msg-user {
+            align-self: flex-start; background: #1e293b; padding: 12px; border-radius: 12px;
+            max-width: 85%; word-break: break-word; overflow-wrap: break-word;
+            box-sizing: border-box;
+        }
+        .msg-luna { color: #38bdf8; border: 1px solid #334155; }
+        .msg-user { align-self: flex-end; background: #38bdf8; color: #0f172a; }
+        .msg-luna ol, .msg-user ol,
+        .msg-luna ul, .msg-user ul {
+            padding-left: 1.5em; margin: 6px 0;
+            list-style-position: outside;
+        }
+        .msg-luna li, .msg-user li { margin-bottom: 3px; }
+        .msg-luna pre, .msg-user pre {
+            overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+            background: rgba(0,0,0,0.3); padding: 8px 10px; border-radius: 6px;
+            margin: 6px 0; max-width: 100%; box-sizing: border-box;
+        }
+        .msg-luna code, .msg-user code {
+            word-break: break-word; overflow-wrap: break-word;
+        }
+        .msg-luna p, .msg-user p { margin: 4px 0; }
         .thinking-msg { animation: pulse 1.5s ease-in-out infinite; }
         
         .typing-dots::after {
@@ -215,8 +237,6 @@
             .btn-ia-flotante {
                 width: 55px !important;
                 height: 55px !important;
-                bottom: 16px !important;
-                right: 16px !important;
                 font-size: 1.3rem !important;
             }
             /* Adaptar modal de notificaciones a pantallas móviles */
@@ -510,6 +530,97 @@
     <script src="{% static 'ap1/js/modal_buttons.js' %}"></script>
 
     <script>
+        // ─────────────────────────────────────────────────────────────
+        // BOTONES FLOTANTES DRAGGABLE (IA + Accesibilidad)
+        // ─────────────────────────────────────────────────────────────
+        (function() {
+            function makeDraggable(el, storageKey, defaultPos) {
+                if (!el) return;
+                var pos = defaultPos;
+                try {
+                    var saved = localStorage.getItem(storageKey);
+                    if (saved) pos = JSON.parse(saved);
+                } catch(e) {}
+
+                el.style.left = pos.left + 'px';
+                el.style.top = pos.top + 'px';
+                el.style.bottom = 'auto';
+                el.style.right = 'auto';
+                el.style.cursor = 'grab';
+                el.style.userSelect = 'none';
+
+                var dragging = false, moved = false;
+                var startX, startY, startLeft, startTop;
+
+                function start(e) {
+                    var pt = e.touches ? e.touches[0] : e;
+                    dragging = true; moved = false;
+                    startX = pt.clientX;
+                    startY = pt.clientY;
+                    startLeft = pos.left;
+                    startTop = pos.top;
+                    el.style.cursor = 'grabbing';
+                    el.style.transition = 'none';
+                }
+
+                function move(e) {
+                    if (!dragging) return;
+                    var pt = e.touches ? e.touches[0] : e;
+                    var dx = pt.clientX - startX;
+                    var dy = pt.clientY - startY;
+                    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+                    var maxL = Math.max(0, window.innerWidth - el.offsetWidth);
+                    var maxT = Math.max(0, window.innerHeight - el.offsetHeight);
+                    pos.left = Math.min(Math.max(0, startLeft + dx), maxL);
+                    pos.top = Math.min(Math.max(0, startTop + dy), maxT);
+                    el.style.left = pos.left + 'px';
+                    el.style.top = pos.top + 'px';
+                    if (e.cancelable) e.preventDefault();
+                }
+
+                function end() {
+                    if (!dragging) return;
+                    dragging = false;
+                    el.style.cursor = 'grab';
+                    el.style.transition = '';
+                    if (moved) {
+                        try { localStorage.setItem(storageKey, JSON.stringify(pos)); } catch(e) {}
+                    }
+                }
+
+                el.addEventListener('mousedown', start);
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', end);
+                el.addEventListener('touchstart', start, { passive: true });
+                document.addEventListener('touchmove', move, { passive: false });
+                document.addEventListener('touchend', end);
+
+                // Prevent click after drag
+                el.addEventListener('click', function(e) {
+                    if (moved) { e.stopImmediatePropagation(); e.preventDefault(); }
+                }, true);
+            }
+
+            function initDrag() {
+                var iaBtn = document.querySelector('.btn-ia-flotante');
+                var accBtn = document.getElementById('acc-widget-btn');
+                makeDraggable(iaBtn, 'bedcom_ia_pos', {
+                    left: Math.max(0, (window.innerWidth || document.documentElement.clientWidth) - 94),
+                    top: Math.max(0, (window.innerHeight || document.documentElement.clientHeight) - 94)
+                });
+                makeDraggable(accBtn, 'bedcom_acc_pos', {
+                    left: 20,
+                    top: Math.max(0, (window.innerHeight || document.documentElement.clientHeight) - 80)
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initDrag);
+            } else {
+                initDrag();
+            }
+        })();
+
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -683,6 +794,8 @@
         window.abrirModalIA = function() { 
             $('#modalIA').css('display', 'flex').removeClass('oculto').addClass('show'); 
             $('#iaQuery').focus();
+            var cc = document.getElementById('chatContainer');
+            if (cc) setTimeout(function() { cc.scrollTop = cc.scrollHeight; }, 100);
         };
         window.cerrarModalIA = function() { 
             $('#modalIA').removeClass('show').hide().addClass('oculto'); 

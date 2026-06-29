@@ -3,8 +3,13 @@
 
 {% block header_title %}PEDIDOS{% endblock %}
 
-{% block content %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <main class="main-container">
 
@@ -14,12 +19,11 @@
       <div class="switch-container" title="Mostrar pedidos anulados">
         <span class="switch-text">Mostrar Anulados</span>
         <label class="switch-control">
-          <input type="checkbox" id="toggleAnulados" {% if mostrar_anulados %}checked{% endif %}
-            onchange="window.location.href=this.checked?'?anulados=1':'?'">
+          <input type="checkbox" id="toggleAnulados" {% if mostrar_anulados %}checked{% endif %}>
           <span class="slider"></span>
         </label>
       </div>
-    </div><!-- ✅ BUG CORREGIDO: faltaba cerrar toolbar-left -->
+    </div>
     <div class="toolbar-right">
       <button type="button" class="btn-agregar" id="btnNuevoPedido">
         <i class="fas fa-plus"></i> Nuevo Pedido
@@ -43,54 +47,6 @@
         </tr>
       </thead>
       <tbody>
-        {% for p in pedidos %}
-        <tr data-anulado="{% if p.estado == 'Anulado' %}true{% else %}false{% endif %}">
-          <td><strong style="color:var(--color-acento)">#{{ p.id }}</strong></td>
-          <td>{{ p.fecha|date:"d/m/Y H:i" }}</td>
-          <td>{{ p.cliente.nombre }}</td>
-          <td><span style="color:var(--color-exito);font-weight:700">${{ p.total }}</span></td>
-          <td><span style="color:var(--color-advertencia);font-weight:700">${{ p.abono|default:"0.00" }}</span></td>
-          <td>
-            <span class="saldo {% if p.saldo_pendiente > 0 %}pendiente{% else %}pagado{% endif %}">
-              ${{ p.saldo_pendiente|floatformat:2 }}
-            </span>
-          </td>
-          <td>
-            <select class="ped-estado-select estado-{{ p.estado|lower }}" data-id="{{ p.id }}"
-              data-estado-actual="{{ p.estado }}">
-              <option value="Pendiente" {% if p.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
-              <option value="En Fabricación" {% if p.estado == "En Fabricación" %}selected{% endif %}>En Fabricación</option>
-              <option value="Listo para Despacho" {% if p.estado == "Listo para Despacho" %}selected{% endif %}>Listo para Despacho</option>
-              <option value="Completado" {% if p.estado == "Completado" %}selected{% endif %}>Completado</option>
-              <option value="Anulado" {% if p.estado == "Anulado" %}selected{% endif %}>Anulado</option>
-            </select>
-          </td>
-          <td>
-            <div class="icons">
-              <button type="button" class="view-btn btn-ver" data-id="{{ p.id }}" title="Ver detalle">
-                <i class="fas fa-eye"></i>
-              </button>
-              {% if p.estado != "Anulado" and p.estado != "Completado" %}
-              <button type="button" class="edit-btn btn-editar" data-id="{{ p.id }}" title="Editar">
-                <i class="fas fa-edit"></i>
-              </button>
-              {% endif %}
-              {% if p.estado != "Anulado" and p.saldo_pendiente > 0 %}
-              <button type="button" class="btn-pagar" data-id="{{ p.id }}" data-total="{{ p.total }}"
-                data-abono="{{ p.abono|default:0 }}" data-saldo="{{ p.saldo_pendiente }}" title="Registrar pago">
-                <i class="fas fa-money-bill-wave"></i>
-              </button>
-              {% endif %}
-              {% if p.estado == "Listo para Despacho" %}
-              <button type="button" class="btn-despacho" data-id="{{ p.id }}" title="Crear despacho">
-                <i class="fas fa-truck"></i>
-              </button>
-              {% endif %}
-
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -228,10 +184,9 @@
           <input type="text" id="formTotalDisplay" class="form-input" readonly
             style="font-weight: bold; color: var(--color-exito);">
         </div>
-      </div><!-- ✅ BUG CORREGIDO: faltaba cerrar div.abono-divicion -->
+      </div>
     </div>
 
-    {# Elemento oculto que usa el JS para leer el total al guardar #}
     <span id="formTotal" style="display:none">$0.00</span>
 
     <!-- Resumen total -->
@@ -298,27 +253,21 @@
   </div>
 </div>
 
+{% endblock %}
 
-
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
-<link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+{% block scripts %}
 <script>
-  // DataTables puede no estar disponible en algunos bundles.
-  // Esto evita que falle pedido.js.
   window.__dtReady = !!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable);
 </script>
 
-
-
-{# Variables de Django que el JS externo necesita #}
 {{ productos_json|json_script:"productos-data" }}
 {{ clientes_json|json_script:"clientes-data" }}
 <div id="js-config" data-csrf="{{ csrf_token }}" data-url-crear="{% url 'crear_pedido' %}"
   data-url-ver-base="{% url 'pedido_detalle' 0 %}" data-url-editar-base="{% url 'editar_pedido' 0 %}"
   data-url-estado-base="{% url 'cambiar_estado' 0 %}" data-url-pago-base="{% url 'pedido_pago' 0 %}"
-  data-url-despacho="{% url 'despacho_list' %}" style="display:none;"></div>
+  data-url-despacho="{% url 'despacho_list' %}" data-url-data="{% url 'pedido_data' %}"
+  style="display:none;"></div>
 
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/pedido.js' %}"></script>
 {% endblock %}

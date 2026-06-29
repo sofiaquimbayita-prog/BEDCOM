@@ -1,4 +1,4 @@
-/* ================================
+﻿/* ================================
    ESTILOS INVENTARIO - VERSIÓN FINAL
 ================================ */
 
@@ -79,37 +79,34 @@
     font-family: Arial, sans-serif;
 }
 
+:root {
+  --color-superficie: #1e293b;
+  --color-texto: #e2e8f0;
+  --color-texto-oscuro: #cbd5e1;
+  --color-acento: #38bdf8;
+  --acento-glow: rgba(56, 189, 248, 0.15);
+  --acento-glow-border: rgba(56, 189, 248, 0.2);
+  --borde-lg: 16px;
+  --sombra-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
 /* ================================
    TABLE STYLES - ESTILOS DIRECTOS
 ================================ */
 
 .inventario-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-top: 15px;
-    background: #243447;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    font-family: Arial, sans-serif;
+    min-width: 600px;
+    border-collapse: collapse;
 }
 
-/* Encabezado de tabla */
-.inventario-table thead {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%) !important;
-}
-
-.inventario-table th {
-    padding: 16px 12px;
-    text-align: left;
-    color: #ffffff !important;
+.inventario-table thead th {
+    color: var(--color-texto);
     font-weight: 600;
-    font-size: 13px;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    white-space: nowrap;
+    letter-spacing: 0.08em;
+    padding: 14px 12px;
+    border-bottom: 2px solid var(--acento-glow-border);
     background: transparent;
 }
 
@@ -118,32 +115,31 @@
     opacity: 0.8;
 }
 
-/* Cuerpo de la tabla */
-.inventario-table tbody tr {
-    transition: all 0.3s ease;
-    background: #243447 !important;
+.inventario-table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.02);
 }
 
-/* Zebra striping */
 .inventario-table tbody tr:nth-child(even) {
-    background: #2d3e54 !important;
+    background: transparent;
 }
 
-/* Hover effect */
 .inventario-table tbody tr:hover {
-    background: rgba(59, 130, 246, 0.25) !important;
-    transform: scale(1.01);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    background: var(--acento-glow) !important;
+    cursor: pointer;
+}
+
+.inventario-table tbody tr:hover td {
+    color: var(--color-acento) !important;
 }
 
 .inventario-table td {
-    padding: 15px 12px;
-    color: #cbd5e1 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 14px;
+    padding: 14px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--color-texto-oscuro);
+    font-size: 0.9rem;
     vertical-align: middle;
-    background: transparent;
 }
+
 
 /* ================================
    IMAGEN DEL PRODUCTO

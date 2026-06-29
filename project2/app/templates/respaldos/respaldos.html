@@ -1,6 +1,6 @@
 {% extends "includes/base.html" %}
 {% load static %}
-{% block header_title %}Respaldos{% endblock %}
+{% block header_title %}RESPALDOS{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/respaldos.css' %}">
@@ -10,20 +10,48 @@
 
 <main class="content">
     <div class="card main-card-dark">
-        <!-- Header Section -->
-        <div class="toolbar-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <h2 class="section-title" style="margin: 0;">
-                <i class="fas fa-database"></i> Gestión de Respaldos
-            </h2>
-            
-            <div class="header-actions">
-                <!-- Search Box -->
-                <label class="search" aria-label="Buscar" for="searchInput">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="search" id="searchInput" placeholder="Buscar en el historial...">
-                </label>
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="small-card total">
+                <div class="small-card-icon"><i class="fas fa-database"></i></div>
+                <div>
+                    <div class="label">Total Registros</div>
+                    <div class="value" id="totalRespaldosActivos">{{ respaldos_activos|length }}</div>
+                </div>
+            </div>
+            <div class="small-card last">
+                <div class="small-card-icon"><i class="fas fa-tag"></i></div>
+                <div>
+                    <div class="label">Último Tipo</div>
+                    <div class="value" id="ultimoTipoRespaldo">
+                        {% if respaldos %}
+                            {{ respaldos.0.tipo_respaldo|capfirst }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="small-card recent">
+                <div class="small-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div>
+                    <div class="label">Fecha Reciente</div>
+                    <div class="value" id="fechaRecienteRespaldo">
+                        {% if respaldos %}
+                            {{ respaldos.0.fecha|date:'d/m/Y' }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Filter Switch -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2 class="section-title" style="margin: 0;">
+                    <i class="fas fa-database"></i> Gestión de Respaldos
+                </h2>
                 <div class="filter-switch">
                     <span>Ver Inactivos</span>
                     <label class="switch">
@@ -32,37 +60,15 @@
                     </label>
                 </div>
             </div>
+            <div class="toolbar-right">
+                <label class="search" aria-label="Buscar" for="searchInput">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="searchInput" placeholder="Buscar en el historial...">
+                </label>
+            </div>
         </div>
 
         <div class="decor-line"></div>
-
-        <!-- Stats Cards -->
-        <div class="stats-cards">
-            <div class="small-card total">
-                <div class="label">Total Registros</div>
-<div class="value" id="totalRespaldosActivos">{{ respaldos_activos|length }}</div>
-            </div>
-            <div class="small-card last">
-                <div class="label">Último Tipo</div>
-                <div class="value" id="ultimoTipoRespaldo">
-                    {% if respaldos %}
-                        {{ respaldos.0.tipo_respaldo|capfirst }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-            <div class="small-card recent">
-                <div class="label">Fecha Reciente</div>
-                <div class="value" id="fechaRecienteRespaldo">
-                    {% if respaldos %}
-                        {{ respaldos.0.fecha|date:'d/m/Y' }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
         <!-- Action Bar -->
         <div class="action-bar" style="margin: 25px 0; text-align: right;">

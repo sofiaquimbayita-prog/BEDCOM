@@ -1,9 +1,7 @@
 from .models import usuario
 
 def usuario_context(request):
-    """
-    Context processor para pasar información del usuario personalizado a las plantillas.
-    """
+
     context = {}
     if request.user.is_authenticated:
         try:

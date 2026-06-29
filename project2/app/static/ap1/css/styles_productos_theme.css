@@ -77,34 +77,13 @@ body,
   border-left: 3px solid var(--text-secondary) !important;
 }
 
-/* Acciones: fondos semitransparentes grises + hover azul suave */
-.view-btn,
-.edit-btn,
-.delete-btn,
-.activate-btn,
-.bom-btn,
-.acciones button {
-  background: var(--action-bg) !important;
-  color: var(--text-secondary) !important;
-  border: 5px solid rgba(255, 255, 255, 0.02) !important;
-}
 
-.view-btn:hover,
-.edit-btn:hover,
-.delete-btn:hover,
-.activate-btn:hover,
-.bom-btn:hover {
-  color: var(--action-hover) !important;
-  background: rgba(0, 183, 255, 0.06) !important;
-  box-shadow: 0 6px 18px rgba(0, 183, 255, 0.12) !important;
-  transform: translateY(-2px) scale(1.03) !important;
-}
 
 /* Botones modal */
 .btn-cancel,
 .btn-save,
 .button-3 {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(30, 41, 59, 0.9) !important;
   color: var(--text-main) !important;
   border: 1px solid var(--borde) !important;
 }

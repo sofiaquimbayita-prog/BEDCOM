@@ -1,7 +1,7 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block header_title %}MANTENIMIENTO{% endblock %}
+{% block header_title %}MANTENIMIENTOS{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
@@ -21,6 +21,16 @@
      style="display:none;"></div>
 
 <main class="main-container">
+
+  <!-- Toolbar -->
+  <div class="toolbar" style="margin-bottom:16px;">
+    <div class="toolbar-left"></div>
+    <div class="toolbar-right">
+      <button type="button" class="btn-agregar" id="btnNuevaMantenimiento">
+        <i class="fas fa-plus"></i> Ingresar Mantenimiento
+      </button>
+    </div>
+  </div>
 
   <!-- KPI Cards -->
   <div class="kpi-grid">
@@ -51,15 +61,6 @@
         <div class="kpi-value" style="color:#10b981">{{ entregadas }}</div>
         <div class="kpi-label">Entregadas</div>
       </div>
-    </div>
-  </div>
-
-  <div class="toolbar" style="margin-top:20px;">
-    <div class="toolbar-left"></div>
-    <div class="toolbar-right">
-      <button type="button" class="btn-agregar" id="btnNuevaMantenimiento">
-        <i class="fas fa-plus"></i> Ingresar Mantenimiento
-      </button>
     </div>
   </div>
 
@@ -165,9 +166,6 @@
       <div id="modalBody" class="modal-body-view"></div>
     </div>
 
-    <div class="form-botones">
-      <button class="btn-cancelar" data-close="modalDetalle"><i class="fas fa-times"></i> Cerrar</button>
-    </div>
   </div>
 </div>
 

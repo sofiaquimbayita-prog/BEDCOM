@@ -306,7 +306,11 @@ class ClientePagoView(View):
 # ─────────────────────────────────────────────
 class ClienteDataView(View):
     def get(self, request, *args, **kwargs):
-        clientes = cliente.objects.all().order_by('nombre')
+        solo_inactivos = request.GET.get('solo_inactivos', '').lower() == 'true'
+        if solo_inactivos:
+            clientes = cliente.objects.filter(estado=False).order_by('nombre')
+        else:
+            clientes = cliente.objects.filter(estado=True).order_by('nombre')
         data = []
         for c in clientes:
             deuda         = _calcular_deuda(c)
@@ -318,3 +322,21 @@ class ClienteDataView(View):
                 'email':         c.email or '',
             })
         return JsonResponse({'ok': True, 'clientes': data})
+
+
+# ─────────────────────────────────────────────
+# API: KPIs para las tarjetas del dashboard
+# ─────────────────────────────────────────────
+class ClienteKPIView(View):
+    def get(self, request, *args, **kwargs):
+        total   = cliente.objects.count()
+        activos = cliente.objects.filter(estado=True).count()
+        inactivos = cliente.objects.filter(estado=False).count()
+        con_deuda = sum(1 for c in cliente.objects.filter(estado=True) if _calcular_deuda(c) > 0)
+        return JsonResponse({
+            'ok': True,
+            'total': total,
+            'activos': activos,
+            'inactivos': inactivos,
+            'con_deuda': con_deuda,
+        })

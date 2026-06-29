@@ -339,3 +339,23 @@ class DespachosPorFechaView(View):
         ]
 
         return JsonResponse({'ok': True, 'despachos': data})
+
+
+class DespachoDataView(View):
+    def get(self, request, *args, **kwargs):
+        qs = despacho.objects.select_related('pedido__cliente').order_by('-fecha_despacho')
+        data = []
+        for d in qs:
+            data.append({
+                'id': d.id,
+                'pedido_id': d.pedido.id,
+                'cliente_nombre': d.pedido.cliente.nombre,
+                'direccion_entrega': d.direccion_entrega,
+                'telefono_contacto': d.telefono_contacto,
+                'fecha_despacho': d.fecha_despacho.strftime('%d/%m/%Y %H:%M'),
+                'estado': d.estado,
+                'empresa_transporte': d.empresa_transporte or '',
+                'numero_guia': d.numero_guia or '',
+                'costo_envio': str(d.costo_envio),
+            })
+        return JsonResponse({'ok': True, 'despachos': data})

@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /* ─── Toggle inactivos ─── */
 document.getElementById('toggleInactivos').addEventListener('change', function () {
+  this.parentElement.querySelector('.slider').style.backgroundColor = this.checked ? '#22c55e' : '#64748b';
   this.checked ? mostrarTodos() : ocultarInactivos();
 });
 

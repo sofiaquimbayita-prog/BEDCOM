@@ -62,11 +62,11 @@ $(document).ready(function () {
                     mostrarMensaje('success', res.message);
                     setTimeout(() => location.reload(), 2500);
                 } else {
-                    mostrarMensaje('error', res.error || 'Error al guardar la receta');
+                    mostrarMensaje('error', res.error || 'Error al guardar el ensamblaje');
                 }
             },
             error: function () {
-                mostrarMensaje('error', 'Error de conexión al guardar la receta');
+                mostrarMensaje('error', 'Error de conexión al guardar el ensamblaje');
             }
         });
     });
@@ -96,16 +96,107 @@ $(document).ready(function () {
                     mostrarMensaje('success', res.message);
                     setTimeout(() => location.reload(), 2500);
                 } else {
-                    mostrarMensaje('error', res.error || 'Error al actualizar la receta');
+                    mostrarMensaje('error', res.error || 'Error al actualizar el ensamblaje');
                 }
             },
             error: function () {
-                mostrarMensaje('error', 'Error de conexión al actualizar la receta');
+                mostrarMensaje('error', 'Error de conexión al actualizar el ensamblaje');
             }
         });
     });
 
+    // ===================== DATATABLE =====================
+    var bomTable = $('#tablaBom').DataTable({
+        data: [],
+        responsive: true,
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sSearch": "Buscar:",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            }
+        },
+        "pageLength": 10,
+        "order": [[0, "asc"]],
+        columns: [
+            { title: "Producto" },
+            { title: "Insumos" },
+            { title: "Acciones", orderable: false }
+        ]
+    });
+
+    cargarTablaBom();
+
 });
+
+// ===================== DATATABLE LOAD =====================
+function cargarTablaBom() {
+    var table = $('#tablaBom').DataTable();
+    table.clear();
+
+    $.ajax({
+        url: '/vistas/bom/data-json/',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            if (!response.success) {
+                mostrarMensaje('error', 'Error al cargar los datos');
+                table.draw();
+                return;
+            }
+            response.ensamblajes.forEach(function (item) {
+                var insumosSummary = '';
+                if (item.insumos.length === 0) {
+                    insumosSummary = '<span style="color: var(--color-texto-muted)">Sin insumos</span>';
+                } else if (item.insumos.length === 1) {
+                    var i = item.insumos[0];
+                    insumosSummary = '<span class="insumo-badge"><i class="fas fa-tools"></i> ' +
+                        i.insumo_nombre + ' (' + i.cantidad + ' ' + i.unidad_medida + ')</span>';
+                } else {
+                    var first = item.insumos[0];
+                    insumosSummary = '<span class="insumo-badge"><i class="fas fa-tools"></i> ' +
+                        first.insumo_nombre + ' (+' + (item.insumos.length - 1) + ' m&aacute;s)</span>';
+                }
+
+                var fila = [
+                    '<span class="producto-badge"><i class="fas fa-box"></i> ' + item.producto_nombre + '</span>',
+                    insumosSummary,
+                    generarBotonesBom(item)
+                ];
+                table.row.add(fila);
+            });
+            table.draw();
+        },
+        error: function () {
+            mostrarMensaje('error', 'Error de conexión al cargar los datos');
+            table.draw();
+        }
+    });
+}
+
+function generarBotonesBom(item) {
+    var nombre = item.producto_nombre.replace(/'/g, "\\'");
+    return '<div class="acciones">' +
+        '<button class="view-btn" title="Ver Detalles" onclick="verDetalleReceta(' + item.id + ', \'' + nombre + '\')">' +
+            '<i class="fas fa-eye"></i>' +
+        '</button>' +
+        '<button class="edit-btn" title="Editar" onclick="editarBom(' + item.id + ')">' +
+            '<i class="fas fa-edit"></i>' +
+        '</button>' +
+        '<button class="delete-btn" title="Eliminar" onclick="eliminarRecetaCompleta(' + item.id + ', \'' + nombre + '\')">' +
+            '<i class="fas fa-trash"></i>' +
+        '</button>' +
+    '</div>';
+}
 
 // ===================== MODAL =====================
 function abrirModal(id) {
@@ -318,10 +409,10 @@ function editarBom(productoId) {
             document.getElementById('modalEditBom').style.display = 'flex';
 
         } else {
-            mostrarMensaje('error', res.error || 'Error al cargar la receta');
+            mostrarMensaje('error', res.error || 'Error al cargar el ensamblaje');
         }
     }).fail(function () {
-        mostrarMensaje('error', 'Error de conexión al cargar la receta');
+        mostrarMensaje('error', 'Error de conexión al cargar el ensamblaje');
     });
 }
 
@@ -369,7 +460,7 @@ function eliminarRecetaCompleta(productoId, productoNombre) {
     $('#deleteId').val(productoId);
 
     // Limpiar insumo previo si el modal lo usaba para otra cosa
-    $('#deleteInsumo').text('(todos los insumos de la receta)');
+    $('#deleteInsumo').text('(todos los insumos del ensamblaje)');
 
     // Sobreescribir el submit del form para usar AJAX (elimina receta completa)
     $('#formDeleteBom').off('submit').on('submit', function (e) {
@@ -386,11 +477,11 @@ function eliminarRecetaCompleta(productoId, productoNombre) {
                     mostrarMensaje('success', res.message);
                     setTimeout(() => location.reload(), 2500);
                 } else {
-                    mostrarMensaje('error', res.error || 'Error al eliminar la receta');
+                    mostrarMensaje('error', res.error || 'Error al eliminar el ensamblaje');
                 }
             },
             error: function () {
-                mostrarMensaje('error', 'Error de conexión al eliminar la receta');
+                mostrarMensaje('error', 'Error de conexión al eliminar el ensamblaje');
             }
         });
     });

@@ -1,4 +1,3 @@
-# app/views/pedido/__init__.py
 from .views import (
     PedidoListView,
     PedidoDetailView,
@@ -6,4 +5,5 @@ from .views import (
     PedidoUpdateView,
     PedidoStateChangeView,
     PagoUpdateView,
+    PedidoDataView,
 )

@@ -11,6 +11,7 @@ const URL_EDITAR = pk => (cfg.urlEditarBase || '').replace('/0/', '/' + pk + '/'
 const URL_ESTADO = pk => (cfg.urlEstadoBase || '').replace('/0/', '/' + pk + '/');
 const URL_PAGO = pk => (cfg.urlPagoBase || '').replace('/0/', '/' + pk + '/');
 const URL_DESPACHO = cfg.urlDespacho || '';
+const URL_PEDIDOS_DATA = cfg.urlData || '';
 
 let PRODUCTOS_DATA = [];
 let CLIENTES_DATA = [];
@@ -59,16 +60,64 @@ $(document).on('click', '.modal', function (e) {
 // DATATABLES INICIALIZACIÓN
 // ═══════════════════════════════════════════════════════════════
 $(document).ready(function () {
-  if (!($ && $.fn && $.fn.DataTable)) {
-    return;
-  }
-  const dt = $('#tablaPedidos').DataTable({
+  if (!($ && $.fn && $.fn.DataTable)) return;
+  window.pedidoDT = $('#tablaPedidos').DataTable({
     language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
     pageLength: 10,
     order: [[0, 'desc']],
-    columnDefs: [{ orderable: false, targets: 7 }]
+    columnDefs: [{ orderable: false, targets: 7 }],
+    ajax: {
+      url: URL_PEDIDOS_DATA,
+      type: 'GET',
+      dataSrc: function (json) { return json.pedidos || []; }
+    },
+    columns: [
+      { data: 'id', render: function (d) { return '<strong style="color:var(--color-acento)">#' + d + '</strong>'; } },
+      { data: 'fecha' },
+      { data: 'cliente_nombre', render: function (d) { return '<span style="font-weight:600">' + d + '</span>'; } },
+      { data: 'total', render: function (d) { return '<span style="color:var(--color-exito);font-weight:700">$' + parseFloat(d).toFixed(2) + '</span>'; } },
+      { data: 'abono', render: function (d) { return '<span style="color:var(--color-advertencia);font-weight:700">$' + parseFloat(d || 0).toFixed(2) + '</span>'; } },
+      { data: 'saldo', render: function (d) { var s = parseFloat(d); return '<span class="saldo ' + (s > 0 ? 'pendiente' : 'pagado') + '" style="color:' + (s > 0 ? 'var(--color-deuda)' : 'var(--color-exito)') + ';font-weight:700">$' + s.toFixed(2) + '</span>'; } },
+      {
+        data: null,
+        render: function (d) {
+          var estado = d.estado, low = estado.toLowerCase(), opts = ['Pendiente', 'En Fabricación', 'Listo para Despacho', 'Completado', 'Anulado'];
+          var s = '<select class="ped-estado-select estado-' + low + '" data-id="' + d.id + '" data-estado-actual="' + estado + '">';
+          opts.forEach(function (o) { s += '<option value="' + o + '"' + (o === estado ? 'selected' : '') + '>' + o + '</option>'; });
+          return s + '</select>';
+        }
+      },
+      {
+        data: null,
+        render: function (d) {
+          var id = d.id, html = '<div class="icons">';
+          html += '<button type="button" class="view-btn btn-ver" data-id="' + id + '" title="Ver detalle"><i class="fas fa-eye"></i></button>';
+          if (d.estado !== 'Anulado' && d.estado !== 'Completado') html += '<button type="button" class="edit-btn btn-editar" data-id="' + id + '" title="Editar"><i class="fas fa-edit"></i></button>';
+          if (d.estado !== 'Anulado' && parseFloat(d.saldo) > 0) html += '<button type="button" class="btn-pagar" data-id="' + id + '" data-total="' + d.total + '" data-abono="' + (d.abono || 0) + '" data-saldo="' + d.saldo + '" title="Registrar pago"><i class="fas fa-money-bill-wave"></i></button>';
+          if (d.estado === 'Listo para Despacho') html += '<button type="button" class="btn-despacho" data-id="' + id + '" title="Crear despacho"><i class="fas fa-truck"></i></button>';
+          return html + '</div>';
+        }
+      }
+    ]
   });
 });
+
+// ─── Toggle anulados (AJAX, sin recargar) ───
+document.getElementById('toggleAnulados').addEventListener('change', function () {
+  this.parentElement.querySelector('.slider').style.backgroundColor = this.checked ? '#22c55e' : '#64748b';
+  if (window.pedidoDT) {
+    window.pedidoDT.ajax.url(URL_PEDIDOS_DATA + '?anulados=' + (this.checked ? '1' : '')).load();
+  }
+});
+
+// ─── Recargar tabla ───
+function recargarTabla() {
+  if (window.pedidoDT) {
+    window.pedidoDT.ajax.reload();
+  } else {
+    location.reload();
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // DELEGACIÓN DE EVENTOS (necesario para compatibilidad DataTables)
@@ -86,9 +135,8 @@ $(document).on('change', '.ped-estado-select', async function () {
     if (data.ok) {
       this.dataset.estadoActual = nuevo;
       this.className = `ped-estado-select estado-${nuevo.toLowerCase()}`;
-      this.closest('tr').dataset.anulado = nuevo === 'Anulado' ? 'true' : 'false';
       window.showToast(data.message);
-      setTimeout(() => location.reload(), 1000);
+      recargarTabla();
     } else {
       this.value = anterior;
       window.showToast(data.error, 'error');
@@ -218,7 +266,7 @@ $(document).on('click', '#btnGuardarPago', async function () {
     if (data.ok) {
       closeModal('modalPago');
       window.showToast(data.message);
-      setTimeout(() => location.reload(), 1200);
+      recargarTabla();
     } else {
       window.showToast(data.error || 'Error al procesar el pago', 'error');
     }
@@ -599,7 +647,7 @@ if (btnGuardar) {
       if (data.ok) {
         closeModal('modalForm');
         window.showToast(data.message);
-        setTimeout(() => location.reload(), 1200);
+        recargarTabla();
       } else {
         window.showToast(data.error || 'Error al guardar el pedido', 'error');
       }

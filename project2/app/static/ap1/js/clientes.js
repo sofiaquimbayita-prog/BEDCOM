@@ -1,5 +1,6 @@
 /* ─── URLs ─── */
 const URL_CLIENTES_DATA  = "/vistas/clientes/data/";
+const URL_CLIENTES_KPI   = "/vistas/clientes/kpi/";
 const URL_CREAR          = "/vistas/clientes/crear/";
 const URL_OBTENER   = pk => `/vistas/clientes/obtener/${pk}/`;
 const URL_EDITAR    = pk => `/vistas/clientes/editar/${pk}/`;
@@ -8,11 +9,11 @@ const URL_HISTORIAL = pk => `/vistas/clientes/historial/${pk}/`;
 const URL_HISTORIAL_PAGOS = pk => `/vistas/clientes/historial-pagos/${pk}/`;
 const CSRF_TOKEN         = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
 
-/* ─── DataTable ─── */
+/* ─── DataTable global ─── */
 let tabla;
-document.addEventListener('DOMContentLoaded', function () {
 
-  // Evita romper la página si DataTables no está cargado
+/* ─── Inicializar DataTable con AJAX ─── */
+$(document).ready(function() {
   if ($.fn.DataTable) {
     tabla = $('#tablaClientes').DataTable({
       language: {
@@ -21,46 +22,101 @@ document.addEventListener('DOMContentLoaded', function () {
       order: [[1, 'asc']],
       columnDefs: [{ orderable: false, targets: -1 }],
       pageLength: 15,
+      dom: '<"top"fl<"clear">>rt<"bottom"ip<"clear">>',
+      ajax: {
+        url: URL_CLIENTES_DATA,
+        type: 'GET',
+        dataSrc: function(json) {
+          return json.clientes || [];
+        }
+      },
+      columns: [
+        {
+          data: 'id',
+          render: function(data) {
+            return '<strong style="color:var(--color-acento)">#' + data + '</strong>';
+          }
+        },
+        {
+          data: 'nombre',
+          render: function(data) {
+            return '<span style="font-weight:600">' + data + '</span>';
+          }
+        },
+        { data: 'telefono' },
+        {
+          data: 'deuda',
+          render: function(data) {
+            var deuda = parseFloat(data);
+            if (deuda > 0) {
+              return '<span class="badge-estado badge-deuda"><i class="fas fa-exclamation-circle" style="font-size:0.65rem"></i> $' + deuda.toLocaleString('es-CO', {minimumFractionDigits:0}) + '</span>';
+            } else {
+              return '<span class="badge-estado badge-saldado"><i class="fas fa-check-circle" style="font-size:0.65rem"></i> Saldado</span>';
+            }
+          }
+        },
+        {
+          data: 'estado',
+          render: function(data) {
+            if (data) {
+              return '<span class="badge-estado badge-activo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Activo</span>';
+            } else {
+              return '<span class="badge-estado badge-inactivo"><i class="fas fa-circle" style="font-size:0.5rem"></i> Inactivo</span>';
+            }
+          }
+        },
+        {
+          data: null,
+          render: function(data) {
+            var id = data.id;
+            var html = '<div class="icons">';
+            html += '<button class="view-btn" data-id="' + id + '" title="Ver detalle"><i class="fas fa-eye"></i></button>';
+            html += '<button class="historial-btn" data-id="' + id + '" title="Historial completo"><i class="fas fa-receipt"></i></button>';
+            html += '<button class="edit-btn" data-id="' + id + '" title="Editar cliente"><i class="fas fa-edit"></i></button>';
+            if (data.estado) {
+              html += '<button class="toggle-btn inactivar" data-id="' + id + '" data-nombre="' + data.nombre.replace(/"/g, '&quot;') + '" data-estado="true" title="Inactivar"><i class="fas fa-user-slash"></i></button>';
+            } else {
+              html += '<button class="toggle-btn" data-id="' + id + '" data-nombre="' + data.nombre.replace(/"/g, '&quot;') + '" data-estado="false" title="Activar"><i class="fas fa-user-check"></i></button>';
+            }
+            html += '</div>';
+            return html;
+          }
+        }
+      ]
     });
   }
-
-  // Aunque DataTables falle, igual debemos pintar la deuda
-  ocultarInactivos();
-  cargarDeudas();
 });
 
-/* ─── Toggle inactivos ─── */
+/* ─── Toggle inactivos (sin recargar página) ─── */
 document.getElementById('toggleInactivos').addEventListener('change', function () {
-  this.checked ? mostrarTodos() : ocultarInactivos();
+  this.parentElement.querySelector('.slider').style.backgroundColor = this.checked ? '#22c55e' : '#64748b';
+  var soloInactivos = this.checked;
+  if (tabla) {
+    tabla.ajax.url(URL_CLIENTES_DATA + '?solo_inactivos=' + soloInactivos).load();
+  }
 });
 
-function ocultarInactivos() {
-  document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = 'none');
-  if (tabla) tabla.rows().invalidate().draw(false);
-}
-function mostrarTodos() {
-  document.querySelectorAll('#tablaClientes tbody tr[data-inactivo="true"]').forEach(tr => tr.style.display = '');
-  if (tabla) tabla.rows().invalidate().draw(false);
+/* ─── Recargar tabla ─── */
+function recargarTabla() {
+  if (tabla) {
+    tabla.ajax.reload();
+  } else {
+    location.reload();
+  }
 }
 
-
-/* ─── Cargar deudas en tabla ─── */
-async function cargarDeudas() {
-  try {
-    const res  = await fetch(URL_CLIENTES_DATA);
-    const data = await res.json();
-    if (!data.ok) return;
-    data.clientes.forEach(c => {
-      const td = document.querySelector(`.td-deuda[data-id="${c.id}"]`);
-      if (!td) return;
-      const deuda = parseFloat(c.deuda);
-      if (deuda > 0) {
-        td.innerHTML = `<span class="badge-estado badge-deuda"><i class="fas fa-exclamation-circle" style="font-size:0.65rem"></i> $${deuda.toLocaleString('es-CO', {minimumFractionDigits:0})}</span>`;
-      } else {
-        td.innerHTML = `<span class="badge-estado badge-saldado"><i class="fas fa-check-circle" style="font-size:0.65rem"></i> Saldado</span>`;
-      }
-    });
-  } catch (e) { console.error('Error cargando deudas:', e); }
+/* ─── Actualizar tarjetas KPI en tiempo real ─── */
+function actualizarKPIs() {
+  fetch(URL_CLIENTES_KPI)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return;
+      document.getElementById('kpi-total').textContent      = data.total;
+      document.getElementById('kpi-activos').textContent    = data.activos;
+      document.getElementById('kpi-inactivos').textContent  = data.inactivos;
+      document.getElementById('kpi-con-deuda').textContent  = data.con_deuda;
+    })
+    .catch(() => {});
 }
 
 /* ─── Modales ─── */
@@ -74,22 +130,11 @@ document.querySelectorAll('.modal').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
 });
 
-/* ─── Toast → usa window.showToast() global (base.html) ─── */
-
-
 /* ══════════════════════════════════════════════════════════════════════
    DELEGACIÓN DE EVENTOS — un único listener en la tabla captura clics
-   de TODAS las páginas de DataTables, incluyendo las que se renderizan
-   después de que el script se ejecutó por primera vez.
-   Antes: querySelectorAll('.view-btn').forEach(btn => btn.addEventListener(...))
-           → solo asignaba eventos a los botones del DOM inicial (página 1).
-   Ahora: document.getElementById('tablaClientes').addEventListener('click', ...)
-           → intercepta cualquier clic dentro de la tabla sin importar la página.
+   de TODAS las páginas de DataTables.
 ══════════════════════════════════════════════════════════════════════ */
 document.getElementById('tablaClientes').addEventListener('click', async function (e) {
-
-  /* closest() sube por el árbol hasta encontrar el botón real,
-     incluso si el usuario hizo clic en el <i> del icono interior */
   const btn = e.target.closest('.view-btn, .edit-btn, .historial-btn, .pago-btn, .toggle-btn');
   if (!btn) return;
 
@@ -119,15 +164,18 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
 
   /* ─── MODAL EDITAR ─── */
   if (btn.classList.contains('edit-btn')) {
-    const tr = btn.closest('tr');
+    const res  = await fetch(URL_OBTENER(id));
+    const data = await res.json();
+    if (!data.ok) { showToast(data.error, 'error'); return; }
+    const c = data.cliente;
     modoEdicion       = true;
     clienteEditandoId = id;
     configurarModalEditar(id);
-    document.getElementById('fNombre').value    = tr.dataset.nombre    || '';
-    document.getElementById('fTelefono').value  = tr.dataset.telefono  || '';
-    document.getElementById('fDireccion').value = tr.dataset.direccion || '';
-    document.getElementById('fEmail').value     = tr.dataset.email     || '';
-    document.getElementById('fEsEspecial').checked = (tr.dataset.es_especial === 'True' || tr.dataset.es_especial === 'true');
+    document.getElementById('fNombre').value    = c.nombre    || '';
+    document.getElementById('fTelefono').value  = c.telefono  || '';
+    document.getElementById('fDireccion').value = c.direccion || '';
+    document.getElementById('fEmail').value     = c.email     || '';
+    document.getElementById('fEsEspecial').checked = c.es_especial;
     document.getElementById('formAlerta').style.display = 'none';
     openModal('modalForm');
     return;
@@ -140,7 +188,6 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
     document.getElementById('histPagosBody').innerHTML =
       '<tr><td colspan="4" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i> Cargando pagos…</td></tr>';
     
-    // Reset tabs
     document.getElementById('contentPedidos').style.display = 'block';
     document.getElementById('contentPagos').style.display = 'none';
     document.getElementById('tabPedidos').style.color = 'var(--color-primario)';
@@ -150,7 +197,6 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
 
     openModal('modalHistorial');
 
-    // Fetch ambos
     Promise.all([
       fetch(URL_HISTORIAL(id)).then(r => r.json()),
       fetch(URL_HISTORIAL_PAGOS(id)).then(r => r.json())
@@ -165,7 +211,6 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
       document.getElementById('histCliAvatar').textContent      = c.nombre.charAt(0).toUpperCase();
       document.getElementById('histCliNombre').textContent      = c.nombre;
       
-      // Pedidos
       document.getElementById('histTotalPedidos').textContent   = dataPed.total_pedidos;
       const totalFacturado = dataPed.pedidos.reduce((a, p) => a + parseFloat(p.total), 0);
       document.getElementById('histTotalFacturado').textContent = `$${totalFacturado.toLocaleString('es-CO', {minimumFractionDigits:0})}`;
@@ -244,7 +289,6 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
         }).join('');
       }
 
-      // Pagos
       document.getElementById('histPagosTotalPagos').textContent  = dataPag.total_pagos;
       document.getElementById('histPagosTotalPagado').textContent = `$${parseFloat(dataPag.total_pagado).toLocaleString('es-CO', {minimumFractionDigits:0})}`;
 
@@ -268,7 +312,7 @@ document.getElementById('tablaClientes').addEventListener('click', async functio
   /* ─── TOGGLE ESTADO (activar / inactivar) ─── */
   if (btn.classList.contains('toggle-btn')) {
     e.stopPropagation();
-    const isActivo = btn.dataset.estado === 'True';
+    const isActivo = btn.dataset.estado === 'true';
     const nombre = btn.dataset.nombre;
     if (isActivo) {
       abrirModalInactivar(id, nombre);
@@ -349,7 +393,8 @@ document.getElementById('btnGuardarCliente').addEventListener('click', async () 
   if (data.ok) {
     closeModal('modalForm');
     showToast(data.message);
-    setTimeout(() => location.reload(), 1200);
+    recargarTabla();
+    actualizarKPIs();
   } else {
     alerta.textContent = data.error;
     alerta.style.display = 'block';
@@ -365,7 +410,7 @@ document.addEventListener('keydown', e => {
 
 /* ════════════════════════════════════════════════════════════════
    MODALES INACTIVAR / ACTIVAR CLIENTE
-   ════════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════════════ */
 function abrirModalInactivar(id, nombre) {
   document.getElementById('inactivar-nombre').textContent = nombre;
   document.getElementById('formInactivar').action = URL_TOGGLE(id);
@@ -397,7 +442,8 @@ document.getElementById('formInactivar').addEventListener('submit', async functi
     if (data.ok) {
       closeModal('modalInactivar');
       showToast(data.message);
-      setTimeout(() => location.reload(), 1200);
+      recargarTabla();
+      actualizarKPIs();
     } else {
       showToast(data.error, 'error');
     }
@@ -427,7 +473,8 @@ document.getElementById('formActivar').addEventListener('submit', async function
     if (data.ok) {
       closeModal('modalActivar');
       showToast(data.message);
-      setTimeout(() => location.reload(), 1200);
+      recargarTabla();
+      actualizarKPIs();
     } else {
       showToast(data.error, 'error');
     }

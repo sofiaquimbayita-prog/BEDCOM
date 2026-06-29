@@ -442,6 +442,7 @@ $(document).ready(function() {
     // para cargar los datos 
     actualizarTabla();
     $('#toggleInactivos').on('change', function() {
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
         actualizarTabla();
     });
 

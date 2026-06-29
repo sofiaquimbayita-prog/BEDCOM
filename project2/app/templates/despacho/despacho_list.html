@@ -3,20 +3,34 @@
 
 {% block header_title %}DESPACHOS{% endblock %}
 
-{% block content %}
-<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}?v=4">
-<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}?v=4">
-<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}?v=4">
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/pedido.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/despacho.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <div id="js-config"
      data-csrf="{{ csrf_token }}"
      data-url-detalle="{% url 'despacho_detalle' 0 %}"
      data-url-estado="{% url 'despacho_estado' 0 %}"
+     data-url-data="{% url 'despacho_data' %}"
      data-pendientes="{{ pedidos_pendientes|default:0 }}"
      style="display:none;"></div>
 
 <main class="main-container">
+
+  <!-- Toolbar -->
+  <div class="toolbar" style="margin-bottom:16px;">
+    <div class="toolbar-left"></div>
+    <div class="toolbar-right">
+      <button type="button" class="btn-agregar" id="btnNuevoDespacho">
+        <i class="fas fa-plus"></i> Nuevo Despacho
+      </button>
+    </div>
+  </div>
 
   <!-- KPI Cards -->
   <div class="kpi-grid">
@@ -50,15 +64,6 @@
     </div>
   </div>
 
-  <div class="toolbar" style="margin-top:20px;">
-    <div class="toolbar-left"></div>
-    <div class="toolbar-right">
-      <button type="button" class="btn-agregar" id="btnNuevoDespacho">
-        <i class="fas fa-plus"></i> Nuevo Despacho
-      </button>
-    </div>
-  </div>
-
   <!-- Tabla -->
   <div class="container-tabla">
     <table id="tablaDespachos" class="display" style="width:100%">
@@ -70,40 +75,11 @@
           <th>Dirección</th>
           <th>Teléfono</th>
           <th>Fecha Despacho</th>
-          <th>Estado</th>    {# ← el select de estado vive aquí #}
-          <th>Acciones</th>  {# ← solo el botón Ver #}
+          <th>Estado</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        {% for d in despachos %}
-        <tr>
-          <td><strong>#{{ d.id }}</strong></td>
-          <td><strong>Pedido #{{ d.pedido.id }}</strong></td>
-          <td>{{ d.pedido.cliente.nombre }}</td>
-          <td title="{{ d.direccion_entrega }}">{{ d.direccion_entrega|truncatechars:30 }}</td>
-          <td>{{ d.telefono_contacto }}</td>
-          <td>{{ d.fecha_despacho|date:"d/m/Y H:i" }}</td>
-
-          {# ── Columna Estado: contiene el select de cambio ── #}
-          <td>
-            <select class="estado-select" data-id="{{ d.id }}" data-estado-actual="{{ d.estado }}">
-              <option value="pendiente"  {% if d.estado == 'pendiente'  %}selected{% endif %}>Pendiente</option>
-              <option value="en_ruta"    {% if d.estado == 'en_ruta'    %}selected{% endif %}>En Ruta</option>
-              <option value="entregado"  {% if d.estado == 'entregado'  %}selected{% endif %}>Entregado</option>
-              <option value="fallido"    {% if d.estado == 'fallido'    %}selected{% endif %}>Fallido</option>
-            </select>
-          </td>
-
-          {# ── Columna Acciones: solo el botón Ver ── #}
-          <td>
-            <div class="icons">
-              <button class="btn-ver" data-id="{{ d.id }}" title="Ver detalle">
-                <i class="fas fa-eye"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -119,11 +95,6 @@
       <button class="btn-cerrar btn-cerrar--ver" data-close="modalDetalle">&times;</button>
     </div>
     <div id="modalBody"></div>
-    <div class="form-botones">
-      <button class="btn-cancelar" data-close="modalDetalle">
-        <i class="fas fa-times"></i> Cerrar
-      </button>
-    </div>
   </div>
 </div>
 
@@ -134,7 +105,7 @@
       <h2 class="modal-titulo"><i class="fas fa-truck-loading"></i> Crear Despacho</h2>
       <button type="button" class="btn-cerrar" data-close="modalCrearDespacho">&times;</button>
     </div>
-    
+
     <div class="form-grupo">
       <label>Seleccionar Pedido a Despachar <span style="color:var(--color-error)">*</span></label>
       <select id="inpCrearPedidoId" class="form-input" required>
@@ -177,11 +148,9 @@
   </div>
 </div>
 
+{% endblock %}
 
-
-
-<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}?v=4"></script>
-<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}?v=4"></script>
-<script src="{% static 'ap1/js/despacho.js' %}?v=4"></script>
-
+{% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ap1/js/despacho.js' %}"></script>
 {% endblock %}

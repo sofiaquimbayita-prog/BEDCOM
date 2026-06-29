@@ -1,9 +1,10 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block header_title %}Salida de Productos - BEDCOM{% endblock %}
+{% block header_title %}SALIDA DE PRODUCTOS{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/SalidaP.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/modal_salida.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/modal_detalle_salida.css' %}">
@@ -14,100 +15,38 @@
 <main class="main-content">
 
 {# Tabla de salidas de productos #}
-<div class="table-container">
-    <div class="table-header">
-        <h3><i class="fas fa-list"></i> Historial de Salida</h3>
-        <div class="header-actions">
-            <div class="switch-container">
-                <span class="switch-text">Mostrar anulados</span>
-                <label class="switch-control">
-                    <input type="checkbox" id="toggleAnulados" {% if mostrar_anulados %}checked{% endif %} onchange="toggleAnulados()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <button type="button" class="btn-nueva-salida" onclick="abrirModalSalida()">
-                <i class="fas fa-plus"></i> Nueva Salida
-            </button>
+<div class="toolbar">
+    <div class="toolbar-left">
+        <div class="switch-container">
+            <span class="switch-text">Mostrar anulados</span>
+            <label class="switch-control">
+                <input type="checkbox" id="toggleAnulados" onchange="toggleAnulados()">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
-
-    {% if salidas %}
-    <table class="salidas-table">
+    <div class="toolbar-right">
+        <button type="button" class="btn-nueva-salida" onclick="abrirModalSalida()">
+            <i class="fas fa-plus"></i> Nueva Salida
+        </button>
+    </div>
+</div>
+<div class="table-container">
+    <table id="tablaSalidas" class="display responsive nowrap" style="width:100%">
         <thead>
             <tr>
-                <th onclick="ordenarTabla(0)">
-                    <i class="fas fa-sort"></i> Producto
-                </th>
-                <th onclick="ordenarTabla(1)">
-                    <i class="fas fa-sort"></i> Cantidad
-                </th>
-                <th onclick="ordenarTabla(2)">
-                    <i class="fas fa-sort"></i> Fecha
-                </th>
-                <th onclick="ordenarTabla(3)">
-                    <i class="fas fa-sort"></i> Motivo
-                </th>
-                <th onclick="ordenarTabla(4)">
-                    <i class="fas fa-sort"></i> Responsable
-                </th>
-                <th onclick="ordenarTabla(5)">
-                    <i class="fas fa-sort"></i> Estado
-                </th>
+                <th><i class="fas fa-box"></i> Producto</th>
+                <th><i class="fas fa-sort-amount-up"></i> Cantidad</th>
+                <th><i class="fas fa-calendar"></i> Fecha</th>
+                <th><i class="fas fa-comment"></i> Motivo</th>
+                <th><i class="fas fa-user"></i> Responsable</th>
+                <th><i class="fas fa-info-circle"></i> Estado</th>
                 <th><i class="fas fa-bolt"></i> Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for salida in salidas %}
-            <tr class="{% if not salida.estado %}row-anulada{% endif %}">
-                <td>{{ salida.id_producto.nombre }}</td>
-                <td>{{ salida.cantidad }}</td>
-                <td>{{ salida.fecha|date:"d/m/Y" }}</td>
-                <td title="{{ salida.motivo }}">{{ salida.motivo|truncatewords:10 }}</td>
-                <td>{{ salida.responsable }}</td>
-                <td>
-                    {% if salida.estado %}
-                    <span class="badge badge-active"><i class="fas fa-check"></i> Activo</span>
-                    {% else %}
-                    <span class="badge badge-anulada"><i class="fas fa-times"></i> Anulada</span>
-                    {% endif %}
-                </td>
-                <td class="actions-cell">
-
-                    <!-- Botón Ver Detalles -->
-                    <button type="button" class="btn-action btn-view"
-                        onclick="abrirModalDetalle({{ salida.id }})"
-                        title="Ver detalles">
-                        <i class="fas fa-eye"></i>
-                    </button>
-
-                    {% if salida.estado %}
-                    <button type="button" class="btn-action btn-anular"
-                        onclick="anularSalida({{ salida.id }})"
-                        title="Anular salida">
-                        <i class="fas fa-ban"></i>
-                    </button>
-                    {% endif %}
-
-                    {% if not salida.estado %}
-                    <button type="button" class="btn-action btn-disabled"
-                        disabled title="Ya anulado">
-                        <i class="fas fa-ban"></i>
-                    </button>
-                    {% endif %}
-
-                </td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
-    
-    {% else %}
-    <div class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No hay salidas registradas</p>
-        <p>Haz clic en "Nueva Salida" para registrar la primera</p>
-    </div>
-    {% endif %}
 </div>
 
 </main>
@@ -124,7 +63,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/modal_nueva_salida.js' %}"></script>
 <script src="{% static 'ap1/js/modal_detalle_salida.js' %}"></script>
-<script src="{% static 'ap1/js/SalidaP.js' %}?v=5"></script>
+<script src="{% static 'ap1/js/SalidaP.js' %}?v=6"></script>
 {% endblock %}

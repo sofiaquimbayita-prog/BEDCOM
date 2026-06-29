@@ -9,6 +9,7 @@ if (document.getElementById('js-config')) {
 const CSRF_TOKEN = cfg.csrf || '';
 const URL_DETALLE = pk => (cfg.urlDetalle || '').replace('/0/', '/' + pk + '/');
 const URL_ESTADO = pk => (cfg.urlEstado || '').replace('/0/', '/' + pk + '/');
+const URL_DESPACHOS_DATA = cfg.urlData || '';
 const PENDIENTES = parseInt(cfg.pendientes || '0', 10);
 
 /* ── Toast → usa window.showToast() global (base.html) ── */
@@ -32,37 +33,50 @@ $(document).ready(function () {
 
   $(document).on('click', '#btnNuevoDespacho', abrirModalCrearDespacho);
 
-  /* FIX 1: Se añade el cierre correcto "})" que faltaba.
-     FIX 2: Se elimina "{ visible: false, targets: 7 }" que ocultaba
-             erróneamente la columna "Acciones". */
-  if ($.fn.DataTable && tablaDespachos.length) {
-    try {
-      tablaDespachos.DataTable({
-        language: {
-          search: 'Buscar:',
-          lengthMenu: 'Mostrar _MENU_ registros',
-          info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-          infoEmpty: 'Mostrando 0 a 0 de 0 registros',
-          infoFiltered: '(filtrado de _MAX_ registros totales)',
-          zeroRecords: 'No se encontraron registros',
-          emptyTable: 'No hay despachos registrados',
-          paginate: {
-            first: 'Primero',
-            previous: 'Anterior',
-            next: 'Siguiente',
-            last: 'Ultimo'
-          }
-        },
-        pageLength: 25,
-        order: [[0, 'desc']],
-        columnDefs: [
-          { orderable: false, targets: [6, 7] }  // Estado y Acciones: no ordenables
-        ]
-      });
-    } catch (e) {
-      console.error('No se pudo inicializar DataTable de despachos:', e);
-    }
-  }
+  window.despachoDT = tablaDespachos.DataTable({
+    language: {
+      search: 'Buscar:',
+      lengthMenu: 'Mostrar _MENU_ registros',
+      info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+      infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+      infoFiltered: '(filtrado de _MAX_ registros totales)',
+      zeroRecords: 'No se encontraron registros',
+      emptyTable: 'No hay despachos registrados',
+      paginate: { first: 'Primero', previous: 'Anterior', next: 'Siguiente', last: 'Ultimo' }
+    },
+    pageLength: 25,
+    order: [[0, 'desc']],
+    columnDefs: [{ orderable: false, targets: [6, 7] }],
+    ajax: {
+      url: URL_DESPACHOS_DATA,
+      type: 'GET',
+      dataSrc: function (json) { return json.despachos || []; }
+    },
+    columns: [
+      { data: 'id', render: function (d) { return '<strong style="color:var(--color-acento)">#' + d + '</strong>'; } },
+      { data: 'pedido_id', render: function (d) { return '<strong>Pedido #' + d + '</strong>'; } },
+      { data: 'cliente_nombre' },
+      { data: 'direccion_entrega', render: function (d) { return '<span title="' + d + '">' + (d.length > 30 ? d.slice(0, 30) + '...' : d) + '</span>'; } },
+      { data: 'telefono_contacto' },
+      { data: 'fecha_despacho' },
+      {
+        data: null,
+        render: function (d) {
+          var estado = d.estado, opts = ['pendiente', 'en_ruta', 'entregado', 'fallido'];
+          var labels = { pendiente: 'Pendiente', en_ruta: 'En Ruta', entregado: 'Entregado', fallido: 'Fallido' };
+          var s = '<select class="estado-select" data-id="' + d.id + '" data-estado-actual="' + estado + '">';
+          opts.forEach(function (o) { s += '<option value="' + o + '"' + (o === estado ? 'selected' : '') + '>' + labels[o] + '</option>'; });
+          return s + '</select>';
+        }
+      },
+      {
+        data: null,
+        render: function (d) {
+          return '<div class="icons"><button class="btn-ver" data-id="' + d.id + '" title="Ver detalle"><i class="fas fa-eye"></i></button></div>';
+        }
+      }
+    ]
+  });
 
   /* ── Modal Detalle ──────────────────────────────────
      FIX 3: Delegación de eventos en lugar de querySelectorAll.
@@ -166,15 +180,8 @@ $(document).ready(function () {
 
       if (data.ok) {
         showToast(data.message);
-
-        // Actualizar atributo de color del select en la columna Estado
         selectEl.dataset.estadoActual = nuevoEstado;
-
-        // DataTable: refrescar para que el orden refleje el cambio
-        if ($.fn.DataTable && $.fn.DataTable.isDataTable('#tablaDespachos')) {
-          setTimeout(() => tablaDespachos.DataTable().draw(false), 600);
-        }
-
+        recargarTabla();
       } else {
         // Revertir si el servidor rechazó el cambio
         selectEl.value = estadoAnterior;
@@ -447,7 +454,7 @@ $(document).ready(function () {
       if (data.ok) {
         showToast(data.message);
         $('#modalCrearDespacho').removeClass('mostrar');
-        setTimeout(() => location.reload(), 1000);
+        recargarTabla();
       } else if (data.field) {
         // Server field error
         $(`#error-${data.field}`).text(data.error).show();
@@ -465,6 +472,15 @@ $(document).ready(function () {
     }
   });
 
+
+  /* ── Recargar tabla ─── */
+  window.recargarTabla = function () {
+    if (window.despachoDT) {
+      window.despachoDT.ajax.reload();
+    } else {
+      location.reload();
+    }
+  };
 
   /* ── Cierre de Modales ──────────────────────────────── */
   $(document).on('click', '[data-close]', function () {

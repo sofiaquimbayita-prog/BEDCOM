@@ -24,10 +24,7 @@ class categoria_list_view(ListView):
     context_object_name = 'categorias'
 
     def get_queryset(self):
-        queryset = categoria.objects.order_by('-id')
-        if not self.request.GET.get('inactivos'):
-            queryset = queryset.filter(estado=True)
-        return queryset
+        return categoria.objects.order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

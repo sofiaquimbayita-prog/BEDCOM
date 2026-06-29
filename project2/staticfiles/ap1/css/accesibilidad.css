@@ -304,7 +304,7 @@ body.acc-light-mode .slider {
 input:checked + .slider,
 body.acc-light-mode input:checked + .slider,
 body.acc-light-mode input:checked + .acc-slider {
-    background: var(--accent-orange) !important;
+    background: #22c55e !important;
 }
 
 body.acc-light-mode .msg-luna {

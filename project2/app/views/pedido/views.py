@@ -476,6 +476,33 @@ class PagoUpdateView(View):
 # ─────────────────────────────────────────────
 # Utilidad: validar un pedido antes de crearlo
 # ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# API: datos para la tabla principal (JSON)
+# ─────────────────────────────────────────────
+class PedidoDataView(View):
+    def get(self, request, *args, **kwargs):
+        mostrar_anulados = request.GET.get('anulados') == '1'
+        if mostrar_anulados:
+            pedidos_qs = pedido.objects.filter(estado='Anulado').order_by('-fecha')
+        else:
+            pedidos_qs = pedido.objects.exclude(estado='Anulado').order_by('-fecha')
+
+        data = []
+        for p in pedidos_qs:
+            saldo = p.saldo_pendiente
+            data.append({
+                'id': p.id,
+                'fecha': p.fecha.strftime('%d/%m/%Y %H:%M'),
+                'cliente_nombre': p.cliente.nombre,
+                'total': str(p.total),
+                'abono': str(p.abono or 0),
+                'saldo': str(max(saldo, 0)),
+                'estado': p.estado,
+                'anulado': p.estado == 'Anulado',
+            })
+        return JsonResponse({'ok': True, 'pedidos': data})
+
+
 def validar_pedido(items, abono, total):
     MAX_PRODUCTOS_POR_PEDIDO = 150
     errores = []

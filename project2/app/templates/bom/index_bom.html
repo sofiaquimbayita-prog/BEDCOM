@@ -1,21 +1,23 @@
 {% extends "includes/base.html" %}
 {% load static %}
 
-{% block header_title %}Gestión BOM - Estructura de Productos{% endblock %}
+{% block header_title %}BOM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
+{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_bom.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_productos_theme.css' %}">
 
 <main class="bom-gestion">
-    
-        <div class="crear-receta">
-            <button class="button-2" type="button" onclick="event.preventDefault(); abrirModal('modalReceta');">
-                <i class="fas fa-book-open"></i> <span class="btn-text">Crear Receta</span>
-            </button>
-        </div>
+    <div class="crear-receta">
+        <button class="button-2" type="button" onclick="event.preventDefault(); abrirModal('modalReceta');">
+            <i class="fas fa-book-open"></i> <span class="btn-text">Crear Ensamblaje</span>
+        </button>
+    </div>
     <div class="container-tabla">
         <table id="tablaBom" class="display responsive nowrap" style="width:100%">
             <thead>
@@ -25,51 +27,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for recipe in recipes %}
-                <tr>
-                    <td>
-                        <span class="producto-badge">
-                            <i class="fas fa-box"></i> {{ recipe.producto.nombre }}
-                        </span>
-                    </td>
-                    <td>
-                        {% if recipe.insumos|length > 1 %}
-                        <span class="insumo-badge" style="display: inline-block; margin: 2px;">
-                            <i class="fas fa-tools"></i> {{ recipe.insumos.0.insumo_nombre }} (+{{ recipe.insumos|length|add:"-1" }} más)
-                        </span>
-                        {% else %}
-                        <span class="insumo-badge" style="display: inline-block; margin: 2px;">
-                            <i class="fas fa-tools"></i> {{ recipe.insumos.0.insumo_nombre }} ({{ recipe.insumos.0.cantidad }} {{ recipe.insumos.0.unidad_medida }})
-                        </span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="acciones">
-                            <button class="view-btn" title="Ver Detalles" onclick="verDetalleReceta({{ recipe.producto.id }}, '{{ recipe.producto.nombre|escapejs }}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="edit-btn" title="Editar" onclick="editarBom({{ recipe.producto.id }})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="delete-btn" title="Eliminar" onclick="eliminarRecetaCompleta({{ recipe.producto.id }}, '{{ recipe.producto.nombre|escapejs }}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td style="text-align: center; padding: 30px;">
-                        <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
-                        <p style="color: #666;">No hay recetas configuradas.</p>
-                        <p style="color: #999; font-size: 14px;">Cree una receta para ver la estructura aquí.</p>
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                {% endfor %}
-            </tbody>
+            <tbody id="tablaBomBody"></tbody>
         </table>
     </div>
 </main>
@@ -77,7 +35,7 @@
 <div id="modalReceta" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 700px;">
         <div class="modal-header">
-            <h2><i class="fas fa-book-open"></i> Crear Receta (Estructura BOM)</h2>
+            <h2><i class="fas fa-book-open"></i> Crear Ensamblaje (Estructura BOM)</h2>
             <button class="close-modal" onclick="cerrarModal('modalReceta')">&times;</button>
         </div>
         
@@ -97,7 +55,7 @@
             </div>
 
             <div class="form-group">
-                <label>AGREGAR INSUMOS A LA RECETA</label>
+                <label>AGREGAR INSUMOS AL ENSAMBLAJE</label>
                 <div class="bom-inputs-inline">
                     <select id="recetaInsumo" class="select-insumo">
                         <option value="" disabled selected>Seleccione un insumo</option>
@@ -126,7 +84,7 @@
             </div>
 
             <div class="form-group">
-                <label>INSUMOS EN LA RECETA</label>
+                <label>INSUMOS EN EL ENSAMBLAJE</label>
                 <table id="tablaReceta">
                     <thead>
                         <tr>
@@ -148,7 +106,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="cerrarModal('modalReceta')">Cancelar</button>
-                <button type="submit" class="btn-save">Guardar Receta</button>
+                <button type="submit" class="btn-save">Guardar Ensamblaje</button>
             </div>
         </form>
     </div>
@@ -157,7 +115,7 @@
 <div id="modalEditBom" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 700px;">
         <div class="modal-header">
-            <h2><i class="fas fa-edit"></i> Editar Receta</h2>
+            <h2><i class="fas fa-edit"></i> Editar Ensamblaje</h2>
             <button class="close-modal" onclick="cerrarModal('modalEditBom')">&times;</button>
         </div>
         
@@ -175,7 +133,7 @@
             </div>
 
             <div class="form-group">
-                <label>AGREGAR INSUMOS A LA RECETA</label>
+                <label>AGREGAR INSUMOS AL ENSAMBLAJE</label>
                 <div class="bom-inputs-inline">
                     <select id="editRecetaInsumo" class="select-insumo">
                         <option value="" disabled selected>Seleccione un insumo</option>
@@ -204,7 +162,7 @@
             </div>
 
             <div class="form-group">
-                <label>INSUMOS EN LA RECETA</label>
+                <label>INSUMOS EN EL ENSAMBLAJE</label>
                 <table id="tablaEditReceta">
                     <thead>
                         <tr>
@@ -264,7 +222,7 @@
 <div id="modalVerReceta" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 600px;">
         <div class="modal-header">
-            <h2><i class="fas fa-eye"></i> Detalles de la Receta</h2>
+            <h2><i class="fas fa-eye"></i> Detalles del Ensamblaje</h2>
             <button class="close-modal" onclick="cerrarModal('modalVerReceta')">&times;</button>
         </div>
         
@@ -274,7 +232,7 @@
                 <p style="margin: 0; color: #9ca3af; font-size: 14px;">ID: <span id="verProductoId"></span></p>
             </div>
             
-            <h4 style="margin-bottom: 15px; color: #e2e8f0;">Insumos de la receta:</h4>
+            <h4 style="margin-bottom: 15px; color: #e2e8f0;">Insumos del ensamblaje:</h4>
             <table id="tablaVerReceta" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background: #334155;">
@@ -303,14 +261,10 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
 
-<script>
-    // Inicializar la lista de productos con receta desde el template Django
-    var productosConReceta = {{ productos_con_receta|default:"[]"|safe }};
-</script>
-<script src="{% static 'ap1/js/script_bom.js' %}"></script>
-
+{% block scripts %}
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ap1/js/select2.min.js' %}"></script>
+<script src="{% static 'ap1/js/script_bom.js' %}?v={% now 'U' %}"></script>
 {% endblock %}

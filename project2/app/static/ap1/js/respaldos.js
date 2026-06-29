@@ -133,7 +133,10 @@ $(document).ready(function () {
 
     // Event listeners para filtros
     $('#searchInput').on('keyup', filtrarTabla);
-    $('#toggleInactivos').on('change', filtrarTabla);
+    $('#toggleInactivos').on('change', function() {
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
+        filtrarTabla();
+    });
 
     // ================= MODALES =================
 

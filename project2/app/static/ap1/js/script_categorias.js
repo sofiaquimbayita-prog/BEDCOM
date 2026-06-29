@@ -118,7 +118,15 @@ $(document).ready(function() {
         $('#tablaCategorias').DataTable().destroy();
     }
 
-    $('#tablaCategorias').DataTable({
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        var toggle = document.getElementById('toggleInactivos');
+        if (!toggle) return true;
+        var mostrarInactivos = toggle.checked;
+        var estado = (data[2] || "").trim();
+        return mostrarInactivos ? estado === "Inactivo" : estado === "Activo";
+    });
+
+    var table = $('#tablaCategorias').DataTable({
         "responsive": true,
         "language": {
             "sProcessing": "Procesando...",
@@ -141,7 +149,8 @@ $(document).ready(function() {
     });
 
     $('#toggleInactivos').on('change', function() {
-        $('#tablaCategorias').DataTable().draw();
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
+        table.draw();
     });
 
     // Validar formulario agregar categoría

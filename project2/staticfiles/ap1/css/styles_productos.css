@@ -215,22 +215,6 @@ body {
 }
 
 /* Acciones - botones visibles */
-.acciones button {
-    background-color: transparent;
-    border: none;
-    color: #38bdf8;
-    cursor: pointer;
-    padding: 6px 8px;
-    transition: all 0.2s ease;
-    border-radius: 4px;
-}
-
-.acciones button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #00bfff;
-    transform: scale(1.1);
-}
-
 .acciones button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -465,7 +449,6 @@ input:-webkit-autofill {
   padding: 10px;
   border-radius: 50%;
   cursor: pointer;
-  color: white;
   white-space: nowrap;
 }
 

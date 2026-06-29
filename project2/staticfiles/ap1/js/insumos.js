@@ -262,6 +262,7 @@ $(document).ready(function () {
 
     /* ── Toggle Activos / Inactivos ── */
     $('#toggleInactivos').on('change', function () {
+        $(this).siblings('.slider').css('background-color', this.checked ? '#22c55e' : '#64748b');
         mostrarInactivos = $(this).is(':checked');
         tabla.draw();
     });

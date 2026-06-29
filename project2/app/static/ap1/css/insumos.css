@@ -369,7 +369,7 @@ input:checked+.slider::before {
   gap: 8px;
 }
 
-.view-btn, .edit-btn, .delete-btn, .reactivar-btn {
+.view-btn, .edit-btn, .delete-btn, .reactivar-btn, .activate-btn {
   border: none;
   padding: 10px;
   border-radius: 50%;
@@ -406,7 +406,8 @@ input:checked+.slider::before {
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-.reactivar-btn:hover {
+.reactivar-btn:hover,
+.activate-btn:hover {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
   transform: scale(1.1);
