@@ -107,25 +107,25 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
         pregunta_lower = pregunta_usuario.lower().strip()
 
         MODEL_MAP = {
-            'producto': (producto, ['categoria'], lambda i, p: f"{i}. **{p.nombre}** — stock: {p.stock}, precio: ${p.precio}, categoría: {getattr(p.categoria,'nombre','N/A')}"),
-            'insumo': (insumo, ['id_categoria', 'id_proveedor'], lambda i, ins: f"{i}. **{ins.nombre}** — cantidad: {ins.cantidad}, precio: ${ins.precio}, categoría: {getattr(ins.id_categoria,'nombre','N/A')}, proveedor: {getattr(ins.id_proveedor,'nombre','N/A')}"),
-            'proveedor': (proveedor, [], lambda i, prov: f"{i}. **{prov.nombre}** — teléfono: {prov.telefono}, dirección: {prov.direccion[:40] or 'No registrada'}"),
-            'cliente': (cliente, [], lambda i, c: f"{i}. **{c.nombre}** — teléfono: {c.telefono}, dirección: {c.direccion[:40] or 'No registrada'}, email: {c.email or 'No registrado'}, {'Especial' if c.es_especial else 'Normal'}"),
-            'categoria': (categoria, [], lambda i, cat: f"{i}. **{cat.nombre}** — {cat.descripcion[:40] or 'Sin descripción'}, tipo: {cat.tipo}"),
-            'pedido': (pedido, ['cliente'], lambda i, p: f"{i}. Pedido #{p.id} — estado: {p.estado}, total: ${p.total}, abono: ${p.abono or 0}, cliente: {p.cliente.nombre}, entrega: {getattr(p,'fecha_entrega','Pendiente')}"),
-            'entrada': (entrada, ['producto','proveedor'], lambda i, e: f"{i}. #{e.id} — producto: {e.producto.nombre}, cantidad: x{e.cantidad}, precio unitario: ${e.precio_unitario}, total: ${e.total}, proveedor: {getattr(e.proveedor,'nombre','N/A')}, fecha: {e.fecha.date()}"),
-            'salida': (salida_producto, ['id_producto'], lambda i, s: f"{i}. #{s.id} — producto: {s.id_producto.nombre}, cantidad: x{s.cantidad}, motivo: {s.motivo[:40]}, responsable: {s.responsable}, fecha: {s.fecha}"),
-            'calendario': (calendario, [], lambda i, cal: f"{i}. **{cal.titulo}** — fecha: {cal.fecha} {cal.hora}, categoría: {cal.categoria}, estado: {cal.estado}"),
-            'usuario': (usuario, [], lambda i, u: f"{i}. **{u.username}** — email: {u.email}, rol: {u.rol}, teléfono: {u.telefono or 'No registrado'}, cédula: {u.cedula or 'No registrada'}"),
-            'respaldo': (respaldo, [], lambda i, r: f"{i}. **{r.tipo_respaldo}** — usuario: {r.usuario}, fecha: {r.fecha.strftime('%d/%m %H:%M')}, descripción: {r.descripcion[:40] or 'N/A'}"),
-            'reporte': (reporte, ['usuario'], lambda i, r: f"{i}. **{r.tipo}** — usuario: {r.usuario.username}, fecha: {r.fecha}"),
-            'bom': (bom, ['producto','insumo'], lambda i, b: f"{i}. **{b.producto.nombre}** → {b.insumo.nombre} (x{b.cantidad} {b.unidad_medida})"),
-            'compra': (compra, ['proveedor','insumo'], lambda i, c: f"{i}. **{c.insumo.nombre}** de {c.proveedor.nombre} — cantidad: x{c.cantidad}, precio unidad: ${c.precio_unidad}, fecha: {c.fecha_suministro}"),
-            'pago': (pago, ['pedido'], lambda i, pa: f"{i}. Pedido #{pa.pedido_id} — monto: ${pa.monto}, fecha: {pa.fecha_pago}"),
-            'supervision': (supervision, ['usuario'], lambda i, s: f"{i}. **{s.descripcion[:50]}** — fecha: {s.fecha.date()}, usuario: {s.usuario.username}"),
-            'despacho': (despacho, ['pedido'], lambda i, d: f"{i}. Despacho #{d.id} — pedido: #{d.pedido_id}, estado: {d.estado}, fecha: {d.fecha_despacho.date()}, guía: {d.numero_guia or 'Sin guía'}"),
-            'mantenimiento': (mantenimiento, [], lambda i, m: f"{i}. **{m.descripcion[:50]}** — fecha: {m.fecha}, garantía: #{getattr(m.id_garantia,'id', 'Sin garantía')}"),
-            'notificacion': (Notificacion, ['user'], lambda i, n: f"{i}. **{n.titulo[:25]}** — tipo: {n.tipo}, leída: {'Sí' if n.leida else 'No'}, usuario: {n.user.username}, fecha: {n.fecha_notif.strftime('%H:%M')}"),
+            'producto': (producto, ['categoria'], lambda i, p: f"{i}. {p.nombre} — tiene {p.stock} unidades en stock, precio {p.precio} pesos, categoría {getattr(p.categoria,'nombre','sin categoría')}"),
+            'insumo': (insumo, ['id_categoria', 'id_proveedor'], lambda i, ins: f"{i}. {ins.nombre} — cantidad disponible {ins.cantidad}, precio {ins.precio} pesos, categoría {getattr(ins.id_categoria,'nombre','sin categoría')}, proveedor {getattr(ins.id_proveedor,'nombre','sin proveedor')}"),
+            'proveedor': (proveedor, [], lambda i, prov: f"{i}. {prov.nombre} — teléfono {prov.telefono}, dirección {prov.direccion[:40] or 'no registrada'}"),
+            'cliente': (cliente, [], lambda i, c: f"{i}. {c.nombre} — teléfono {c.telefono}, dirección {c.direccion[:40] or 'no registrada'}, correo {c.email or 'sin correo'}, {'cliente especial' if c.es_especial else 'cliente normal'}"),
+            'categoria': (categoria, [], lambda i, cat: f"{i}. {cat.nombre} — {cat.descripcion[:40] or 'sin descripción'}, tipo {cat.tipo}"),
+            'pedido': (pedido, ['cliente'], lambda i, p: f"{i}. Pedido número {p.id} — estado {p.estado}, valor total {p.total} pesos, abonado {p.abono or 0} pesos, cliente {p.cliente.nombre}, fecha de entrega {getattr(p,'fecha_entrega','pendiente')}"),
+            'entrada': (entrada, ['producto','proveedor'], lambda i, e: f"{i}. Entrada número {e.id} — producto {e.producto.nombre}, cantidad {e.cantidad}, precio por unidad {e.precio_unitario} pesos, total {e.total} pesos, proveedor {getattr(e.proveedor,'nombre','sin proveedor')}, fecha {e.fecha.date()}"),
+            'salida': (salida_producto, ['id_producto'], lambda i, s: f"{i}. Salida número {s.id} — producto {s.id_producto.nombre}, cantidad {s.cantidad}, motivo {s.motivo[:40]}, responsable {s.responsable}, fecha {s.fecha}"),
+            'calendario': (calendario, [], lambda i, cal: f"{i}. {cal.titulo} — fecha {cal.fecha} a las {cal.hora}, categoría {cal.categoria}, estado {cal.estado}"),
+            'usuario': (usuario, [], lambda i, u: f"{i}. {u.username} — correo {u.email}, rol {u.rol}, teléfono {u.telefono or 'no registrado'}, cédula {u.cedula or 'no registrada'}"),
+            'respaldo': (respaldo, [], lambda i, r: f"{i}. Respaldo tipo {r.tipo_respaldo} — generado por {r.usuario}, fecha {r.fecha.strftime('%d/%m %H:%M')}, descripción {r.descripcion[:40] or 'sin descripción'}"),
+            'reporte': (reporte, ['usuario'], lambda i, r: f"{i}. Reporte {r.tipo} — generado por {r.usuario.username}, fecha {r.fecha}"),
+            'bom': (bom, ['producto','insumo'], lambda i, b: f"{i}. Para fabricar {b.producto.nombre} se necesita {b.insumo.nombre}, cantidad {b.cantidad} {b.unidad_medida}"),
+            'compra': (compra, ['proveedor','insumo'], lambda i, c: f"{i}. Compra de {c.insumo.nombre} a {c.proveedor.nombre} — cantidad {c.cantidad}, precio por unidad {c.precio_unidad} pesos, fecha {c.fecha_suministro}"),
+            'pago': (pago, ['pedido'], lambda i, pa: f"{i}. Pago de {pa.monto} pesos al pedido número {pa.pedido_id}, fecha {pa.fecha_pago}"),
+            'supervision': (supervision, ['usuario'], lambda i, s: f"{i}. {s.descripcion[:50]} — fecha {s.fecha.date()}, supervisado por {s.usuario.username}"),
+            'despacho': (despacho, ['pedido'], lambda i, d: f"{i}. Despacho número {d.id} — pedido número {d.pedido_id}, estado {d.estado}, fecha {d.fecha_despacho.date()}, guía {d.numero_guia or 'sin guía'}"),
+            'mantenimiento': (mantenimiento, [], lambda i, m: f"{i}. {m.descripcion[:50]} — fecha {m.fecha}, garantía {getattr(m.id_garantia,'id', 'sin garantía')}"),
+            'notificacion': (Notificacion, ['user'], lambda i, n: f"{i}. {n.titulo[:25]} — tipo {n.tipo}, {'leída' if n.leida else 'no leída'}, usuario {n.user.username}, fecha {n.fecha_notif.strftime('%H:%M')}"),
         }
 
         summaries = {}
@@ -152,46 +152,22 @@ def consultar_bd_con_ia(pregunta_usuario, historial):
 
 
         contexto_sistema = f"""
-IDENTIDAD: Eres Luna, la asistente virtual de BEDCOM. SOLO USA DATOS REALES.
-Tu propósito es ayudar al administrador a consultar información de la base de datos de BEDCOM de forma rápida y eficiente. No respondas con frases promocionales ni de ventas.
-PERSONALIDAD: Sé inteligente, amigable y servicial, con un sentido del humor ácido.
-Si te preguntan por datos o consultas como jardineria, recetas de cocina, o temas que no estén relacionados con la base de datos de BEDCOM, responde que no tienes información sobre eso y sugiere que se enfoque en consultas relacionadas con la base de datos.
-CRÍTICO: No respondas con diccionarios, listas con paréntesis técnicos, ni formatos de datos. Responde SIEMPRE en texto natural y bien redactado.
-Cuando listes varios elementos, usa viñetas o guiones con texto descriptivo, no uses paréntesis con campos técnicos.
-NUNCA uses etiquetas como "tel:", "dir:", "img:", "estado:" — en su lugar escribe "teléfono", "dirección", etc.
-Cuando muestres un número de teléfono, dilo o escríbelo de forma natural (ej. "300 123 45 67" en vez de "3001234567").
-NUNCA muestres True o False — di "Sí" o "No", o "Especial" o "Normal".
-Si te preguntan solo por stock o cantidad, responde únicamente el número.
-Para cada tipo de consulta menciona solo estos campos:
-- Producto: nombre, stock, precio, categoría
-- Insumo: nombre, cantidad, precio, categoría, proveedor
-- Proveedor: nombre, teléfono, dirección
-- Cliente: nombre, teléfono, dirección, email (si tiene), y si es Especial o Normal
-- Pedido: estado, total, abono (si tiene), cliente, fecha de entrega (si tiene)
-- Entrada: producto, cantidad, precio unitario, total, proveedor, fecha
-- Salida: producto, cantidad, motivo, responsable, fecha
-- Calendario: título, fecha, hora, categoría, estado
-- Usuario: email, rol, teléfono (si tiene), cédula
-- Respaldo: tipo, usuario, fecha, descripción (si tiene)
-- Reporte: tipo, usuario, fecha
-- BOM: producto final, insumo, cantidad, unidad de medida
-- Compra: insumo, proveedor, cantidad, precio unidad, fecha
-- Pago: pedido, monto, fecha
-- Supervisión: descripción, fecha, usuario
-- Despacho: estado, pedido, fecha, guía (si tiene)
-- Mantenimiento: descripción, fecha, garantía (si tiene)
-- Notificación: título, tipo, leída o no, fecha
-No le des siempre la razón al usuario.
-Haz cálculos cuando te pregunten por costos, totales o proyecciones. Responde solo el resultado numérico.
+REGLA ABSOLUTA: Solo respondes a preguntas sobre BEDCOM. CUALQUIER OTRO TEMA responde EXACTAMENTE: "No puedo responder a eso, solo soy un asistente de la base de datos de BEDCOM. ¿En qué puedo ayudarte con el inventario o los módulos del sistema?"
+
+Eres Luna, asistente virtual de BEDCOM. Responde SIEMPRE en texto natural, bien redactado y organizado. Usa párrafos cortos y claros.
+Cuando enumeres varios elementos usa viñetas con texto completo y descriptivo.
+NUNCA uses formato de "campo: valor". En su lugar escribe oraciones completas como "tiene 5 unidades en stock", "su precio es 5000 pesos", "el teléfono es 300 123 45 67".
+NUNCA muestres "True" o "False" — escribe "sí" o "no", "especial" o "normal".
+Si preguntan solo por una cantidad responde únicamente el número.
 DATOS ACTUALES:\n{datos_reales}
-Responde de forma concisa:"""
+Responde de forma concisa pero natural:"""
 
         mensajes_finales = [{'role': 'system', 'content': contexto_sistema}]
         if historial:
             mensajes_finales.extend(historial)
         mensajes_finales.append({'role': 'user', 'content': pregunta_usuario})
 
-        response = ollama.chat(model='llama3', messages=mensajes_finales, options={'temperature': 1})
+        response = ollama.chat(model='llama3', messages=mensajes_finales, options={'temperature': 0.3})
         respuesta_texto = response['message']['content']
         texto_para_audio = normalize_numbers_for_tts(limpiar_texto_para_tts(respuesta_texto))
 

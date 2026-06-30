@@ -44,6 +44,7 @@ class MantenimientoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['titulo_pagina'] = 'MANTENIMIENTOS'
         # Pedidos disponibles para asociar a un mantenimiento
         ctx['pedidos'] = (pedido.objects
                           .filter(estado__in=['Despachado', 'Completado'])

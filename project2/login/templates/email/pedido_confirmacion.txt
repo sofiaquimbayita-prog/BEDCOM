@@ -1,0 +1,14 @@
+Hola {{ nombre }},
+
+&iexcl;Gracias por elegir BEDCOM!
+Tu pedido #{{ pedido_id }} ha sido registrado exitosamente en nuestro sistema.
+
+Detalles del Pedido:
+- Total: ${{ total|floatformat:0 }} COP
+- Abono Inicial: ${{ abono|floatformat:0 }} COP
+- Saldo Pendiente: ${{ saldo|floatformat:0 }} COP
+
+Te notificaremos cuando tu pedido est&eacute; listo para despacho.
+
+Atentamente,
+El equipo de BEDCOM

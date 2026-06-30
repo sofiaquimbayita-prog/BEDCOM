@@ -1,0 +1,211 @@
+{% load static %}
+<div id="modalGuia" class="modal-guia">
+  <div class="modal-overlay" onclick="cerrarModalGuia()"></div>
+  <div class="modal-guia-content">
+    <div class="modal-guia-header">
+      <h2><i class="fas fa-book"></i> Guía de la Aplicación</h2>
+      <button class="modal-guia-close" onclick="cerrarModalGuia()">&times;</button>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">DASHBOARDS</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-house"></i>
+          <div><span>Menú Principal</span><small class="guia-desc">Panel general del sistema</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Panel principal con acceso rápido a todos los módulos del sistema, tarjetas de resumen con indicadores clave y botones de acceso directo a las funcionalidades más usadas.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">GESTIÓN DE INVENTARIO</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-box"></i>
+          <div><span>Productos</span><small class="guia-desc">Catálogo y stock de productos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Administra el catálogo completo de productos: alta, edición, eliminación, control de stock, precios y estado. Cada producto puede tener una receta BOM asociada para calcular automáticamente los insumos necesarios.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-tags"></i>
+          <div><span>Categorías</span><small class="guia-desc">Clasificación de productos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Organiza los productos en categorías para facilitar su búsqueda y clasificación. Permite crear, editar y desactivar categorías según las necesidades del negocio.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-cogs"></i>
+          <div><span>Insumos</span><small class="guia-desc">Materias primas e insumos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Gestiona las materias primas y materiales necesarios para la producción. Controla cantidades mínimas, proveedores asociados y recibe alertas automáticas cuando el stock está por debajo del límite.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-sitemap"></i>
+          <div><span>Gestión de Ensamblaje</span><small class="guia-desc">Lista de materiales por producto</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Define la receta de cada producto indicando qué insumos y qué cantidades se necesitan para fabricarlo. Calcula automáticamente el costo de producción y descuenta insumos al registrar salidas.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">COMPRAS Y PROVEEDORES</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-truck"></i>
+          <div><span>Proveedores</span><small class="guia-desc">Registro de proveedores</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Base de datos de proveedores con información de contacto, tipo de insumos que suministran y estado. Permite asociar cada insumo a uno o varios proveedores para gestionar órdenes de compra.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-shopping-cart"></i>
+          <div><span>Suministros</span><small class="guia-desc">Órdenes de compra a proveedores</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Registra órdenes de compra de insumos a proveedores. Controla cantidades solicitadas, precios, estado de la orden (pendiente, completada, anulada) y actualiza automáticamente el stock de insumos al completarse.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">VENTAS Y CLIENTES</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-users"></i>
+          <div><span>Clientes</span><small class="guia-desc">Base de datos de clientes</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Administra el registro de clientes con datos de contacto, dirección, tipo (normal/especial) e historial de pedidos y pagos. Los clientes especiales pueden acceder a condiciones de pago flexibles.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-shopping-bag"></i>
+          <div><span>Pedidos</span><small class="guia-desc">Gestión de pedidos y pagos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Registra pedidos con múltiples productos, calcula totales automáticamente, gestiona abonos iniciales (mínimo 50%), controla saldos pendientes y cambia estados (Pendiente → Fabricación → Despacho → Completado). Envía correo de confirmación al cliente.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-shipping-fast"></i>
+          <div><span>Despacho</span><small class="guia-desc">Envíos y rutas de entrega</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Gestiona el despacho de pedidos: asigna transportadora, número de guía, costo de envío y teléfono de contacto. Controla estados (pendiente, en ruta, entregado, fallido) y envía notificación al cliente cuando el pedido es despachado.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">OPERACIONES</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-arrow-down"></i>
+          <div><span>Entrada Productos</span><small class="guia-desc">Ingreso de productos al inventario</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Registra la entrada de productos terminados al inventario. Selecciona el producto, ingresa la cantidad y el sistema actualiza automáticamente el stock disponible.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-arrow-up"></i>
+          <div><span>Salida Productos</span><small class="guia-desc">Salida de productos del inventario</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Registra la salida de productos del inventario, ya sea por venta directa, producción interna o ajustes. Si el producto tiene BOM asociado, descuenta automáticamente los insumos de la receta.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">REPORTES Y GESTIÓN</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-chart-bar"></i>
+          <div><span>Reportes</span><small class="guia-desc">Estadísticas y gráficos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Dashboard con indicadores clave de negocio: ventas totales, ganancia neta, margen de ganancia, producto más vendido y alertas de stock crítico. Incluye dos gráficos interactivos (distribución de ventas y evolución mensual) y exportación a PDF/Excel de más de 10 tipos de reportes.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-save"></i>
+          <div><span>Respaldos</span><small class="guia-desc">Copia de seguridad de datos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Sistema de copias de seguridad de la base de datos. Permite generar respaldos manuales con un clic, descargar archivos .sql, restaurar la base desde un respaldo anterior y ver el historial completo con estado, fecha y usuario que lo generó.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">MANTENIMIENTO</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-tools"></i>
+          <div><span>Mantenimientos</span><small class="guia-desc">Registro de mantenimiento de equipos</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Registra y controla el mantenimiento de equipos y maquinaria. Permite programar mantenimientos preventivos, registrar mantenimientos correctivos con costo y proveedor, y consultar el historial completo por equipo.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-calendar"></i>
+          <div><span>Calendario</span><small class="guia-desc">Agenda y eventos programados</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Agenda visual con calendario interactivo (FullCalendar) para programar y visualizar eventos importantes: fechas de entrega de pedidos, mantenimientos programados, reuniones y cualquier evento relevante del negocio.</div>
+      </div>
+    </div>
+
+    <div class="guia-grupo">
+      <div class="guia-grupo-titulo">HERRAMIENTAS</div>
+      <div class="guia-grid">
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-brain"></i>
+          <div><span>Luna (IA)</span><small class="guia-desc">Asistente virtual inteligente</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Asistente con inteligencia artificial (LLaMA 3) que responde preguntas sobre los datos del sistema en lenguaje natural. Soporta entrada por voz, respuestas habladas con voz colombiana y consulta en tiempo real productos, clientes, pedidos, inventario y más.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-universal-access"></i>
+          <div><span>Accesibilidad</span><small class="guia-desc">Opciones de visualización</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Panel de opciones de accesibilidad: ajusta tamaño de texto (A/A+/A++), activa modo alto contraste, modo claro, escala de grises, fuente para dislexia, espaciado amplio, lector de texto por selección, resaltar enlaces y reducir animaciones. Todo se guarda automáticamente.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-bell"></i>
+          <div><span>Notificaciones</span><small class="guia-desc">Alertas y avisos del sistema</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Sistema inteligente de alertas que monitorea stock bajo, eventos del calendario, despachos pendientes, productos sin BOM y pagos pendientes. Las notificaciones se generan y resuelven automáticamente cuando la causa se soluciona.</div>
+
+        <div class="guia-item" onclick="toggleGuiaDetalle(this)">
+          <i class="fa-solid fa-user-circle"></i>
+          <div><span>Mi Perfil</span><small class="guia-desc">Configuración de cuenta</small></div>
+          <i class="fas fa-chevron-down guia-arrow"></i>
+        </div>
+        <div class="guia-detalle">Panel de configuración personal donde puedes actualizar tus datos: nombre, correo electrónico, teléfono, foto de perfil y contraseña. Los cambios se aplican inmediatamente al guardar.</div>
+      </div>
+    </div>
+
+    <div class="guia-footer">
+      <a href="{% static 'ap1/docs/Manual_Usuario_BEDCOM_grupo_6.pdf' %}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:#1e3a5f;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:12px;transition:background 0.2s;" onmouseover="this.style.background='#15294a'" onmouseout="this.style.background='#1e3a5f'">
+        <i class="fas fa-file-pdf" style="color:#ef4444;font-size:16px;"></i> Descargar Manual de Usuario
+      </a>
+      <p>BEDCOM <span class="guia-version">v2.0</span> &mdash; Sistema de Gestión Empresarial</p>
+      <p style="color:#4b5563;font-size:10px;margin-top:6px;">Las imágenes utilizadas son libres de derechos de autor (royalty-free).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleGuiaDetalle(item) {
+  var detalle = item.nextElementSibling;
+  var arrow = item.querySelector('.guia-arrow');
+  if (detalle && detalle.classList.contains('guia-detalle')) {
+    var isOpen = detalle.classList.contains('open');
+    detalle.classList.toggle('open');
+    item.classList.toggle('active');
+    if (arrow) arrow.classList.toggle('rotated');
+  }
+}
+</script>

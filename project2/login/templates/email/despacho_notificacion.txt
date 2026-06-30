@@ -1,0 +1,14 @@
+Hola {{ nombre }},
+
+&iexcl;Tenemos buenas noticias! Tu pedido #{{ pedido_id }} ha sido despachado y est&aacute; en camino.
+
+Detalles del Despacho:
+- Despacho #{{ despacho_id }}
+- Transportadora: {{ transportadora|default:"Entrega Directa" }}
+- N&uacute;mero de Gu&iacute;a: {{ guia|default:"N/A" }}
+- Fecha de Despacho: {{ fecha }}
+
+&iexcl;Esperamos que disfrutes tus productos!
+
+Atentamente,
+El equipo de BEDCOM

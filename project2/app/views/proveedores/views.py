@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from ...models import proveedor
+from ...models import proveedor, insumo
 from ...forms import ProveedorForm
 
 
@@ -178,6 +178,41 @@ class ProveedorDataView(View):
                 'total': proveedor.objects.count(),
                 'activos': proveedor.objects.filter(estado=True).count(),
                 'inactivos': proveedor.objects.filter(estado=False).count()
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProveedorDetailView(View):
+    def get(self, request, pk):
+        try:
+            p = get_object_or_404(proveedor, pk=pk)
+            insumos_qs = insumo.objects.filter(id_proveedor=p).select_related('id_categoria')
+            insumos_data = [{
+                'id': i.id,
+                'nombre': i.nombre,
+                'descripcion': i.descripcion or '',
+                'cantidad': i.cantidad,
+                'unidad_medida': i.unidad_medida,
+                'precio': str(i.precio),
+                'estado': i.estado,
+                'categoria': i.id_categoria.nombre if i.id_categoria else '',
+            } for i in insumos_qs]
+
+            return JsonResponse({
+                'success': True,
+                'proveedor': {
+                    'id': p.id,
+                    'nombre': p.nombre,
+                    'telefono': p.telefono,
+                    'direccion': p.direccion,
+                    'descripcion': p.descripcion,
+                    'imagen': p.imagen.url if p.imagen else None,
+                    'estado': p.estado,
+                },
+                'insumos': insumos_data,
+                'total_insumos': len(insumos_data),
             })
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)

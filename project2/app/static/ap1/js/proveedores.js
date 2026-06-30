@@ -289,24 +289,41 @@ function actualizarTabla() {
 // ver proveedor
 function verProveedor(id) {
     $.ajax({
-        url: '/vistas/proveedores/data/',
+        url: '/vistas/proveedores/detalle/' + id + '/',
         type: 'GET',
-        data: { incluir_inactivos: true },
         dataType: 'json',
         success: function(response) {
-            var proveedor = response.proveedores.find(function(p) { return p.id === id; });
-            if (proveedor) {
-                document.getElementById('viewNombre').textContent = proveedor.nombre || '';
-                document.getElementById('viewTelefono').textContent = proveedor.telefono || '';
-                document.getElementById('viewDireccion').textContent = proveedor.direccion || '';
-                document.getElementById('viewDescripcion').textContent = proveedor.descripcion || 'No especificada';
-                
-                var imagenSrc = proveedor.imagen ? proveedor.imagen : '/static/ap1/imagenes/foto_usuario.png';
-                document.getElementById('viewImagen').src = imagenSrc;
-                
-                abrirModal('modalView');
-
+            if (!response.success) {
+                window.showToast(response.message || 'Error al cargar proveedor', 'error');
+                return;
             }
+            var p = response.proveedor;
+            document.getElementById('viewNombre').textContent = p.nombre || '';
+            document.getElementById('viewTelefono').textContent = p.telefono || '';
+            document.getElementById('viewDireccion').textContent = p.direccion || '';
+            document.getElementById('viewDescripcion').textContent = p.descripcion || 'No especificada';
+            var imagenSrc = p.imagen ? p.imagen : '/static/ap1/imagenes/foto_usuario.png';
+            document.getElementById('viewImagen').src = imagenSrc;
+
+            document.getElementById('totalInsumos').textContent = response.total_insumos;
+            var tbody = document.getElementById('insumosBody');
+            if (response.insumos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-texto-muted);padding:20px;">Este proveedor no tiene insumos registrados</td></tr>';
+            } else {
+                tbody.innerHTML = response.insumos.map(function(i) {
+                    var badge = i.estado === 'Disponible' ? '<span class="badge-estado badge-activo" style="padding:2px 8px;border-radius:4px;">Disponible</span>'
+                        : '<span class="badge-estado badge-inactivo" style="padding:2px 8px;border-radius:4px;">' + i.estado + '</span>';
+                    return '<tr>' +
+                        '<td><strong>' + i.nombre + '</strong>' + (i.descripcion ? '<br><small style="color:var(--color-texto-muted);">' + i.descripcion + '</small>' : '') + '</td>' +
+                        '<td>' + i.categoria + '</td>' +
+                        '<td>' + i.cantidad + '</td>' +
+                        '<td>' + i.unidad_medida + '</td>' +
+                        '<td>$' + parseFloat(i.precio).toLocaleString('es-CO', {minimumFractionDigits:0}) + '</td>' +
+                        '<td>' + badge + '</td>' +
+                        '</tr>';
+                }).join('');
+            }
+            abrirModal('modalView');
         },
         error: function(xhr, status, error) {
             console.error('Error al obtener proveedor:', error);

@@ -147,12 +147,15 @@ $(document).on('change', '.ped-estado-select', async function () {
   }
 });
 
+window.__pedidoVerId = null;
+
 $(document).on('click', '.btn-ver', async function () {
   try {
     const res = await fetch(URL_VER(this.dataset.id));
     const data = await res.json();
     if (!data.ok) { window.showToast(data.error, 'error'); return; }
     const p = data.pedido;
+    window.__pedidoVerId = p.id;
     document.getElementById('verTitulo').textContent = `Pedido #${p.id}`;
     document.getElementById('verInfoCliente').innerHTML = `
       <div class="ver-campo"><span class="ver-label">Cliente</span><span class="ver-valor">${p.cliente_nombre}</span></div>
@@ -646,8 +649,12 @@ if (btnGuardar) {
       if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
       if (data.ok) {
         closeModal('modalForm');
-        window.showToast(data.message);
         recargarTabla();
+        if (!modoEdicion && typeof mostrarModalComprobante === 'function') {
+          mostrarModalComprobante(data.pedido.id, clienteSeleccionado ? clienteSeleccionado.email : null);
+        } else {
+          window.showToast(data.message);
+        }
       } else {
         window.showToast(data.error || 'Error al guardar el pedido', 'error');
       }

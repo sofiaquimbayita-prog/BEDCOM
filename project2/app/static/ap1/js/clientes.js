@@ -19,7 +19,7 @@ $(document).ready(function() {
       language: {
         url: '/static/ap1/js/i18n/es-ES.json'
       },
-      order: [[1, 'asc']],
+      order: [[0, 'asc']],
       columnDefs: [{ orderable: false, targets: -1 }],
       pageLength: 15,
       dom: '<"top"fl<"clear">>rt<"bottom"ip<"clear">>',
@@ -31,12 +31,6 @@ $(document).ready(function() {
         }
       },
       columns: [
-        {
-          data: 'id',
-          render: function(data) {
-            return '<strong style="color:var(--color-acento)">#' + data + '</strong>';
-          }
-        },
         {
           data: 'nombre',
           render: function(data) {

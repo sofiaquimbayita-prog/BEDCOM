@@ -4,7 +4,8 @@ from .views import (
     ProveedorUpdateView,
     ProveedorDeleteView,
     ProveedorActivateView,
-    ProveedorDataView
+    ProveedorDataView,
+    ProveedorDetailView,
 )
 
 # Alias para compatibilidad
@@ -14,5 +15,6 @@ proveedores = type('proveedores', (), {
     'ProveedorUpdateView': ProveedorUpdateView,
     'ProveedorDeleteView': ProveedorDeleteView,
     'ProveedorActivateView': ProveedorActivateView,
-    'ProveedorDataView': ProveedorDataView
+    'ProveedorDataView': ProveedorDataView,
+    'ProveedorDetailView': ProveedorDetailView,
 })

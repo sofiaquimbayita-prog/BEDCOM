@@ -3,11 +3,12 @@ import threading
 from decimal import Decimal
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
 from datetime import datetime
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.conf import settings
 
 def safe_date_str(value):
@@ -20,6 +21,17 @@ def safe_date_str(value):
             return None
     if hasattr(value, 'strftime'):
         return value.strftime('%Y-%m-%d')
+    return str(value)
+
+def _estado_class(estado):
+    mapping = {
+        'Pendiente': 'pendiente',
+        'En Fabricación': 'fabricacion',
+        'Listo para Despacho': 'despacho',
+        'Completado': 'completado',
+        'Anulado': 'anulado',
+    }
+    return mapping.get(estado, 'pendiente')
     return str(value)
 
 from ...models import pedido, detalle_pedido, producto, cliente, pago, Notificacion, usuario
@@ -102,6 +114,7 @@ class PedidoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['titulo_pagina'] = 'PEDIDOS'
 
         # Flag para el switch en la plantilla
         ctx['mostrar_anulados'] = self.request.GET.get('anulados') == '1'
@@ -109,7 +122,7 @@ class PedidoListView(ListView):
         # Serialize clients to JSON
         clientes_qs = cliente.objects.filter(estado=True).order_by('nombre')
         ctx['clientes'] = clientes_qs
-        clientes_list = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono, 'direccion': c.direccion, 'es_especial': c.es_especial} for c in clientes_qs]
+        clientes_list = [{'id': c.id, 'nombre': c.nombre, 'telefono': c.telefono, 'direccion': c.direccion, 'email': c.email, 'es_especial': c.es_especial} for c in clientes_qs]
         ctx['clientes_json'] = clientes_list
 
         # Serialize products to JSON
@@ -220,24 +233,17 @@ class PedidoCreateView(View):
             if cli.email:
                 def send_pedido_email(pedido_id, c_nombre, c_email, p_total, p_abono, p_saldo):
                     try:
-                        mensaje = (
-                            f"Hola {c_nombre},\n\n"
-                            f"¡Gracias por elegir BEDCOM!\n"
-                            f"Tu pedido #{pedido_id} ha sido registrado exitosamente en nuestro sistema.\n\n"
-                            f"Detalles del Pedido:\n"
-                            f"- Total: ${p_total:,.0f} COP\n"
-                            f"- Abono Inicial: ${p_abono:,.0f} COP\n"
-                            f"- Saldo Pendiente: ${p_saldo:,.0f} COP\n\n"
-                            f"Te notificaremos cuando tu pedido esté listo para despacho.\n\n"
-                            f"Atentamente,\nEl equipo de BEDCOM"
-                        )
-                        send_mail(
+                        ctx = {'pedido_id': pedido_id, 'nombre': c_nombre, 'total': p_total, 'abono': p_abono, 'saldo': p_saldo}
+                        html = render_to_string('email/pedido_confirmacion.html', ctx)
+                        txt = render_to_string('email/pedido_confirmacion.txt', ctx)
+                        msg = EmailMultiAlternatives(
                             subject=f'Confirmación de Pedido #{pedido_id} - BEDCOM',
-                            message=mensaje,
+                            body=txt,
                             from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[c_email],
-                            fail_silently=True
+                            to=[c_email],
                         )
+                        msg.attach_alternative(html, 'text/html')
+                        msg.send(fail_silently=True)
                     except Exception as e:
                         print("Error enviando correo de pedido:", e)
                 
@@ -524,3 +530,57 @@ def validar_pedido(items, abono, total):
         errores.append("No se puede repetir productos")
 
     return errores
+
+
+# ─────────────────────────────────────────────
+# COMPROBANTE PDF
+# ─────────────────────────────────────────────
+from weasyprint import HTML
+from pathlib import Path
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+class PedidoComprobanteHTMLView(View):
+    def get(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(pedido.objects.select_related('cliente'), pk=pk)
+        detalles = obj.detalles.select_related('producto').all()
+        return render(request, 'pedido/comprobante_pedido.html', {'pedido': obj, 'detalles': detalles, 'estado_class': _estado_class(obj.estado)})
+
+class PedidoComprobantePDFView(View):
+    def get(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(pedido.objects.select_related('cliente'), pk=pk)
+        detalles = obj.detalles.select_related('producto').all()
+        html_string = render_to_string('pedido/comprobante_pedido.html', {'pedido': obj, 'detalles': detalles, 'estado_class': _estado_class(obj.estado)})
+        pdf_bytes = HTML(string=html_string, base_url=Path(settings.BASE_DIR).resolve().as_uri()).write_pdf()
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="comprobante_pedido_{obj.id}.pdf"'
+        return response
+
+
+# ─────────────────────────────────────────────
+# ENVIAR COMPROBANTE POR EMAIL
+# ─────────────────────────────────────────────
+class PedidoEnviarComprobanteView(View):
+    def post(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(pedido.objects.select_related('cliente'), pk=pk)
+        if not obj.cliente.email:
+            return JsonResponse({'ok': False, 'error': 'El cliente no tiene correo registrado.'})
+        try:
+            detalles = obj.detalles.select_related('producto').all()
+            html_string = render_to_string('pedido/comprobante_pedido.html', {'pedido': obj, 'detalles': detalles, 'estado_class': _estado_class(obj.estado)})
+            pdf_bytes = HTML(string=html_string, base_url=Path(settings.BASE_DIR).resolve().as_uri()).write_pdf()
+            ctx = {'pedido_id': obj.id, 'nombre': obj.cliente.nombre, 'total': obj.total, 'abono': obj.abono, 'saldo': obj.saldo_pendiente}
+            html = render_to_string('email/pedido_confirmacion.html', ctx)
+            txt = render_to_string('email/pedido_confirmacion.txt', ctx)
+            msg = EmailMultiAlternatives(
+                subject=f'Comprobante de Pedido #{obj.id} - BEDCOM',
+                body=txt,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[obj.cliente.email],
+            )
+            msg.attach_alternative(html, 'text/html')
+            msg.attach(f'comprobante_pedido_{obj.id}.pdf', pdf_bytes, 'application/pdf')
+            msg.send(fail_silently=True)
+            return JsonResponse({'ok': True, 'message': 'Comprobante enviado al correo del cliente.'})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)})

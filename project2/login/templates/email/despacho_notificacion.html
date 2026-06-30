@@ -1,0 +1,38 @@
+{% extends "email/email_base.html" %}
+{% block content %}
+<h2 style="color:#1e3a5f;font-size:22px;margin:0 0 20px 0;">&#128666; &iexcl;Pedido Despachado!</h2>
+<p style="color:#374151;font-size:15px;line-height:1.6;margin:0 0 15px 0;">Hola <strong>{{ nombre }}</strong>,</p>
+<p style="color:#374151;font-size:15px;line-height:1.6;margin:0 0 20px 0;">
+  &iexcl;Tenemos buenas noticias! Tu pedido <strong style="color:#1e3a5f;">#{{ pedido_id }}</strong> ha sido despachado y est&aacute; en camino.
+</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background-color:#f9fafb;border-radius:8px;margin:0 0 20px 0;">
+  <tr>
+    <td style="padding:20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+        <tr>
+          <td style="padding:5px 0;color:#6b7280;font-size:14px;">Despacho:</td>
+          <td style="padding:5px 0;text-align:right;color:#1e3a5f;font-size:14px;font-weight:600;">#{{ despacho_id }}</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#6b7280;font-size:14px;">Transportadora:</td>
+          <td style="padding:5px 0;text-align:right;color:#374151;font-size:14px;">{{ transportadora|default:"Entrega Directa" }}</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#6b7280;font-size:14px;">N&uacute;mero de Gu&iacute;a:</td>
+          <td style="padding:5px 0;text-align:right;color:#374151;font-size:14px;font-weight:600;">{{ guia|default:"N/A" }}</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#6b7280;font-size:14px;border-top:1px solid #e5e7eb;">Fecha de Despacho:</td>
+          <td style="padding:5px 0;text-align:right;color:#374151;font-size:14px;border-top:1px solid #e5e7eb;">{{ fecha }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 15px 0;">&iexcl;Esperamos que disfrutes tus productos!</p>
+<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;">
+<p style="color:#374151;font-size:14px;line-height:1.6;margin:0;">
+  Atentamente,<br>
+  <strong style="color:#1e3a5f;">El equipo de BEDCOM</strong>
+</p>
+{% endblock %}

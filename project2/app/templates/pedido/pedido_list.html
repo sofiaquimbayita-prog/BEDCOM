@@ -92,9 +92,9 @@
 
     <div class="form-botones">
       <button type="button" class="btn-cancelar" data-close="modalVer">Cerrar</button>
-      <button type="button" class="btn-guardar" onclick="window.print()"
+      <button type="button" class="btn-guardar" onclick="imprimirComprobante()"
         style="background:var(--color-ver);color:#fff;">
-        <i class="fas fa-print"></i> Imprimir
+        <i class="fas fa-print"></i> Imprimir Comprobante
       </button>
     </div>
   </div>
@@ -253,6 +253,25 @@
   </div>
 </div>
 
+<!-- MODAL COMPROBANTE -->
+<div id="modalComprobante" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10020;align-items:center;justify-content:center;">
+  <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);" onclick="cerrarModalComprobante()"></div>
+  <div style="position:relative;z-index:5;background:#0f1623;border:1px solid #1b2537;border-radius:16px;padding:30px;max-width:420px;width:100%;text-align:center;">
+    <div style="font-size:48px;color:#22c55e;margin-bottom:10px;">&#10003;</div>
+    <h2 style="color:#e9eef7;margin:0 0 6px;font-size:20px;" id="compMsg">Pedido creado con éxito</h2>
+    <p style="color:#a9b3c7;margin:0 0 20px;font-size:13px;">¿Qué deseas hacer con el comprobante?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="descargarComprobante()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+        <i class="fas fa-file-pdf" style="color:#ef4444;"></i> Descargar comprobante PDF
+      </button>
+      <button id="btnEnviarComprobante" onclick="enviarComprobante()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#1b2537;color:#e9eef7;border:1px solid #334155;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;">
+        <i class="fas fa-envelope" style="color:#38bdf8;"></i> Enviar al correo del cliente
+      </button>
+      <button onclick="cerrarModalComprobante()" style="padding:10px;background:transparent;color:#6b7280;border:none;border-radius:8px;font-size:13px;cursor:pointer;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -270,4 +289,69 @@
 
 <script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/pedido.js' %}"></script>
+<script>
+let ultimoPedidoId = null;
+let ultimoClienteEmail = null;
+
+window.mostrarModalComprobante = function(pedidoId, clienteEmail) {
+  ultimoPedidoId = pedidoId;
+  ultimoClienteEmail = clienteEmail;
+  const btn = document.getElementById('btnEnviarComprobante');
+  if (btn) {
+    btn.style.display = clienteEmail ? 'flex' : 'none';
+  }
+  document.getElementById('modalComprobante').style.display = 'flex';
+};
+
+window.cerrarModalComprobante = function() {
+  document.getElementById('modalComprobante').style.display = 'none';
+};
+
+window.descargarComprobante = function() {
+  if (ultimoPedidoId) {
+    window.open('/vistas/pedido/comprobante/' + ultimoPedidoId + '/pdf/', '_blank');
+  }
+  cerrarModalComprobante();
+};
+
+window.enviarComprobante = function() {
+  if (!ultimoPedidoId) return;
+  const btn = document.getElementById('btnEnviarComprobante');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+  fetch('/vistas/pedido/comprobante/' + ultimoPedidoId + '/enviar/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      window.showToast(data.message, 'success');
+      cerrarModalComprobante();
+    } else {
+      window.showToast(data.error, 'error');
+    }
+  })
+  .catch(() => window.showToast('Error al enviar el correo', 'error'))
+  .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
+};
+
+window.imprimirComprobante = function() {
+  if (window.__pedidoVerId) {
+    window.open('/vistas/pedido/comprobante/' + window.__pedidoVerId + '/html/', '_blank');
+  }
+};
+
+function getCookie(name) {
+  let v = null;
+  if (document.cookie) {
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) v = decodeURIComponent(c.substring(name.length + 1));
+    });
+  }
+  return v;
+}
+</script>
 {% endblock %}

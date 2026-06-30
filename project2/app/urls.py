@@ -115,6 +115,7 @@ urlpatterns = [
     path('proveedores/editar/<int:pk>/', proveedores.ProveedorUpdateView.as_view(), name='proveedores_update'),
     path('proveedores/eliminar/<int:pk>/', proveedores.ProveedorDeleteView.as_view(), name='proveedores_delete'),
     path('proveedores/activar/<int:pk>/', proveedores.ProveedorActivateView.as_view(), name='proveedores_activate'),
+    path('proveedores/detalle/<int:pk>/', proveedores.ProveedorDetailView.as_view(), name='proveedores_detail'),
 
     # --- RESPALDOS ---
     path('respaldos/', respaldos.RespaldoListView.as_view(), name='respaldos_list'),
@@ -162,6 +163,9 @@ urlpatterns = [
     path('pedido/estado/<int:pk>/', pedido.PedidoStateChangeView.as_view(), name='cambiar_estado'),
     path('pedido/editar/<int:pk>/', pedido.PedidoUpdateView.as_view(), name='editar_pedido'),
     path('pedido/pago/<int:pk>/', pedido.PagoUpdateView.as_view(), name='pedido_pago'),
+    path('pedido/comprobante/<int:pk>/pdf/', pedido.PedidoComprobantePDFView.as_view(), name='pedido_comprobante_pdf'),
+    path('pedido/comprobante/<int:pk>/html/', pedido.PedidoComprobanteHTMLView.as_view(), name='pedido_comprobante_html'),
+    path('pedido/comprobante/<int:pk>/enviar/', pedido.PedidoEnviarComprobanteView.as_view(), name='pedido_comprobante_enviar'),
 
     # --- DESPACHO ---
     path('despacho/', despacho.DespachoListView.as_view(), name='despacho_list'),

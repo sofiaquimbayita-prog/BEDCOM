@@ -8,7 +8,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.utils import timezone
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
@@ -113,6 +114,7 @@ class DespachoListView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['titulo_pagina'] = 'DESPACHOS'
         ped_disp = pedido.objects.filter(
             estado__in=['Pendiente', 'En Fabricación', 'Listo para Despacho'], despacho__isnull=True
         ).select_related('cliente')
@@ -216,24 +218,17 @@ class DespachoCreateView(View):
                 if getattr(pedido_obj.cliente, 'email', None):
                     def send_despacho_email(desp_id, ped_id, c_nombre, c_email, transportadora, guia, fecha):
                         try:
-                            mensaje = (
-                                f"Hola {c_nombre},\n\n"
-                                f"¡Tenemos buenas noticias! Tu pedido #{ped_id} ha sido despachado y está en camino.\n\n"
-                                f"Detalles del Despacho:\n"
-                                f"- Despacho #{desp_id}\n"
-                                f"- Transportadora: {transportadora or 'Entrega Directa'}\n"
-                                f"- Número de Guía: {guia or 'N/A'}\n"
-                                f"- Fecha de Despacho: {fecha.strftime('%d/%m/%Y %H:%M')}\n\n"
-                                f"¡Esperamos que disfrutes tus productos!\n\n"
-                                f"Atentamente,\nEl equipo de BEDCOM"
-                            )
-                            send_mail(
+                            ctx = {'despacho_id': desp_id, 'pedido_id': ped_id, 'nombre': c_nombre, 'transportadora': transportadora, 'guia': guia, 'fecha': fecha.strftime('%d/%m/%Y %H:%M')}
+                            html = render_to_string('email/despacho_notificacion.html', ctx)
+                            txt = render_to_string('email/despacho_notificacion.txt', ctx)
+                            msg = EmailMultiAlternatives(
                                 subject=f'Tu pedido #{ped_id} ha sido despachado - BEDCOM',
-                                message=mensaje,
+                                body=txt,
                                 from_email=settings.DEFAULT_FROM_EMAIL,
-                                recipient_list=[c_email],
-                                fail_silently=True
+                                to=[c_email],
                             )
+                            msg.attach_alternative(html, 'text/html')
+                            msg.send(fail_silently=True)
                         except Exception as e:
                             print("Error enviando correo de despacho:", e)
                     

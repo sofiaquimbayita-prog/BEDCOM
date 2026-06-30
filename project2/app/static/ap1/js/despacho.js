@@ -46,14 +46,13 @@ $(document).ready(function () {
     },
     pageLength: 25,
     order: [[0, 'desc']],
-    columnDefs: [{ orderable: false, targets: [6, 7] }],
+    columnDefs: [{ orderable: false, targets: [-2, -1] }],
     ajax: {
       url: URL_DESPACHOS_DATA,
       type: 'GET',
       dataSrc: function (json) { return json.despachos || []; }
     },
     columns: [
-      { data: 'id', render: function (d) { return '<strong style="color:var(--color-acento)">#' + d + '</strong>'; } },
       { data: 'pedido_id', render: function (d) { return '<strong>Pedido #' + d + '</strong>'; } },
       { data: 'cliente_nombre' },
       { data: 'direccion_entrega', render: function (d) { return '<span title="' + d + '">' + (d.length > 30 ? d.slice(0, 30) + '...' : d) + '</span>'; } },

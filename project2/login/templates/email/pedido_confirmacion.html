@@ -1,0 +1,35 @@
+{% extends "email/email_base.html" %}
+{% block content %}
+<h2 style="color:#1e3a5f;font-size:22px;margin:0 0 20px 0;">&#10003; Pedido Confirmado</h2>
+<p style="color:#374151;font-size:15px;line-height:1.6;margin:0 0 15px 0;">Hola <strong>{{ nombre }}</strong>,</p>
+<p style="color:#374151;font-size:15px;line-height:1.6;margin:0 0 15px 0;">
+  &iexcl;Gracias por elegir <strong>BEDCOM</strong>!<br>
+  Tu pedido <strong style="color:#1e3a5f;">#{{ pedido_id }}</strong> ha sido registrado exitosamente en nuestro sistema.
+</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;background-color:#f9fafb;border-radius:8px;margin:0 0 20px 0;">
+  <tr>
+    <td style="padding:20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;">
+        <tr>
+          <td style="padding:6px 0;color:#6b7280;font-size:14px;">Total:</td>
+          <td style="padding:6px 0;text-align:right;color:#1e3a5f;font-size:18px;font-weight:700;">${{ total|floatformat:0 }} COP</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#6b7280;font-size:14px;">Abono inicial:</td>
+          <td style="padding:6px 0;text-align:right;color:#10b981;font-size:16px;font-weight:600;">${{ abono|floatformat:0 }} COP</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#6b7280;font-size:14px;border-top:1px solid #e5e7eb;">Saldo pendiente:</td>
+          <td style="padding:6px 0;text-align:right;color:#ef4444;font-size:16px;font-weight:600;border-top:1px solid #e5e7eb;">${{ saldo|floatformat:0 }} COP</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 20px 0;">Te notificaremos cuando tu pedido est&eacute; listo para despacho.</p>
+<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;">
+<p style="color:#374151;font-size:14px;line-height:1.6;margin:0;">
+  Atentamente,<br>
+  <strong style="color:#1e3a5f;">El equipo de BEDCOM</strong>
+</p>
+{% endblock %}

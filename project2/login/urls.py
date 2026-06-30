@@ -12,7 +12,13 @@ path('logout/', views.CustomLogoutView.as_view(), name='logout'),
 path('crear-cuenta/', views.RegistroUsuarioView.as_view(), name='registro_usuario'),
 
 # --- RUTAS DE RECUPERACIÓN  ---
-path('recuperar-contrasena/', auth_views.PasswordResetView.as_view(template_name="registration/recuperar_contrasena_form.html", success_url=reverse_lazy('login:password_reset_done')), name="password_reset"),
+path('recuperar-contrasena/', auth_views.PasswordResetView.as_view(
+    template_name="registration/recuperar_contrasena_form.html",
+    success_url=reverse_lazy('login:password_reset_done'),
+    email_template_name="registration/password_reset_email.txt",
+    html_email_template_name="registration/password_reset_email.html",
+    subject_template_name="registration/password_reset_subject.txt"
+), name="password_reset"),
 
 path('email-enviado/',auth_views.PasswordResetDoneView.as_view(template_name="registration/email_enviado.html"), name="password_reset_done"),
 

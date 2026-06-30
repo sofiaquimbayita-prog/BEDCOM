@@ -210,7 +210,9 @@ window.enviarConsultaIA = function() {
             chatContainer.appendChild(errorMsg);
         } else {
             const respuesta = data.respuesta || 'No pude procesar tu pregunta.';
-            const htmlRespuesta = typeof marked !== 'undefined' ? marked.parse(respuesta) : respuesta;
+            const htmlRespuesta = respuesta
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
             
             // Append response SAFELY
             const lunaMsg = document.createElement('div');

@@ -134,6 +134,153 @@
         }
         body.modal-open { overflow: hidden; }
 
+        /* --- GUÍA DE LA APP --- */
+        .modal-guia {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10015 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-guia.show { display: flex; }
+        .modal-guia-content {
+            position: relative; z-index: 5;
+            background: #0f1623;
+            border: 1px solid #1b2537;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-guia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1b2537;
+        }
+        .modal-guia-header h2 {
+            color: #e9eef7;
+            font-size: 22px;
+            margin: 0;
+        }
+        .modal-guia-header h2 i {
+            color: #6c5ce7;
+            margin-right: 10px;
+        }
+        .modal-guia-close {
+            background: none;
+            border: none;
+            color: #a9b3c7;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+        .modal-guia-close:hover { color: #6c5ce7; }
+        .guia-grupo {
+            margin-bottom: 20px;
+        }
+        .guia-grupo-titulo {
+            color: #6c5ce7;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #1b2537;
+        }
+        .guia-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+        }
+        .guia-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #1b2537cc;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .guia-item:hover { background: #374b72cc; }
+        .guia-item i {
+            width: 20px;
+            text-align: center;
+            color: #6c5ce7;
+            font-size: 14px;
+        }
+        .guia-item span {
+            color: #e9eef7;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .guia-desc {
+            color: #a9b3c7;
+            font-size: 11px;
+            display: block;
+            margin-top: 2px;
+        }
+        .guia-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #1b2537;
+            text-align: center;
+        }
+        .guia-footer p {
+            color: #a9b3c7;
+            font-size: 12px;
+            margin: 0;
+        }
+        .guia-footer .guia-version {
+            color: #6c5ce7;
+            font-weight: 600;
+        }
+        .guia-item {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .guia-item.active {
+            background: #374b72cc;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .guia-arrow {
+            margin-left: auto;
+            font-size: 11px;
+            color: #a9b3c7;
+            transition: transform 0.2s;
+        }
+        .guia-arrow.rotated {
+            transform: rotate(180deg);
+            color: #6c5ce7;
+        }
+        .guia-detalle {
+            display: none;
+            grid-column: 1 / -1;
+            padding: 12px 14px;
+            margin-top: -8px;
+            margin-bottom: 0;
+            background: #0f1623;
+            border: 1px solid #1b2537;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #a9b3c7;
+        }
+        .guia-detalle.open {
+            display: block;
+        }
+
         /* ═══════════════════════════════════════════════════════
            ESTILOS GLOBALES DE RESPONSIVIDAD (OVERRIDE)
            ═══════════════════════════════════════════════════════ */
@@ -337,6 +484,7 @@
     {% block header %}
         {% include 'includes/header.html' %} 
         {% include 'includes/modal_perfil.html' %}
+        {% include 'includes/modal_guia.html' %}
     {% endblock %}
     {% block extra_header %}{% endblock %}
 
@@ -390,6 +538,7 @@
         </div>
         <nav class="sidebar-nav">
             <a href="javascript:void(0)" class="sidebar-menu-item" onclick="abrirModalMiPerfil()"><i class="fas fa-user-circle"></i><span>Mi Perfil</span></a>
+            <a href="javascript:void(0)" onclick="abrirModalGuia()" class="sidebar-menu-item"><i class="fas fa-book"></i><span>Guía de la App</span></a>
             <a href="javascript:void(0)" onclick="abrirModalLogout()" class="sidebar-menu-item logout-item"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
         </nav>
     </div>
@@ -482,7 +631,7 @@
     <!-- FIN WIDGET ACCESIBILIDAD -->
     <!-- BOTÓN LUNA IA -->
     <button class="btn-ia-flotante" onclick="abrirModalIA()" title="Hablar con Luna">
-        <i class="fa-solid fa-robot"></i>
+        <i class="fa-solid fa-brain"></i>
     </button>
 
     <!-- MODAL LUNA IA -->
@@ -692,71 +841,6 @@
             window.cerrarModalMiPerfil();
         });
 
-        // Submit AJAX del formulario de perfil
-        $(document).on('submit', '#formPerfil', function(e) {
-            e.preventDefault();
-            const form = this;
-            const userId = {{ request.user.id|default:'null' }};
-            if (!userId) {
-                window.showToast('Sesión inválida. Inicia sesión nuevamente.', 'error');
-                return;
-            }
-
-            // Validación mínima
-            const requiredInputs = form.querySelectorAll('[required]');
-            for (const inp of requiredInputs) {
-                if (!inp.value || !inp.value.toString().trim()) {
-                    window.showToast('Completa los campos obligatorios', 'error');
-                    return;
-                }
-            }
-
-            // Mapear nombre_usuario -> username (porque el modal usa nombre_usuario)
-            const usernameVal = document.getElementById('perfilNombre')?.value || '';
-            const cedulaVal = document.getElementById('perfilCedula')?.value || '';
-            const emailVal = document.getElementById('perfilEmail')?.value || '';
-            const telefonoVal = document.getElementById('perfilTelefono')?.value || '';
-            const firstNameVal = document.getElementById('perfilFirstName')?.value || '';
-            const lastNameVal = document.getElementById('perfilLastName')?.value || '';
-            const passwordVal = document.getElementById('perfilPassword')?.value || '';
-            const confirmPasswordVal = document.getElementById('perfilConfirmPassword')?.value || '';
-
-            const payload = new FormData(form);
-            payload.set('username', usernameVal);
-            payload.set('cedula', cedulaVal);
-            payload.set('email', emailVal);
-            payload.set('telefono', telefonoVal);
-            payload.set('first_name', firstNameVal);
-            payload.set('last_name', lastNameVal);
-            payload.set('password', passwordVal);
-            payload.set('confirm_password', confirmPasswordVal);
-
-            // Eliminar campos que no corresponden al backend (opcional)
-            payload.delete('nombre_usuario');
-
-            fetch(`/usuarios/editar/${userId}/`, {
-                method: 'POST',
-                body: payload,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                }
-            })
-            .then(r => r.json().catch(() => ({})))
-            .then(data => {
-                if (data.success) {
-                    window.showToast(data.message || 'Perfil actualizado', 'success');
-                    // Refrescar estado rápido
-                    window.abrirModalMiPerfil();
-                    // cerrar después de un momento
-                    setTimeout(() => window.cerrarModalMiPerfil(), 600);
-                } else {
-                    window.showToast(data.message || 'Error al actualizar perfil', 'error');
-                }
-            })
-            .catch(() => window.showToast('Error de conexión al actualizar perfil', 'error'));
-        });
-
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -788,6 +872,15 @@
         window.cerrarModalIA = function() { 
             $('#modalIA').removeClass('show').hide().addClass('oculto'); 
             $('#iaQuery').val('');
+        };
+
+        window.abrirModalGuia = function() {
+            $('#modalGuia').css('display', 'flex').removeClass('oculto').addClass('show');
+            $('body').addClass('modal-open');
+        };
+        window.cerrarModalGuia = function() {
+            $('#modalGuia').removeClass('show').hide().addClass('oculto');
+            $('body').removeClass('modal-open');
         };
         
         // IA functions - dynamic thinking

@@ -6,4 +6,7 @@ from .views import (
     PedidoStateChangeView,
     PagoUpdateView,
     PedidoDataView,
+    PedidoComprobantePDFView,
+    PedidoComprobanteHTMLView,
+    PedidoEnviarComprobanteView,
 )
