@@ -17,7 +17,7 @@ $(document).ready(function() {
   if ($.fn.DataTable) {
     tabla = $('#tablaClientes').DataTable({
       language: {
-        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        url: '/static/ap1/js/i18n/es-ES.json'
       },
       order: [[1, 'asc']],
       columnDefs: [{ orderable: false, targets: -1 }],

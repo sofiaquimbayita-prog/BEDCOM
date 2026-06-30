@@ -257,7 +257,7 @@ $(document).ready(function () {
                 },
             },
         ],
-        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+        language: { url: '/static/ap1/js/i18n/es-ES.json' },
     });
 
     /* ── Toggle Activos / Inactivos ── */

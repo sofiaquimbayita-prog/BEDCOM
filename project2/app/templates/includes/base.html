@@ -6,16 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}BEDCOM{% endblock %}</title> 
 
-    <!-- Tailwind CSS (sin preflight/resets para no romper estilos existentes) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        corePlugins: {
-          preflight: false,
-        }
-      }
-    </script>
-
     <!-- Estilos del Proyecto -->
     <link rel="stylesheet" href="{% static 'ap1/css/menu.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/header-nav.css' %}" />
@@ -23,8 +13,6 @@
     <link rel="stylesheet" href="{% static 'ap1/css/global_messages.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/accesibilidad.css' %}" />
     <link rel="stylesheet" href="{% static 'ap1/css/modal_buttons.css' %}" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ap1/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'ap1/css/select2.min.css' %}">
     <link rel="icon" href="{% static 'ap1/img/icono.png' %}" type="image/x-icon">

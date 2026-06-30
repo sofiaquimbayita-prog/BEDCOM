@@ -63,7 +63,7 @@ $(document).ready(function () {
     return;
   }
   const dt = $('#tablaPedidos').DataTable({
-    language: { url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json' },
+    language: { url: '/static/ap1/js/i18n/Spanish.json' },
     pageLength: 10,
     order: [[0, 'desc']],
     columnDefs: [{ orderable: false, targets: 7 }]

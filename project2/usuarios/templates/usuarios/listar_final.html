@@ -4,7 +4,7 @@
 {% block header_title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'ap1/css/jquery.dataTables.min.css' %}">
 <link rel="stylesheet" href="{% static 'ap1/css/styles_usuarios.css' %}">
 
 <main class="usuarios">
@@ -89,8 +89,8 @@
     {% include "usuarios/modal_activar.html" %}
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'ap1/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'ap1/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'ap1/js/script_usuarios.js' %}"></script>
 
 {% endblock %}
