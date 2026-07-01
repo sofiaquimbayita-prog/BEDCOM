@@ -1,5 +1,6 @@
 from django.views import View
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -222,5 +223,10 @@ class SalidaProductoView(TemplateView):
         context['productos'] = producto.objects.filter(estado=True).order_by('nombre')
         context['usuarios'] = usuario.objects.all()
         context['form'] = SalidaProductoForm()
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Salida de Productos', 'url': None},
+        ]
         return context
 

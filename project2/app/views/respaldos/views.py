@@ -131,6 +131,11 @@ class RespaldoListView(ListView):
         context['icono_modulo'] = "fas fa-database"
         context['respaldos_activos'] = getattr(self, 'context_activos', respaldo.objects.filter(estado=True))
         context['mysql_conectado'] = verificar_db()
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Gestión de Datos', 'url': reverse_lazy('gestion')},
+            {'name': 'Respaldos', 'url': None},
+        ]
         
         return context
     

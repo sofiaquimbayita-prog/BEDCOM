@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
@@ -6,7 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from app.models import usuario
+from app.models import usuario, producto, insumo, categoria, proveedor, cliente, pedido
+from django.db.models import Count
 import json
 
 @method_decorator(login_required, name='dispatch')
@@ -15,6 +17,23 @@ class MenuView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = 'MENÚ PRINCIPAL'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': None},
+        ]
+
+        # Stats for charts
+        context['total_productos'] = producto.objects.filter(estado=True).count()
+        context['total_insumos'] = insumo.objects.filter(estado='Activo').count()
+        context['total_categorias'] = categoria.objects.count()
+        context['total_proveedores'] = proveedor.objects.filter(estado=True).count()
+        context['total_clientes'] = cliente.objects.filter(estado=True).count()
+        context['total_pedidos'] = pedido.objects.count()
+
+        # Productos per category (for doughnut chart)
+        cats = categoria.objects.annotate(num_productos=Count('producto')).values('nombre', 'num_productos')
+        context['cat_labels'] = [c['nombre'] for c in cats if c['num_productos'] > 0]
+        context['cat_data'] = [c['num_productos'] for c in cats if c['num_productos'] > 0]
+
         return context
 
 @login_required

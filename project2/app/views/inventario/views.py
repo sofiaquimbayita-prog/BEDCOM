@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+from django.urls import reverse_lazy
 from ...models import producto, insumo
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -13,5 +14,10 @@ class InventarioListView(ListView):
         # Título para el header
         context['titulo_pagina'] = 'EXISTENCIAS'
         context['icono_modulo'] = 'fas fa-boxes'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Existencias', 'url': None},
+        ]
 
         return context

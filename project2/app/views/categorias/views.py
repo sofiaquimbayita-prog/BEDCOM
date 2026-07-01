@@ -29,6 +29,12 @@ class categoria_list_view(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = 'Gestión de Categorías'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Existencias', 'url': reverse_lazy('inventario')},
+            {'name': 'Categorías', 'url': None},
+        ]
         return context
 
 

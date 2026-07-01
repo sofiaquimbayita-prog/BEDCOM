@@ -19,6 +19,11 @@ class ProveedorListView(ListView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = "Proveedores"
         context['icono_modulo'] = "fas fa-user-tie"
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Proveedores', 'url': None},
+        ]
         return context
 
 

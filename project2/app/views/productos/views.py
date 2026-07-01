@@ -34,6 +34,12 @@ class producto_list_view(ListView):
         # Filtrar solo categorías de tipo producto
         context['categorias'] = categoria.objects.filter(tipo='producto', estado=True)
         context['titulo_pagina'] = 'Gestión de Productos'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Existencias', 'url': reverse_lazy('inventario')},
+            {'name': 'Productos', 'url': None},
+        ]
         
         return context
     

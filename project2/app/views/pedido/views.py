@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse_lazy
 from django.views.generic import ListView, View
 from django.utils import timezone
 from datetime import datetime
@@ -135,6 +136,11 @@ class PedidoListView(ListView):
         ctx['productos_json'] = productos_qs
 
         ctx['today'] = timezone.now().date().isoformat()
+        ctx['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Pedidos', 'url': None},
+        ]
         return ctx
 
 

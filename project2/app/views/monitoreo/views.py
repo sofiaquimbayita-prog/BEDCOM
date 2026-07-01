@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
@@ -55,6 +56,11 @@ class MonitoreoView(TemplateView):
 
         context['alertas_count'] = Notificacion.objects.filter(leida=False).count()
         context['notificaciones'] = Notificacion.objects.filter(leida=False).order_by('-fecha_notificacion')[:10]
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Monitoreo', 'url': None},
+        ]
 
         return context
 

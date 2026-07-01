@@ -3,6 +3,7 @@ Vistas para el módulo de Entrada de Productos
 """
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
+from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -30,6 +31,11 @@ class EntradaListView(LoginRequiredMixin, View):
             'entradas': entradas,
             'productos': productos,
             'titulo_pagina': 'ENTRADA DE PRODUCTOS - BEDCOM',
+            'breadcrumbs': [
+                {'name': 'Inicio', 'url': reverse_lazy('menu')},
+                {'name': 'Logística', 'url': reverse_lazy('logistica')},
+                {'name': 'Entrada de Productos', 'url': None},
+            ],
         }
         return render(request, self.template_name, context)
 
@@ -151,8 +157,6 @@ class EntradaCreateView(View):
                 return JsonResponse({'success': False, 'message': 'Selecciona producto'}, status=400)
             if not cantidad_str or int(cantidad_str) <= 0:
                 return JsonResponse({'success': False, 'message': 'Cantidad > 0'}, status=400)
-            if not precio_str or float(precio_str) <= 0:
-                return JsonResponse({'success': False, 'message': 'Precio > 0'}, status=400)
             
             try:
                 producto_obj = producto.objects.get(id=producto_id, estado=True)

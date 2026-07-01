@@ -134,6 +134,35 @@
         }
         body.modal-open { overflow: hidden; }
 
+        /* --- BREADCRUMB --- */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 15px;
+            color: #a9b3c7;
+            width: 100%;
+            text-transform: uppercase;
+        }
+        .breadcrumb a {
+            color: #51a3d3;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb a:hover {
+            color: #7bc4f0;
+            text-decoration: underline;
+        }
+        .breadcrumb span {
+            color: #e9eef7;
+            font-weight: 600;
+        }
+        .breadcrumb-sep {
+            font-size: 10px;
+            color: #475569;
+        }
+
         /* --- GUÍA DE LA APP --- */
         .modal-guia {
             position: fixed; top: 0; left: 0;

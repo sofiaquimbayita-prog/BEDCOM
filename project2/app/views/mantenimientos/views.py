@@ -3,6 +3,7 @@ import re
 from datetime import date
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import ListView, View
 from django.utils import timezone
 
@@ -58,6 +59,11 @@ class MantenimientoListView(ListView):
         ctx['recibidas']            = qs.filter(estado_reparacion='recibida').count()
         ctx['en_reparacion']        = qs.filter(estado_reparacion='en_reparacion').count()
         ctx['entregadas']           = qs.filter(estado_reparacion='entregada').count()
+        ctx['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Mantenimientos', 'url': None},
+        ]
         return ctx
 
 

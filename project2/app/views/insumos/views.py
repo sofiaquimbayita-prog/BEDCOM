@@ -1,6 +1,7 @@
 import re
 from django.views import View
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from ...models import insumo, categoria, proveedor
@@ -24,6 +25,12 @@ class InsumoListView(TemplateView):
         context['proveedor']  = proveedor.objects.filter(estado=True)
         context['titulo_pagina'] = 'INSUMOS'
         context['icono_modulo'] = 'fas fa-boxes'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Existencias', 'url': reverse_lazy('inventario')},
+            {'name': 'Insumos', 'url': None},
+        ]
         return context
 
 class InsumoDataView(View):

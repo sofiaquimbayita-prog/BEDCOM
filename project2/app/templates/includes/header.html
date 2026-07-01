@@ -23,7 +23,16 @@
 
 
         <div class="title-section">
+            {% if breadcrumbs %}
+            <nav class="breadcrumb">
+                {% for crumb in breadcrumbs %}
+                    {% if crumb.url %}<a href="{{ crumb.url }}">{{ crumb.name }}</a>{% else %}<span>{{ crumb.name }}</span>{% endif %}
+                    {% if not forloop.last %}<i class="fas fa-chevron-right breadcrumb-sep"></i>{% endif %}
+                {% endfor %}
+            </nav>
+            {% else %}
             <h1 class="main-title">{{ titulo_pagina|default:"SISTEMA DE GESTIÓN" }}</h1>
+            {% endif %}
         </div>
 
         <div class="actions-section">

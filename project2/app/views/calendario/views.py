@@ -1,5 +1,6 @@
 from django.views import View
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from datetime import date, datetime
@@ -23,6 +24,11 @@ class CalendarioView(TemplateView):
         context['categorias'] = [
             {'id': choice[0], 'nombre': choice[1], 'color': COLORES_CAT[choice[0]]}
             for choice in calendario.CategoriaCalendario.choices
+        ]
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Calendario', 'url': None},
         ]
         return context
 

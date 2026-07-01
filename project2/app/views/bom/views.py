@@ -63,6 +63,11 @@ class BomListView(ListView):
         context['productos_con_receta'] = list(producto.objects.filter(
             id__in=bom.objects.values_list('producto_id', flat=True).distinct()
         ).values_list('id', flat=True))
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': reverse_lazy('suministros')},
+            {'name': 'Gestión de Ensamble', 'url': None},
+        ]
         
         return context
 

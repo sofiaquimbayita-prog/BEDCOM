@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import Sum, Q, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse_lazy
 from django.views.generic import ListView, View
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
@@ -126,6 +127,11 @@ class DespachoListView(ListView):
         ctx['pendientes']      = despacho.objects.filter(estado='pendiente').count()
         ctx['en_ruta']         = despacho.objects.filter(estado='en_ruta').count()
         ctx['fallidos']        = despacho.objects.filter(estado='fallido').count()
+        ctx['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Despachos', 'url': None},
+        ]
         return ctx
 
 

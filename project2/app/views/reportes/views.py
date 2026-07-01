@@ -3,6 +3,7 @@ import re
 from django.shortcuts import render
 from django.db.models import Sum, F, FloatField, Count
 from django.db.models.functions import ExtractMonth, Cast
+from django.urls import reverse_lazy
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -109,6 +110,11 @@ class ReporteVentasView(View):
             'js_months': json.dumps(list(data_final.keys())),
             'js_sales_values': json.dumps([d['ventas'] for d in data_final.values()]),
             'js_expenses_values': json.dumps([d['gastos'] for d in data_final.values()]),
+            'breadcrumbs': [
+                {'name': 'Inicio', 'url': reverse_lazy('menu')},
+                {'name': 'Gestión de Datos', 'url': reverse_lazy('gestion')},
+                {'name': 'Reportes', 'url': None},
+            ],
         }
 
 

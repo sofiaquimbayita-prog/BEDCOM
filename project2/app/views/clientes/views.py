@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import ListView, View
 
 from ...models import cliente, pedido, pago
@@ -62,6 +63,11 @@ class ClienteListView(ListView):
         ctx['activos']         = cliente.objects.filter(estado=True).count()
         ctx['inactivos']= cliente.objects.filter(estado=False).count()
         ctx['con_deuda']= sum(1 for c in cliente.objects.filter(estado=True) if _calcular_deuda(c) > 0)
+        ctx['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Logística', 'url': reverse_lazy('logistica')},
+            {'name': 'Clientes', 'url': None},
+        ]
         return ctx
 
 

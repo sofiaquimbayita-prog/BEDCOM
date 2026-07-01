@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse, HttpResponse
@@ -43,6 +44,12 @@ class NotificacionesView(TemplateView):
         
         try: context['salida_p_url'] = reverse('salida_producto')
         except: context['salida_p_url'] = '#'
+
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Gestión de Datos', 'url': reverse_lazy('gestion')},
+            {'name': 'Notificaciones', 'url': None},
+        ]
 
         return context
 

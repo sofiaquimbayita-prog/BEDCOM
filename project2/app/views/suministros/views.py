@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+from django.urls import reverse_lazy
 from ...models import producto
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -13,4 +14,8 @@ class SuministrosListView(ListView):
         context = super().get_context_data(**kwargs)
         context['titulo_pagina'] = 'SUMINISTROS'
         context['icono_modulo'] = 'fas fa-shopping-cart'
+        context['breadcrumbs'] = [
+            {'name': 'Inicio', 'url': reverse_lazy('menu')},
+            {'name': 'Suministros', 'url': None},
+        ]
         return context
