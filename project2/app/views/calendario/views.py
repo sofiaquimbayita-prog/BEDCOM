@@ -19,6 +19,7 @@ class CalendarioView(TemplateView):
             'inventario': '#9b59b6',
             'admin': '#34495e'
         }
+        context['titulo_pagina'] = 'CALENDARIO DE EVENTOS'
         context['categorias'] = [
             {'id': choice[0], 'nombre': choice[1], 'color': COLORES_CAT[choice[0]]}
             for choice in calendario.CategoriaCalendario.choices
