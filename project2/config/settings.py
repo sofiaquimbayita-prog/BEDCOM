@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-e9je!_k_o@3bt)xz5@km&er@)#@01^w=o&hg_i(^mox(gqor+g
 # IMPORTANTE: DEBUG = False protege tu código de ojos curiosos
 DEBUG = True
 
-ALLOWED_HOSTS = ['jaunt-ducky-vocation.ngrok-free.dev', 'localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['*']
 
 # --------------------------------------------------------------------------
 # 3. DEFINICIÓN DE APLICACIONES
