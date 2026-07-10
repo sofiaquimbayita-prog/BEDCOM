@@ -9,7 +9,6 @@ _pycache_/
 # Archivos de log
 *.log
 # Archivos de base de datos SQLite
-# *.sqlite3
 # Archivos de migraciones de Django (opcional ignorarlos si los generas en equipo)
 # Puedes dejar estos si deseas compartir las migraciones
 # */migrations/.py
