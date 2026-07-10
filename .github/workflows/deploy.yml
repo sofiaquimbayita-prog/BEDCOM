@@ -23,4 +23,4 @@ jobs:
       - name: ejecutar pruebas
         run: |
           cd project2
-          pytest project2/tests.py --ds=config.settings
+          pytest app/tests.py --ds=config.settings
