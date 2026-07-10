@@ -164,7 +164,7 @@ WEBPUSH_SETTINGS = {
     "VAPID_ADMIN_EMAIL": "porprobar221@gmail.com"
 }
 CSRF_TRUSTED_ORIGINS = [
-    'https://jaunt-ducky-vocation.ngrok-free.dev',
+    'https://bedcom.onrender.com',
 ]
 # --------------------------------------------------------------------------
 # 11. CONFIGURACIÓN LUNA IA (EDGE TTS)
