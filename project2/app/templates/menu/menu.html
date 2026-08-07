@@ -8,31 +8,173 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'ap1/css/proveedores.css' %}">
 <style>
+.menu-layout {
+    display: grid;
+    gap: 24px;
+    align-items: start;
+    justify-content: start;
+}
+.menu-card-group {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.menu-card-link {
+    min-width: auto;
+}
+.menu-card.menu-calendar-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+    max-width: 340px;
+    padding: 22px;
+    background: rgba(34, 47, 68, 0.70);
+    border: 1px solid rgba(132, 146, 170, 0.18);
+    box-shadow: 0 24px 50px rgba(15, 25, 45, 0.30);
+    backdrop-filter: blur(18px);
+}
+.menu-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+}
 .menu-charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 22px;
     margin-bottom: 24px;
+    align-items: stretch;
 }
 .chart-card {
-    background: var(--color-superficie);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: var(--shadow);
+    background: rgba(34, 47, 68, 0.70);
+    border: 1px solid rgba(132, 146, 170, 0.18);
+    box-shadow: 0 24px 50px rgba(15, 25, 45, 0.30);
+    border-radius: 20px;
+    padding: 24px;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+}
+.chart-card:hover {
+    transform: translateY(-3px);
+    background: rgba(41, 55, 82, 0.78);
+    border-color: rgba(132, 146, 170, 0.28);
 }
 .chart-card h3 {
-    font-size: 14px;
-    color: #a9b3c7;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    color: #e2e8f0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 16px;
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.chart-card h3 i {
+    font-size: 1.1rem;
+    color: #7dd3fc;
 }
 .chart-wrapper {
     position: relative;
-    height: 280px;
+    height: 260px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 16px;
+}
+.chart-card canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+.menu-calendar-header h3 {
+    font-size: 1.05rem;
+    margin: 0;
+    color: #f8fafc;
+}
+.menu-calendar-copy {
+    color: #b8c2d1;
+    font-size: 0.92rem;
+    margin-top: 6px;
+}
+.menu-calendar-open {
+    color: #7dd3fc;
+    font-size: 0.9rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+.menu-calendar-open:hover {
+    text-decoration: underline;
+}
+.menu-calendar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.menu-calendar-meta span {
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+    border-radius: 999px;
+}
+#menu-calendar {
+    display: grid;
+    gap: 12px;
+    padding: 0;
+}
+.menu-calendar-title {
+    font-size: 0.96rem;
+    color: #e2e8f0;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+.menu-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+.menu-calendar-dayname,
+.menu-calendar-cell {
+    padding: 10px 7px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.78rem;
+}
+.menu-calendar-dayname {
+    color: #94a3b8;
+    background: rgba(255,255,255,0.05);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.menu-calendar-cell {
+    background: rgba(255,255,255,0.04);
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e2e8f0;
+}
+.menu-calendar-cell.today {
+    background: linear-gradient(180deg, rgba(96,165,250,0.22), rgba(56,189,248,0.08));
+    color: #7dd3fc;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px rgba(125,211,252,0.28);
+}
+.menu-calendar-empty {
+    background: transparent;
+    box-shadow: none;
+    opacity: 0;
+}
+@media (min-width: 1100px) {
+    .menu-layout {
+        grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    }
 }
 </style>
 {% endblock %}
@@ -41,50 +183,61 @@
 
 {% block content %}
 <main class="container menu mx-auto px-4 py-8">
-    <div class="menu-layout grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        
-            <a href="{% url 'suministros' %}" class="menu-card-link w-full">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Suministros">
-                        <div class="image-overlay"></div>
+    <div class="menu-layout max-w-5xl mx-auto">
+            <article class="menu-card menu-calendar-card">
+                <div class="menu-calendar-header">
+                    <div>
+                        <h3><i class="fa-solid fa-calendar-days"></i> Calendario</h3>
+                        <p class="menu-calendar-copy">Agenda del mes actual y día destacado.</p>
                     </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-shopping-cart"></i></div>
-                    <div class="menu-card-content">
-                        <h3>SUMINISTROS Prueba</h3>
-                        <p class="muted">Suministros y compras</p>
-                    </div>
-                </article>
-            </a>
-            <a href="{% url 'logistica' %}" class="menu-card-link w-full">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Logística y Planeación">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-truck"></i></div>
-                    <div class="menu-card-content">
-                        <h3>LOGÍSTICA Y PLANEACIÓN</h3>
-                        <p class="muted">Producción, despachos y programación</p>
-                    </div> 
-                </article>
-            </a>
-           
-            <a href="{% url 'gestion' %}" class="menu-card-link w-full">
-                <article class="menu-card">
-                    <div class="menu-card-image">
-                        
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="menu-icon-badge"><i class="fa-solid fa-database"></i></div>
-                    <div class="menu-card-content">
-                        <h3>GESTIÓN DE DATOS</h3>
-                        <p class="muted">Reportes y Respaldos</p>
-                    </div> 
-                </article>
-            </a>
-        <img src="{% static 'ap1/img/senalogo.png' %}" alt="Módulo Gestión de Datos">
-
+                    <a href="{% url 'calendario' %}" class="menu-calendar-open">Ver calendario completo</a>
+                </div>
+                <div class="menu-calendar-meta" id="menu-calendar-meta"></div>
+                <div class="menu-card-content">
+                    <div id="menu-calendar"></div>
+                </div>
+            </article>
+            <div class="menu-card-group">
+                <a href="{% url 'suministros' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/insumos.png' %}" alt="Módulo Suministros">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fa-solid fa-shopping-cart"></i></div>
+                        <div class="menu-card-content">
+                            <h3>SUMINISTROS Prueba</h3>
+                            <p class="muted">Suministros y compras</p>
+                        </div>
+                    </article>
+                </a>
+                <a href="{% url 'logistica' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/reportes.png' %}" alt="Módulo Logística y Planeación">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fa-solid fa-truck"></i></div>
+                        <div class="menu-card-content">
+                            <h3>LOGÍSTICA Y PLANEACIÓN</h3>
+                            <p class="muted">Producción, despachos y programación</p>
+                        </div> 
+                    </article>
+                </a>
+                <a href="{% url 'gestion' %}" class="menu-card-link">
+                    <article class="menu-card">
+                        <div class="menu-card-image">
+                            <img src="{% static 'ap1/img/gestion.png' %}" alt="Módulo Gestión de Datos">
+                            <div class="image-overlay"></div>
+                        </div>
+                        <div class="menu-icon-badge"><i class="fa-solid fa-database"></i></div>
+                        <div class="menu-card-content">
+                            <h3>GESTIÓN DE DATOS</h3>
+                            <p class="muted">Reportes y Respaldos</p>
+                        </div> 
+                    </article>
+                </a>
+            </div>
     </div>
 
     <div class="max-w-5xl mx-auto mt-12">
@@ -150,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { backgroundColor: 'rgba(15,23,42,0.95)', titleColor: '#e9eef7', bodyColor: '#a9b3c7', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, padding: 12, cornerRadius: 8 }
+                    tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.36)', titleColor: '#e9eef7', bodyColor: '#a9b3c7', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, padding: 12, cornerRadius: 8 }
                 },
                 scales: {
                     y: { beginAtZero: true, ticks: { color: '#a9b3c7', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.06)' } },
@@ -159,6 +312,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    function renderMenuCalendar() {
+        const container = document.getElementById('menu-calendar');
+        const metaContainer = document.getElementById('menu-calendar-meta');
+        if (!container) return;
+
+        const today = new Date();
+        const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const weekdayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const startWeekday = firstDay.getDay();
+
+        if (metaContainer) {
+            metaContainer.innerHTML = `
+                <span>Hoy: ${weekdayNames[today.getDay()]}, ${today.getDate()} ${monthNames[today.getMonth()]}</span>
+                <span>Mes actual</span>
+                <span>${lastDay.getDate()} días</span>
+            `;
+        }
+
+        let html = `<div class="menu-calendar-title">${monthNames[today.getMonth()]} ${today.getFullYear()}</div>`;
+        html += '<div class="menu-calendar-grid">';
+        weekdayNames.forEach(name => html += `<div class="menu-calendar-dayname">${name}</div>`);
+        for (let i = 0; i < startWeekday; i++) {
+            html += '<div class="menu-calendar-cell menu-calendar-empty"></div>';
+        }
+
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const isToday = day === today.getDate();
+            html += `<div class="menu-calendar-cell${isToday ? ' today' : ''}">${day}</div>`;
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    renderMenuCalendar();
 });
 </script>
 {% endblock %}
